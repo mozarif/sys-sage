@@ -19,8 +19,15 @@ install(TARGETS basic_usage gpu-topo-parser custom_attributes larger_topo sys-sa
 install(DIRECTORY example_data DESTINATION bin)
 
 if(CAT_AWARE)
-    add_executable(matmul matmul.cpp)
     set_source_files_properties(matmul.cpp PROPERTIES COMPILE_FLAGS -O3)
+    add_executable(matmul matmul.cpp)
     target_link_libraries(matmul hwloc pqos )
     install(TARGETS matmul DESTINATION bin)
+endif()
+
+if(NVIDIA)
+    set_source_files_properties(gpu_matmul.cu PROPERTIES LANGUAGE CUDA)
+    add_executable(gpu_matmul gpu_matmul.cu)
+    #target_link_libraries(matmul hwloc pqos )
+    install(TARGETS gpu_matmul DESTINATION bin)
 endif()
