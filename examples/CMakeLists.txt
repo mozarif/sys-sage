@@ -25,7 +25,7 @@ if(CAT_AWARE)
     install(TARGETS matmul DESTINATION bin)
 endif()
 
-if(NVIDIA)
+if(CUDA)
     set_source_files_properties(gpu_matmul.cu PROPERTIES LANGUAGE CUDA)
     add_executable(gpu_matmul gpu_matmul.cu)
     #target_link_libraries(matmul hwloc pqos )

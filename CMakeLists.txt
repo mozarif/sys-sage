@@ -37,6 +37,13 @@ install(FILES ${sys-sage_BINARY_DIR}/pkg/sys-sage-config.cmake
 #add_definitions(-DCAT_AWARE )
 option(CAT_AWARE "Build and install functionality regarding Intel L3 CAT" OFF)
 option(BUILD_DATA_SOURCES "Build and install contents of data-sources folder" OFF)
+option(CUDA "xxx" OFF)
+
+if(CUDA)
+    #TMP!!
+    set(CMAKE_CUDA_COMPILER /usr/local/cuda-11.4/bin/nvcc)
+    enable_language(CUDA)
+endif()
 
 if(CAT_AWARE)
     add_definitions(-DCAT_AWARE )
