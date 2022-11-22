@@ -1,5 +1,6 @@
 #include <cuda.h>
 #include <iostream>
+#include <chrono>
 
 
 #define WARP_SIZE 32
@@ -12,6 +13,7 @@ void checkMatrix(float *to_check, float *reference, int n);
 void checkCUDAError(const char *msg);
 __global__ void matrixMultKernel_global(float* Ad, float* Bd, float* Cd, int n, int tile_size);
 __global__ void matrixMultKernel_tiled(float* Ad, float* Bd, float* Cd, int n, int tile_size, int core_tile_size);
+void CPU_matrixMult(float *A, float *B, float *C, int n, int repeats);
 
 void usage(char* argv0)
 {
@@ -20,46 +22,9 @@ void usage(char* argv0)
     std::cerr << "       " << argv0 << " (uses predefined paths which may be incorrect.)" << std::endl;
     return;
 }
+using namespace std::chrono;
 
-
-__global__ void matrixMultKernel_cache2(float* Ad, float* Bd, float* Cd, int n, int tile_size_y, int tiles_per_warp)
-{
-    // __shared__ float Ad_shared[36][160];
-    // __shared__ float Bd_shared[36][160];
-
-    // extern __shared__ char array[];
-    // float *Ad_shared = (float *)array;
-    // float *Bd_shared = blockDim.x * blockDim.y * sizeof(float) + array;
-    //
-    // for(int tile_col_num = blockidx.x ; tile_col_num < num_tiles_col; tile_col_num += oversubscribe)
-    // {
-    //     int tileJ=tile_col_num;
-    //     int tileI=blockIdx.y;
-    //
-    //     int elemJ=threadIdx.x;//cols
-    //     int elemI=threadIdx.y;//rows
-    //
-    //     float resCell = 0;
-    //
-    //     for (int t=0; t<num_tiles_col; t++)
-    //     {
-    //       //j*n = row j + i=column i; A for each column block; B for each row block
-    //       //load the blocks to the memory
-    //       Ad_shared[elemI*tile_size_cols + elemJ] = Ad[(tileI*tile_size_rows+elemI)*n + elemJ + t*tile_size_cols];
-    //       Bd_shared[elemI*tile_size_cols + elemJ] = Bd[tileJ*tile_size_cols + elemJ + elemI*n + t*n*tile_size_rows];
-    //       __syncthreads();
-    //
-    //       for(int k=0; k<tile_size_cols; k++)
-    //       {
-    //          resCell += Ad_shared[elemI*tile_size_cols + k]*Bd_shared[k*tile_size_cols + elemJ];
-    //       }
-    //       __syncthreads();
-    //     }
-    //     Cd[(tileI*tile_size_rows+elemI)*n + tileJ*tile_size_cols+elemJ]=resCell;
-    // }
-}
-
-__global__ void matrixMultKernel_cache(float* Ad, float* Bd, float* Cd, int n, int tile_size_rows, int tile_size_cols, int split_size_rows, int splits_per_tile_cols, int num_tiles_col )
+__global__ void matrixMultKernel_cache(float* Ad, float* Bd, float* Cd, int n, int tile_size_rows, int tile_size_cols, int split_size_rows, int splits_per_tile_cols, int num_tiles_col, int* spinlock )
 {
     extern __shared__ float array[];
     float *Ad_shared = array;
@@ -68,169 +33,106 @@ __global__ void matrixMultKernel_cache(float* Ad, float* Bd, float* Cd, int n, i
     int thread_in_warp = threadIdx.x;
     int warp_id = threadIdx.y;
 
-    float* resArray = new float(split_size_rows * splits_per_tile_cols);
+    float* resArray = (float*)malloc(sizeof(float)*split_size_rows * tile_size_rows);
 
-    // if(warp_id == 0 && thread_in_warp == 0)
-    // {
-    //     printf("starting block %d\n", blockIdx.x);
-    // }
-    if(blockIdx.x != 0)
-    {
-        clock_t start_clock = clock();
-        clock_t clock_offset = 0;
-        while (clock_offset < 100000000)
-        {
-            clock_offset = clock() - start_clock;
-        }
-    }
-// else
-// {
-    if(blockIdx.x * tile_size_rows >= n)
-    {
-        // if(warp_id == 0 && thread_in_warp == 0)
-        //     printf("block %d skipping -- indexes %d and on\n", blockIdx.x, blockIdx.x * tile_size_rows);
+    if(blockIdx.x * tile_size_rows >= n){
+         // if(warp_id == 0 && thread_in_warp == 0)
+         //     printf("!!block %d skipping -- indexes %d and on\n", blockIdx.x, blockIdx.x * tile_size_rows);
         return;
     }
 
-    if(blockIdx.x == 0 && warp_id == 0 && thread_in_warp == 0)
-    {
-        for(int row = 0; row < n; row++ )
-        {
-            for(int col = 0; col < n ; col++)
-            {
-                printf("%d-%d  ", Ad[row*n + col], Bd[row*n + col]);
-            }
-            printf("\n");
-        }
-    }
+    // while (* spinlock < blockIdx.x*10) {
+    // }
 
-    for(int tile_col_num = 0 ; tile_col_num < num_tiles_col; tile_col_num++)
-    {//extra loop to iterate over tiles in a col
+    for(int tile_offset_col = 0 ; tile_offset_col < n; tile_offset_col+=tile_size_rows)
+    {//one loop of this fills tile_size_rows*tile_size_rows matrix
 
-        int tile_col=tile_col_num;//J
-        int tile_row=blockIdx.x;//I
+        int tile_offset_row=blockIdx.x*tile_size_rows;//I
 
-        if(warp_id == 0 && thread_in_warp == 0)
-            printf("block %d --(%d) processing tile col indexes %d to %d\n", blockIdx.x, tile_size_rows * tile_size_cols, tile_col_num * tile_size_cols, (tile_col_num+1) * tile_size_cols -1);
-
-        for(int i = 0; i < split_size_rows * splits_per_tile_cols; i++ )
+        for(int i = 0; i < split_size_rows * tile_size_rows; i++ )
         {
             resArray[i] = 0;
         }
 
-        if(warp_id == 0 && thread_in_warp == 0)
-            printf("block %d --(%d) processing tile col indexes %d to %d\n", blockIdx.x, tile_size_rows * tile_size_cols, tile_col_num * tile_size_cols, (tile_col_num+1) * tile_size_cols -1);
+        int a_num_rows = ((tile_offset_row+tile_size_rows <= n) ? tile_size_rows : n - tile_offset_row);
+        int b_num_cols = ((tile_offset_col + tile_size_rows <= n) ? tile_size_rows : n - tile_offset_col);
 
         for (int t=0; t<num_tiles_col; t++)
         {
-            for(int row = 0; row < split_size_rows; row++ )
-            {
-                int elem_row = warp_id * split_size_rows + row;
-                if(tile_row*tile_size_rows+elem_row >= n) break;
-                for(int split_col = 0; split_col < splits_per_tile_cols ; split_col++)
-                {
-                    int elem_col = split_col*WARP_SIZE + thread_in_warp;
-                    if(tile_col*tile_size_cols+elem_col >= n) break;
-                    Ad_shared[elem_row*tile_size_cols + elem_col] = Ad[(tile_row * tile_size_rows + elem_row)*n + elem_col + t * tile_size_cols];
-                    Bd_shared[elem_row*tile_size_cols + elem_col] = Bd[ tile_col*tile_size_cols + elem_col  + elem_row * n + t * n * tile_size_rows];
-                }
-            }
-            __syncthreads();
-
-
-
-            if(warp_id == 0 && thread_in_warp == 0)
-                printf("block %d tile %d -- filled shared array t %d\n", blockIdx.x, tile_col_num, t);
-
-            if(warp_id == 0 && thread_in_warp == 0)
-            {
-                for(int row = 0; row < tile_size_rows; row++ )
-                {
-                    for(int col = 0; col < 12 ; col++)
-                    {
-                        printf("%d ", Ad_shared[row*tile_size_cols + col]);
-                    }
-                    printf("\n");
-                }
-            }
+            int a_num_cols_b_num_rows = ((tile_size_cols*(t+1) <= n) ? tile_size_cols : n - tile_size_cols*t );
 
             // if(warp_id == 0 && thread_in_warp == 0)
-            // {
-            //     for(int row = 0; row < split_size_rows*4; row++ )
-            //     {
-            //         for(int split_col = 0; split_col < splits_per_tile_cols*tile_size_cols; split_col++)
-            //         {
-            //             printf("%d-%d  ", Ad_shared[row*splits_per_tile_cols*tile_size_cols + split_col], Bd_shared[row*splits_per_tile_cols*tile_size_cols + split_col]);
-            //         }
-            //         printf("\n");
-            //     }
-            // }
-            for(int k=0; k<tile_size_cols; k++)
+            //     printf("2 block %d tile col %d, t %d -- a=%dx%d , b=%dx%d -- A[%d-%d, %d-%d], B[%d-%d, %d-%d]\n", blockIdx.x, tile_offset_col, t, a_num_rows, a_num_cols_b_num_rows, a_num_cols_b_num_rows, b_num_cols,      tile_offset_row, tile_offset_row+a_num_rows, t*tile_size_cols, t*tile_size_cols+a_num_cols_b_num_rows,        t*tile_size_cols, t*tile_size_cols + a_num_cols_b_num_rows,tile_offset_col,tile_offset_col+b_num_cols);
+
+            for(int split_col = 0; split_col < splits_per_tile_cols ; split_col++)
             {
-                // if(warp_id == 0 && thread_in_warp == 0)
-                //     printf("block %d tile %d --k=%d \n", blockIdx.x, tile_col_num, k);
+                int elem_col = split_col*WARP_SIZE + thread_in_warp;
+                if(elem_col >= a_num_cols_b_num_rows) break;
                 for(int row = 0; row < split_size_rows; row++ )
                 {
                     int elem_row = warp_id * split_size_rows + row;
-                    // if(thread_in_warp == 0)
-                    //     printf("block %d tile %d --k=%d -- elem_row=%d \n", blockIdx.x, tile_col_num, k, elem_row);
-                    if(tile_row*tile_size_rows+elem_row >= n) break;
-                    // for(int col = 0; col < tile_size_cols; col++)
-                    // {
-                    //     if(warp_id == 0 && thread_in_warp == 0)
-                    //     {
-                    //         if(tile_col*tile_size_cols+col >= n) break;
-                    //         resArray[row*splits_per_tile_cols + split_col] += Ad_shared[elem_row * tile_size_cols + k] * Bd_shared[k * tile_size_rows + elem_row];
-                    //     }
-                    // }
-
-                    // for(int split_col = 0; split_col < splits_per_tile_cols; split_col++)
-                    // {
-                    //     int elem_col = split_col*WARP_SIZE + thread_in_warp;
-                    //     // if(warp_id == 0 && thread_in_warp == 31)
-                    //     //     printf("block %d tile %d --k=%d -- elem_row=%d  -- elem_col=%d \n", blockIdx.x, tile_col_num, k, elem_row, elem_col);
-                    //     if(tile_col*tile_size_cols+elem_col >= n) break;
-                    //     if(elem_row * tile_size_cols + k >= tile_size_rows * tile_size_cols)
-                    //         printf("!!!!! block %d tile %d (%d)--elem_row %d * tile_size_cols %d + k %d \n", blockIdx.x, tile_col_num, tile_size_rows * tile_size_cols, elem_row, tile_size_cols, k);
-                    //     if(k * tile_size_rows + elem_row >= tile_size_rows * tile_size_cols)
-                    //         printf("!!!!2 block %d tile %d (%d)--k %d * tile_size_rows %d + elem_row %d \n", blockIdx.x, tile_col_num, tile_size_rows * tile_size_cols, k, tile_size_rows, elem_row);
-                    //
-                    //     resArray[row*splits_per_tile_cols + split_col] += Ad_shared[elem_row * tile_size_cols + k] * Bd_shared[k * tile_size_rows + elem_row];
-                    // }
+                    if(elem_row < a_num_rows)
+                        Ad_shared[elem_row*tile_size_cols + elem_col] = Ad[(tile_offset_row + elem_row)*n + t*tile_size_cols + elem_col];
+                    if(elem_row < b_num_cols)
+                        Bd_shared[elem_row*tile_size_cols + elem_col] = Bd[elem_row + tile_offset_col + (t*tile_size_cols + elem_col)*n];
                 }
             }
-            if(warp_id == 0 && thread_in_warp == 0)
-                printf("block %d tile %d -- finished computation number t %d\n", blockIdx.x, tile_col_num, t);
+            __syncthreads();
+
+
+            for(int k=0; k < a_num_rows - split_size_rows*warp_id && k< split_size_rows  ; k++)
+            {
+                for(int l = 0; l<b_num_cols ; l++)
+                {
+                    for(int m = thread_in_warp; m<a_num_cols_b_num_rows; m+=WARP_SIZE)
+                    {
+                        //printf("block %d thread %d tile col %d --temp_res[%d][%d][%d](%f)+=As[%d][%d][%d](%f) * Bs[%d][%d][%d](%f) \n", blockIdx.x,  warp_id*WARP_SIZE+thread_in_warp, tile_offset_col, k,l,k*tile_size_rows + l,resArray[k*tile_size_rows + l], split_size_rows*warp_id + k,m,(split_size_rows*warp_id + k)*tile_size_cols + m,Ad_shared[(split_size_rows*warp_id + k)*tile_size_cols + m], l,m, l * tile_size_cols + m, Bd_shared[l * tile_size_cols + m]);
+                        resArray[k*tile_size_rows + l] += Ad_shared[(split_size_rows*warp_id + k) * tile_size_cols + m] * Bd_shared[l * tile_size_cols + m];
+                        //resArray[k*tile_size_rows + l] += Ad_shared[k*tile_size_cols + m] * Bd_shared[l * tile_size_cols + m];
+                    }
+                }
+            }
             __syncthreads();
 
         }
+
         //fan-in from all threads in one warp that have co-computed the same indexes (one row)
-        for(int i = 0; i< split_size_rows * splits_per_tile_cols; i++)
+        for(int i = 0; i < split_size_rows * tile_size_rows; i++ )
         {
             for (int offset = 16; offset > 0; offset /= 2)
             {
-                resArray[i] += __shfl_down_sync(FULL_MASK, resArray[i], offset);
+                resArray[i] += __shfl_down_sync(FULL_MASK, resArray[i], offset,32);
             }
         }
+        __syncthreads();
+        // for(int row = 0; row < tile_size_rows; row++ )
+        // {
+        //     for(int col = 0; col < split_size_rows ; col++)
+        //     {
+        //         if(resArray[row*split_size_rows + col] != 0 && thread_in_warp==0)
+        //             printf("thread %d [%d,%d] _%.0f \n", warp_id*WARP_SIZE+thread_in_warp, row, col, resArray[row*split_size_rows + col]);
+        //     }
+        // }
 
         if(thread_in_warp == 0)
         {
-            for(int row = 0; row < split_size_rows; row++ )
+            for(int k=0; k < a_num_rows - split_size_rows*warp_id && k< split_size_rows  ; k++)
             {
-                int elem_row = warp_id * split_size_rows + row;
-                if(tile_row*tile_size_rows+elem_row >= n) break;
-                for(int split_col = 0; split_col < splits_per_tile_cols; split_col++)
+                for(int l = 0; l<b_num_cols ; l++)
                 {
-                    int elem_col = split_col*WARP_SIZE + thread_in_warp;
-                    if(tile_col*tile_size_cols+elem_col >= n) break;
-                    Cd[(tile_row * tile_size_rows +elem_row) * n + tile_col * tile_size_cols + elem_col] = resArray[row * splits_per_tile_cols + split_col ];
+                     //printf("6 -----===== block %d thread %d filling index [%d =%d+%d, %d =%d+%d => %d] _%.0f \n ", blockIdx.x,  warp_id*WARP_SIZE+thread_in_warp, tile_offset_row + split_size_rows*warp_id + k, tile_offset_row,tile_offset_row + split_size_rows*warp_id + k, tile_offset_col + l,tile_offset_col,l, (tile_offset_row + split_size_rows*warp_id + k) * n + tile_offset_col + l,  resArray[k*tile_size_rows + l]);
+                     Cd[(tile_offset_row + split_size_rows*warp_id + k) * n + tile_offset_col + l] = resArray[k*tile_size_rows + l];
                 }
             }
-            if(warp_id == 0 && thread_in_warp == 0)
-                printf("block %d finishing tile %d \n", blockIdx.x,tile_col_num);
         }
     }
-// }
+
+    // if(warp_id == 0 && thread_in_warp == 0){
+    //     *spinlock += 10;
+    //     printf("!8!block %d -- finished, spinlock %d!\n", blockIdx.x, *spinlock);
+    // }
+    return;
+
 }
 
 int main(int argc, const char *argv[]) {
@@ -250,6 +152,7 @@ int main(int argc, const char *argv[]) {
     int n = atoi(argv[1]);
     printf("Matrix mult. of size %d : \n", n);
 
+    high_resolution_clock::time_point t_start, t_end;
     int size = n*n*sizeof(float);
     A = (float *) malloc(size);
     dstMatrix(A,n);
@@ -293,8 +196,14 @@ int main(int argc, const char *argv[]) {
     int splits_per_tile_cols = shared_mem_size / (2 * oversubscribe * tile_size_rows * WARP_SIZE * sizeof(float));
     int tile_size_cols = splits_per_tile_cols * WARP_SIZE;
 
+    int sp = 0;
+    int* spinlock_d;
+    cudaMalloc((void**)&spinlock_d, sizeof(int)); checkCUDAError("allocate memory for sp");
+    cudaMemcpy(spinlock_d,&sp,  sizeof(int), cudaMemcpyHostToDevice); checkCUDAError("memory of sp not transferred");
+
+
     printf("num splits per tile = %d row x %d col \n", splits_per_tile_rows, splits_per_tile_cols);
-    printf("\ntile dim %d row x %d col = %d bytes \n",tile_size_rows, tile_size_cols, tile_size_cols * tile_size_rows * 4);
+    printf("\ntile: %d rows * %d cols = %d bytes \n",tile_size_rows, tile_size_cols, tile_size_cols * tile_size_rows * 4);
     printf("grid: %d x %d-row split-sets \n", gpu_num_sm * oversubscribe, split_size_rows*num_warps_per_sm);
     int num_tiles_col = (n+tile_size_cols-1) / tile_size_cols;
     int num_tiles_row = (n+tile_size_rows-1) / tile_size_rows;
@@ -302,12 +211,22 @@ int main(int argc, const char *argv[]) {
     dim3 grid_dim(oversubscribe * gpu_num_sm);//gpu_num_sm * oversubscribe
     //dim3 grid_dim(num_tiles_col, num_tiles_row);//gpu_num_sm * oversubscribe
     unsigned block_shared_mem_size = tile_size_rows * tile_size_cols * sizeof(float) * 2;
-    matrixMultKernel_cache<<<grid_dim,block_dim, block_shared_mem_size>>>(Ad,Bd,Cd,n,tile_size_rows, tile_size_cols, split_size_rows, splits_per_tile_cols, num_tiles_col);
-    checkCUDAError("matrixMultKernel_cache failed");
-    cudaMemcpy(C,Cd, size, cudaMemcpyDeviceToHost); checkCUDAError("memory of D not transferred back");
+    t_start = high_resolution_clock::now();
+    matrixMultKernel_cache<<<grid_dim,block_dim, block_shared_mem_size>>>(Ad,Bd,Cd,n,tile_size_rows, tile_size_cols, split_size_rows, splits_per_tile_cols, num_tiles_col, spinlock_d);
+    cudaDeviceSynchronize();
+    t_end = high_resolution_clock::now();
+    std::cout << "time[us]: " << (t_end.time_since_epoch().count()-t_start.time_since_epoch().count())/1000 << std::endl;
 
-    printMatrix("C", C, n);
-    //checkMatrix(D,C,n);
+    checkCUDAError("matrixMultKernel_cache failed");
+    cudaMemcpy(C,Cd, size, cudaMemcpyDeviceToHost); checkCUDAError("memory of C not transferred back");
+
+    //printMatrix("C", C, n);
+    t_start = high_resolution_clock::now();
+    CPU_matrixMult(A,B,D,n,1);
+    t_end = high_resolution_clock::now();
+    std::cout << "CPU time[us]: " << (t_end.time_since_epoch().count()-t_start.time_since_epoch().count())/1000 << std::endl;
+
+    checkMatrix(C,D,n);
 //////////
     //
     // int tile_size_rows = WARP_SIZE;//TODO threads_per_sm?
@@ -517,6 +436,269 @@ void dstMatrix(float *A, int n)
 
    for (i=0; i<n; i++)
      for (k=0; k<n; k++)
-        A[i*n+k] = i+k+1;
+        A[i*n+k] = (i+1)*10+k+1;
 	    //A[i*n+k] = sin( ((i+1)*(k+1)*M_PI)/(n+1));
 }
+
+void CPU_matrixMult(float *A, float *B, float *C, int n, int repeats) {
+	int i,j,k;
+    float tmp;
+
+	for(int r=0; r<repeats; r++) {
+    	for (i=0; i<n; i++) {
+			for (j=0; j<n; j++) {
+				tmp = A[i*n+j];
+
+				for (k=0; k<n; k++) {
+					C[i*n+k] += tmp * B[j*n+k];
+				}
+    		}
+		}
+    }
+}
+
+
+
+// __global__ void matrixMultKernel_cache(float* Ad, float* Bd, float* Cd, int n, int tile_size_rows, int tile_size_cols, int split_size_rows, int splits_per_tile_cols, int num_tiles_col, int* spinlock )
+// {
+//     extern __shared__ float array[];
+//     float *Ad_shared = array;
+//     float *Bd_shared = &array[tile_size_rows * tile_size_cols];
+//
+//     int thread_in_warp = threadIdx.x;
+//     int warp_id = threadIdx.y;
+//
+//     float* resArray = (float*)malloc(sizeof(float)*split_size_rows * tile_size_rows);
+//     // float* temp_res;
+//     // if(warp_id == 0 && thread_in_warp == 0)
+//     // {
+//     //     temp_res= (float*)malloc(sizeof(float)*tile_size_rows * tile_size_rows);
+//     // }
+//
+//     if(blockIdx.x * tile_size_rows >= n){
+//          // if(warp_id == 0 && thread_in_warp == 0)
+//          //     printf("!!block %d skipping -- indexes %d and on\n", blockIdx.x, blockIdx.x * tile_size_rows);
+//         return;
+//     }
+//
+// while (* spinlock < blockIdx.x*10) {
+//
+// }
+//     for(int tile_offset_col = 0 ; tile_offset_col < n; tile_offset_col+=tile_size_rows)
+//     {//one loop of this fills tile_size_rows*tile_size_rows matrix
+//
+//         //int tile_col=tile_col_num;//J
+//         int tile_offset_row=blockIdx.x*tile_size_rows;//I
+//
+//         // if(warp_id == 0 && thread_in_warp == 0)
+//         //     printf("1 block %d --(%d) processing tile col indexes %d to %d\n", blockIdx.x, tile_size_rows * tile_size_cols, tile_offset_col, tile_offset_col+tile_size_rows -1);
+//
+//         for(int i = 0; i < split_size_rows * tile_size_rows; i++ )
+//         {
+//             resArray[i] = 0;
+//         }
+//         // if(warp_id == 0 && thread_in_warp == 0)
+//         // {
+//         //     for(int i = 0; i < tile_size_rows * tile_size_rows; i++ )
+//         //     {
+//         //         temp_res[i] = 0;
+//         //     }
+//         // }
+//         // if(warp_id == 0 && thread_in_warp == 0)
+//         // {
+//         //     printf("block %d -- setting temp_res to 0 (%d elems)\n", blockIdx.x, tile_size_rows * tile_size_rows);
+//         //     for(int l = 0; l<tile_size_rows; l++)
+//         //     {
+//         //         for(int m = 0; m<tile_size_rows; m++)
+//         //         {
+//         //              printf("x%.0f   ",temp_res[m*tile_size_rows + l]);
+//         //         }
+//         //         printf("\n");
+//         //     }
+//         // }
+//
+//
+//         int a_num_rows = ((tile_offset_row+tile_size_rows <= n) ? tile_size_rows : n - tile_offset_row);
+//         int b_num_cols = ((tile_offset_col + tile_size_rows <= n) ? tile_size_rows : n - tile_offset_col);
+//
+//         for (int t=0; t<num_tiles_col; t++)
+//         {
+//             int a_num_cols_b_num_rows = ((tile_size_cols*(t+1) <= n) ? tile_size_cols : n - tile_size_cols*t );
+//
+//             // if(warp_id == 0 && thread_in_warp == 0)
+//             //     printf("2 block %d tile col %d, t %d -- a=%dx%d , b=%dx%d -- A[%d-%d, %d-%d], B[%d-%d, %d-%d]\n", blockIdx.x, tile_offset_col, t, a_num_rows, a_num_cols_b_num_rows, a_num_cols_b_num_rows, b_num_cols,      tile_offset_row, tile_offset_row+a_num_rows, t*tile_size_cols, t*tile_size_cols+a_num_cols_b_num_rows,        t*tile_size_cols, t*tile_size_cols + a_num_cols_b_num_rows,tile_offset_col,tile_offset_col+b_num_cols);
+//
+//             for(int split_col = 0; split_col < splits_per_tile_cols ; split_col++)
+//             {
+//                 int elem_col = split_col*WARP_SIZE + thread_in_warp;
+//                 if(elem_col >= a_num_cols_b_num_rows) break;
+//                 for(int row = 0; row < split_size_rows; row++ )
+//                 {
+//                     int elem_row = warp_id * split_size_rows + row;
+//                     if(elem_row < a_num_rows)
+//                         Ad_shared[elem_row*tile_size_cols + elem_col] = Ad[(tile_offset_row + elem_row)*n + t*tile_size_cols + elem_col];
+//                     if(elem_row < b_num_cols)
+//                         Bd_shared[elem_row*tile_size_cols + elem_col] = Bd[elem_row + tile_offset_col + (t*tile_size_cols + elem_col)*n];
+//                 }
+//             }
+//             __syncthreads();
+//
+//
+//
+//             // if(warp_id == 0 && thread_in_warp == 0)
+//             //     printf("3 block %d tile col %d -- filled shared array t %d\n", blockIdx.x, tile_offset_col, t);
+//
+//             // if(warp_id == 0 && thread_in_warp == 0)
+//             // {
+//             //     for(int row = 0; row < tile_size_rows; row++ )
+//             //     {
+//             //         for(int col = 0; col < 12 ; col++)
+//             //         {
+//             //             printf("%.0f _ %.0f  ", Ad_shared[row*tile_size_cols + col], Bd_shared[row*tile_size_cols + col]);
+//             //         }
+//             //         printf("\n");
+//             //     }
+//             // }
+//
+//             for(int k=0; k < a_num_rows - split_size_rows*warp_id && k< split_size_rows  ; k++)
+//             {
+//                 for(int l = 0; l<b_num_cols ; l++)
+//                 {
+//                     for(int m = thread_in_warp; m<a_num_cols_b_num_rows; m+=WARP_SIZE)
+//                     {
+//                         //printf("block %d thread %d tile col %d --temp_res[%d][%d][%d](%f)+=As[%d][%d][%d](%f) * Bs[%d][%d][%d](%f) \n", blockIdx.x,  warp_id*WARP_SIZE+thread_in_warp, tile_offset_col, k,l,k*tile_size_rows + l,resArray[k*tile_size_rows + l], split_size_rows*warp_id + k,m,(split_size_rows*warp_id + k)*tile_size_cols + m,Ad_shared[(split_size_rows*warp_id + k)*tile_size_cols + m], l,m, l * tile_size_cols + m, Bd_shared[l * tile_size_cols + m]);
+//                         resArray[k*tile_size_rows + l] += Ad_shared[(split_size_rows*warp_id + k) * tile_size_cols + m] * Bd_shared[l * tile_size_cols + m];
+//                         //resArray[k*tile_size_rows + l] += Ad_shared[k*tile_size_cols + m] * Bd_shared[l * tile_size_cols + m];
+//                     }
+//                 }
+//             }
+//
+//             // if(warp_id == 0 && thread_in_warp == 0)
+//             // {
+//             //     for(int k=0; k<a_num_rows  ; k++)
+//             //     {
+//             //         // if(t*tile_size_cols + k >= n)
+//             //         // {
+//             //         //     if(warp_id == 0 && thread_in_warp == 0)
+//             //         //          printf("4 block %d tile col %d t %d --k=%d -- break! \n", blockIdx.x, tile_offset_col, t, k);
+//             //         //     break;
+//             //         // }
+//             //
+//             //         for(int l = 0; l<b_num_cols ; l++)
+//             //         {
+//             //             for(int m = 0; m<a_num_cols_b_num_rows; m++)
+//             //             {
+//             //                 //printf("block %d tile col %d --temp_res[%d][%d][%d](%f)+=As[%d][%d][%d](%f) * Bs[%d][%d][%d](%f) \n", blockIdx.x, tile_offset_col, k,l,k*tile_size_rows + l,temp_res[k*tile_size_rows + l], k,m,k*tile_size_cols + m,Ad_shared[k*tile_size_cols + m], l,m, l * tile_size_cols + m, Bd_shared[l * tile_size_cols + m]);
+//             //                 temp_res[k*tile_size_rows + l] += Ad_shared[k*tile_size_cols + m] * Bd_shared[l * tile_size_cols + m];
+//             //             }
+//             //         }
+//             //     }
+//             //     // for(int k=0; k<tile_size_rows && k<a_num_rows  ; k++)
+//             //     // {
+//             //     //     if(t*tile_size_cols + k >= n)
+//             //     //     {
+//             //     //         if(warp_id == 0 && thread_in_warp == 0)
+//             //     //              printf("4 block %d tile col %d t %d --k=%d -- break! \n", blockIdx.x, tile_offset_col, t, k);
+//             //     //         break;
+//             //     //     }
+//             //     //
+//             //     //     for(int l = 0; l<tile_size_rows && l<b_num_cols ; l++)
+//             //     //     {
+//             //     //         for(int m = 0; m<tile_size_cols && m<a_num_cols_b_num_rows; m++)
+//             //     //         {
+//             //     //             //printf("block %d tile col %d --temp_res[%d][%d][%d](%f)+=As[%d][%d][%d](%f) * Bs[%d][%d][%d](%f) \n", blockIdx.x, tile_offset_col, k,l,k*tile_size_rows + l,temp_res[k*tile_size_rows + l], k,m,k*tile_size_cols + m,Ad_shared[k*tile_size_cols + m], l,m, l * tile_size_cols + m, Bd_shared[l * tile_size_cols + m]);
+//             //     //             temp_res[k*tile_size_rows + l] += Ad_shared[k*tile_size_cols + m] * Bd_shared[l * tile_size_cols + m];
+//             //     //         }
+//             //     //     }
+//             //     // }
+//             // }
+//             // if(warp_id == 0 && thread_in_warp == 0)
+//             //     printf("5 block %d tile col %d -- finished computation number t %d\n", blockIdx.x, tile_offset_col, t);
+//             __syncthreads();
+//
+//         }
+//
+//         //fan-in from all threads in one warp that have co-computed the same indexes (one row)
+//         for(int row = 0; row < tile_size_rows; row++ )
+//         {
+//             for(int col = 0; col < split_size_rows ; col++)
+//             {
+//                 if(resArray[row*split_size_rows + col] != 0  && thread_in_warp==0)
+//                     printf("--thread %d [%d,%d] _%.0f \n", warp_id*WARP_SIZE+thread_in_warp, row, col, resArray[row*split_size_rows + col]);
+//             }
+//         }
+//         for(int i = 0; i < split_size_rows * tile_size_rows; i++ )
+//         {
+//             for (int offset = 16; offset > 0; offset /= 2)
+//             {
+//                 resArray[i] += __shfl_down_sync(FULL_MASK, resArray[i], offset,32);
+//             }
+//         }
+//         __syncthreads();
+//         for(int row = 0; row < tile_size_rows; row++ )
+//         {
+//             for(int col = 0; col < split_size_rows ; col++)
+//             {
+//                 if(resArray[row*split_size_rows + col] != 0 && thread_in_warp==0)
+//                     printf("thread %d [%d,%d] _%.0f \n", warp_id*WARP_SIZE+thread_in_warp, row, col, resArray[row*split_size_rows + col]);
+//             }
+//         }
+//
+//         if(thread_in_warp == 0)
+//         {
+//             for(int k=0; k < a_num_rows - split_size_rows*warp_id && k< split_size_rows  ; k++)
+//             {
+//                 for(int l = 0; l<b_num_cols ; l++)
+//                 {
+//                      printf("6 -----===== block %d thread %d filling index [%d =%d+%d, %d =%d+%d => %d] _%.0f \n ", blockIdx.x,  warp_id*WARP_SIZE+thread_in_warp, tile_offset_row + split_size_rows*warp_id + k, tile_offset_row,tile_offset_row + split_size_rows*warp_id + k, tile_offset_col + l,tile_offset_col,l, (tile_offset_row + split_size_rows*warp_id + k) * n + tile_offset_col + l,  resArray[k*tile_size_rows + l]);
+//                      Cd[(tile_offset_row + split_size_rows*warp_id + k) * n + tile_offset_col + l] = resArray[k*tile_size_rows + l];
+//                 }
+//             }
+//         }
+//         // if(thread_in_warp == 0)
+//         // {
+//         //     for(int k = tile_size_rows*warp_id ; k<a_num_rows && k<tile_size_rows*(warp_id+1) ; k++)
+//         //     {
+//         //         for(int l = 0; l<b_num_cols; l++)
+//         //         {
+//         //             printf("6 -----===== block %d thread %d filling index [%d =%d+%d, %d =%d+%d => %d] _%.0f \n ", blockIdx.x,  warp_id*WARP_SIZE+thread_in_warp, tile_offset_row+k, tile_offset_row,k, tile_offset_col + l,tile_offset_col,l, (tile_offset_row +k) * n + tile_offset_col + l,  resArray[k*tile_size_rows + l]);
+//         //              Cd[(tile_offset_row +k) * n + tile_offset_col + l] = resArray[k*tile_size_rows + l];
+//         //         }
+//         //     }
+//         // }
+//
+//
+//         // if(warp_id == 0 && thread_in_warp == 0)
+//         // {
+//         //     for(int row = 0; row < tile_size_rows; row++ )
+//         //     {
+//         //         for(int col = 0; col < tile_size_rows ; col++)
+//         //         {
+//         //             printf("_%.0f ", temp_res[row*tile_size_rows + col]);
+//         //         }
+//         //         printf("\n");
+//         //     }
+//         // }
+//     //x    // if(warp_id == 0 && thread_in_warp == 0)
+//         // {
+//         //     for(int k = 0; k<a_num_rows; k++)
+//         //     {
+//         //         for(int l = 0; l<b_num_cols; l++)
+//         //         {
+//         //             //printf("6 -----===== block %d filling index [%d =%d+%d, %d =%d+%d => %d] _%.0f \n ", blockIdx.x,  tile_offset_row+k, tile_offset_row,k, tile_offset_col + l,tile_offset_col,l, (tile_offset_row +k) * n + tile_offset_col + l,  temp_res[k*tile_size_rows + l]);
+//         //              Cd[(tile_offset_row +k) * n + tile_offset_col + l] = temp_res[k*tile_size_rows + l];
+//         //         }
+//         //     }
+//         // }
+//
+//         // if(warp_id == 0 && thread_in_warp == 0)
+//         //     printf("7 block %d tile col %d -- finished!\n", blockIdx.x, tile_offset_col);
+//     }
+//
+//     if(warp_id == 0 && thread_in_warp == 0){
+//         *spinlock += 10;
+//         printf("!8!block %d -- finished, spinlock %d!\n", blockIdx.x, *spinlock);
+//     }
+//     return;
+//
+// }
