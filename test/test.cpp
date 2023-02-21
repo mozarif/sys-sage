@@ -36,7 +36,11 @@ class RAII
     Dtor dtor; /** The destructor to run during de-initialization. */
 
 public:
-    RAII(T *inner, Dtor dtor) : inner{inner}, dtor{dtor}
+    /**
+     * Constructs a new RAII object owning an inner value and an associated destructor.
+     */
+    RAII(T *inner, Dtor dtor)
+        : inner{inner}, dtor{dtor}
     {
         if (inner == nullptr)
         {
@@ -47,7 +51,9 @@ public:
     /**
      * Sometimes, the destructor accepts a generic `void *` instead of the concrete value type.
      */
-    RAII(T *inner, void (*dtor)(void *)) : inner{inner}, dtor{reinterpret_cast<Dtor>(dtor)}
+    RAII(T *inner, void (*dtor)(void *))
+    requires(!std::is_same_v<T, void>)
+        : inner{inner}, dtor{reinterpret_cast<Dtor>(dtor)}
     {
         if (inner == nullptr)
         {
@@ -101,7 +107,16 @@ public:
 template <class T, class D>
 RAII(T *, D) -> RAII<T>;
 
-TEST(Tests, RAII)
+template <class D>
+RAII(void *, D) -> RAII<void>;
+
+TEST(RAII, InnerCannotBeNull)
+{
+    ASSERT_ANY_THROW(RAII(reinterpret_cast<void *>(0), free));
+    ASSERT_ANY_THROW(RAII(reinterpret_cast<int *>(0), [](void *) {}));
+}
+
+TEST(RAII, DestructorRuns)
 {
     int x = 0;
     {
@@ -111,6 +126,19 @@ TEST(Tests, RAII)
         ASSERT_EQ(*static_cast<int *>(raii), 0);
     }
     ASSERT_EQ(x, 42);
+}
+
+TEST(RAII, MoveOwnership)
+{
+    int x = 0;
+    {
+        RAII r0{&x, [](int *x)
+                { *x += 1; }};
+        RAII r1{std::move(r0)};
+        ASSERT_EQ(x, 0);
+        ASSERT_EQ(*static_cast<int *>(r1), 0);
+    }
+    ASSERT_EQ(x, 1);
 }
 
 /**
