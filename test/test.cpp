@@ -3,8 +3,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include <vector>
-#include <map>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+
+#include <string_view>
 
 int main(int argc, char **argv)
 {
@@ -12,73 +14,154 @@ int main(int argc, char **argv)
     return RUN_ALL_TESTS();
 }
 
-TEST(test, tautology)
+/**
+ * Create a string view over UTF-8 code points as used by libxml.
+ */
+std::basic_string_view<const xmlChar> operator""_xsv(const char *string, size_t len)
 {
-    EXPECT_EQ(42, 42);
+    return {BAD_CAST(string), len};
 }
 
-std::vector<xmlNode *> gatherChildren(xmlNode *parent)
+TEST(ExportToXml, MinimalTopology)
 {
-    std::vector<xmlNode *> childrenVector;
-    childrenVector.reserve(xmlChildElementCount(parent));
-    for (xmlNode *child = xmlFirstElementChild(parent);; child = xmlNextElementSibling(child))
     {
-        childrenVector.push_back(child);
-        if (child == xmlLastElementChild(parent))
-        {
-            break;
-        }
+        auto topo = new Component{42, "a name", SYS_SAGE_COMPONENT_NONE};
+        exportToXml(topo, "test_export.xml");
     }
-    return childrenVector;
-}
-
-std::map<const xmlChar *, std::vector<xmlNode *>> gatherChildrenByName(xmlNode *parent)
-{
-    std::map<const xmlChar *, std::vector<xmlNode *>> map;
-    for (xmlNode *child = xmlFirstElementChild(parent);; child = xmlNextElementSibling(child))
     {
-        map[child->name].push_back(child);
-        if (child == xmlLastElementChild(parent))
-        {
-            break;
-        }
-    }
-    return map;
-}
+        xmlDoc *doc = xmlParseFile("test_export.xml");
+        ASSERT_NE(doc->children, nullptr);
+        ASSERT_NE(doc->children->name, nullptr);
+        xmlNode *sysSage = doc->children;
+        ASSERT_EQ("sys-sage"_xsv, sysSage->name);
 
-// TEST(ExportToXml, Empty) {
-//     auto topo = new Topology;
-//     exportToXml(topo, "test_export.xml");
-//     auto doc = xmlParseFile("foo.xml");
-//     ASSERT_EQ(xmlChildElementCount(doc->children), 0);
-//     xmlFreeDoc(doc);
-// }
+        bool foundComponents = false;
+        bool foundDataPaths = false;
+
+        for (xmlNode *child = sysSage->children; child; child = child->next)
+        {
+            if ("components"_xsv == child->name)
+            {
+                EXPECT_FALSE(foundComponents);
+                foundComponents = true;
+            }
+            else if ("data-paths"_xsv == child->name)
+            {
+                EXPECT_FALSE(foundDataPaths);
+                foundDataPaths = true;
+            }
+        }
+
+        EXPECT_TRUE(foundComponents);
+        EXPECT_TRUE(foundDataPaths);
+
+        xmlFreeDoc(doc);
+    }
+}
 
 TEST(ExportToXml, SingleComponent)
 {
-    auto topo = new Topology;
-    auto memory = new Memory{topo, "A single memory component", 16};
-    exportToXml(topo, "test_export.xml");
-    auto doc = xmlParseFile("foo.xml");
+    {
+        auto topo = new Topology;
+        auto memory = new Memory{topo, "A single memory component", 16};
+        (void)memory;
+        exportToXml(topo, "test_export.xml");
+    }
 
-    ASSERT_GE(xmlChildElementCount(doc->children), 1);
+    {
+        xmlDoc *doc = xmlParseFile("test_export.xml");
 
-    xmlNode *components = nullptr;
-    // for (xmlNode* node = xmlFirstElementChild(doc->children); node != xmlLastElementChild(doc->children) + 1; node = xmlNextElementSibling(node)) {
-    //     std::cout << node->name << std::endl;
-    // }
+        ASSERT_GE(xmlChildElementCount(doc->children), 1);
 
-    gatherChildrenByName(doc->children);
+        xmlNode *node = doc->children;
 
-    // for (xmlNode *node = xmlFirstElementChild(doc->children);; node = xmlNextElementSibling(node))
-    // {
-    //     if ("")
-    //     std::cout << node->name << std::endl;
-    //     if (node == xmlLastElementChild(doc->children))
-    //     {
-    //         break;
-    //     }
-    // }
+        for (xmlNode *child = node->children; child; child = child->next)
+        {
+            if ("components"_xsv == child->name)
+            {
+                node = child;
+                break;
+            }
+        }
 
-    xmlFreeDoc(doc);
+        {
+            bool foundTopology = false;
+            for (xmlNode *child = node->children; child; child = child->next)
+            {
+                if ("Topology"_xsv == child->name)
+                {
+                    EXPECT_FALSE(foundTopology);
+                    foundTopology = true;
+                    node = child;
+                }
+            }
+            ASSERT_TRUE(foundTopology);
+        }
+
+        auto topo = node;
+
+        {
+            bool foundIdProp = false;
+            bool foundNameProp = false;
+            for (auto prop = topo->properties; prop != nullptr; prop = prop->next)
+            {
+                if ("id"_xsv == prop->name)
+                {
+                    foundIdProp = true;
+                    ASSERT_NE(prop->children, nullptr);
+                    EXPECT_EQ("0"_xsv, prop->children->content);
+                }
+                else if ("name"_xsv == prop->name)
+                {
+                    foundNameProp = true;
+                    EXPECT_NE(prop->children, nullptr);
+                }
+            }
+            EXPECT_TRUE(foundIdProp);
+            EXPECT_TRUE(foundNameProp);
+        }
+
+        xmlNode *memory = nullptr;
+        for (auto child = topo->children; child != nullptr; child = child->next)
+        {
+            if ("Memory"_xsv == child->name)
+            {
+                memory = child;
+                break;
+            }
+        }
+        ASSERT_NE(memory, nullptr);
+
+        {
+            bool foundIdProp = false;
+            bool foundNameProp = false;
+            bool foundSizeProp = false;
+            for (auto prop = memory->properties; prop != nullptr; prop = prop->next)
+            {
+                if ("id"_xsv == prop->name)
+                {
+                    foundIdProp = true;
+                    ASSERT_NE(prop->children, nullptr);
+                    EXPECT_EQ("0"_xsv, prop->children->content);
+                }
+                else if ("name"_xsv == prop->name)
+                {
+                    foundNameProp = true;
+                    ASSERT_NE(prop->children, nullptr);
+                    EXPECT_EQ("A single memory component"_xsv, prop->children->content);
+                }
+                else if ("size"_xsv == prop->name)
+                {
+                    foundSizeProp = true;
+                    ASSERT_NE(prop->children, nullptr);
+                    EXPECT_EQ("16"_xsv, prop->children->content);
+                }
+            }
+            EXPECT_TRUE(foundIdProp);
+            EXPECT_TRUE(foundNameProp);
+            EXPECT_TRUE(foundSizeProp);
+        }
+
+        xmlFreeDoc(doc);
+    }
 }
