@@ -7,8 +7,6 @@
 
 #include "sys-sage.hpp"
 
-#include "raii.hpp"
-
 #include <memory>
 
 /**
@@ -19,29 +17,25 @@ std::basic_string_view<const xmlChar> operator""_xsv(const char *string, size_t 
     return {BAD_CAST(string), len};
 }
 
+template <class T>
+using raii = std::unique_ptr<T, void (*)(T *)>;
+
 /**
  * Validates XML output of sys-sage using an XML schema file.
  */
 void validate(std::string_view path)
 {
-    auto parser = std::unique_ptr<xmlSchemaParserCtxt, void (*)(xmlSchemaParserCtxtPtr)>{xmlSchemaNewParserCtxt(SYS_SAGE_TEST_RESOURCE_DIR "/schema.xml"), xmlSchemaFreeParserCtxt};
+    auto parser = raii<xmlSchemaParserCtxt>{xmlSchemaNewParserCtxt(SYS_SAGE_TEST_RESOURCE_DIR "/schema.xml"), xmlSchemaFreeParserCtxt};
+    ASSERT_NE(parser, nullptr);
 
-    if (parser == nullptr)
-    {
-        throw std::runtime_error{""};
-    }
+    auto schema = raii<xmlSchema>{xmlSchemaParse(parser.get()), xmlSchemaFree};
+    ASSERT_NE(schema, nullptr);
 
-    auto schema = RAII{xmlSchemaParse(parser.get()), xmlSchemaFree};
+    auto validator = raii<xmlSchemaValidCtxt>{xmlSchemaNewValidCtxt(schema.get()), xmlSchemaFreeValidCtxt};
 
-    auto validator = RAII{xmlSchemaNewValidCtxt(schema), xmlSchemaFreeValidCtxt};
-    if (validator == nullptr)
-    {
-        throw std::runtime_error{""};
-    }
+    xmlSchemaSetValidErrors(validator.get(), (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stdout);
 
-    xmlSchemaSetValidErrors(validator, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stdout);
-
-    auto doc = RAII{xmlParseFile(path.data()), xmlFreeDoc};
+    auto doc = raii<xmlDoc>{xmlParseFile(path.data()), xmlFreeDoc};
     if (doc == nullptr)
     {
         std::string message{"Cannot open "};
@@ -50,7 +44,7 @@ void validate(std::string_view path)
         throw std::runtime_error{message};
     }
 
-    int code = xmlSchemaValidateDoc(validator, doc);
+    int code = xmlSchemaValidateDoc(validator.get(), doc.get());
     if (code != 0)
     {
         std::string message{"XML validation of "};
@@ -74,7 +68,7 @@ TEST(ExportToXml, SampleOutput)
 
 xmlNode *getSingleNodeByPath(xmlChar *path, xmlXPathContext *context)
 {
-    auto result = RAII{xmlXPathEvalExpression(path, context), xmlXPathFreeObject};
+    auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(path, context), xmlXPathFreeObject};
     if (result->nodesetval == nullptr || result->type != XPATH_NODESET || result->nodesetval->nodeNr != 1)
     {
         std::string message{"Invalid query with path "};
@@ -96,35 +90,43 @@ TEST(ExportToXml, SingleComponent)
     {
         validate("test_export.xml");
 
-        auto doc = RAII{xmlParseFile("test_export.xml"), xmlFreeDoc};
-        auto pathContext = RAII{xmlXPathNewContext(doc), xmlXPathFreeContext};
+        auto doc = raii<xmlDoc>{xmlParseFile("test_export.xml"), xmlFreeDoc};
+        ASSERT_NE(doc, nullptr);
 
-        ASSERT_NO_THROW(getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology"), pathContext));
+        auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
+        ASSERT_NE(pathContext, nullptr);
+
+        ASSERT_NO_THROW(getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology"), pathContext.get()));
 
         {
-            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/@id)"), pathContext), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/@id)"), pathContext.get()), xmlXPathFreeObject};
+            ASSERT_NE(result, nullptr);
             ASSERT_EQ("0"_xsv, result->stringval);
         }
 
         {
-            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/@name)"), pathContext), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/@name)"), pathContext.get()), xmlXPathFreeObject};
+            ASSERT_NE(result, nullptr);
             ASSERT_EQ("sys-sage Topology"_xsv, result->stringval);
         }
 
-        ASSERT_NO_THROW(getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Memory"), pathContext));
+        ASSERT_NO_THROW(getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Memory"), pathContext.get()));
 
         {
-            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@id)"), pathContext), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@id)"), pathContext.get()), xmlXPathFreeObject};
+            ASSERT_NE(result, nullptr);
             ASSERT_EQ("0"_xsv, result->stringval);
         }
 
         {
-            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@name)"), pathContext), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@name)"), pathContext.get()), xmlXPathFreeObject};
+            ASSERT_NE(result, nullptr);
             ASSERT_EQ("A single memory component"_xsv, result->stringval);
         }
 
         {
-            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@size)"), pathContext), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@size)"), pathContext.get()), xmlXPathFreeObject};
+            ASSERT_NE(result, nullptr);
             ASSERT_EQ("16"_xsv, result->stringval);
         }
     }
