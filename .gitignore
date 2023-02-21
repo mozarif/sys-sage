@@ -5,3 +5,5 @@ main
 *.so
 build/*
 install/*
+
+.vscode
