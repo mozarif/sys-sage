@@ -6,6 +6,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xmlschemas.h>
+#include <libxml/xpath.h>
 
 #include <string_view>
 
@@ -84,7 +85,7 @@ public:
     {
         if (dtor != nullptr)
         {
-        dtor(inner);
+            dtor(inner);
         }
     }
 
@@ -188,6 +189,18 @@ TEST(ExportToXml, MinimalTopology)
     validate("test_export.xml");
 }
 
+xmlNode *getSingleNodeByPath(xmlChar *path, xmlXPathContext *context)
+{
+    auto result = RAII{xmlXPathEvalExpression(path, context), xmlXPathFreeObject};
+    if (result->nodesetval == nullptr || result->type != XPATH_NODESET || result->nodesetval->nodeNr != 1)
+    {
+        std::string message{"Invalid query with path "};
+        message += reinterpret_cast<const char *>(path);
+        throw std::runtime_error{message};
+    }
+    return result->nodesetval->nodeTab[0];
+}
+
 TEST(ExportToXml, SingleComponent)
 {
     {
@@ -201,96 +214,35 @@ TEST(ExportToXml, SingleComponent)
         validate("test_export.xml");
 
         auto doc = RAII{xmlParseFile("test_export.xml"), xmlFreeDoc};
+        auto pathContext = RAII{xmlXPathNewContext(doc), xmlXPathFreeContext};
 
-        ASSERT_GE(xmlChildElementCount(doc->children), 1);
+        ASSERT_NO_THROW(getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology"), pathContext));
 
-        xmlNode *node = doc->children;
-
-        for (xmlNode *child = node->children; child; child = child->next)
         {
-            if ("components"_xsv == child->name)
-            {
-                node = child;
-                break;
-            }
+            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/@id)"), pathContext), xmlXPathFreeObject};
+            ASSERT_EQ("0"_xsv, result->stringval);
         }
 
         {
-            bool foundTopology = false;
-            for (xmlNode *child = node->children; child; child = child->next)
-            {
-                if ("Topology"_xsv == child->name)
-                {
-                    EXPECT_FALSE(foundTopology);
-                    foundTopology = true;
-                    node = child;
-                }
-            }
-            ASSERT_TRUE(foundTopology);
+            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/@name)"), pathContext), xmlXPathFreeObject};
+            ASSERT_EQ("sys-sage Topology"_xsv, result->stringval);
         }
 
-        auto topo = node;
+        ASSERT_NO_THROW(getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Memory"), pathContext));
 
         {
-            bool foundIdProp = false;
-            bool foundNameProp = false;
-            for (auto prop = topo->properties; prop != nullptr; prop = prop->next)
-            {
-                if ("id"_xsv == prop->name)
-                {
-                    foundIdProp = true;
-                    ASSERT_NE(prop->children, nullptr);
-                    EXPECT_EQ("0"_xsv, prop->children->content);
-                }
-                else if ("name"_xsv == prop->name)
-                {
-                    foundNameProp = true;
-                    EXPECT_NE(prop->children, nullptr);
-                }
-            }
-            EXPECT_TRUE(foundIdProp);
-            EXPECT_TRUE(foundNameProp);
+            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@id)"), pathContext), xmlXPathFreeObject};
+            ASSERT_EQ("0"_xsv, result->stringval);
         }
 
-        xmlNode *memory = nullptr;
-        for (auto child = topo->children; child != nullptr; child = child->next)
         {
-            if ("Memory"_xsv == child->name)
-            {
-                memory = child;
-                break;
-            }
+            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@name)"), pathContext), xmlXPathFreeObject};
+            ASSERT_EQ("A single memory component"_xsv, result->stringval);
         }
-        ASSERT_NE(memory, nullptr);
 
         {
-            bool foundIdProp = false;
-            bool foundNameProp = false;
-            bool foundSizeProp = false;
-            for (auto prop = memory->properties; prop != nullptr; prop = prop->next)
-            {
-                if ("id"_xsv == prop->name)
-                {
-                    foundIdProp = true;
-                    ASSERT_NE(prop->children, nullptr);
-                    EXPECT_EQ("0"_xsv, prop->children->content);
-                }
-                else if ("name"_xsv == prop->name)
-                {
-                    foundNameProp = true;
-                    ASSERT_NE(prop->children, nullptr);
-                    EXPECT_EQ("A single memory component"_xsv, prop->children->content);
-                }
-                else if ("size"_xsv == prop->name)
-                {
-                    foundSizeProp = true;
-                    ASSERT_NE(prop->children, nullptr);
-                    EXPECT_EQ("16"_xsv, prop->children->content);
-                }
-            }
-            EXPECT_TRUE(foundIdProp);
-            EXPECT_TRUE(foundNameProp);
-            EXPECT_TRUE(foundSizeProp);
+            auto result = RAII{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@size)"), pathContext), xmlXPathFreeObject};
+            ASSERT_EQ("16"_xsv, result->stringval);
         }
     }
 }
