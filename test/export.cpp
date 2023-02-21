@@ -9,6 +9,8 @@
 
 #include "raii.hpp"
 
+#include <memory>
+
 /**
  * Create a string view over UTF-8 code points as used by libxml.
  */
@@ -22,13 +24,14 @@ std::basic_string_view<const xmlChar> operator""_xsv(const char *string, size_t 
  */
 void validate(std::string_view path)
 {
-    auto parser = RAII{xmlSchemaNewParserCtxt(TEST_RESOURCE_DIR "/schema.xml"), xmlSchemaFreeParserCtxt};
+    auto parser = std::unique_ptr<xmlSchemaParserCtxt, void (*)(xmlSchemaParserCtxtPtr)>{xmlSchemaNewParserCtxt(SYS_SAGE_TEST_RESOURCE_DIR "/schema.xml"), xmlSchemaFreeParserCtxt};
+
     if (parser == nullptr)
     {
         throw std::runtime_error{""};
     }
 
-    auto schema = RAII{xmlSchemaParse(parser), xmlSchemaFree};
+    auto schema = RAII{xmlSchemaParse(parser.get()), xmlSchemaFree};
 
     auto validator = RAII{xmlSchemaNewValidCtxt(schema), xmlSchemaFreeValidCtxt};
     if (validator == nullptr)
@@ -66,7 +69,7 @@ TEST(ExportToXml, MinimalTopology)
 
 TEST(ExportToXml, SampleOutput)
 {
-    validate("sys-sage_sample_output.xml");
+    validate(SYS_SAGE_TEST_RESOURCE_DIR "/sys-sage_sample_output.xml");
 }
 
 xmlNode *getSingleNodeByPath(xmlChar *path, xmlXPathContext *context)
