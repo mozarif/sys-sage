@@ -24,34 +24,119 @@ std::basic_string_view<const xmlChar> operator""_xsv(const char *string, size_t 
 }
 
 /**
+ * A container which implements RAII (Resource acquisition is initialization) for
+ * automatic destructor dispatch.
+ */
+template <class T>
+class RAII
+{
+    using Dtor = void (*)(T *);
+
+    T *inner;  /** The acquired value. Is never null. */
+    Dtor dtor; /** The destructor to run during de-initialization. */
+
+public:
+    RAII(T *inner, Dtor dtor) : inner{inner}, dtor{dtor}
+    {
+        if (inner == nullptr)
+        {
+            throw std::runtime_error{"Failed to acquire test resource"};
+        }
+    }
+
+    /**
+     * Sometimes, the destructor accepts a generic `void *` instead of the concrete value type.
+     */
+    RAII(T *inner, void (*dtor)(void *)) : inner{inner}, dtor{reinterpret_cast<Dtor>(dtor)}
+    {
+        if (inner == nullptr)
+        {
+            throw std::runtime_error{"Failed to acquire test resource"};
+        }
+    }
+
+    RAII(const RAII &) = delete;
+
+    /**
+     * Transfer ownership.
+     */
+    RAII(RAII &&rhs) : inner{rhs.inner}, dtor{rhs.dtor}
+    {
+        rhs.dtor = nullptr;
+    }
+
+    RAII &operator=(const RAII &) = delete;
+
+    RAII &operator=(RAII &&rhs)
+    {
+        inner = rhs.inner;
+        dtor = rhs.dtor;
+        rhs.dtor = nullptr;
+    };
+
+    ~RAII()
+    {
+        if (dtor != nullptr)
+        {
+        dtor(inner);
+        }
+    }
+
+    T *operator->()
+    {
+        return inner;
+    }
+
+    operator T *()
+    {
+        return inner;
+    }
+
+    T *operator*()
+    {
+        return inner;
+    }
+};
+
+template <class T, class D>
+RAII(T *, D) -> RAII<T>;
+
+TEST(Tests, RAII)
+{
+    int x = 0;
+    {
+        RAII raii{&x, [](int *x)
+                  { *x = 42; }};
+        ASSERT_EQ(x, 0);
+        ASSERT_EQ(*static_cast<int *>(raii), 0);
+    }
+    ASSERT_EQ(x, 42);
+}
+
+/**
  * Validates XML output of sys-sage using an XML schema file.
  */
 void validate(std::string_view path)
 {
-    xmlSchemaParserCtxt *parser = xmlSchemaNewParserCtxt(TEST_RESOURCE_DIR "/schema.xml");
+    auto parser = RAII{xmlSchemaNewParserCtxt(TEST_RESOURCE_DIR "/schema.xml"), xmlSchemaFreeParserCtxt};
     if (parser == nullptr)
     {
         throw std::runtime_error{""};
     }
 
-    xmlSchema *schema = xmlSchemaParse(parser);
-    xmlSchemaFreeParserCtxt(parser);
+    auto schema = RAII{xmlSchemaParse(parser), xmlSchemaFree};
 
-    xmlSchemaValidCtxt *validator = xmlSchemaNewValidCtxt(schema);
+    auto validator = RAII{xmlSchemaNewValidCtxt(schema), xmlSchemaFreeValidCtxt};
     if (validator == nullptr)
     {
-        xmlSchemaFree(schema);
         throw std::runtime_error{""};
     }
 
     xmlSchemaSetValidErrors(validator, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stdout);
 
-    xmlDoc *doc = xmlParseFile(path.data());
+    auto doc = RAII{xmlParseFile(path.data()), xmlFreeDoc};
     if (doc == nullptr)
     {
-        xmlSchemaFree(schema);
-        xmlSchemaFreeValidCtxt(validator);
-
         std::string message{"Cannot open "};
         message += path;
         message += " for validation";
@@ -59,12 +144,6 @@ void validate(std::string_view path)
     }
 
     int code = xmlSchemaValidateDoc(validator, doc);
-
-    xmlSchemaFree(schema);
-    xmlSchemaFreeValidCtxt(validator);
-
-    xmlFreeDoc(doc);
-
     if (code != 0)
     {
         std::string message{"XML validation of "};
@@ -93,7 +172,7 @@ TEST(ExportToXml, SingleComponent)
     {
         validate("test_export.xml");
 
-        xmlDoc *doc = xmlParseFile("test_export.xml");
+        auto doc = RAII{xmlParseFile("test_export.xml"), xmlFreeDoc};
 
         ASSERT_GE(xmlChildElementCount(doc->children), 1);
 
@@ -185,7 +264,5 @@ TEST(ExportToXml, SingleComponent)
             EXPECT_TRUE(foundNameProp);
             EXPECT_TRUE(foundSizeProp);
         }
-
-        xmlFreeDoc(doc);
     }
 }
