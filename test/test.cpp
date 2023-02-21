@@ -5,6 +5,7 @@
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <libxml/xmlschemas.h>
 
 #include <string_view>
 
@@ -22,41 +23,62 @@ std::basic_string_view<const xmlChar> operator""_xsv(const char *string, size_t 
     return {BAD_CAST(string), len};
 }
 
+/**
+ * Validates XML output of sys-sage using an XML schema file.
+ */
+void validate(std::string_view path)
+{
+    xmlSchemaParserCtxt *parser = xmlSchemaNewParserCtxt(TEST_RESOURCE_DIR "/schema.xml");
+    if (parser == nullptr)
+    {
+        throw std::runtime_error{""};
+    }
+
+    xmlSchema *schema = xmlSchemaParse(parser);
+    xmlSchemaFreeParserCtxt(parser);
+
+    xmlSchemaValidCtxt *validator = xmlSchemaNewValidCtxt(schema);
+    if (validator == nullptr)
+    {
+        xmlSchemaFree(schema);
+        throw std::runtime_error{""};
+    }
+
+    xmlSchemaSetValidErrors(validator, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stdout);
+
+    xmlDoc *doc = xmlParseFile(path.data());
+    if (doc == nullptr)
+    {
+        xmlSchemaFree(schema);
+        xmlSchemaFreeValidCtxt(validator);
+
+        std::string message{"Cannot open "};
+        message += path;
+        message += " for validation";
+        throw std::runtime_error{message};
+    }
+
+    int code = xmlSchemaValidateDoc(validator, doc);
+
+    xmlSchemaFree(schema);
+    xmlSchemaFreeValidCtxt(validator);
+
+    xmlFreeDoc(doc);
+
+    if (code != 0)
+    {
+        std::string message{"XML validation of "};
+        message += path;
+        message += " failed";
+        throw std::runtime_error{message};
+    }
+}
+
 TEST(ExportToXml, MinimalTopology)
 {
-    {
-        auto topo = new Component{42, "a name", SYS_SAGE_COMPONENT_NONE};
-        exportToXml(topo, "test_export.xml");
-    }
-    {
-        xmlDoc *doc = xmlParseFile("test_export.xml");
-        ASSERT_NE(doc->children, nullptr);
-        ASSERT_NE(doc->children->name, nullptr);
-        xmlNode *sysSage = doc->children;
-        ASSERT_EQ("sys-sage"_xsv, sysSage->name);
-
-        bool foundComponents = false;
-        bool foundDataPaths = false;
-
-        for (xmlNode *child = sysSage->children; child; child = child->next)
-        {
-            if ("components"_xsv == child->name)
-            {
-                EXPECT_FALSE(foundComponents);
-                foundComponents = true;
-            }
-            else if ("data-paths"_xsv == child->name)
-            {
-                EXPECT_FALSE(foundDataPaths);
-                foundDataPaths = true;
-            }
-        }
-
-        EXPECT_TRUE(foundComponents);
-        EXPECT_TRUE(foundDataPaths);
-
-        xmlFreeDoc(doc);
-    }
+    auto topo = new Component{42, "a name", SYS_SAGE_COMPONENT_NONE};
+    exportToXml(topo, "test_export.xml");
+    validate("test_export.xml");
 }
 
 TEST(ExportToXml, SingleComponent)
@@ -69,6 +91,8 @@ TEST(ExportToXml, SingleComponent)
     }
 
     {
+        validate("test_export.xml");
+
         xmlDoc *doc = xmlParseFile("test_export.xml");
 
         ASSERT_GE(xmlChildElementCount(doc->children), 1);
