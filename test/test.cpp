@@ -189,6 +189,11 @@ TEST(ExportToXml, MinimalTopology)
     validate("test_export.xml");
 }
 
+TEST(ExportToXml, SampleOutput)
+{
+    validate("sys-sage_sample_output.xml");
+}
+
 xmlNode *getSingleNodeByPath(xmlChar *path, xmlXPathContext *context)
 {
     auto result = RAII{xmlXPathEvalExpression(path, context), xmlXPathFreeObject};
