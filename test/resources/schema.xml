@@ -36,19 +36,21 @@
 
   <!-- Each component can recursively contain more components -->
   <xs:group name="components">
-    <xs:choice>
-      <xs:element name="None" type="none" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="HW_thread" type="hw_thread" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="Core" type="core" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="Cache" type="cache" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="Subdivision" type="subdivision" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="NUMA" type="numa" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="Chip" type="chip" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="Memory" type="memory" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="Storage" type="storage" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="Node" type="node" minOccurs="0" maxOccurs="unbounded" />
-      <xs:element name="Topology" type="topology" minOccurs="0" maxOccurs="unbounded" />
-    </xs:choice>
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="None" type="none" />
+        <xs:element name="HW_thread" type="hw_thread" />
+        <xs:element name="Core" type="core" />
+        <xs:element name="Cache" type="cache" />
+        <xs:element name="Subdivision" type="subdivision" />
+        <xs:element name="NUMA" type="numa" />
+        <xs:element name="Chip" type="chip" />
+        <xs:element name="Memory" type="memory" />
+        <xs:element name="Storage" type="storage" />
+        <xs:element name="Node" type="node" />
+        <xs:element name="Topology" type="topology" />
+      </xs:choice>
+    </xs:sequence>
   </xs:group>
 
   <!-- Component base class -->
