@@ -66,6 +66,11 @@ TEST(ExportToXml, SampleOutput)
     validate(SYS_SAGE_TEST_RESOURCE_DIR "/sys-sage_sample_output.xml");
 }
 
+TEST(ExportToXml, SampleOutputWithAttributes)
+{
+    validate(SYS_SAGE_TEST_RESOURCE_DIR "/sys-sage_custom_attributes.xml");
+}
+
 xmlNode *getSingleNodeByPath(xmlChar *path, xmlXPathContext *context)
 {
     auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(path, context), xmlXPathFreeObject};

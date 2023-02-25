@@ -18,6 +18,10 @@
             <xs:choice>
               <xs:element name="datapath" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Attribute" type="attribute" minOccurs="0"
+                      maxOccurs="unbounded" />
+                  </xs:sequence>
                   <xs:attribute name="source" type="addr" />
                   <xs:attribute name="target" type="addr" />
                   <xs:attribute name="oriented" type="xs:integer" />
@@ -49,9 +53,19 @@
         <xs:element name="Storage" type="storage" />
         <xs:element name="Node" type="node" />
         <xs:element name="Topology" type="topology" />
+        <xs:element name="Attribute" type="attribute" />
       </xs:choice>
     </xs:sequence>
   </xs:group>
+
+  <!-- Attributes for components and data paths -->
+  <xs:complexType name="attribute">
+    <xs:sequence>
+      <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+    </xs:sequence>
+    <xs:attribute name="name" />
+    <xs:attribute name="value" />
+  </xs:complexType>
 
   <!-- Component base class -->
   <xs:complexType name="component">
