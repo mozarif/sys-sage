@@ -134,3 +134,20 @@ TEST(Components, Storage)
     // node.SetSize(64);
     // EXPECT_EQ(64, node.GetSize());
 }
+
+TEST(Components, CheckComponentTreeConsistency)
+{
+    {
+        Node a{};
+        Node b{&a};
+        Node c{&b};
+        EXPECT_EQ(0, a.CheckComponentTreeConsistency());
+    }
+    {
+        Node a{};
+        Node b{&a};
+        Node c{&b};
+        c.SetParent(&a);
+        EXPECT_EQ(1, a.CheckComponentTreeConsistency());
+    }
+}
