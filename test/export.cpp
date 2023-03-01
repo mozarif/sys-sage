@@ -8,20 +8,21 @@
 #include "sys-sage.hpp"
 
 #include <memory>
+#include <set>
+#include <string>
+
+using XmlStringView = std::basic_string_view<const xmlChar>;
 
 /**
  * Create a string view over UTF-8 code points as used by libxml.
  */
-std::basic_string_view<const xmlChar> operator""_xsv(const char *string, size_t len)
+XmlStringView operator""_xsv(const char *string, size_t len)
 {
     return {BAD_CAST(string), len};
 }
 
 template <class T>
 using raii = std::unique_ptr<T, void (*)(T *)>;
-
-void validateAttributes() {}
-void validateSourceTargets() {}
 
 /**
  * Validates XML output of sys-sage using an XML schema file.
@@ -56,11 +57,11 @@ void validate(std::string_view path)
         throw std::runtime_error{message};
     }
 
+    auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
+    ASSERT_NE(pathContext, nullptr);
+
     // Validate that attributes either have child nodes or a value attribute
     {
-        auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
-        ASSERT_NE(pathContext, nullptr);
-
         auto attributeNodes = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("//Attribute"), pathContext.get()), xmlXPathFreeObject};
         ASSERT_NE(attributeNodes->nodesetval, nullptr);
         ASSERT_EQ(attributeNodes->type, XPATH_NODESET);
@@ -77,6 +78,39 @@ void validate(std::string_view path)
 
             EXPECT_TRUE(hasEitherChildrenOrValueAttribute || hasNeither)
                 << path << ':' << node->line << " <Attribute> must have either child nodes or a value attribute";
+        }
+    }
+
+    // Validate that all component addresses are unique and that all data path endpoints exist
+    {
+        auto componentAddrs = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("/sys-sage/components//*/@addr"), pathContext.get()), xmlXPathFreeObject};
+        auto dataPathEndpoints = raii<xmlXPathObject>{
+            xmlXPathEvalExpression(BAD_CAST("/sys-sage/data-paths/datapath/@source | /sys-sage/data-paths/datapath/@target"), pathContext.get()),
+            xmlXPathFreeObject};
+
+        std::set<XmlStringView> addrs;
+
+        if (componentAddrs->nodesetval != nullptr && componentAddrs->nodesetval->nodeNr > 0)
+        {
+            for (int i = 0; i < componentAddrs->nodesetval->nodeNr; ++i)
+            {
+                auto node = componentAddrs->nodesetval->nodeTab[i];
+                XmlStringView addr = node->children->content;
+                EXPECT_FALSE(addrs.contains(addr))
+                    << path << ':' << node->children->line << " The addr attribute must be unique for each component";
+                addrs.insert(addr);
+            }
+        }
+
+        if (dataPathEndpoints->nodesetval != nullptr && dataPathEndpoints->nodesetval->nodeNr > 0)
+        {
+            for (int i = 0; i < dataPathEndpoints->nodesetval->nodeNr; ++i)
+            {
+                auto endpoint = dataPathEndpoints->nodesetval->nodeTab[i];
+                XmlStringView addr = endpoint->children->content;
+                EXPECT_TRUE(addrs.contains(addr))
+                    << path << ':' << endpoint->children->line << " The data path endpoint must be an existing component address";
+            }
         }
     }
 }

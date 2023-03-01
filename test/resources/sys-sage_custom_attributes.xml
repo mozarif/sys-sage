@@ -21,9 +21,9 @@
         <Attribute name="codename" value="marsupial" />
         <Attribute name="rack_no" value="15" />
 
-        <Chip id="0" name="socket" addr="0x600001610000" vendor="GenuineIntel"
+        <Chip id="0" name="socket" addr="0x600001610001" vendor="GenuineIntel"
           model="Intel(R) Xeon(R) Silver 4116 CPU @ 2.10GHz">
-          <Cache id="7" name="Cache" addr="0x600001810000" cache_level="3" cache_size="17301504"
+          <Cache id="7" name="Cache" addr="0x600001810001" cache_level="3" cache_size="17301504"
             cache_associativity_ways="11" cache_line_size="64">
             <NUMA id="0" name="Numa" addr="0x600001c10000">
               <Cache id="6" name="Cache" addr="0x6000018100c0" cache_level="2" cache_size="1048576"
