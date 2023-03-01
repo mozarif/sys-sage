@@ -20,6 +20,9 @@ std::basic_string_view<const xmlChar> operator""_xsv(const char *string, size_t 
 template <class T>
 using raii = std::unique_ptr<T, void (*)(T *)>;
 
+void validateAttributes() {}
+void validateSourceTargets() {}
+
 /**
  * Validates XML output of sys-sage using an XML schema file.
  */
@@ -51,6 +54,30 @@ void validate(std::string_view path)
         message += path;
         message += " failed";
         throw std::runtime_error{message};
+    }
+
+    // Validate that attributes either have child nodes or a value attribute
+    {
+        auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
+        ASSERT_NE(pathContext, nullptr);
+
+        auto attributeNodes = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("//Attribute"), pathContext.get()), xmlXPathFreeObject};
+        ASSERT_NE(attributeNodes->nodesetval, nullptr);
+        ASSERT_EQ(attributeNodes->type, XPATH_NODESET);
+        for (int i = 0; i < attributeNodes->nodesetval->nodeNr; ++i)
+        {
+            xmlNode *node = attributeNodes->nodesetval->nodeTab[i];
+            bool hasChildren = node->children != nullptr;
+
+            auto attributes = raii<xmlXPathObject>{xmlXPathNodeEval(node, BAD_CAST("@value"), pathContext.get()), xmlXPathFreeObject};
+            bool hasValueAttribute = attributes->nodesetval->nodeNr > 0;
+
+            bool hasNeither = !(hasChildren || hasValueAttribute);
+            bool hasEitherChildrenOrValueAttribute = hasChildren != hasValueAttribute;
+
+            EXPECT_TRUE(hasEitherChildrenOrValueAttribute || hasNeither)
+                << path << ':' << node->line << " <Attribute> must have either child nodes or a value attribute";
+        }
     }
 }
 
