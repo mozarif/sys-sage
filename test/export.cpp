@@ -128,36 +128,38 @@ TEST(ExportToXml, SingleComponent)
         auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
         ASSERT_NE(pathContext, nullptr);
 
-        ASSERT_NO_THROW(getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology"), pathContext.get()));
+        xmlNode *topo = nullptr;
+        ASSERT_NO_THROW(topo = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology"), pathContext.get()));
 
         {
-            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/@id)"), pathContext.get()), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathNodeEval(topo, BAD_CAST("string(@id)"), pathContext.get()), xmlXPathFreeObject};
             ASSERT_NE(result, nullptr);
             ASSERT_EQ("0"_xsv, result->stringval);
         }
 
         {
-            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/@name)"), pathContext.get()), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathNodeEval(topo, BAD_CAST("string(@name)"), pathContext.get()), xmlXPathFreeObject};
             ASSERT_NE(result, nullptr);
             ASSERT_EQ("sys-sage Topology"_xsv, result->stringval);
         }
 
-        ASSERT_NO_THROW(getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Memory"), pathContext.get()));
+        xmlNode *memory = nullptr;
+        ASSERT_NO_THROW(memory = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Memory"), pathContext.get()));
 
         {
-            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@id)"), pathContext.get()), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathNodeEval(memory, BAD_CAST("string(@id)"), pathContext.get()), xmlXPathFreeObject};
             ASSERT_NE(result, nullptr);
             ASSERT_EQ("0"_xsv, result->stringval);
         }
 
         {
-            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@name)"), pathContext.get()), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathNodeEval(memory, BAD_CAST("string(@name)"), pathContext.get()), xmlXPathFreeObject};
             ASSERT_NE(result, nullptr);
             ASSERT_EQ("A single memory component"_xsv, result->stringval);
         }
 
         {
-            auto result = raii<xmlXPathObject>{xmlXPathEvalExpression(BAD_CAST("string(/sys-sage/components/Topology/Memory/@size)"), pathContext.get()), xmlXPathFreeObject};
+            auto result = raii<xmlXPathObject>{xmlXPathNodeEval(memory, BAD_CAST("string(@size)"), pathContext.get()), xmlXPathFreeObject};
             ASSERT_NE(result, nullptr);
             ASSERT_EQ("16"_xsv, result->stringval);
         }
