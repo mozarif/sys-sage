@@ -296,7 +296,7 @@ protected:
     */
     const int componentType;
     vector<Component*> children; /**< Contains the list (std::vector) of pointers to children of the component in the component tree. */
-    Component* parent; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be NULL.*/
+    Component* parent { nullptr }; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be NULL.*/
     vector<DataPath*> dp_incoming; /**< Contains references to data paths that point to this component. @see DataPath */
     vector<DataPath*> dp_outgoing; /**< Contains references to data paths that point from this component. @see DataPath */
 

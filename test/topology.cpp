@@ -8,8 +8,7 @@ TEST(Components, Node)
     EXPECT_EQ(42, node.GetId());
     EXPECT_EQ(SYS_SAGE_COMPONENT_NODE, node.GetComponentType());
     EXPECT_EQ("Node", node.GetComponentTypeStr());
-    // TODO: Parent should be nullified
-    // EXPECT_EQ(nullptr, node.GetParent());
+    EXPECT_EQ(nullptr, node.GetParent());
 
     Node root{0};
     node.SetParent(&root);
