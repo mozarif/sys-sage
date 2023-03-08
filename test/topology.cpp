@@ -140,9 +140,8 @@ TEST(Components, Storage)
     EXPECT_EQ(SYS_SAGE_COMPONENT_STORAGE, node.GetComponentType());
     EXPECT_EQ("Storage", node.GetComponentTypeStr());
 
-    // TODO: Enable when implementation is available
-    // node.SetSize(64);
-    // EXPECT_EQ(64, node.GetSize());
+    node.SetSize(64);
+    EXPECT_EQ(64, node.GetSize());
 }
 
 TEST(Components, ChildrenInsertionAndRemoval)

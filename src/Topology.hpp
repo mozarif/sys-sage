@@ -400,8 +400,8 @@ public:
     */
     Storage();
     Storage(Component * parent);
-    long long GetSize();
-    void SetSize(long long _size);
+    long long GetSize() { return size; };
+    void SetSize(long long _size) { size = _size; };
     /**
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
