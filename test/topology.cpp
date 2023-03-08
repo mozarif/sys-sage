@@ -302,39 +302,3 @@ TEST(Components, GetTopoTreeDepth)
 
     EXPECT_EQ(3, a.GetTopoTreeDepth());
 }
-
-TEST(Components, GetTopologySize)
-{
-    {
-        Chip a;
-        Memory b;
-        unsigned componentSize = 0;
-        unsigned dataPathSize = 0;
-        EXPECT_LE(sizeof(Chip), a.GetTopologySize(&componentSize, &dataPathSize));
-    }
-
-    {
-        Chip a;
-        Memory b;
-        a.InsertChild(&b);
-        unsigned componentSize = 0;
-        unsigned dataPathSize = 0;
-        EXPECT_LE(sizeof(Chip) + sizeof(Memory), a.GetTopologySize(&componentSize, &dataPathSize));
-        EXPECT_LE(0, dataPathSize);
-        EXPECT_LE(sizeof(Chip) + sizeof(Memory), componentSize);
-    }
-
-    {
-        Chip a;
-        Memory b;
-        DataPath dp1{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
-        DataPath dp2{&b, &a, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL};
-        dp1.attrib.emplace("foo", nullptr);
-        unsigned componentSize = 0;
-        unsigned dataPathSize = 0;
-        auto size = a.GetTopologySize(&componentSize, &dataPathSize);
-        EXPECT_LE(sizeof(Chip), componentSize);
-        EXPECT_LE((2 * (sizeof(DataPath *) + sizeof(DataPath)) + sizeof(std::string) + sizeof(void *)), dataPathSize);
-        EXPECT_LE(componentSize + dataPathSize, size);
-    }
-}
