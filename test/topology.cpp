@@ -2,7 +2,7 @@
 
 #include "sys-sage.hpp"
 
-TEST(Components, Node)
+TEST(Topology, Node)
 {
     Node node{42};
     EXPECT_EQ(42, node.GetId());
@@ -15,7 +15,7 @@ TEST(Components, Node)
     EXPECT_EQ(&root, node.GetParent());
 }
 
-TEST(Components, Topology)
+TEST(Topology, Topology)
 {
     Topology node;
     EXPECT_EQ(0, node.GetId());
@@ -23,7 +23,7 @@ TEST(Components, Topology)
     EXPECT_EQ("Topology", node.GetComponentTypeStr());
 }
 
-TEST(Components, Thread)
+TEST(Topology, Thread)
 {
     Node root{0};
     Thread node{&root, 42, "foo"};
@@ -34,7 +34,7 @@ TEST(Components, Thread)
     EXPECT_EQ("HW_thread", node.GetComponentTypeStr());
 }
 
-TEST(Components, Core)
+TEST(Topology, Core)
 {
     Node root{0};
     Core node{&root, 42, "foo"};
@@ -45,7 +45,7 @@ TEST(Components, Core)
     EXPECT_EQ("Core", node.GetComponentTypeStr());
 }
 
-TEST(Components, Cache)
+TEST(Topology, Cache)
 {
     Node root{0};
     Cache node{&root, 42, "3", 32, 2, 16};
@@ -67,7 +67,7 @@ TEST(Components, Cache)
     EXPECT_EQ(8, node.GetCacheLineSize());
 }
 
-TEST(Components, Subdivision)
+TEST(Topology, Subdivision)
 {
     Node root{0};
     Subdivision node{&root, 42, "foo"};
@@ -81,7 +81,7 @@ TEST(Components, Subdivision)
     EXPECT_EQ(3, node.GetSubdivisionType());
 }
 
-TEST(Components, Numa)
+TEST(Topology, Numa)
 {
     Node root{0};
     Numa node{&root, 42, 64};
@@ -95,7 +95,7 @@ TEST(Components, Numa)
     EXPECT_EQ(3, node.GetSubdivisionType());
 }
 
-TEST(Components, Chip)
+TEST(Topology, Chip)
 {
     Node root{0};
     Chip node{&root, 42, "foo", 5};
@@ -116,7 +116,7 @@ TEST(Components, Chip)
     EXPECT_EQ(6, node.GetChipType());
 }
 
-TEST(Components, Memory)
+TEST(Topology, Memory)
 {
     Node root{0};
     Memory node{&root, "foo", 32};
@@ -131,7 +131,7 @@ TEST(Components, Memory)
     EXPECT_EQ(64, node.GetSize());
 }
 
-TEST(Components, Storage)
+TEST(Topology, Storage)
 {
     Node root{0};
     Storage node{&root};
@@ -143,7 +143,7 @@ TEST(Components, Storage)
     EXPECT_EQ(64, node.GetSize());
 }
 
-TEST(Components, ChildrenInsertionAndRemoval)
+TEST(Topology, ChildrenInsertionAndRemoval)
 {
     Node a;
     Node b;
@@ -162,7 +162,7 @@ TEST(Components, ChildrenInsertionAndRemoval)
     ASSERT_NE(std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &d), a.GetChildren()->end());
 }
 
-TEST(Components, GetChild)
+TEST(Topology, GetChild)
 {
     Node a{1};
     Node b{2};
@@ -178,7 +178,7 @@ TEST(Components, GetChild)
     EXPECT_EQ(a.GetChild(4), nullptr);
 }
 
-TEST(Components, GetChildByType)
+TEST(Topology, GetChildByType)
 {
     Node a;
     Memory b;
@@ -194,7 +194,7 @@ TEST(Components, GetChildByType)
     EXPECT_EQ(a.GetAllChildrenByType(SYS_SAGE_COMPONENT_MEMORY), (std::vector<Component *>{&b, &c}));
 }
 
-TEST(Components, CheckComponentTreeConsistency)
+TEST(Topology, CheckComponentTreeConsistency)
 {
     {
         Node a;
@@ -215,7 +215,7 @@ TEST(Components, CheckComponentTreeConsistency)
     }
 }
 
-TEST(Components, GetComponentsNLevelsDeeper)
+TEST(Topology, GetComponentsNLevelsDeeper)
 {
     Node a;
     Node b;
@@ -231,7 +231,7 @@ TEST(Components, GetComponentsNLevelsDeeper)
     EXPECT_EQ(2, array.size());
 }
 
-TEST(Components, GetSubcomponentsByType)
+TEST(Topology, GetSubcomponentsByType)
 {
     Node a;
     Chip b;
@@ -247,7 +247,7 @@ TEST(Components, GetSubcomponentsByType)
     EXPECT_EQ(2, array.size());
 }
 
-TEST(Components, GetNumThreads)
+TEST(Topology, GetNumThreads)
 {
     Node a;
     Thread b;
@@ -265,7 +265,7 @@ TEST(Components, GetNumThreads)
     EXPECT_EQ(3, a.GetNumThreads());
 }
 
-TEST(Components, GetSubtreeNodeList)
+TEST(Topology, GetSubtreeNodeList)
 {
     Node a;
     Node b;
@@ -281,7 +281,7 @@ TEST(Components, GetSubtreeNodeList)
     EXPECT_EQ(array, (std::vector<Component *>{&a, &b, &d, &c}));
 }
 
-TEST(Components, GetTopoTreeDepth)
+TEST(Topology, GetTopoTreeDepth)
 {
     Node a;
     Node b;

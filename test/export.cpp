@@ -115,19 +115,19 @@ void validate(std::string_view path)
     }
 }
 
-TEST(ExportToXml, MinimalTopology)
+TEST(Export, MinimalTopology)
 {
     auto topo = new Component{42, "a name", SYS_SAGE_COMPONENT_NONE};
     exportToXml(topo, "test_export.xml");
     validate("test_export.xml");
 }
 
-TEST(ExportToXml, SampleOutput)
+TEST(Export, SampleOutput)
 {
     validate(SYS_SAGE_TEST_RESOURCE_DIR "/sys-sage_sample_output.xml");
 }
 
-TEST(ExportToXml, SampleOutputWithAttributes)
+TEST(Export, SampleOutputWithAttributes)
 {
     validate(SYS_SAGE_TEST_RESOURCE_DIR "/sys-sage_custom_attributes.xml");
 }
@@ -144,7 +144,7 @@ xmlNode *getSingleNodeByPath(xmlChar *path, xmlXPathContext *context)
     return result->nodesetval->nodeTab[0];
 }
 
-TEST(ExportToXml, SingleComponent)
+TEST(Export, SingleComponent)
 {
     {
         auto topo = new Topology;
