@@ -1,302 +1,307 @@
-#include "gtest/gtest.h"
+#include <boost/ut.hpp>
 
 #include "sys-sage.hpp"
 
-TEST(Topology, Node)
+using namespace boost::ut;
+
+static suite<"topology"> _ = []
 {
-    Node node{42};
-    EXPECT_EQ(42, node.GetId());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_NODE, node.GetComponentType());
-    EXPECT_EQ("Node", node.GetComponentTypeStr());
-    EXPECT_EQ(nullptr, node.GetParent());
+    "Node"_test = []
+    {
+        Node node{42};
+        expect(that % 42 == node.GetId());
+        expect(that % SYS_SAGE_COMPONENT_NODE == node.GetComponentType());
+        expect(that % "Node"sv == node.GetComponentTypeStr());
+        expect(that % nullptr == node.GetParent());
 
-    Node root{0};
-    node.SetParent(&root);
-    EXPECT_EQ(&root, node.GetParent());
-}
+        Node root{0};
+        node.SetParent(&root);
+        expect(that % &root == node.GetParent());
+    };
 
-TEST(Topology, Topology)
-{
-    Topology node;
-    EXPECT_EQ(0, node.GetId());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_TOPOLOGY, node.GetComponentType());
-    EXPECT_EQ("Topology", node.GetComponentTypeStr());
-}
+    "Topology"_test = []
+    {
+        Topology node;
+        expect(that % 0 == node.GetId());
+        expect(that % SYS_SAGE_COMPONENT_TOPOLOGY == node.GetComponentType());
+        expect(that % "Topology"sv == node.GetComponentTypeStr());
+    };
 
-TEST(Topology, Thread)
-{
-    Node root{0};
-    Thread node{&root, 42, "foo"};
-    EXPECT_EQ(&root, node.GetParent());
-    EXPECT_EQ(42, node.GetId());
-    EXPECT_EQ("foo", node.GetName());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_THREAD, node.GetComponentType());
-    EXPECT_EQ("HW_thread", node.GetComponentTypeStr());
-}
+    "Thread"_test = []
+    {
+        Node root{0};
+        Thread node{&root, 42, "foo"};
+        expect(that % &root == node.GetParent());
+        expect(that % 42 == node.GetId());
+        expect(that % "foo"sv == node.GetName());
+        expect(that % SYS_SAGE_COMPONENT_THREAD == node.GetComponentType());
+        expect(that % "HW_thread"sv == node.GetComponentTypeStr());
+    };
 
-TEST(Topology, Core)
-{
-    Node root{0};
-    Core node{&root, 42, "foo"};
-    EXPECT_EQ(&root, node.GetParent());
-    EXPECT_EQ(42, node.GetId());
-    EXPECT_EQ("foo", node.GetName());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_CORE, node.GetComponentType());
-    EXPECT_EQ("Core", node.GetComponentTypeStr());
-}
+    "Core"_test = []
+    {
+        Node root{0};
+        Core node{&root, 42, "foo"};
+        expect(that % &root == node.GetParent());
+        expect(that % 42 == node.GetId());
+        expect(that % "foo"sv == node.GetName());
+        expect(that % SYS_SAGE_COMPONENT_CORE == node.GetComponentType());
+        expect(that % "Core"sv == node.GetComponentTypeStr());
+    };
 
-TEST(Topology, Cache)
-{
-    Node root{0};
-    Cache node{&root, 42, "3", 32, 2, 16};
-    EXPECT_EQ(&root, node.GetParent());
-    EXPECT_EQ(42, node.GetId());
-    EXPECT_EQ("Cache", node.GetName());
-    EXPECT_EQ("3", node.GetCacheName());
-    EXPECT_EQ(3, node.GetCacheLevel());
-    EXPECT_EQ(32, node.GetCacheSize());
-    EXPECT_EQ(2, node.GetCacheAssociativityWays());
-    EXPECT_EQ(16, node.GetCacheLineSize());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_CACHE, node.GetComponentType());
-    EXPECT_EQ("Cache", node.GetComponentTypeStr());
+    "Cache"_test = []
+    {
+        Node root{0};
+        Cache node{&root, 42, "3", 32, 2, 16};
+        expect(that % &root == node.GetParent());
+        expect(that % 42 == node.GetId());
+        expect(that % "Cache"sv == node.GetName());
+        expect(that % "3"sv == node.GetCacheName());
+        expect(that % 3 == node.GetCacheLevel());
+        expect(that % 32 == node.GetCacheSize());
+        expect(that % 2 == node.GetCacheAssociativityWays());
+        expect(that % 16 == node.GetCacheLineSize());
+        expect(that % SYS_SAGE_COMPONENT_CACHE == node.GetComponentType());
+        expect(that % "Cache"sv == node.GetComponentTypeStr());
 
-    node.SetCacheSize(16);
-    EXPECT_EQ(16, node.GetCacheSize());
+        node.SetCacheSize(16);
+        expect(that % 16 == node.GetCacheSize());
 
-    node.SetCacheLineSize(8);
-    EXPECT_EQ(8, node.GetCacheLineSize());
-}
+        node.SetCacheLineSize(8);
+        expect(that % 8 == node.GetCacheLineSize());
+    };
 
-TEST(Topology, Subdivision)
-{
-    Node root{0};
-    Subdivision node{&root, 42, "foo"};
-    EXPECT_EQ(&root, node.GetParent());
-    EXPECT_EQ(42, node.GetId());
-    EXPECT_EQ("foo", node.GetName());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_SUBDIVISION, node.GetComponentType());
-    EXPECT_EQ("Subdivision", node.GetComponentTypeStr());
+    "Subdivision"_test = []
+    {
+        Node root{0};
+        Subdivision node{&root, 42, "foo"};
+        expect(that % &root == node.GetParent());
+        expect(that % 42 == node.GetId());
+        expect(that % "foo"sv == node.GetName());
+        expect(that % SYS_SAGE_COMPONENT_SUBDIVISION == node.GetComponentType());
+        expect(that % "Subdivision"sv == node.GetComponentTypeStr());
 
-    node.SetSubdivisionType(3);
-    EXPECT_EQ(3, node.GetSubdivisionType());
-}
+        node.SetSubdivisionType(3);
+        expect(that % 3 == node.GetSubdivisionType());
+    };
 
-TEST(Topology, Numa)
-{
-    Node root{0};
-    Numa node{&root, 42, 64};
-    EXPECT_EQ(&root, node.GetParent());
-    EXPECT_EQ(42, node.GetId());
-    EXPECT_EQ("Numa", node.GetName());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_NUMA, node.GetComponentType());
-    EXPECT_EQ("NUMA", node.GetComponentTypeStr());
+    "Numa"_test = []
+    {
+        Node root{0};
+        Numa node{&root, 42, 64};
+        expect(that % &root == node.GetParent());
+        expect(that % 42 == node.GetId());
+        expect(that % "Numa"sv == node.GetName());
+        expect(that % SYS_SAGE_COMPONENT_NUMA == node.GetComponentType());
+        expect(that % "NUMA"sv == node.GetComponentTypeStr());
 
-    node.SetSubdivisionType(3);
-    EXPECT_EQ(3, node.GetSubdivisionType());
-}
+        node.SetSubdivisionType(3);
+        expect(that % 3 == node.GetSubdivisionType());
+    };
 
-TEST(Topology, Chip)
-{
-    Node root{0};
-    Chip node{&root, 42, "foo", 5};
-    EXPECT_EQ(&root, node.GetParent());
-    EXPECT_EQ(42, node.GetId());
-    EXPECT_EQ("foo", node.GetName());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_CHIP, node.GetComponentType());
-    EXPECT_EQ("Chip", node.GetComponentTypeStr());
-    EXPECT_EQ(5, node.GetChipType());
+    "Chip"_test = []
+    {
+        Node root{0};
+        Chip node{&root, 42, "foo", 5};
+        expect(that % &root == node.GetParent());
+        expect(that % 42 == node.GetId());
+        expect(that % "foo"sv == node.GetName());
+        expect(that % SYS_SAGE_COMPONENT_CHIP == node.GetComponentType());
+        expect(that % "Chip"sv == node.GetComponentTypeStr());
+        expect(that % 5 == node.GetChipType());
 
-    node.SetModel("model");
-    EXPECT_EQ("model", node.GetModel());
+        node.SetModel("model");
+        expect(that % "model"sv == node.GetModel());
 
-    node.SetVendor("vendor");
-    EXPECT_EQ("vendor", node.GetVendor());
+        node.SetVendor("vendor");
+        expect(that % "vendor"sv == node.GetVendor());
 
-    node.SetChipType(6);
-    EXPECT_EQ(6, node.GetChipType());
-}
+        node.SetChipType(6);
+        expect(that % 6 == node.GetChipType());
+    };
 
-TEST(Topology, Memory)
-{
-    Node root{0};
-    Memory node{&root, "foo", 32};
-    EXPECT_EQ(&root, node.GetParent());
-    EXPECT_EQ(0, node.GetId());
-    EXPECT_EQ("foo", node.GetName());
-    EXPECT_EQ(32, node.GetSize());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_MEMORY, node.GetComponentType());
-    EXPECT_EQ("Memory", node.GetComponentTypeStr());
+    "Memory"_test = []
+    {
+        Node root{0};
+        Memory node{&root, "foo", 32};
+        expect(that % &root == node.GetParent());
+        expect(that % 0 == node.GetId());
+        expect(that % "foo"sv == node.GetName());
+        expect(that % 32 == node.GetSize());
+        expect(that % SYS_SAGE_COMPONENT_MEMORY == node.GetComponentType());
+        expect(that % "Memory"sv == node.GetComponentTypeStr());
 
-    node.SetSize(64);
-    EXPECT_EQ(64, node.GetSize());
-}
+        node.SetSize(64);
+        expect(that % 64 == node.GetSize());
+    };
 
-TEST(Topology, Storage)
-{
-    Node root{0};
-    Storage node{&root};
-    EXPECT_EQ(&root, node.GetParent());
-    EXPECT_EQ(SYS_SAGE_COMPONENT_STORAGE, node.GetComponentType());
-    EXPECT_EQ("Storage", node.GetComponentTypeStr());
+    "Storage"_test = []
+    {
+        Node root{0};
+        Storage node{&root};
+        expect(that % &root == node.GetParent());
+        expect(that % SYS_SAGE_COMPONENT_STORAGE == node.GetComponentType());
+        expect(that % "Storage"sv == node.GetComponentTypeStr());
 
-    node.SetSize(64);
-    EXPECT_EQ(64, node.GetSize());
-}
+        node.SetSize(64);
+        expect(that % 64 == node.GetSize());
+    };
 
-TEST(Topology, ChildrenInsertionAndRemoval)
-{
-    Node a;
-    Node b;
-    Node c;
-    Node d;
-
-    a.InsertChild(&b);
-    a.InsertChild(&c);
-    a.InsertChild(&d);
-    ASSERT_EQ(3, a.GetChildren()->size());
-
-    ASSERT_EQ(1, a.RemoveChild(&b));
-    ASSERT_EQ(2, a.GetChildren()->size());
-    ASSERT_EQ(std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &b), a.GetChildren()->end());
-    ASSERT_NE(std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &c), a.GetChildren()->end());
-    ASSERT_NE(std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &d), a.GetChildren()->end());
-}
-
-TEST(Topology, GetChild)
-{
-    Node a{1};
-    Node b{2};
-    Node c{3};
-    Node d{4};
-
-    a.InsertChild(&b);
-    a.InsertChild(&c);
-    b.InsertChild(&d);
-
-    EXPECT_EQ(a.GetChild(2), &b);
-    EXPECT_EQ(a.GetChild(3), &c);
-    EXPECT_EQ(a.GetChild(4), nullptr);
-}
-
-TEST(Topology, GetChildByType)
-{
-    Node a;
-    Memory b;
-    Memory c;
-    Chip d;
-
-    a.InsertChild(&b);
-    a.InsertChild(&c);
-    a.InsertChild(&d);
-
-    EXPECT_EQ(a.GetChildByType(SYS_SAGE_COMPONENT_MEMORY), &b);
-    EXPECT_EQ(a.GetChildByType(SYS_SAGE_COMPONENT_CHIP), &d);
-    EXPECT_EQ(a.GetAllChildrenByType(SYS_SAGE_COMPONENT_MEMORY), (std::vector<Component *>{&b, &c}));
-}
-
-TEST(Topology, CheckComponentTreeConsistency)
-{
+    "Children insertion and removal"_test = []
     {
         Node a;
         Node b;
         Node c;
+        Node d;
+
         a.InsertChild(&b);
-        b.InsertChild(&c);
-        EXPECT_EQ(0, a.CheckComponentTreeConsistency());
-    }
+        a.InsertChild(&c);
+        a.InsertChild(&d);
+        expect(that % 3 == a.GetChildren()->size());
+
+        expect(that % 1 == a.RemoveChild(&b));
+        expect(that % (2 == a.GetChildren()->size()) >> fatal);
+        expect(that % (std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &b) == a.GetChildren()->end()));
+        expect(that % (std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &c) != a.GetChildren()->end()));
+        expect(that % (std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &d) != a.GetChildren()->end()));
+    };
+
+    "Get child"_test = []
+    {
+        Node a{1};
+        Node b{2};
+        Node c{3};
+        Node d{4};
+
+        a.InsertChild(&b);
+        a.InsertChild(&c);
+        b.InsertChild(&d);
+
+        expect(that % a.GetChild(2) == &b);
+        expect(that % a.GetChild(3) == &c);
+        expect(that % a.GetChild(4) == nullptr);
+    };
+
+    "Get child by type"_test = []
+    {
+        Node a;
+        Memory b;
+        Memory c;
+        Chip d;
+
+        a.InsertChild(&b);
+        a.InsertChild(&c);
+        a.InsertChild(&d);
+
+        expect(that % a.GetChildByType(SYS_SAGE_COMPONENT_MEMORY) == &b);
+        expect(that % a.GetChildByType(SYS_SAGE_COMPONENT_CHIP) == &d);
+        expect(that % a.GetAllChildrenByType(SYS_SAGE_COMPONENT_MEMORY) == (std::vector<Component *>{&b, &c}));
+    };
+
+    "Component tree consistency"_test = []
+    {
+        {
+            Node a;
+            Node b;
+            Node c;
+            a.InsertChild(&b);
+            b.InsertChild(&c);
+            expect(that % 0 == a.CheckComponentTreeConsistency());
+        }
+        {
+            Node a;
+            Node b;
+            Node c;
+            a.InsertChild(&b);
+            b.InsertChild(&c);
+            c.SetParent(&a);
+            expect(that % 1 == a.CheckComponentTreeConsistency());
+        }
+    };
+
+    "Get deeper components"_test = []
     {
         Node a;
         Node b;
         Node c;
+        Node d;
+
+        a.InsertChild(&b);
+        a.InsertChild(&c);
+        c.InsertChild(&d);
+
+        std::vector<Component *> array;
+        a.GetComponentsNLevelsDeeper(&array, 1);
+        expect(that % 2 == array.size());
+    };
+
+    "Get subcomponents by type"_test = []
+    {
+        Node a;
+        Chip b;
+        Memory c;
+        Chip d;
+
+        a.InsertChild(&b);
+        a.InsertChild(&c);
+        c.InsertChild(&d);
+
+        std::vector<Component *> array;
+        a.GetSubcomponentsByType(&array, SYS_SAGE_COMPONENT_CHIP);
+        expect(that % 2 == array.size());
+    };
+
+    "Get total number of threads"_test = []
+    {
+        Node a;
+        Thread b;
+        Thread c;
+        Node d;
+        Thread e;
+        Node f;
+
+        a.InsertChild(&b);
+        a.InsertChild(&c);
+        a.InsertChild(&d);
+        d.InsertChild(&e);
+        d.InsertChild(&f);
+
+        expect(that % 3 == a.GetNumThreads());
+    };
+
+    "Linearize subtree"_test = []
+    {
+        Node a;
+        Node b;
+        Node c;
+        Node d;
+
+        a.InsertChild(&b);
+        b.InsertChild(&d);
+        a.InsertChild(&c);
+
+        std::vector<Component *> array;
+        a.GetSubtreeNodeList(&array);
+        expect(that % array == (std::vector<Component *>{&a, &b, &d, &c}));
+    };
+
+    "Tree depth"_test = []
+    {
+        Node a;
+        Node b;
+        Node c;
+        Node d;
+        Node e;
+        Node f;
+        Node g;
+
         a.InsertChild(&b);
         b.InsertChild(&c);
-        c.SetParent(&a);
-        EXPECT_EQ(1, a.CheckComponentTreeConsistency());
-    }
-}
+        a.InsertChild(&d);
+        d.InsertChild(&e);
+        e.InsertChild(&f);
+        a.InsertChild(&g);
 
-TEST(Topology, GetComponentsNLevelsDeeper)
-{
-    Node a;
-    Node b;
-    Node c;
-    Node d;
-
-    a.InsertChild(&b);
-    a.InsertChild(&c);
-    c.InsertChild(&d);
-
-    std::vector<Component *> array;
-    a.GetComponentsNLevelsDeeper(&array, 1);
-    EXPECT_EQ(2, array.size());
-}
-
-TEST(Topology, GetSubcomponentsByType)
-{
-    Node a;
-    Chip b;
-    Memory c;
-    Chip d;
-
-    a.InsertChild(&b);
-    a.InsertChild(&c);
-    c.InsertChild(&d);
-
-    std::vector<Component *> array;
-    a.GetSubcomponentsByType(&array, SYS_SAGE_COMPONENT_CHIP);
-    EXPECT_EQ(2, array.size());
-}
-
-TEST(Topology, GetNumThreads)
-{
-    Node a;
-    Thread b;
-    Thread c;
-    Node d;
-    Thread e;
-    Node f;
-
-    a.InsertChild(&b);
-    a.InsertChild(&c);
-    a.InsertChild(&d);
-    d.InsertChild(&e);
-    d.InsertChild(&f);
-
-    EXPECT_EQ(3, a.GetNumThreads());
-}
-
-TEST(Topology, GetSubtreeNodeList)
-{
-    Node a;
-    Node b;
-    Node c;
-    Node d;
-
-    a.InsertChild(&b);
-    b.InsertChild(&d);
-    a.InsertChild(&c);
-
-    std::vector<Component *> array;
-    a.GetSubtreeNodeList(&array);
-    EXPECT_EQ(array, (std::vector<Component *>{&a, &b, &d, &c}));
-}
-
-TEST(Topology, GetTopoTreeDepth)
-{
-    Node a;
-    Node b;
-    Node c;
-    Node d;
-    Node e;
-    Node f;
-    Node g;
-
-    a.InsertChild(&b);
-    b.InsertChild(&c);
-    a.InsertChild(&d);
-    d.InsertChild(&e);
-    e.InsertChild(&f);
-    a.InsertChild(&g);
-
-    EXPECT_EQ(3, a.GetTopoTreeDepth());
-}
+        expect(that % 3 == a.GetTopoTreeDepth());
+    };
+};
