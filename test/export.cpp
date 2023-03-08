@@ -118,8 +118,8 @@ void validate(std::string_view path)
 TEST(Export, MinimalTopology)
 {
     auto topo = new Component{42, "a name", SYS_SAGE_COMPONENT_NONE};
-    exportToXml(topo, "test_export.xml");
-    validate("test_export.xml");
+    exportToXml(topo, "test.xml");
+    validate("test.xml");
 }
 
 TEST(Export, SampleOutput)
@@ -150,13 +150,13 @@ TEST(Export, SingleComponent)
         auto topo = new Topology;
         auto memory = new Memory{topo, "A single memory component", 16};
         (void)memory;
-        exportToXml(topo, "test_export.xml");
+        exportToXml(topo, "test.xml");
     }
 
     {
-        validate("test_export.xml");
+        validate("test.xml");
 
-        auto doc = raii<xmlDoc>{xmlParseFile("test_export.xml"), xmlFreeDoc};
+        auto doc = raii<xmlDoc>{xmlParseFile("test.xml"), xmlFreeDoc};
         ASSERT_NE(doc, nullptr);
 
         auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
@@ -263,14 +263,14 @@ TEST(Export, CustomAttributes)
             return 1;
         };
 
-        std::string output_name = "test_export.xml";
+        std::string output_name = "test.xml";
         exportToXml(&topo, output_name, print_my_attribs, print_my_custom_attribs);
     }
 
     {
-        validate("test_export.xml");
+        validate("test.xml");
 
-        auto doc = raii<xmlDoc>{xmlParseFile("test_export.xml"), xmlFreeDoc};
+        auto doc = raii<xmlDoc>{xmlParseFile("test.xml"), xmlFreeDoc};
         ASSERT_NE(doc, nullptr);
 
         auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
