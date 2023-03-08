@@ -41,27 +41,27 @@ TEST(Hwloc, parseHwlocOutput)
 
     auto cacheL3 = dynamic_cast<Cache *>(chip->GetChildByType(SYS_SAGE_COMPONENT_CACHE));
     ASSERT_NE(nullptr, cacheL3);
-    ASSERT_EQ(3, cacheL3->GetCacheLevel());
-    ASSERT_EQ(17301504, cacheL3->GetCacheSize());
-    ASSERT_EQ(11, cacheL3->GetCacheAssociativityWays());
-    ASSERT_EQ(64, cacheL3->GetCacheLineSize());
+    EXPECT_EQ(3, cacheL3->GetCacheLevel());
+    EXPECT_EQ(17301504, cacheL3->GetCacheSize());
+    EXPECT_EQ(11, cacheL3->GetCacheAssociativityWays());
+    EXPECT_EQ(64, cacheL3->GetCacheLineSize());
 
     auto numa = dynamic_cast<Numa *>(cacheL3->GetChildByType(SYS_SAGE_COMPONENT_NUMA));
     ASSERT_NE(nullptr, numa);
 
     auto cacheL2 = dynamic_cast<Cache *>(numa->GetChildByType(SYS_SAGE_COMPONENT_CACHE));
     ASSERT_NE(nullptr, cacheL2);
-    ASSERT_EQ(2, cacheL2->GetCacheLevel());
-    ASSERT_EQ(1048576, cacheL2->GetCacheSize());
-    ASSERT_EQ(16, cacheL2->GetCacheAssociativityWays());
-    ASSERT_EQ(64, cacheL2->GetCacheLineSize());
+    EXPECT_EQ(2, cacheL2->GetCacheLevel());
+    EXPECT_EQ(1048576, cacheL2->GetCacheSize());
+    EXPECT_EQ(16, cacheL2->GetCacheAssociativityWays());
+    EXPECT_EQ(64, cacheL2->GetCacheLineSize());
 
     auto cacheL1 = dynamic_cast<Cache *>(cacheL2->GetChildByType(SYS_SAGE_COMPONENT_CACHE));
     ASSERT_NE(nullptr, cacheL1);
-    ASSERT_EQ(1, cacheL1->GetCacheLevel());
-    ASSERT_EQ(32768, cacheL1->GetCacheSize());
-    ASSERT_EQ(8, cacheL1->GetCacheAssociativityWays());
-    ASSERT_EQ(64, cacheL1->GetCacheLineSize());
+    EXPECT_EQ(1, cacheL1->GetCacheLevel());
+    EXPECT_EQ(32768, cacheL1->GetCacheSize());
+    EXPECT_EQ(8, cacheL1->GetCacheAssociativityWays());
+    EXPECT_EQ(64, cacheL1->GetCacheLineSize());
 
     auto core = dynamic_cast<Core *>(cacheL1->GetChildByType(SYS_SAGE_COMPONENT_CORE));
     ASSERT_NE(nullptr, core);
