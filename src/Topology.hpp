@@ -318,6 +318,8 @@ public:
     \n componentType=>SYS_SAGE_COMPONENT_TOPOLOGY
     */
     Topology();
+
+    ~Topology() override = default;
 private:
 };
 
@@ -343,6 +345,8 @@ public:
     */
     Node(int _id);
     Node(Component* parent, int _id);
+    
+    ~Node() override = default;
 #ifdef CPUINFO
 public:
     int RefreshCpuCoreFrequency(bool keep_history = false);
@@ -376,6 +380,9 @@ public:
     Memory(Component * parent);
     Memory(Component * parent, string _name);
     Memory(Component * parent, string _name, long long _size);
+
+    ~Memory() override = default;
+
     long long GetSize();
     void SetSize(long long _size);
     /**
@@ -402,6 +409,9 @@ public:
     */
     Storage();
     Storage(Component * parent);
+    
+    ~Storage() override = default;
+    
     long long GetSize() { return size; };
     void SetSize(long long _size) { size = _size; };
     /**
@@ -439,6 +449,8 @@ public:
     Chip(Component * parent, int _id);
     Chip(Component * parent, int _id, string _name);
     Chip(Component * parent, int _id, string _name, int _type);
+
+    ~Chip() override = default;
 
     void SetVendor(string _vendor);
     string GetVendor();
@@ -486,6 +498,8 @@ public:
     Cache(Component * parent, int _id, int  _cache_level, unsigned long long _cache_size, int _associativity);
     Cache(Component * parent, int _id, int  _cache_level, unsigned long long _cache_size, int _associativity, int _cache_line_size);
     Cache(Component * parent, int _id, string _cache_type, unsigned long long _cache_size, int _associativity, int _cache_line_size);
+
+    ~Cache() override = default;
 
     /**
     @returns cache level of this cache
@@ -597,6 +611,9 @@ public:
     Numa(Component * parent);
     Numa(Component * parent, int _id);
     Numa(Component * parent, int _id, long long _size);
+
+    ~Numa() override = default;
+
     /**
     Get size of the Numa memory segment.
     @returns size of the Numa memory segment.
@@ -636,6 +653,9 @@ public:
     Core(Component * parent);
     Core(Component * parent, int _id);
     Core(Component * parent, int _id, string _name);
+
+    ~Core() override = default;
+
 private:
 
 #ifdef CPUINFO
@@ -672,6 +692,8 @@ public:
     Thread(Component * parent);
     Thread(Component * parent, int _id);
     Thread(Component * parent, int _id, string _name);
+
+    ~Thread() override = default;
 
 #ifdef CPUINFO //defined in cpuinfo.cpp
 public:
