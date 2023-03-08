@@ -58,6 +58,8 @@ public:
     Component(int _id, string _name, int _componentType);
     Component(Component * parent, int _id, string _name, int _componentType);
 
+    virtual ~Component() = default;
+
     /**
     Inserts a Child component to this component (in the Component Tree).
     The child pointer will be inserted at the end of std::vector of children (retrievable through GetChildren(), GetChild(int _id) etc.)
@@ -550,6 +552,8 @@ public:
     Subdivision(Component * parent, int _id, string _name);
     Subdivision(Component * parent, int _id, int _componentType);
     Subdivision(Component * parent, int _id, string _name, int _componentType);
+    
+    ~Subdivision() override = default;
 
     void SetSubdivisionType(int subdivisionType);
     int GetSubdivisionType();
