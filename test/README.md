@@ -2,7 +2,7 @@
 
 1. Install [Docker](https://docs.docker.com/engine/install/)
 2. Launch a terminal and change to the project root
-3. Type `docker compose run test` which will build the Docker image, instantiate a container, compile the code, and run all the tests
+3. Type `docker compose up` which will build the Docker image, instantiate a container, compile the code, and run all the tests
 
 During the image build process a few dependecies are fetched and installed via the apt package manager *inside the container* while the host system will remain untouched.
 
