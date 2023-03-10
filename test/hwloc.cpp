@@ -20,7 +20,7 @@ static suite<"hwloc"> _ = []
     {
         std::vector<Component *> components;
         topo.GetSubcomponentsByType(&components, type);
-        expect(that % count == components.size());
+        expect(that % _u(count) == components.size());
     }
 
     auto chip = dynamic_cast<Chip *>(node.GetChildByType(SYS_SAGE_COMPONENT_CHIP));

@@ -62,7 +62,7 @@ static suite<"data-path"> _ = []
         Component a, b;
         DataPath dp{&a, &b, SYS_SAGE_DATAPATH_BIDIRECTIONAL, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
 
-        expect(that % nullptr != a.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING) >> fatal);
+        expect(that % (nullptr != a.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)) >> fatal);
         expect(that % (nullptr != a.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)) >> fatal);
         expect(that % (std::vector{&dp}) == *a.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING));
         expect(that % (std::vector{&dp}) == *a.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING));

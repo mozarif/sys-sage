@@ -157,10 +157,10 @@ static suite<"topology"> _ = []
         a.InsertChild(&b);
         a.InsertChild(&c);
         a.InsertChild(&d);
-        expect(that % 3 == a.GetChildren()->size());
+        expect(that % 3_u == a.GetChildren()->size());
 
         expect(that % 1 == a.RemoveChild(&b));
-        expect(that % (2 == a.GetChildren()->size()) >> fatal);
+        expect(that % (2_u == a.GetChildren()->size()) >> fatal);
         expect(that % (std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &b) == a.GetChildren()->end()));
         expect(that % (std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &c) != a.GetChildren()->end()));
         expect(that % (std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &d) != a.GetChildren()->end()));
@@ -232,7 +232,7 @@ static suite<"topology"> _ = []
 
         std::vector<Component *> array;
         a.GetComponentsNLevelsDeeper(&array, 1);
-        expect(that % 2 == array.size());
+        expect(that % 2_u == array.size());
     };
 
     "Get subcomponents by type"_test = []
@@ -248,7 +248,7 @@ static suite<"topology"> _ = []
 
         std::vector<Component *> array;
         a.GetSubcomponentsByType(&array, SYS_SAGE_COMPONENT_CHIP);
-        expect(that % 2 == array.size());
+        expect(that % 2_u == array.size());
     };
 
     "Get total number of threads"_test = []

@@ -19,7 +19,7 @@ static suite<"gpu-topo"> _ = []
     {
         std::vector<Component *> components;
         topo.GetSubcomponentsByType(&components, type);
-        expect(that % count == components.size());
+        expect(that % _u(count) == components.size());
     }
 
     expect(that % "Nvidia"sv == gpu.GetVendor());
@@ -28,7 +28,7 @@ static suite<"gpu-topo"> _ = []
     auto memory = dynamic_cast<Memory *>(gpu.GetChildByType(SYS_SAGE_COMPONENT_MEMORY));
     expect(that % (nullptr != memory) >> fatal);
     expect(that % 25637224578 == memory->GetSize());
-    expect(that % 3840 == memory->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)->size());
+    expect(that % 3840_u == memory->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)->size());
 
     auto cacheL2 = dynamic_cast<Cache *>(memory->GetChildByType(SYS_SAGE_COMPONENT_CACHE));
     expect(that % (nullptr != cacheL2) >> fatal);
