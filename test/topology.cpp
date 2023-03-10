@@ -198,6 +198,14 @@ static suite<"topology"> _ = []
         expect(that % a.GetAllChildrenByType(SYS_SAGE_COMPONENT_MEMORY) == (std::vector<Component *>{&b, &c}));
     };
 
+    "Get parent by type"_test = []
+    {
+        Cache a;
+        Core b{&a};
+        Thread c{&b};
+        expect(that % &a == c.FindParentByType(SYS_SAGE_COMPONENT_CACHE));
+    };
+
     "Component tree consistency"_test = []
     {
         {
