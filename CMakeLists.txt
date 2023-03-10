@@ -49,6 +49,7 @@ option(DS_HWLOC "Build and install data source hwloc (Retrieves hwloc topology i
 option(DS_MT4G "Build and install data source mt4g (Compute and memory topology of NVidia GPUs)" OFF)
 option(DS_NUMA "Build and install data source caps-numa-benchmark" OFF)
 option(TESTS "Build tests" OFF)
+option(TESTS_ENABLE_SANITIZERS "Build tests with enabled sanitizers" OFF)
 
 if(CAT_AWARE)
     add_definitions(-DCAT_AWARE )
