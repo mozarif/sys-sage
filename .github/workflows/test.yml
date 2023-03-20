@@ -1,0 +1,7 @@
+name: test
+on: [push]
+jobs:
+  build:
+    runs-on: [self-hosted]
+    steps:
+      - run: echo "Hello world"
