@@ -11,6 +11,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: true
+      - run: ls -R
       - uses: ./.github/actions/action.yml
   asan:
     runs-on: [ubuntu-latest]
