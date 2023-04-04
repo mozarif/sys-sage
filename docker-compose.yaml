@@ -9,6 +9,6 @@ services:
     entrypoint: [ "/bin/sh", "-c" ]
     command:
       - |
-        cmake -S /sys-sage -B /build -DCMAKE_BUILD_TYPE=Debug -DTESTS=ON -DTESTS_ENABLE_SANITIZERS=OFF
+        cmake -S /sys-sage -B /build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON
         cmake --build build --target test
         ./build/test/test

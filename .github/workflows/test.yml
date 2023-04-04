@@ -1,7 +1,7 @@
 name: test
 on: [push]
 jobs:
-  build:
+  test:
     runs-on: [ubuntu-latest]
     steps:
       - name: Git checkout
@@ -9,17 +9,17 @@ jobs:
         with:
           submodules: true
       - run: mkdir -p build
-      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTESTS=ON -DTESTS_ENABLE_SANITIZERS=OFF
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON
       - run: cmake --build build --target test
-      - uses: actions/upload-artifact@v3
-        with:
-          name: sys-sage
-          path: build
-  test:
-    needs: build
+      - run: ./build/test/test
+  asan:
     runs-on: [ubuntu-latest]
     steps:
-      - uses: actions/download-artifact@v3
+      - name: Git checkout
+        uses: actions/checkout@v3
         with:
-          name: sys-sage
-      - run: ./test/test
+          submodules: true
+      - run: mkdir -p build
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON -DTEST_ASAN=ON
+      - run: cmake --build build --target test
+      - run: ./build/test/test
