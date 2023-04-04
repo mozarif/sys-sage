@@ -5,7 +5,7 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - run: pwd
-      - run: ls
+      - run: ls ..
       - run: mkdir -p build
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTESTS=ON -DTESTS_ENABLE_SANITIZERS=OFF
       - run: cmake --build build --target test
