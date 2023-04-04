@@ -392,7 +392,7 @@ public:
     xmlNodePtr CreateXmlSubtree();
 private:
     long long size; /**< size/capacity of the memory element*/
-    bool is_volatile; /**< is volatile? */
+    bool is_volatile = false; /**< is volatile? */
 };
 
 /**
