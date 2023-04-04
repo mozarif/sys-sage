@@ -7,11 +7,14 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v3
         with:
-          submodules: recursive
-      - run: pwd
-      - run: ls
-      - run: ls ..
+          submodules: true
       - run: mkdir -p build
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTESTS=ON -DTESTS_ENABLE_SANITIZERS=OFF
       - run: cmake --build build --target test
       - run: ./build/test/test
+  test:
+    needs: build
+    runs-on: [ubuntu-latest]
+    steps:
+      - run: pwd
+      - run: ls
