@@ -6,6 +6,6 @@ target_link_libraries(test PRIVATE ut sys-sage)
 target_compile_definitions(test PRIVATE SYS_SAGE_TEST_RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
 
 if(${TEST_ASAN})
-    target_compile_options(test PRIVATE -fsanitize=address -g3)
-    target_link_options(test PRIVATE -fsanitize=address)
+    target_compile_options(test PRIVATE -fsanitize=address -O0 -g3)
+    target_link_options(test PRIVATE -fsanitize=address -O0)
 endif()
