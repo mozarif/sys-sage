@@ -1,7 +1,7 @@
 name: test
 on: [push]
 env:
-  CXX: clang
+  CXX: clang++
   CC: clang
 jobs:
   test:
