@@ -11,10 +11,17 @@ jobs:
       - run: mkdir -p build
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTESTS=ON -DTESTS_ENABLE_SANITIZERS=OFF
       - run: cmake --build build --target test
-      - run: ./build/test/test
+      # - run: ./build/test/test
+      - uses: actions/upload-artifact@v3
+        with:
+          name: sys-sage
+          path: build
   test:
     needs: build
     runs-on: [ubuntu-latest]
     steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: sys-sage
       - run: pwd
       - run: ls
