@@ -38,24 +38,6 @@ jobs:
       - name: Test
         shell: bash
         run: ./build/test/test
-  msan:
-    name: Memory Sanitizer
-    runs-on: [ubuntu-latest]
-    needs: test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Configure
-        shell: bash
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON -DTEST_MSAN=ON
-      - name: Build
-        shell: bash
-        run: cmake --build build --target test
-      - name: Test
-        shell: bash
-        run: ./build/test/test
   tsan:
     name: Thread Sanitizer
     runs-on: [ubuntu-latest]

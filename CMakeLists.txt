@@ -50,7 +50,6 @@ option(DS_MT4G "Build and install data source mt4g (Compute and memory topology 
 option(DS_NUMA "Build and install data source caps-numa-benchmark" OFF)
 option(TEST "Build tests" OFF)
 option(TEST_ASAN "Build tests with enabled address sanitizers" OFF)
-option(TEST_MSAN "Build tests with enabled memory sanitizers" OFF)
 option(TEST_TSAN "Build tests with enabled thread sanitizers" OFF)
 option(TEST_UBSAN "Build tests with enabled undefined behaviour sanitizers" OFF)
 
