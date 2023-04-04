@@ -1,5 +1,3 @@
-name: Test
-description: Builds and tests the library
 inputs:
     flags:
         description: Configration flags
