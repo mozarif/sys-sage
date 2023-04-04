@@ -1,7 +1,4 @@
 on: [push]
-env:
-  CXX: clang++
-  CC: clang
 jobs:
   test:
     name: Unit Tests
