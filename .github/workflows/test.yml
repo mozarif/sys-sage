@@ -2,6 +2,6 @@ name: test
 on: [push]
 jobs:
   build:
-    runs-on: [self-hosted]
+    runs-on: [ubuntu-latest]
     steps:
       - run: echo "Hello world"

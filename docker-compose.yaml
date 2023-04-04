@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/sys-sage
-    entrypoint: ["/bin/sh","-c"]
+    entrypoint: [ "/bin/sh", "-c" ]
     command:
       - |
         cmake -S /sys-sage -B /build -DCMAKE_BUILD_TYPE=Debug -DTESTS=ON -DTESTS_ENABLE_SANITIZERS=OFF
