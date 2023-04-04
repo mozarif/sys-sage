@@ -1,0 +1,17 @@
+name: Test
+description: Builds and tests the library
+inputs:
+    flags:
+        description: Configration flags
+        default: ""
+runs:
+    using: composite
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - run: mkdir -p build
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON ${{ inputs.flags }}
+      - run: cmake --build build --target test
+      - run: ./build/test/test
