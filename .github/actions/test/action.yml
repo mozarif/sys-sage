@@ -1,11 +1,16 @@
 inputs:
-    flags:
-        description: Configration flags
-        default: ""
+  flags:
+    description: Configration flags
+    default: ""
 runs:
-    using: composite
-    steps:
-      - run: mkdir -p build
-      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON ${{ inputs.flags }}
-      - run: cmake --build build --target test
-      - run: ./build/test/test
+  using: composite
+  steps:
+    - name: Configure
+      shell: bash
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON ${{ inputs.flags }}
+    - name: Build
+      shell: bash
+      run: cmake --build build --target test
+    - name: Execute
+      shell: bash
+      run: ./build/test/test
