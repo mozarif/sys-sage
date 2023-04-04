@@ -11,7 +11,6 @@ jobs:
       - run: mkdir -p build
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTESTS=ON -DTESTS_ENABLE_SANITIZERS=OFF
       - run: cmake --build build --target test
-      # - run: ./build/test/test
       - uses: actions/upload-artifact@v3
         with:
           name: sys-sage
@@ -23,5 +22,4 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: sys-sage
-      - run: pwd
-      - run: ls
+      - run: ./test/test
