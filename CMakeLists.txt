@@ -52,6 +52,7 @@ option(TEST "Build tests" OFF)
 option(TEST_ASAN "Build tests with enabled address sanitizers" OFF)
 option(TEST_TSAN "Build tests with enabled thread sanitizers" OFF)
 option(TEST_UBSAN "Build tests with enabled undefined behaviour sanitizers" OFF)
+option(TEST_COVERAGE "Build tests with enabled coverage" OFF)
 
 if(CAT_AWARE)
     add_definitions(-DCAT_AWARE )
