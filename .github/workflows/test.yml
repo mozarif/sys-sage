@@ -1,40 +1,20 @@
-on: [push]
+name: Test
+on:
+  workflow_call:
+    inputs:
+      flags:
+        type: string
+        default: ''
 jobs:
-  test:
-    name: Unit Tests
-    uses: ./.github/workflows/build.yml
-  asan:
-    name: Address Sanitizer
-    needs: test
-    uses: ./.github/workflows/build.yml
-    with:
-      flags: -DTEST_ASAN=ON
-  tsan:
-    name: Thread Sanitizer
+  build:
     runs-on: [ubuntu-latest]
-    needs: test
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: true
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON -DTEST_TSAN=ON
-      - name: Build
-        run: cmake --build build --target test
-      - name: Test
-        run: ./build/test/test
-  ubsan:
-    name: Undefined Behaviour Sanitizer
-    runs-on: [ubuntu-latest]
-    needs: test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON -DTEST_UBSAN=ON
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON ${{ inputs.flags }}
       - name: Build
         run: cmake --build build --target test
       - name: Test

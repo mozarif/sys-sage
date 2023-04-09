@@ -1,0 +1,24 @@
+name: CI
+on: [push]
+jobs:
+  test:
+    name: Unit Tests
+    uses: ./.github/workflows/test.yml
+  asan:
+    name: Address Sanitizer
+    needs: test
+    uses: ./.github/workflows/test.yml
+    with:
+      flags: -DTEST_ASAN=ON
+  tsan:
+    name: Thread Sanitizer
+    needs: test
+    uses: ./.github/workflows/test.yml
+    with:
+      flags: -DTEST_TSAN=ON
+  ubsan:
+    name: Thread Sanitizer
+    needs: test
+    uses: ./.github/workflows/test.yml
+    with:
+      flags: -DTEST_UBSAN=ON
