@@ -38,4 +38,4 @@ jobs:
       - name: Generate documentation coverage
         run: python3 -m coverxygen --xml-dir xml --src-dir src/ --output doc-coverage.info --format json-v3
       - name: Documentation report
-        run: docs/show_undocumented.py
+        run: docs/show_undocumented.py doc-coverage.info
