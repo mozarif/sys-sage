@@ -5,6 +5,7 @@ jobs:
     uses: ./.github/workflows/build.yml
   asan:
     name: Address Sanitizer
+    needs: test
     uses: ./.github/workflows/build.yml
     with:
       flags: -DTEST_ASAN=ON
