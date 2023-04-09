@@ -16,7 +16,7 @@ jobs:
     with:
       flags: -DTEST_TSAN=ON
   ubsan:
-    name: Thread Sanitizer
+    name: Undefined Behaviour Sanitizer
     needs: test
     uses: ./.github/workflows/test.yml
     with:
