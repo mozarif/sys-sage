@@ -34,8 +34,8 @@ jobs:
       - name: Install coverxygen
         run: pip3 install coverxygen
       - name: Generate documentation
-        run: doxygen docs/Doxyfile
+        run: cd docs && doxygen Doxyfile
       - name: Generate documentation coverage
-        run: python3 -m coverxygen --xml-dir xml --src-dir src/ --output doc-coverage.info --format json-v3
+        run: cd docs && python3 -m coverxygen --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3
       - name: Documentation report
-        run: docs/show_undocumented.py doc-coverage.info
+        run: cd docs && show_undocumented.py doc-coverage.info
