@@ -2,33 +2,12 @@ on: [push]
 jobs:
   test:
     name: Unit Tests
-    runs-on: [ubuntu-latest]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON
-      - name: Build
-        run: cmake --build build --target test
-      - name: Test
-        run: ./build/test/test
+    uses: ./.github/workflows/build.yml
   asan:
     name: Address Sanitizer
-    runs-on: [ubuntu-latest]
-    needs: test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON -DTEST_ASAN=ON
-      - name: Build
-        run: cmake --build build --target test
-      - name: Test
-        run: ./build/test/test
+    uses: ./.github/workflows/build.yml
+    with:
+      flags: -DTEST_ASAN=ON
   tsan:
     name: Thread Sanitizer
     runs-on: [ubuntu-latest]
