@@ -9,13 +9,10 @@ jobs:
         with:
           submodules: true
       - name: Configure
-        shell: bash
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON
       - name: Build
-        shell: bash
         run: cmake --build build --target test
       - name: Test
-        shell: bash
         run: ./build/test/test
   asan:
     name: Address Sanitizer
@@ -27,13 +24,10 @@ jobs:
         with:
           submodules: true
       - name: Configure
-        shell: bash
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON -DTEST_ASAN=ON
       - name: Build
-        shell: bash
         run: cmake --build build --target test
       - name: Test
-        shell: bash
         run: ./build/test/test
   tsan:
     name: Thread Sanitizer
@@ -45,13 +39,10 @@ jobs:
         with:
           submodules: true
       - name: Configure
-        shell: bash
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON -DTEST_TSAN=ON
       - name: Build
-        shell: bash
         run: cmake --build build --target test
       - name: Test
-        shell: bash
         run: ./build/test/test
   ubsan:
     name: Undefined Behaviour Sanitizer
@@ -63,11 +54,8 @@ jobs:
         with:
           submodules: true
       - name: Configure
-        shell: bash
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON -DTEST_UBSAN=ON
       - name: Build
-        shell: bash
         run: cmake --build build --target test
       - name: Test
-        shell: bash
         run: ./build/test/test
