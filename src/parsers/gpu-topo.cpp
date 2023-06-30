@@ -405,7 +405,7 @@ int GpuTopo::parseMAIN_MEMORY()
                 if(latency != -1)
                     for(Component * c : *(sm->GetChildren()))
                         if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
-                            DataPath * d = new DataPath(mem, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                            new DataPath(mem, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
             }
         }
     }
@@ -425,7 +425,7 @@ int GpuTopo::parseCaches(string header_name, string cache_type)
 
     //parse_args
     int shared_on = -1; //0=GPU, 1=SM
-    int caches_per_sm = 1;
+    int caches_per = 1;
     double size = -1;
     int cache_line_size = -1;
     double latency = -1;
@@ -493,13 +493,13 @@ int GpuTopo::parseCaches(string header_name, string cache_type)
             }
             i+=1;
         }
-        else if(data[i]== "Caches_Per_SM")
+        else if(data[i]== "Caches_Per_SM" || data[i]== "Caches_Per_GPU")
         {
             if(i>=data.size()-1){
                 cerr << "parseCaches: \"" << data[i] << "\" is supposed to be followed by 1 additional value." << endl;
                 return 1;
             }
-            caches_per_sm = stoi(data[i+1]);
+            caches_per = stoi(data[i+1]);
         }
         else if(data[i]== "Share_Cache_With_L1_Data")
         {
@@ -589,29 +589,36 @@ int GpuTopo::parseCaches(string header_name, string cache_type)
                     parent = l2;
             }
         }
-        Cache * cache = new Cache(parent, 0, cache_type);
-        if(size != -1)
-            cache->SetCacheSize(size);
-        if(cache_line_size != -1)
-            cache->SetCacheLineSize(cache_line_size);
-
-        vector<Component*> children_copy;
-        for(Component* child : *(parent->GetChildren())){
-            children_copy.push_back(child);
-        }
-        for(Component * sm : children_copy)
+        vector<Cache*> caches_created;
+        for(int i = 0; i< caches_per; i++)
         {
-            if(sm->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
-            {
-                parent->RemoveChild(sm);
-                cache->InsertChild(sm);
-                sm->SetParent(cache);
+            Cache * cache = new Cache(parent, i, cache_type);
+            caches_created.push_back(cache);
+            if(size != -1)
+                cache->SetCacheSize(size);
+            if(cache_line_size != -1)
+                cache->SetCacheLineSize(cache_line_size);
+        }
 
-                if(latency != -1)
-                    for(Component * c : *(sm->GetChildren()))
-                        if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
-                            DataPath * d = new DataPath(cache, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+        vector<Component*> sms;
+        for(Component* child : *(parent->GetChildren())){
+            if(child->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)child)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+            {
+                sms.push_back(child);
             }
+        }
+
+        for(unsigned int i = 0; i<sms.size(); i++)
+        {
+            parent->RemoveChild(sms[i]);
+            int cache_i = i*caches_created.size() / sms.size();
+            caches_created[cache_i]->InsertChild(sms[i]);
+            sms[i]->SetParent(caches_created[cache_i]);
+
+            if(latency != -1)
+                for(Component * c : *(sms[i]->GetChildren()))
+                    if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
+                        new DataPath(caches_created[cache_i], c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
         }
     }
     else if(shared_on == 1) //shared on SM
@@ -643,7 +650,7 @@ int GpuTopo::parseCaches(string header_name, string cache_type)
                 }
             }
 
-            for(int i=0; i<caches_per_sm; i++)
+            for(int i=0; i<caches_per; i++)
             {
                 Cache * cache = new Cache(parent, i, cache_type);
                 if(size != -1)
@@ -651,7 +658,7 @@ int GpuTopo::parseCaches(string header_name, string cache_type)
                 if(cache_line_size != -1)
                     cache->SetCacheLineSize(cache_line_size);
 
-                int cores_per_cache = (*(int*)root->attrib["Number_of_cores_per_SM"])/caches_per_sm;
+                int cores_per_cache = (*(int*)root->attrib["Number_of_cores_per_SM"])/caches_per;
 
                 //insert DP with latency
                 vector<Component*> children_copy;
@@ -675,7 +682,7 @@ int GpuTopo::parseCaches(string header_name, string cache_type)
                             }
 
                             if(latency != -1)
-                                DataPath * d = new DataPath(cache, child, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                                new DataPath(cache, child, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
                         }
                     }
                 }
