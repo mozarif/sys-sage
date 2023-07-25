@@ -16,7 +16,8 @@ The main goal of the library is to to store, update, and provide all relevant in
         - [**hwloc parser**](hwloc_8hpp.html)
     - Data Sources
         - [**hwloc**](hwloc-output_8cpp.html)
-
+<!-- <img src="images/goal.drawio.png"> -->
+<!-- \image html images/goal.drawio.png -->
 ### About
 
 sys-sage has been created by Stepan Vanecek (stepan.vanecek@tum.de) and the [CAPS TUM](https://www.ce.cit.tum.de/en/caps/homepage/). Please contact us in case of questions, bug reporting etc.
