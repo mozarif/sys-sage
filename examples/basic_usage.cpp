@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
     Topology* topo = new Topology();
     Node* n = new Node(topo, 1);
 
+    
     cout << "-- Parsing Hwloc output from file " << topoPath << endl;
     if(parseHwlocOutput(n, topoPath) != 0) { //adds topo to a next node
         usage(argv[0]);
@@ -63,6 +64,7 @@ int main(int argc, char *argv[])
     string output_name = "sys-sage_sample_output.xml";
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     exportToXml(topo, output_name);
-
+    delete topo;
+    delete n;
     return 0;
 }

@@ -354,6 +354,8 @@ int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dat
         subtreeSize += (*it)->GetTopologySize(out_component_size, out_dataPathSize, counted_dataPaths);
     }
 
+    if(counted_dataPaths != NULL)
+        delete counted_dataPaths;
     return component_size + dataPathSize + subtreeSize;
 }
 
