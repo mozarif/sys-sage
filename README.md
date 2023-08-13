@@ -28,7 +28,7 @@ spack install sys-sage
 - libxml2
 
 ```bash
-sudo apt install cmake && sudo apt install libxml2
+sudo apt install cmake && sudo apt install libxml2-dev
 ```
 
 ### Building from sources
