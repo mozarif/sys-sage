@@ -47,6 +47,10 @@ It can represent the dynamic state of the system and increases the degree of det
 
 <img src="images/goal.drawio.png">
 
+<!-- For Doxygen -->
+\image html images/goal.drawio.png 
+\image latex images/goal.drawio.png
+
 #### Types of Attributes to Handle
 1. Both qualitative (such as core ID) and quantitative (cache size) attributes.
 2. Information describing one particular component (L1 cache), their group
@@ -72,6 +76,10 @@ The general workflow is as follows:
 ## Design of sys-sage
 
 <img src="images/sys-sage-workflow-general.drawio.png">
+
+<!-- For Doxygen -->
+\image html images/sys-sage-workflow-general.drawio.png
+\image latex images/sys-sage-workflow-general.drawio.png
 
 The design of sys-sage reflects the requirements put on it. It is implemented in C++, where the particular constructs are implemented as C++ classes in the background.
 

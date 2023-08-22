@@ -14,13 +14,28 @@ Please refer to the [Installation Guide](https://stepanvanecek.github.io/sys-sag
 
 The recommended installation is through spack, alternatively, sys-sage can be built from the sources.
 
+## Installation with spack
 ```bash
 spack install sys-sage
 #see "spack info sys-sage" for available options and versions
 ```
 
-Installation with CMAKE:
+## Installation with CMAKE
+
+### Basic dependencies
+
+- cmake
+- libxml2
+
 ```bash
+sudo apt install cmake && sudo apt install libxml2-dev
+```
+
+### Building from sources
+
+```bash
+git clone https://github.com/caps-tum/sys-sage.git
+cd sys-sage
 mkdir build && cd build
 cmake ..
 # build options:
