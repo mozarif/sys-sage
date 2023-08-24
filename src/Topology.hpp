@@ -92,8 +92,11 @@ public:
     */
     void PrintAllDataPathsInSubtree();
     /**
-    Deletes all the children at the specified level
-    @param level - level to begin with
+    Deletes the leaf nodes of the subtree of a component. 
+    This function should be called recursively with decreasing max_depth, with the initial call having max_depth equal to the depth of the tree.
+    For usage, @see examples/basic_usage.cpp
+    @param level - top most level
+    @param max_depth - the current max_depth of the tree 
     */
     void DeleteLeaf(int level, int max_depth);
     /**
