@@ -92,6 +92,11 @@ public:
     */
     void PrintAllDataPathsInSubtree();
     /**
+    Deletes all the children at the specified level
+    @param level - level to begin with
+    */
+    void DeleteLeaf(int level, int max_depth);
+    /**
     Returns name of the component.
     @return name
     @see name

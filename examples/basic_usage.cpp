@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     cout << "---------------- Printing the whole tree ----------------" << endl;
     topo->PrintSubtree(2);
     cout << "----------------                     ----------------" << endl;
-
+    cout << "Topology depth-->" << topo->GetTopoTreeDepth() << "\n";
     cout << "-- Parsing CapsNumaBenchmark output from file " << bwPath << endl;
     if(parseCapsNumaBenchmark((Component*)n, bwPath, ";") != 0){
         cout << "failed parsing caps-numa-benchmark" << endl;
@@ -64,6 +64,11 @@ int main(int argc, char *argv[])
     string output_name = "sys-sage_sample_output.xml";
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     exportToXml(topo, output_name);
+    cout << "Clearing up the tree..." << endl;
+    for (int i = 2 + topo->GetTopoTreeDepth(); i > 3; i--){
+        topo->DeleteLeaf(2, i);
+    }
+    
     delete topo;
     delete n;
     return 0;

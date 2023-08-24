@@ -5,13 +5,17 @@
 void Component::PrintSubtree() { PrintSubtree(0); }
 void Component::PrintSubtree(int level)
 {
+    
     //cout << "---PrintSubtree---" << endl;
     for (int i = 0; i < level; ++i)
         cout << "  ";
-    cout << GetComponentTypeStr() << " (name " << name << ") id " << id << " - children: " << children.size() << endl;
 
+    cout << GetComponentTypeStr() << " (name " << name << ") id " << id << " - children: " << children.size();
+    cout << " level: " << level<<"\n";
+    // sleep(2);
     for(Component* child: children)
     {
+        //cout << "size of children: " << child->children.size() << "\n";
         child->PrintSubtree(level + 1);
     }
 }
@@ -38,6 +42,60 @@ void Component::PrintAllDataPathsInSubtree()
             }
         }
     }
+}
+
+void Component::DeleteLeaf(int level, int max_depth)
+{
+
+    if((children.size() == 1) && (level+1 >= max_depth))
+    {  
+        
+        Component* child_temp = children[0];
+        if(int i = RemoveChild(children[0]) > 0)
+        {
+            delete child_temp;
+        }
+        else
+        {
+            cout << "Error deleting child\n";
+        }
+            
+    }
+    else 
+    {
+
+        for(int i = 0; i < children.size(); i++)
+        {   
+            /****
+             * if there are no grandchildren, that means the child is a leaf node
+            ****/
+            if(children[i]->children.size() == 0)
+            {   
+                Component* child_temp = children[i];
+                int j = RemoveChild(children[i]);
+                //delete child_temp;
+                //i = i - 1;
+                if( j > 0)
+                {
+                    //cout << "i = " << i << " Elements deleted: " << children[i]->GetComponentTypeStr() << " (name " << children[i]->name << ") id " << children[i]->id << "\n";
+                    delete child_temp;
+                    i = i - 1;
+                    // continue;
+                }
+                else
+                {
+                    cout << "Error deleting child\n";
+                }
+                
+            }
+            else
+            {
+                children[i]->DeleteLeaf(level + 1, max_depth);
+            }
+            
+        }
+    }
+    
 }
 
 void Component::InsertChild(Component * child)
