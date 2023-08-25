@@ -3,7 +3,7 @@
 
 /*! \file */
 /// @private
-int hwloc_dump_xml(const char *filename);
+int get_hwloc_topology_xml(const char *filename);
 
 using namespace std;
 
