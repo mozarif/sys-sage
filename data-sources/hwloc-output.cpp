@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <hwloc.h>
 
 /*! \file */
