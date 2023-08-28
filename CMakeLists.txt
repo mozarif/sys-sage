@@ -32,6 +32,11 @@ if(NVIDIA_MIG)
   link_libraries(CUDA::nvml)
 endif()
 
+if(DATA_SOURCES OR DS_HWLOC)
+  find_package(HWLOC REQUIRED)
+  include_directories(${HWLOC_INCLUDE_DIRS})
+endif()
+
 
 # Create and install package configuration and version files.
 configure_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage-config.cmake.in

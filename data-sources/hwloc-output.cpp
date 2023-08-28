@@ -1,36 +1,41 @@
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <sstream>
 #include <hwloc.h>
+
+
+using namespace std;
+
 
 /*! \file */
 /// @private
-int get_hwloc_topology_xml(const char *filename);
-
-using namespace std;
+string get_hwloc_topology_xml_string();
 
 /**
 Binary (entrypoint) for generating hwloc topology XML output (to current directory)
 \n usage: ./hwloc-output [output_filename]
-@param filename of the output file (default: tmp_hwloc.xml)
+@param filename of the output file (default: hwloc_topology.xml)
 */
 
 int main(int argc, char* argv[])
 {
-    string xml_output;
-
+    
+    string filename;
     if (argc < 2) {
-        xml_output = get_hwloc_topology_xml("tmp_hwloc.xml");
+        filename = "hwloc_topology.xml";
     }
     else {
-        xml_output = get_hwloc_topology_xml(argv[1]);
+       filename = argv[1];
     }
+    string xml_output = get_hwloc_topology_xml_string();
 
     if (!xml_output.empty()) {
-        string filename = "hwloc_topology.xml";
-        ofstream outfile(filename);
+        ofstream outfile;
+        outfile.open(filename);
         outfile << xml_output;
         outfile.close();
-        cout << "Hwloc XML output exported to " << filename << endl;
+        //cout << "Hwloc XML output exported to " << filename << endl;
     }
     else {
         cerr << "Failed to generate hwloc topology XML output" << endl;
@@ -39,7 +44,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-string get_hwloc_topology_xml(const char* filename) {
+string get_hwloc_topology_xml_string() {
     int err;
     unsigned long flags = 0; // don't show anything special
     hwloc_topology_t topology;
@@ -61,7 +66,7 @@ string get_hwloc_topology_xml(const char* filename) {
         hwloc_topology_destroy(topology);
         return "";
     }
-
+    //TODO replace with hwloc_topology_export_xmlbuffer?
     stringstream xml_output_stream;
     err = hwloc_topology_export_xml(topology, xml_output_stream, flags);
     if (err) {
