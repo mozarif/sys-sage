@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     cout << "Total num HW threads: " << topo->GetNumThreads() << endl;
 
     cout << "---------------- Printing the whole tree ----------------" << endl;
-    topo->PrintSubtree(2);
+    topo->PrintSubtree();
     cout << "----------------                     ----------------" << endl;
     cout << "Topology depth-->" << topo->GetTopoTreeDepth() << "\n";
     cout << "-- Parsing CapsNumaBenchmark output from file " << bwPath << endl;
@@ -65,11 +65,14 @@ int main(int argc, char *argv[])
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     exportToXml(topo, output_name);
     cout << "Clearing up the tree..." << endl;
-    for (int i = 2 + topo->GetTopoTreeDepth(); i > 3; i--){
-        topo->DeleteLeaf(2, i);
-    }
-    
+    // for (int i = topo->GetTopoTreeDepth(); i > 1; i--){
+    //     topo->DeleteLeaf(0, i);
+    // }
+    //topo->DeleteSubtree(topo->GetTopoTreeDepth());
+    // topo->DeleteSubtree(topo);
+    topo->DeleteSubtree();
+    topo->PrintSubtree();
+    // delete n;
     delete topo;
-    delete n;
     return 0;
 }

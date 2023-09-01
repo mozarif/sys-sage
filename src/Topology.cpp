@@ -73,14 +73,10 @@ void Component::DeleteLeaf(int level, int max_depth)
             {   
                 Component* child_temp = children[i];
                 int j = RemoveChild(children[i]);
-                //delete child_temp;
-                //i = i - 1;
                 if( j > 0)
                 {
-                    //cout << "i = " << i << " Elements deleted: " << children[i]->GetComponentTypeStr() << " (name " << children[i]->name << ") id " << children[i]->id << "\n";
                     delete child_temp;
                     i = i - 1;
-                    // continue;
                 }
                 else
                 {
@@ -98,6 +94,28 @@ void Component::DeleteLeaf(int level, int max_depth)
     
 }
 
+//To-do: Remove level and just call on 0th index
+
+void Component::DeleteSubtree(int level)
+{
+
+    for(int i = 0; i < children.size(); i++)
+    {       
+        children[i]->DeleteSubtree(level + 1); // Recursively free children
+        if (level >= 1)
+            i = i - 1;    
+    }
+
+
+    if (level >= 1)
+    {
+        Component *myParent = GetParent();
+        int j = myParent->RemoveChild(this);
+        delete this;
+    }
+    
+    return;
+}
 void Component::InsertChild(Component * child)
 {
     child->SetParent(this);
@@ -168,13 +186,17 @@ int Component::GetTopoTreeDepth()
 
 void Component::GetComponentsNLevelsDeeper(vector<Component*>* outArray, int depth)
 {
+    
     if(depth <= 0)
-    {
+    {   
         outArray->push_back(this);
+        // depth++;
         return;
     }
     for(Component* child: children)
-    {
+    {   
+        cout << GetComponentTypeStr() << " (name " << name << ") id " << id << " - children: " << children.size();
+        cout << " depth: " << depth<<"\n";
         child->GetComponentsNLevelsDeeper(outArray, depth - 1);
     }
     return;
@@ -440,7 +462,24 @@ long long Memory::GetSize() {return size;}
 void Memory::SetSize(long long _size) {size = _size;}
 
 string Cache::GetCacheName(){return cache_type;}
-int Cache::GetCacheLevel(){return stoi(cache_type.empty()?"0":cache_type);}
+
+int Cache::GetCacheLevel(){
+
+    std::string extractedDigits = "";
+    for (char c : cache_type) {
+        // Break, as soon as a digit is found
+        if (std::isdigit(c)) {
+            extractedDigits += c;
+            break;
+        }
+    }
+
+    if (!extractedDigits.empty()) 
+        return stoi(extractedDigits);
+    else 
+        return 0;
+    
+}
 long long Cache::GetCacheSize(){return cache_size;}
 void Cache::SetCacheSize(long long _cache_size){cache_size = _cache_size;}
 int Cache::GetCacheLineSize(){return cache_line_size;}

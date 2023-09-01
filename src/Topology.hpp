@@ -100,6 +100,10 @@ public:
     */
     void DeleteLeaf(int level, int max_depth);
     /**
+    Deletes the the whole subtree, including all the children and datapaths
+    */
+    void DeleteSubtree(int level = 0);
+    /**
     Returns name of the component.
     @return name
     @see name
@@ -521,7 +525,8 @@ public:
     Cache(Component * parent, int _id = 0, int _cache_level = 0, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
 
     /**
-    @returns cache level of this cache
+    @returns cache level of this cache, assuming there's only 1 or no digit in the "cache_type" (e.g. "L1", "texture")
+
     */
     int GetCacheLevel();
     string GetCacheName();
