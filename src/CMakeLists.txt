@@ -51,6 +51,4 @@ install(DIRECTORY "."
     DESTINATION lib/cmake/inc
     FILES_MATCHING PATTERN "*.hpp")
 install(TARGETS sys-sage
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    PUBLIC_HEADER DESTINATION inc
-    ARCHIVE DESTINATION lib/cmake/lib)
+    LIBRARY DESTINATION lib/cmake/lib)
