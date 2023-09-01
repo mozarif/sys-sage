@@ -99,16 +99,14 @@ void Component::DeleteLeaf(int level, int max_depth)
 void Component::DeleteSubtree(int level)
 {
 
-    for(int i = 0; i < children.size(); i++)
+    while(children.size() > 0)
     {       
-        children[i]->DeleteSubtree(level + 1); // Recursively free children
-        if (level >= 1)
-            i = i - 1;    
-    }
+        children[0]->DeleteSubtree(level + 1); // Recursively free children
+    }    
 
 
     if (level >= 1)
-    {
+    {   
         Component *myParent = GetParent();
         int j = myParent->RemoveChild(this);
         delete this;
@@ -116,7 +114,7 @@ void Component::DeleteSubtree(int level)
     
     return;
 }
-void Component::InsertChild(Component * child)
+void Component::InsertChild(Component * child)`
 {
     child->SetParent(this);
     children.push_back(child);
