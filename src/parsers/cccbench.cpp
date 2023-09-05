@@ -6,7 +6,8 @@
 #include <string>
 #include <vector>
 #include <exception>
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
+#include <sstream>
 #include "cccbench.hpp"
 
 using namespace std;
