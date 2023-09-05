@@ -94,7 +94,7 @@ void Component::DeleteLeaf(int level, int max_depth)
     
 }
 
-//To-do: Remove level and just call on 0th index
+//To-do: Remove level
 
 void Component::DeleteSubtree(int level)
 {
@@ -114,7 +114,7 @@ void Component::DeleteSubtree(int level)
     
     return;
 }
-void Component::InsertChild(Component * child)`
+void Component::InsertChild(Component * child)
 {
     child->SetParent(this);
     children.push_back(child);

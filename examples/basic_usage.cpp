@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
     cout << "---------------- Printing the whole tree ----------------" << endl;
     topo->PrintSubtree();
     cout << "----------------                     ----------------" << endl;
-    cout << "Topology depth-->" << topo->GetTopoTreeDepth() << "\n";
     cout << "-- Parsing CapsNumaBenchmark output from file " << bwPath << endl;
     if(parseCapsNumaBenchmark((Component*)n, bwPath, ";") != 0){
         cout << "failed parsing caps-numa-benchmark" << endl;
@@ -71,7 +70,6 @@ int main(int argc, char *argv[])
     //topo->DeleteSubtree(topo->GetTopoTreeDepth());
     // topo->DeleteSubtree(topo);
     topo->DeleteSubtree();
-    topo->PrintSubtree();
     // delete n;
     delete topo;
     return 0;
