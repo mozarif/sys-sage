@@ -24,7 +24,7 @@ void Component::PrintAllDataPathsInSubtree()
     vector<Component*> subtreeList;
     GetSubtreeNodeList(&subtreeList);
     for(Component * c : subtreeList)
-    {
+    {   
         vector<DataPath*>* dp_in = c->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
         vector<DataPath*>* dp_out = c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
         if(dp_in->size() > 0 || dp_out->size() > 0 )
@@ -107,6 +107,16 @@ void Component::DeleteSubtree(int level)
 
     if (level >= 1)
     {   
+        vector<DataPath*>* dp_in = GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
+        vector<DataPath*>* dp_out = GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
+        
+        if(dp_in->size() > 0 || dp_out->size() > 0 )
+        {
+            while (!dp_out->empty()) {
+                delete dp_out->back(); 
+                dp_out->pop_back();    
+            }
+        }
         Component *myParent = GetParent();
         int j = myParent->RemoveChild(this);
         delete this;
@@ -114,6 +124,7 @@ void Component::DeleteSubtree(int level)
     
     return;
 }
+
 void Component::InsertChild(Component * child)
 {
     child->SetParent(this);

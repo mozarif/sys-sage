@@ -64,13 +64,8 @@ int main(int argc, char *argv[])
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     exportToXml(topo, output_name);
     cout << "Clearing up the tree..." << endl;
-    // for (int i = topo->GetTopoTreeDepth(); i > 1; i--){
-    //     topo->DeleteLeaf(0, i);
-    // }
-    //topo->DeleteSubtree(topo->GetTopoTreeDepth());
-    // topo->DeleteSubtree(topo);
-    topo->DeleteSubtree();
-    // delete n;
+    n->DeleteSubtree();
+    delete n;
     delete topo;
     return 0;
 }
