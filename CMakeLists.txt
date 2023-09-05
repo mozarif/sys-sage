@@ -11,16 +11,15 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   endif()
 endif()
 
-project(sys-sage VERSION 0.4.0 LANGUAGES C CXX )
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+project(sys-sage VERSION 0.4.2 LANGUAGES C CXX )
+#set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
-####
+#### dependencies
 find_package(LibXml2 REQUIRED) # Use pkg-config via the LibXml2 find-module
 execute_process(COMMAND xml2-config --cflags OUTPUT_VARIABLE LIBXML_F OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND xml2-config --libs OUTPUT_VARIABLE LIBXML_L OUTPUT_STRIP_TRAILING_WHITESPACE)
 include_directories(${LIBXML_F})
 link_libraries(${LIBXML_L})
-
 include_directories(${LIBXML2_INCLUDE_DIR})
 include_directories(${LIBXML2_INCLUDE_DIRS})
 link_libraries(${LIBXML2_LIBRARY})
@@ -39,18 +38,22 @@ endif()
 
 
 # Create and install package configuration and version files.
-configure_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage-config.cmake.in
-                ${sys-sage_BINARY_DIR}/pkg/sys-sage-config.cmake @ONLY)
-configure_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage-config-version.cmake.in
-                ${sys-sage_BINARY_DIR}/pkg/sys-sage-config-version.cmake @ONLY)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage-config.cmake.in
+                              ${sys-sage_BINARY_DIR}/pkg/sys-sage-config.cmake
+                              INSTALL_DESTINATION lib/cmake/sys-sage)
+#configure_package_config_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage-config-version.cmake.in
+#                              ${sys-sage_BINARY_DIR}/pkg/sys-sage-config-version.cmake
+#                              INSTALL_DESTINATION lib/cmake/sys-sage)
+install(FILES ${sys-sage_BINARY_DIR}/pkg/sys-sage-config.cmake
+                #${sys-sage_BINARY_DIR}/pkg/sys-sage-config-version.cmake
+                DESTINATION lib/cmake/sys-sage)
+
 configure_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage.pc.in
                 ${sys-sage_BINARY_DIR}/pkg/sys-sage.pc @ONLY)
-
 install(FILES ${sys-sage_BINARY_DIR}/pkg/sys-sage.pc
          DESTINATION lib)
-install(FILES ${sys-sage_BINARY_DIR}/pkg/sys-sage-config.cmake
-                ${sys-sage_BINARY_DIR}/pkg/sys-sage-config-version.cmake
-         DESTINATION lib/cmake/sys-sage)
+
 
 
 ###Options:
