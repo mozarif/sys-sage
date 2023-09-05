@@ -30,27 +30,35 @@ set(HEADERS
 
 add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
-set_target_properties(sys-sage PROPERTIES
-#    PUBLIC_HEADER "sys-sage.hpp;Topology.hpp;DataPath.hpp;xml_dump.hpp;parsers/hwloc.hpp;parsers/caps-numa-benchmark.hpp;parsers/gpu-topo.hpp"
-    VERSION ${PROJECT_VERSION}
-    SOVERSION 1
+target_include_directories(sys-sage PUBLIC  
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
+    $<INSTALL_INTERFACE:inc>
+    $<INSTALL_INTERFACE:lib>
 )
-
-target_include_directories(sys-sage PRIVATE .)
-
-install(DIRECTORY "."
-    DESTINATION inc
-    FILES_MATCHING PATTERN "*.hpp")
-install(TARGETS sys-sage
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    PUBLIC_HEADER DESTINATION inc
-    ARCHIVE DESTINATION lib)
-
+install(
+    TARGETS sys-sage
+    EXPORT sys-sage-targets
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib/cmake/lib
+    ARCHIVE DESTINATION lib/cmake/lib
+)
 #for spack
+install(
+    EXPORT sys-sage-targets
+    FILE sys-sage-targets.cmake
+    DESTINATION lib/cmake/sys-sage
+    NAMESPACE sys-sage::
+)
 install(DIRECTORY "."
     DESTINATION lib/cmake/inc
     FILES_MATCHING PATTERN "*.hpp")
-install(TARGETS sys-sage
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    PUBLIC_HEADER DESTINATION inc
-    ARCHIVE DESTINATION lib/cmake/lib)
+
+install(
+    TARGETS sys-sage
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
+install(DIRECTORY "."
+    DESTINATION inc
+    FILES_MATCHING PATTERN "*.hpp")
