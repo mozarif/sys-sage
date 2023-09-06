@@ -94,19 +94,17 @@ void Component::DeleteLeaf(int level, int max_depth)
     
 }
 
-//To-do: Remove level
 
-void Component::DeleteSubtree(int level)
+void Component::DeleteSubtree()
 {
 
     while(children.size() > 0)
     {       
-        children[0]->DeleteSubtree(level + 1); // Recursively free children
+        children[0]->DeleteSubtree(); // Recursively free children
     }    
 
-
-    if (level >= 1)
-    {   
+    if((GetParent()!= NULL) && (GetParent()->GetComponentTypeStr() != "Topology"))
+    {  
         vector<DataPath*>* dp_in = GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
         vector<DataPath*>* dp_out = GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
         

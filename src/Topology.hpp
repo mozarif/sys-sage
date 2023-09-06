@@ -100,9 +100,9 @@ public:
     */
     void DeleteLeaf(int level, int max_depth);
     /**
-    Deletes the the whole subtree, including all the children and datapaths
+    Deletes the the whole subtree, including all the children, datapaths and the component itself.
     */
-    void DeleteSubtree(int level = 0);
+    void DeleteSubtree();
     /**
     Returns name of the component.
     @return name

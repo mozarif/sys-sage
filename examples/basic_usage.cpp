@@ -63,7 +63,8 @@ int main(int argc, char *argv[])
     string output_name = "sys-sage_sample_output.xml";
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     exportToXml(topo, output_name);
-    cout << "Clearing up the tree..." << endl;
+
+    cout << "--------Clearing up the tree--------" << endl;
     n->DeleteSubtree();
     delete n;
     delete topo;
