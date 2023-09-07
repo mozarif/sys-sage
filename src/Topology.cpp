@@ -115,6 +115,20 @@ void Component::DeleteSubtree()
                 dp_out->pop_back();    
             }
         }
+        /**********************/
+        // When deleting "value", 
+        // Warning: deleting ‘void*’ is undefined
+        /**********************/
+        // if(attrib.size() > 0)
+        // {
+        //     auto it = attrib.begin();
+        //     while(attrib.size() > 0){
+        //         std::cout << "Key: " << it->first << ", Value: " << (int *)it->second << std::endl;
+        //         std::cout << "map size: " << attrib.size() << "\n";
+        //         delete it->second;
+        //         it = attrib.erase(it);
+        //     } 
+        // }
         Component *myParent = GetParent();
         int j = myParent->RemoveChild(this);
         delete this;
