@@ -99,10 +99,16 @@ public:
     @param max_depth - the current max_depth of the tree 
     */
     void DeleteLeaf(int level, int max_depth);
+
+    void DeleteDataPath();
+    /**
+    Deletes the the whole subtree, including all the children and datapaths.
+    */
+    void DeleteSubtree();
     /**
     Deletes the the whole subtree, including all the children, datapaths and the component itself.
     */
-    void DeleteSubtree();
+    void Delete(bool withSubtree = true);
     /**
     Returns name of the component.
     @return name

@@ -94,47 +94,123 @@ void Component::DeleteLeaf(int level, int max_depth)
     
 }
 
+void Component::DeleteDataPath()
+{
+    //visit both the source and the target Components, and delete the pointer to the DP in the dp_incoming and dp_outgoing array
+    //in the DP, if oriented= SYS_SAGE_DATAPATH_BIDIRECTIONAL, you will delete 4 entries in total, 1 in dp_incoming, 1 in dp_outgoing, both for the source and the target component
+    //in the DP, if oriented= SYS_SAGE_DATAPATH_ORIENTED, you will delete 2 entries -- 1 in dp_outgoing in the source component, 1 in dp_incoming in the target component
+    //finally, delete the DP
+    if((GetParent()!= NULL) && (GetParent()->GetComponentTypeStr() != "Topology"))
+    { 
+        //to-do: Remove all the connections to the node (even those that are not visited)
+        // if(_oriented == SYS_SAGE_DATAPATH_BIDIRECTIONAL)
+        // {
+        //     _source->AddDataPath(this, SYS_SAGE_DATAPATH_OUTGOING);
+        //     _target->AddDataPath(this, SYS_SAGE_DATAPATH_OUTGOING);
+        //     _source->AddDataPath(this, SYS_SAGE_DATAPATH_INCOMING);
+        //     _target->AddDataPath(this, SYS_SAGE_DATAPATH_INCOMING);
+        // }
+        // else if(_oriented == SYS_SAGE_DATAPATH_ORIENTED)
+        // {
+        //     _source->AddDataPath(this, SYS_SAGE_DATAPATH_OUTGOING);
+        //     _target->AddDataPath(this, SYS_SAGE_DATAPATH_INCOMING);
+        // }  
+        // while (!dp_outgoing.empty()) {
+        //     delete dp_outgoing.back(); 
+        //     dp_outgoing.pop_back();    
+        // }
+        // while (!dp_incoming.empty()) {
+        //     delete dp_incoming.back(); 
+        //     dp_incoming.pop_back();    
+        // }
+
+        while (!dp_outgoing.empty()) {
+            DataPath* outgoingBack = dp_outgoing.back(); // Get the element to be searched for in dp_incoming
+            outgoingBack->Print();
+            if (outgoingBack->GetOriented() == SYS_SAGE_DATAPATH_ORIENTED)
+            {
+                cout << "    ";
+                outgoingBack->Print();
+                // Use std::find to search for outgoingBack in dp_incoming
+                auto it = std::find(outgoingBack->GetTarget()->dp_incoming.begin(), 
+                                    outgoingBack->GetTarget()->dp_incoming.end(), outgoingBack);
+
+                if (it != outgoingBack->GetTarget()->dp_incoming.end()) {
+                    // Element found in dp_incoming, delete it and erase it from dp_incoming
+                    delete *it;
+                    outgoingBack->GetTarget()->dp_incoming.erase(it);
+                }
+                dp_outgoing.pop_back();
+            }
+            // else if (outgoingBack->GetOriented() == SYS_SAGE_DATAPATH_BIDIRECTIONAL)
+            // {
+            //     // Component* outgoingBack = dp_outgoing.back(); // Get the element to be searched for in dp_incoming
+            //     dp_outgoing.pop_back();
+
+            //     // Use std::find to search for outgoingBack in dp_incoming
+            //     auto it = std::find(dp_incoming.begin(), dp_incoming.end(), outgoingBack);
+
+            //     if (it != dp_incoming.end()) {
+            //         // Element found in dp_incoming, delete it and erase it from dp_incoming
+            //         delete *it;
+            //         dp_incoming.erase(it);
+            //     }
+            //     // If not found in dp_incoming, it will simply be ignored
+
+            //     Component* outgoingBack2 = dp_outgoing.back(); // Get the element to be searched for in dp_incoming
+            //     dp_outgoing.pop_back();
+
+            //     // Use std::find to search for outgoingBack in dp_incoming
+            //     auto it2 = std::find(dp_incoming.begin(), dp_incoming.end(), outgoingBack2);
+
+            //     if (it2 != dp_incoming.end()) {
+            //         // Element found in dp_incoming, delete it and erase it from dp_incoming
+            //         delete *it2;
+            //         dp_incoming.erase(it2);
+            //     }
+            //     // If not found in dp_incoming, it will simply be ignored
+            // }
+            // If not found in dp_incoming, it will simply be ignored
+        }
+        // for(DataPath * dp : *dp_in)
+        // {
+        //     cout << "    ";
+        //     dp->Print();
+        // }
+        
+    }
+}
+
+
+
 
 void Component::DeleteSubtree()
 {
+    // call Delete(true) on all children
 
     while(children.size() > 0)
     {       
-        children[0]->DeleteSubtree(); // Recursively free children
+        children[0]->Delete(true); // Recursively free children
     }    
+    return;
+}
 
-    if((GetParent()!= NULL) && (GetParent()->GetComponentTypeStr() != "Topology"))
-    {  
-        vector<DataPath*>* dp_in = GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
-        vector<DataPath*>* dp_out = GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
-        
-        if(dp_in->size() > 0 || dp_out->size() > 0 )
-        {
-            while (!dp_out->empty()) {
-                delete dp_out->back(); 
-                dp_out->pop_back();    
-            }
-        }
-        /**********************/
-        // When deleting "value", 
-        // Warning: deleting ‘void*’ is undefined
-        /**********************/
-        // if(attrib.size() > 0)
-        // {
-        //     auto it = attrib.begin();
-        //     while(attrib.size() > 0){
-        //         std::cout << "Key: " << it->first << ", Value: " << (int *)it->second << std::endl;
-        //         std::cout << "map size: " << attrib.size() << "\n";
-        //         delete it->second;
-        //         it = attrib.erase(it);
-        //     } 
-        // }
+void Component::Delete(bool withSubtree)
+{
+    // c->Delete(bool withSubtree=true)
+    // if withSubtree==true --> call DeleteSubtree()
+    // next, delete the particular component, as discussed above
+    if (withSubtree)
+    {
+        DeleteSubtree();
+    }
+    DeleteDataPath();
+    if((GetParent()!= NULL) )
+    {
         Component *myParent = GetParent();
         int j = myParent->RemoveChild(this);
-        delete this;
     }
-    
-    return;
+    delete this;
 }
 
 void Component::InsertChild(Component * child)
