@@ -66,6 +66,5 @@ int main(int argc, char *argv[])
 
     cout << "--------Clearing up the tree--------" << endl;
     topo->Delete(true);
-    // topo->PrintSubtree();
     return 0;
 }

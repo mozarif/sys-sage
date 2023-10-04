@@ -100,7 +100,9 @@ public:
     */
     void DeleteLeaf(int level, int max_depth);
 
-    void DeleteDataPath();
+    void DeleteDataPath(DataPath* p, int orientation);
+
+    void DeleteAllDataPaths();
     /**
     Deletes the the whole subtree, including all the children and datapaths.
     */
