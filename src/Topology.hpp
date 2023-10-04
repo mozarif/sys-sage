@@ -92,26 +92,6 @@ public:
     */
     void PrintAllDataPathsInSubtree();
     /**
-    Deletes the leaf nodes of the subtree of a component. 
-    This function should be called recursively with decreasing max_depth, with the initial call having max_depth equal to the depth of the tree.
-    For usage, @see examples/basic_usage.cpp
-    @param level - top most level
-    @param max_depth - the current max_depth of the tree 
-    */
-    void DeleteLeaf(int level, int max_depth);
-
-    void DeleteDataPath(DataPath* p, int orientation);
-
-    void DeleteAllDataPaths();
-    /**
-    Deletes the the whole subtree, including all the children and datapaths.
-    */
-    void DeleteSubtree();
-    /**
-    Deletes the the whole subtree, including all the children, datapaths and the component itself.
-    */
-    void Delete(bool withSubtree = true);
-    /**
     Returns name of the component.
     @return name
     @see name
@@ -285,6 +265,26 @@ public:
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
     xmlNodePtr CreateXmlSubtree();
+    /**
+    Deletes a DataPath pointer from the list(std::vector) of DataPaths of this component. According to the orientation param, the proper list is chosen.
+    @param p - the pointer to delete
+    @param orientation - orientation of the DataPath. Either SYS_SAGE_DATAPATH_OUTGOING (lands in dp_outgoing) or SYS_SAGE_DATAPATH_INCOMING (lands in dp_incoming)
+    */
+    void DeleteDataPath(DataPath* p, int orientation);
+    /**
+    Deletes all DataPaths of this component.
+    */
+    void DeleteAllDataPaths();
+    /**
+    Deletes the whole subtree (all the children) of the component.
+    */
+    void DeleteSubtree();
+    /**
+    Deletes a component, its children (if withSubtree = true) and all the associated data paths.
+    If only the component itself is deleted, its children are inserted into its parent's children list.
+    @param withSubtree - if true, the whole subtree is deleted, otherwise only the component itself.
+    */
+    void Delete(bool withSubtree = true);
 
     /**
     TODO this part
