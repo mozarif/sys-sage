@@ -368,113 +368,62 @@ int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dat
 }
 
 
-void Component::DeleteDataPath(DataPath* p, int orientation)
-{
-
-    //delete the DP from the dp_incoming or dp_outgoing array
-    if(orientation == SYS_SAGE_DATAPATH_OUTGOING)
-    {
-        dp_outgoing.erase(std::remove(dp_outgoing.begin(), dp_outgoing.end(), p), dp_outgoing.end());
-    }
-        
-    else if(orientation == SYS_SAGE_DATAPATH_INCOMING)
-    {   
-        dp_incoming.erase(std::remove(dp_incoming.begin(), dp_incoming.end(), p), dp_incoming.end());
-    }        
-    
-}
-
 void Component::DeleteAllDataPaths()
 {
     while(!dp_outgoing.empty())
     {
         DataPath * dp = dp_outgoing.back();
-        if(dp->GetOriented() == SYS_SAGE_DATAPATH_BIDIRECTIONAL)
-        {
-            DeleteDataPath(dp, SYS_SAGE_DATAPATH_OUTGOING);
-            dp->GetTarget()->DeleteDataPath(dp, SYS_SAGE_DATAPATH_OUTGOING);
-            DeleteDataPath(dp, SYS_SAGE_DATAPATH_INCOMING);
-            dp->GetTarget()->DeleteDataPath(dp, SYS_SAGE_DATAPATH_INCOMING);
-        }
-        else if(dp->GetOriented() == SYS_SAGE_DATAPATH_ORIENTED)
-        {
-            DeleteDataPath(dp, SYS_SAGE_DATAPATH_OUTGOING);
-            dp->GetTarget()->DeleteDataPath(dp, SYS_SAGE_DATAPATH_INCOMING);
-                
-        }
-        delete dp;
+        dp->DeleteDataPath();
     }
     while(!dp_incoming.empty())
     {
         DataPath * dp = dp_incoming.back();
-        if(dp->GetOriented() == SYS_SAGE_DATAPATH_BIDIRECTIONAL)
-        {
-            DeleteDataPath(dp, SYS_SAGE_DATAPATH_INCOMING);
-            dp->GetTarget()->DeleteDataPath(dp, SYS_SAGE_DATAPATH_INCOMING);
-            DeleteDataPath(dp, SYS_SAGE_DATAPATH_OUTGOING);
-            dp->GetTarget()->DeleteDataPath(dp, SYS_SAGE_DATAPATH_OUTGOING);
-            
-        }
-        else if(dp->GetOriented() == SYS_SAGE_DATAPATH_ORIENTED)
-        {
-            DeleteDataPath(dp, SYS_SAGE_DATAPATH_INCOMING);
-            dp->GetSource()->DeleteDataPath(dp, SYS_SAGE_DATAPATH_OUTGOING);
-        }
-        delete dp;
+        dp->DeleteDataPath();
     }
 }
-
 void Component::DeleteSubtree()
 {
-
     while(children.size() > 0)
     {       
         children[0]->Delete(true); // Recursively free children
     }    
     return;
 }
-
 void Component::Delete(bool withSubtree)
 {
-
+    // Delete subtree and all data paths
     if (withSubtree)
     {
-
         DeleteSubtree();
-
         DeleteAllDataPaths();
-           
-        if((GetParent()!= NULL) )
-        {
-            Component *myParent = GetParent();
-            int j = myParent->RemoveChild(this);
-        }
     }
     else
     {   
         DeleteAllDataPaths();
-
-        if((GetParent()!= NULL) )
+    }
+    //Free all the children
+    if(GetParent()!= NULL) 
+    {
+        Component *myParent = GetParent();
+        int j = myParent->RemoveChild(this);
+        if (!withSubtree)
         {
-            Component *myParent = GetParent();
-            int j = myParent->RemoveChild(this);
             for(Component* child: children)
             {   
                 child->SetParent(myParent);
                 myParent->InsertChild(child);
             }
-        }
-        else
-        {   
-            while(children.size() > 0)
-            {       
-                RemoveChild(children[0]); // Recursively free children
-                children[0]->SetParent(NULL);
-            }
         }    
     }
-    
-    
+    else //if(GetParent() == NULL && !withSubtree)
+    {
+        while(children.size() > 0)
+        {       
+            RemoveChild(children[0]); // Recursively free children
+            children[0]->SetParent(NULL);
+        }
+    }
+    // Delete the component itself
     delete this;
 }
 

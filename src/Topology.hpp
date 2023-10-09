@@ -265,12 +265,7 @@ public:
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
     xmlNodePtr CreateXmlSubtree();
-    /**
-    Deletes a DataPath pointer from the list(std::vector) of DataPaths of this component. According to the orientation param, the proper list is chosen.
-    @param p - the pointer to delete
-    @param orientation - orientation of the DataPath. Either SYS_SAGE_DATAPATH_OUTGOING (lands in dp_outgoing) or SYS_SAGE_DATAPATH_INCOMING (lands in dp_incoming)
-    */
-    void DeleteDataPath(DataPath* p, int orientation);
+    
     /**
     Deletes all DataPaths of this component.
     */
