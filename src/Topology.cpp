@@ -395,12 +395,9 @@ void Component::Delete(bool withSubtree)
     if (withSubtree)
     {
         DeleteSubtree();
-        DeleteAllDataPaths();
     }
-    else
-    {   
-        DeleteAllDataPaths();
-    }
+    DeleteAllDataPaths();
+    
     //Free all the children
     if(GetParent()!= NULL) 
     {
