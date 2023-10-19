@@ -5,13 +5,17 @@
 void Component::PrintSubtree() { PrintSubtree(0); }
 void Component::PrintSubtree(int level)
 {
+    
     //cout << "---PrintSubtree---" << endl;
     for (int i = 0; i < level; ++i)
         cout << "  ";
-    cout << GetComponentTypeStr() << " (name " << name << ") id " << id << " - children: " << children.size() << endl;
 
+    cout << GetComponentTypeStr() << " (name " << name << ") id " << id << " - children: " << children.size();
+    cout << " level: " << level<<"\n";
+    // sleep(2);
     for(Component* child: children)
     {
+        //cout << "size of children: " << child->children.size() << "\n";
         child->PrintSubtree(level + 1);
     }
 }
@@ -20,7 +24,7 @@ void Component::PrintAllDataPathsInSubtree()
     vector<Component*> subtreeList;
     GetSubtreeNodeList(&subtreeList);
     for(Component * c : subtreeList)
-    {
+    {   
         vector<DataPath*>* dp_in = c->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
         vector<DataPath*>* dp_out = c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
         if(dp_in->size() > 0 || dp_out->size() > 0 )
@@ -110,13 +114,17 @@ int Component::GetTopoTreeDepth()
 
 void Component::GetComponentsNLevelsDeeper(vector<Component*>* outArray, int depth)
 {
+    
     if(depth <= 0)
-    {
+    {   
         outArray->push_back(this);
+        // depth++;
         return;
     }
     for(Component* child: children)
-    {
+    {   
+        cout << GetComponentTypeStr() << " (name " << name << ") id " << id << " - children: " << children.size();
+        cout << " depth: " << depth<<"\n";
         child->GetComponentsNLevelsDeeper(outArray, depth - 1);
     }
     return;
@@ -354,7 +362,66 @@ int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dat
         subtreeSize += (*it)->GetTopologySize(out_component_size, out_dataPathSize, counted_dataPaths);
     }
 
+    if(counted_dataPaths != NULL)
+        delete counted_dataPaths;
     return component_size + dataPathSize + subtreeSize;
+}
+
+
+void Component::DeleteAllDataPaths()
+{
+    while(!dp_outgoing.empty())
+    {
+        DataPath * dp = dp_outgoing.back();
+        dp->DeleteDataPath();
+    }
+    while(!dp_incoming.empty())
+    {
+        DataPath * dp = dp_incoming.back();
+        dp->DeleteDataPath();
+    }
+}
+void Component::DeleteSubtree()
+{
+    while(children.size() > 0)
+    {       
+        children[0]->Delete(true); // Recursively free children
+    }    
+    return;
+}
+void Component::Delete(bool withSubtree)
+{
+    // Delete subtree and all data paths
+    if (withSubtree)
+    {
+        DeleteSubtree();
+    }
+    DeleteAllDataPaths();
+    
+    //Free all the children
+    if(GetParent()!= NULL) 
+    {
+        Component *myParent = GetParent();
+        int j = myParent->RemoveChild(this);
+        if (!withSubtree)
+        {
+            for(Component* child: children)
+            {   
+                child->SetParent(myParent);
+                myParent->InsertChild(child);
+            }
+        }    
+    }
+    else //if(GetParent() == NULL && !withSubtree)
+    {
+        while(children.size() > 0)
+        {       
+            RemoveChild(children[0]); // Recursively free children
+            children[0]->SetParent(NULL);
+        }
+    }
+    // Delete the component itself
+    delete this;
 }
 
 Component* Component::GetParent(){return parent;}
@@ -380,7 +447,24 @@ long long Memory::GetSize() {return size;}
 void Memory::SetSize(long long _size) {size = _size;}
 
 string Cache::GetCacheName(){return cache_type;}
-int Cache::GetCacheLevel(){return stoi(cache_type.empty()?"0":cache_type);}
+
+int Cache::GetCacheLevel(){
+
+    std::string extractedDigits = "";
+    for (char c : cache_type) {
+        // Break, as soon as a digit is found
+        if (std::isdigit(c)) {
+            extractedDigits += c;
+            break;
+        }
+    }
+
+    if (!extractedDigits.empty()) 
+        return stoi(extractedDigits);
+    else 
+        return 0;
+    
+}
 long long Cache::GetCacheSize(){return cache_size;}
 void Cache::SetCacheSize(long long _cache_size){cache_size = _cache_size;}
 int Cache::GetCacheLineSize(){return cache_line_size;}

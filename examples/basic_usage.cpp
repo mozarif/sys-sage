@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
     Topology* topo = new Topology();
     Node* n = new Node(topo, 1);
 
+    
     cout << "-- Parsing Hwloc output from file " << topoPath << endl;
     if(parseHwlocOutput(n, topoPath) != 0) { //adds topo to a next node
         usage(argv[0]);
@@ -45,9 +46,8 @@ int main(int argc, char *argv[])
     cout << "Total num HW threads: " << topo->GetNumThreads() << endl;
 
     cout << "---------------- Printing the whole tree ----------------" << endl;
-    topo->PrintSubtree(2);
+    topo->PrintSubtree();
     cout << "----------------                     ----------------" << endl;
-
     cout << "-- Parsing CapsNumaBenchmark output from file " << bwPath << endl;
     if(parseCapsNumaBenchmark((Component*)n, bwPath, ";") != 0){
         cout << "failed parsing caps-numa-benchmark" << endl;
@@ -64,5 +64,7 @@ int main(int argc, char *argv[])
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     exportToXml(topo, output_name);
 
+    cout << "--------Clearing up the tree--------" << endl;
+    topo->Delete(true);
     return 0;
 }

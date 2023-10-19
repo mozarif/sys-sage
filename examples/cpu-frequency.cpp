@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
 
     cout << "-- Export all information to xml " << output_name << endl;
     exportToXml(topo, output_name);
-
+    delete topo;
+    delete n;
     return 0;
 }

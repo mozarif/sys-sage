@@ -110,6 +110,13 @@ public:
     */
     void Print();
 
+    /**
+    Deletes and de-allocated the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of source and target Components.
+    @see dp_incoming
+    @see dp_outgoing
+    */
+    void DeleteDataPath();
+
     map<string,void*> attrib;
 private:
     Component * source;

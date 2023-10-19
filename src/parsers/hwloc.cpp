@@ -174,6 +174,7 @@ int xmlProcessChildren(Component* c, xmlNode* parent, int level)
                                 c->InsertChild(childC);
                         }
                         xmlProcessChildren(childC, child, level+1);
+                        //delete childC;
                     }
                     else
                     {

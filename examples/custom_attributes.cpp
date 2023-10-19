@@ -126,5 +126,8 @@ int main(int argc, char *argv[])
     cout << "-- Export all information to xml " << output_name << endl;
     exportToXml(topo, output_name, print_my_attribs, print_my_custom_attribs);
 
+    delete topo;
+    delete n;
+    
     return 0;
 }
