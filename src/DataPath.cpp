@@ -1,6 +1,7 @@
 #include "DataPath.hpp"
 
 #include <cstdint>
+#include <algorithm>
 
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type){
     return NewDataPath(_source,_target,_oriented,_type,(double)-1,(double)-1);
