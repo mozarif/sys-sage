@@ -11,8 +11,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   endif()
 endif()
 
-project(sys-sage VERSION 0.4.2 LANGUAGES C CXX )
-#set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+project(sys-sage VERSION 0.4.3 LANGUAGES C CXX )
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 #### dependencies
 find_package(LibXml2 REQUIRED) # Use pkg-config via the LibXml2 find-module

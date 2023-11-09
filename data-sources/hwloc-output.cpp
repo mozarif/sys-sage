@@ -68,7 +68,7 @@ string get_hwloc_topology_xml_string() {
     }
     //TODO replace with hwloc_topology_export_xmlbuffer?
     stringstream xml_output_stream;
-    err = hwloc_topology_export_xml(topology, xml_output_stream, flags);
+    err = hwloc_topology_export_xml(topology, xml_output_stream.str().c_str(), flags);
     if (err) {
         cerr << "hwloc: Failed to export xml" << endl;
         hwloc_topology_destroy(topology);
