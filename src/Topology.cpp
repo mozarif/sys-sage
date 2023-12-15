@@ -220,8 +220,10 @@ int Component::CountAllSubcomponentsByType(int _componentType)
 
 Component* Component::FindParentByType(int _componentType)
 {
-    return Get
-Component* Component::FindParentByType(int _componentType)
+    return GetAncestorType(_componentType);
+}
+
+Component* Component::GetAncestorType(int _componentType)
 {
     if(componentType == _componentType){
         return this;
@@ -443,7 +445,7 @@ void Component::Delete(bool withSubtree)
     if(GetParent()!= NULL) 
     {
         Component *myParent = GetParent();
-        int j = myParent->RemoveChild(this);
+        myParent->RemoveChild(this);
         if (!withSubtree)
         {
             for(Component* child: children)

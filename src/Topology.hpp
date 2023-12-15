@@ -179,6 +179,10 @@ public:
     @param _componentType - the desired component type
     @return Component * matching the criteria. NULL if no match found
     */
+    Component* GetAncestorType(int _componentType);
+    /**
+    OBSOLETE. Use GetAncestorType instead. This function will be removed in the future.
+    */
     Component* FindParentByType(int _componentType);
 
     /**
@@ -366,15 +370,8 @@ public:
     @param _name = name, default "Node"
     @param componentType=>SYS_SAGE_COMPONENT_NODE
     */
-<<<<<<< HEAD
     Node(Component * parent, int _id = 0, string _name = "Node");
-
-=======
-    Node(int _id);
-    Node(Component* parent, int _id);
-    
     ~Node() override = default;
->>>>>>> ci-jim/master
 #ifdef CPUINFO
 public:
     int RefreshCpuCoreFrequency(bool keep_history = false);
@@ -405,7 +402,6 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_MEMORY
     */
     Memory();
-<<<<<<< HEAD
     /**
     Memory constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
     @param parent = the parent 
@@ -414,14 +410,7 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_MEMORY
     */
     Memory(Component * parent, string _name = "Memory", long long _size = -1);
-=======
-    Memory(Component * parent);
-    Memory(Component * parent, string _name);
-    Memory(Component * parent, string _name, long long _size);
-
     ~Memory() override = default;
-
->>>>>>> ci-jim/master
     long long GetSize();
     void SetSize(long long _size);
     /**
@@ -431,16 +420,12 @@ public:
     xmlNodePtr CreateXmlSubtree();
 private:
     long long size; /**< size/capacity of the memory element*/
-<<<<<<< HEAD
     bool is_volatile; /**< is volatile? */
 
 #ifdef NVIDIA_MIG
 public:
     long long GetMIGSize(string uuid = "");
 #endif
-=======
-    bool is_volatile = false; /**< is volatile? */
->>>>>>> ci-jim/master
 };
 
 /**
@@ -464,17 +449,10 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_STORAGE
     */
     Storage(Component * parent);
-<<<<<<< HEAD
+    ~Storage() override = default;
 
     long long GetSize();
     void SetSize(long long _size);
-=======
-    
-    ~Storage() override = default;
-    
-    long long GetSize() { return size; };
-    void SetSize(long long _size) { size = _size; };
->>>>>>> ci-jim/master
     /**
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
@@ -507,7 +485,6 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_CHIP
     */
     Chip(Component * parent, int _id = 0, string _name = "Chip", int _type = SYS_SAGE_CHIP_TYPE_NONE);
-
     ~Chip() override = default;
 
     void SetVendor(string _vendor);
@@ -571,7 +548,6 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_CACHE
     */
     Cache(Component * parent, int _id = 0, int _cache_level = 0, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
-
     ~Cache() override = default;
 
     /**
@@ -631,28 +607,8 @@ public:
     @param _name = name, default "Subdivision"
     @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
     */
-<<<<<<< HEAD
     Subdivision(Component * parent, int _id = 0, string _name = "Subdivision", int _componentType = SYS_SAGE_COMPONENT_SUBDIVISION);
-=======
-    Subdivision(int _id);
-    Subdivision(int _id, string _name);
-    Subdivision(int _id, int _componentType);
-    /**
-    Helper constructor for inherited classes of Subdivision. Usually, this constructor will not be called. If called, the _componentType must be SYS_SAGE_COMPONENT_SUBDIVISION.
-    @param _id - id of the component
-    @param _name - name
-    @param _componentType - always use SYS_SAGE_COMPONENT_SUBDIVISION
-    */
-    Subdivision(int _id, string _name, int _componentType);
-    Subdivision(Component * parent);
-    Subdivision(Component * parent, int _id);
-    Subdivision(Component * parent, int _id, string _name);
-    Subdivision(Component * parent, int _id, int _componentType);
-    Subdivision(Component * parent, int _id, string _name, int _componentType);
-    
     ~Subdivision() override = default;
->>>>>>> ci-jim/master
-
     void SetSubdivisionType(int subdivisionType);
     int GetSubdivisionType();
     /**
@@ -686,25 +642,8 @@ public:
     @param _size = size or capacity of the NUMA region, default -1, i.e. no value.
     @param componentType=>SYS_SAGE_COMPONENT_NUMA
     */
-<<<<<<< HEAD
     Numa(Component * parent, int _id = 0, long long _size = -1);
-=======
-    Numa(int _id);
-    /**
-    Numa constructor. Sets
-    \n name=>"Numa"
-    \n componentType=>SYS_SAGE_COMPONENT_NUMA
-    @param _id - id of the component
-    @param _size - size of the numa region of the memory (in case the memory segment is not represented by class Memory)
-    */
-    Numa(int _id, int _size);
-    Numa(Component * parent);
-    Numa(Component * parent, int _id);
-    Numa(Component * parent, int _id, long long _size);
-
     ~Numa() override = default;
-
->>>>>>> ci-jim/master
     /**
     Get size of the Numa memory segment.
     @returns size of the Numa memory segment.
@@ -740,18 +679,8 @@ public:
     @param _name = name, default "Core"
     @param componentType=>SYS_SAGE_COMPONENT_CORE
     */
-<<<<<<< HEAD
     Core(Component * parent, int _id = 0, string _name = "Core");
-=======
-    Core(int _id);
-    Core(int _id, string _name);
-    Core(Component * parent);
-    Core(Component * parent, int _id);
-    Core(Component * parent, int _id, string _name);
-
     ~Core() override = default;
->>>>>>> ci-jim/master
-
 private:
 
 #ifdef CPUINFO
