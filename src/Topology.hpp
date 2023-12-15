@@ -153,23 +153,35 @@ public:
     Component* GetChild(int _id);
     Component* GetChildByType(int _componentType);
     vector<Component*> GetAllChildrenByType(int _componentType);
-
+    /**
+    OBSOLETE. Use GetSubcomponentById instead. This function will be removed in the future.
+    */
+    Component* FindSubcomponentById(int _id, int _componentType);
+    /**
+    OBSOLETE. Use GetAllSubcomponentsByType instead. This function will be removed in the future.
+    */
+    void FindAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
     /**
     Searches the subtree to find a component with a matching id and componentType, i.e. looks for a certain component with a matching ID. The search is a DFS. The search starts with the calling component.
     \n Returns first occurence that matches these criteria.
     @param _id - the id to look for
     @param _componentType - the component type where to look for the id
-    @return Component * matching the criteria. NULL if no match found
+    @return Component * matching the criteria. Returns the first match. NULL if no match found
     */
-    Component* FindSubcomponentById(int _id, int _componentType);
-    void FindAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
+    Component* GetSubcomponentById(int _id, int _componentType);
+    void GetAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
+    vector<Component*> GetAllSubcomponentsByType(int _componentType);
+    int CountAllSubcomponents();
+    int CountAllSubcomponentsByType(int _componentType);
     /**
     Moves up the tree until a parent of given type.
     @param _componentType - the desired component type
     @return Component * matching the criteria. NULL if no match found
     */
     Component* FindParentByType(int _componentType);
+
     /**
+    OBSOLETE. Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.
     Returns the number of Components of type SYS_SAGE_COMPONENT_THREAD in the subtree.
     */
     int GetNumThreads();

@@ -204,7 +204,7 @@ int removeUnknownCompoents(Component* c){
             vector<Component*>* grandchildren = child->GetChildren();
             int num_grandchildren = grandchildren->size();
             if(num_grandchildren >= 1) {
-                int removed = c->RemoveChild(child);
+                c->RemoveChild(child);
                 for(Component * grandchild : *grandchildren){
                     c->InsertChild(grandchild);
                     grandchild->SetParent(c);

@@ -62,7 +62,6 @@ int readCpuinfoFreq(std::vector<Thread*> threads, bool keep_history = false)
                     current_thread_pos = -1;
                 }
             }
-
         }
         else if (current_thread_pos != -1 && line.rfind("cpu MHz", 0) == 0)
         {
