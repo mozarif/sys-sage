@@ -11,25 +11,25 @@
 #include <libxml/parser.h>
 
 
-#define SYS_SAGE_COMPONENT_NONE 1
-#define SYS_SAGE_COMPONENT_THREAD 2
-#define SYS_SAGE_COMPONENT_CORE 4
-#define SYS_SAGE_COMPONENT_CACHE 8
-#define SYS_SAGE_COMPONENT_SUBDIVISION 16
-#define SYS_SAGE_COMPONENT_NUMA 32
-#define SYS_SAGE_COMPONENT_CHIP 64
-#define SYS_SAGE_COMPONENT_MEMORY 128
-#define SYS_SAGE_COMPONENT_STORAGE 256
-#define SYS_SAGE_COMPONENT_NODE 512
-#define SYS_SAGE_COMPONENT_TOPOLOGY 1024
+#define SYS_SAGE_COMPONENT_NONE 1 /**< class Component (do not use normally)*/
+#define SYS_SAGE_COMPONENT_THREAD 2 /**< class Thread */
+#define SYS_SAGE_COMPONENT_CORE 4 /**< class Core */
+#define SYS_SAGE_COMPONENT_CACHE 8 /**< class Cache */
+#define SYS_SAGE_COMPONENT_SUBDIVISION 16 /**< class Subdivision */
+#define SYS_SAGE_COMPONENT_NUMA 32 /**< class Numa */
+#define SYS_SAGE_COMPONENT_CHIP 64 /**< class Chip */
+#define SYS_SAGE_COMPONENT_MEMORY 128 /**< class Memory */
+#define SYS_SAGE_COMPONENT_STORAGE 256 /**< class Storage */
+#define SYS_SAGE_COMPONENT_NODE 512 /**< class Node */
+#define SYS_SAGE_COMPONENT_TOPOLOGY 1024 /**< class Topology */
 
-#define SYS_SAGE_SUBDIVISION_TYPE_NONE 1
-#define SYS_SAGE_SUBDIVISION_TYPE_GPU_SM 2
+#define SYS_SAGE_SUBDIVISION_TYPE_NONE 1 /**< Generic Subdivision type. */
+#define SYS_SAGE_SUBDIVISION_TYPE_GPU_SM 2 /**< Subdivision type for GPU SMs */
 
-#define SYS_SAGE_CHIP_TYPE_NONE 1
-#define SYS_SAGE_CHIP_TYPE_CPU 2
-#define SYS_SAGE_CHIP_TYPE_CPU_SOCKET 4
-#define SYS_SAGE_CHIP_TYPE_GPU 8
+#define SYS_SAGE_CHIP_TYPE_NONE 1 /**< Generic Chip type. */
+#define SYS_SAGE_CHIP_TYPE_CPU 2 /**< Chip type used for a CPU. */
+#define SYS_SAGE_CHIP_TYPE_CPU_SOCKET 4 /**< Chip type used for one CPU socket. */
+#define SYS_SAGE_CHIP_TYPE_GPU 8 /**< Chip type used for a GPU.*/
 
 
 using namespace std;
@@ -56,6 +56,9 @@ public:
     @param _componentType = componentType, default SYS_SAGE_COMPONENT_NONE
     */
     Component(Component * parent, int _id = 0, string _name = "unknown", int _componentType = SYS_SAGE_COMPONENT_NONE);
+    /**
+     * TODO
+    */
     virtual ~Component() = default;
     /**
     Inserts a Child component to this component (in the Component Tree).
@@ -152,7 +155,13 @@ public:
     \n Should there be more children with the same id, the first match will be retrieved (i.e. the one with lower index in the children array.)
     */
     Component* GetChild(int _id);
+    /**
+     * TODO
+    */
     Component* GetChildByType(int _componentType);
+    /**
+     * TODO
+    */
     vector<Component*> GetAllChildrenByType(int _componentType);
     /**
     OBSOLETE. Use GetSubcomponentById instead. This function will be removed in the future.
@@ -170,9 +179,21 @@ public:
     @return Component * matching the criteria. Returns the first match. NULL if no match found
     */
     Component* GetSubcomponentById(int _id, int _componentType);
+    /**
+     * TODO
+    */
     void GetAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
+    /**
+     * TODO
+    */
     vector<Component*> GetAllSubcomponentsByType(int _componentType);
+    /**
+     * TODO
+    */
     int CountAllSubcomponents();
+    /**
+     * TODO
+    */
     int CountAllSubcomponentsByType(int _componentType);
     /**
     Moves up the tree until a parent of given type.
@@ -258,6 +279,9 @@ public:
         \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
     */
     void GetAllDpByType(vector<DataPath*>* outDpArr, int dp_type, int orientation);
+    /**
+     * TODO
+    */
     int CheckComponentTreeConsistency();
     /**
     Calculates approximate memory footprint of the subtree of this element (including the relevant data paths).
@@ -345,7 +369,9 @@ public:
     \n componentType=>SYS_SAGE_COMPONENT_TOPOLOGY
     */
     Topology();
-
+    /**
+     * TODO
+    */
     ~Topology() override = default;
 private:
 };
@@ -371,6 +397,9 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_NODE
     */
     Node(Component * parent, int _id = 0, string _name = "Node");
+    /**
+     * TODO
+    */
     ~Node() override = default;
 #ifdef CPUINFO
 public:
@@ -410,8 +439,17 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_MEMORY
     */
     Memory(Component * parent, string _name = "Memory", long long _size = -1);
+    /**
+     * TODO
+    */
     ~Memory() override = default;
+    /**
+     * TODO
+    */
     long long GetSize();
+    /**
+     * TODO
+    */
     void SetSize(long long _size);
     /**
     !!Should normally not be used!! Helper function of XML dump generation.
@@ -449,9 +487,17 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_STORAGE
     */
     Storage(Component * parent);
+    /**
+     * TODO
+    */
     ~Storage() override = default;
-
+    /**
+     * TODO
+    */
     long long GetSize();
+    /**
+     * TODO
+    */
     void SetSize(long long _size);
     /**
     !!Should normally not be used!! Helper function of XML dump generation.
@@ -485,13 +531,33 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_CHIP
     */
     Chip(Component * parent, int _id = 0, string _name = "Chip", int _type = SYS_SAGE_CHIP_TYPE_NONE);
+    /**
+     * TODO
+    */
     ~Chip() override = default;
-
+    /**
+     * TODO
+    */
     void SetVendor(string _vendor);
+    /**
+     * TODO
+    */
     string GetVendor();
+    /**
+     * TODO
+    */
     void SetModel(string _model);
+    /**
+     * TODO
+    */
     string GetModel();
+    /**
+     * TODO
+    */
     void SetChipType(int chipType);
+    /**
+     * TODO
+    */
     int GetChipType();
     /**
     !!Should normally not be used!! Helper function of XML dump generation.
@@ -499,9 +565,9 @@ public:
     */
     xmlNodePtr CreateXmlSubtree();
 private:
-    string vendor;
-    string model;
-    int type;
+    string vendor; /**< TODO  */
+    string model; /**< TODO  */
+    int type; /**< TODO  */
 #ifdef NVIDIA_MIG
 public:
     int UpdateMIGSettings(string uuid = "");
