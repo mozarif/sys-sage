@@ -1,0 +1,21 @@
+on:
+  workflow_call:
+    inputs:
+      flags:
+        type: string
+        default: ''
+jobs:
+  test:
+    name: Test
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON ${{ inputs.flags }}
+      - name: Build
+        run: cmake --build build --target test
+      - name: Test
+        run: ./build/test/test
