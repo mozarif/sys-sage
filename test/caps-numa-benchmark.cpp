@@ -26,14 +26,14 @@ static suite<"caps-numa-benchmark"> _ = []
             expect(that % (4 == numa->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)->size()) >> fatal);
             for (const auto &dp : *numa->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING))
             {
-                expect(that % SYS_SAGE_DATAPATH_TYPE_PHYSICAL == dp->GetDpType());
+                expect(that % SYS_SAGE_DATAPATH_TYPE_DATATRANSFER == dp->GetDpType());
                 expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp->GetOriented());
             }
 
             expect(that % (4 == numa->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)->size()) >> fatal);
             for (const auto &dp : *numa->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING))
             {
-                expect(that % SYS_SAGE_DATAPATH_TYPE_PHYSICAL == dp->GetDpType());
+                expect(that % SYS_SAGE_DATAPATH_TYPE_DATATRANSFER == dp->GetDpType());
                 expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp->GetOriented());
             }
         }
