@@ -54,5 +54,7 @@ int main(int argc, char *argv[])
     cout << "---------------- Printing all DataPaths ----------------" << endl;
     n->PrintAllDataPathsInSubtree();
     cout << "----------------                        ----------------" << endl;
+    delete topo;
+    delete n;
     return 0;
 }

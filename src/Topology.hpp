@@ -277,6 +277,21 @@ public:
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
     xmlNodePtr CreateXmlSubtree();
+    
+    /**
+    Deletes all DataPaths of this component.
+    */
+    void DeleteAllDataPaths();
+    /**
+    Deletes the whole subtree (all the children) of the component.
+    */
+    void DeleteSubtree();
+    /**
+    Deletes a component, its children (if withSubtree = true) and all the associated data paths.
+    If only the component itself is deleted, its children are inserted into its parent's children list.
+    @param withSubtree - if true, the whole subtree is deleted, otherwise only the component itself.
+    */
+    void Delete(bool withSubtree = true);
 
     /**
     TODO this part
@@ -525,7 +540,8 @@ public:
     Cache(Component * parent, int _id = 0, int _cache_level = 0, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
 
     /**
-    @returns cache level of this cache
+    @returns cache level of this cache, assuming there's only 1 or no digit in the "cache_type" (e.g. "L1", "texture")
+
     */
     int GetCacheLevel();
     string GetCacheName();

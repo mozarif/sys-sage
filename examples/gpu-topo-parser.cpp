@@ -43,6 +43,8 @@ int main(int argc, char *argv[])
     string output_name = "sys-sage_gpu_sample_output.xml";
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     exportToXml(topo, output_name);
-
+    
+    delete topo;
+    delete n;
     return 0;
 }
