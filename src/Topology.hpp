@@ -548,18 +548,26 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_CACHE
     */
     Cache(Component * parent, int _id = 0, int _cache_level = 0, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
+    /**
+     * TODO
+    */
     ~Cache() override = default;
 
     /**
     @returns cache level of this cache, assuming there's only 1 or no digit in the "cache_type" (e.g. "L1", "texture")
-
     */
     int GetCacheLevel();
+    /**
+     * TODO
+    */
     string GetCacheName();
     /**
     @returns cache size of this cache
     */
     long long GetCacheSize();
+    /**
+     * TODO
+    */
     void SetCacheSize(long long _cache_size);
     /**
     @returns the number of the cache associativity ways of this cache
@@ -569,6 +577,9 @@ public:
     @returns the size of a cache line of this cache
     */
     int GetCacheLineSize();
+    /**
+     * TODO
+    */
     void SetCacheLineSize(int _cache_line_size);
     /**
     !!Should normally not be used!! Helper function of XML dump generation.
@@ -608,8 +619,17 @@ public:
     @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
     */
     Subdivision(Component * parent, int _id = 0, string _name = "Subdivision", int _componentType = SYS_SAGE_COMPONENT_SUBDIVISION);
+    /**
+     * TODO
+    */
     ~Subdivision() override = default;
+    /**
+     * TODO
+    */
     void SetSubdivisionType(int subdivisionType);
+    /**
+     * TODO
+    */
     int GetSubdivisionType();
     /**
     !!Should normally not be used!! Helper function of XML dump generation.
@@ -643,6 +663,9 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_NUMA
     */
     Numa(Component * parent, int _id = 0, long long _size = -1);
+    /**
+     * TODO
+    */
     ~Numa() override = default;
     /**
     Get size of the Numa memory segment.
@@ -680,6 +703,9 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_CORE
     */
     Core(Component * parent, int _id = 0, string _name = "Core");
+    /**
+     * TODO
+    */
     ~Core() override = default;
 private:
 
@@ -714,7 +740,9 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_THREAD
     */    
     Thread(Component * parent, int _id = 0, string _name = "Thread");
-
+    /**
+     * TODO
+    */
     ~Thread() override = default;
 
 #ifdef CPUINFO //defined in cpuinfo.cpp
