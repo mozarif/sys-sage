@@ -46,5 +46,5 @@ static suite<"gpu-topo"> _ = []
 
     auto thread = dynamic_cast<Thread *>(cacheL1->GetChildByType(SYS_SAGE_COMPONENT_THREAD));
     expect(that % (nullptr != thread) >> fatal);
-    topo->Delete(true);
+    topo.Delete(true);
 };
