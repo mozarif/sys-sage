@@ -119,6 +119,7 @@ static suite<"export"> _ = []
     {
         auto topo = new Component{42, "a name", SYS_SAGE_COMPONENT_NONE};
         exportToXml(topo, "test.xml");
+        topo->Delete();
         validate("test.xml");
     };
 
