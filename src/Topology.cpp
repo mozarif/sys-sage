@@ -474,6 +474,9 @@ int Component::GetComponentType(){return componentType;}
 string Component::GetName(){return name;}
 int Component::GetId(){return id;}
 
+void Storage::SetSize(long long _size){size = _size;} 
+long long Storage::GetSize(){return size;}
+
 string Chip::GetVendor(){return vendor;}
 void Chip::SetVendor(string _vendor){vendor = _vendor;}
 string Chip::GetModel(){return model;}
