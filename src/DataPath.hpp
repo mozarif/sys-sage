@@ -6,23 +6,23 @@
 #include "defines.hpp"
 #include "Topology.hpp"
 
-//void AddDataPath(DataPath* p, int orientation);
-#define SYS_SAGE_DATAPATH_NONE 1
-#define SYS_SAGE_DATAPATH_OUTGOING 2
-#define SYS_SAGE_DATAPATH_INCOMING 4
+//Component pointing to a DataPath 
+#define SYS_SAGE_DATAPATH_NONE 1 /**< TODO */
+#define SYS_SAGE_DATAPATH_OUTGOING 2 /**< This Component is the source DataPath. */
+#define SYS_SAGE_DATAPATH_INCOMING 4 /**< This Component is the taerget DataPath. */
 
 //int oriented
-#define SYS_SAGE_DATAPATH_BIDIRECTIONAL 8
-#define SYS_SAGE_DATAPATH_ORIENTED 16
+#define SYS_SAGE_DATAPATH_BIDIRECTIONAL 8 /**< DataPath has no direction. */
+#define SYS_SAGE_DATAPATH_ORIENTED 16 /**< DataPath is directec from the source to the target. */
 
 //dp_type
-#define SYS_SAGE_DATAPATH_TYPE_NONE 32
-#define SYS_SAGE_DATAPATH_TYPE_LOGICAL 64
-#define SYS_SAGE_DATAPATH_TYPE_PHYSICAL 128
-#define SYS_SAGE_DATAPATH_TYPE_L3CAT 256
-#define SYS_SAGE_DATAPATH_TYPE_MIG 512
-#define SYS_SAGE_DATAPATH_TYPE_DATATRANSFER 1024
-#define SYS_SAGE_DATAPATH_TYPE_C2C 2048
+#define SYS_SAGE_DATAPATH_TYPE_NONE 32 /**< Generic type of DataPath */
+#define SYS_SAGE_DATAPATH_TYPE_LOGICAL 64 /**< DataPath describes a logical connection/relation of two Components. */
+#define SYS_SAGE_DATAPATH_TYPE_PHYSICAL 128 /**< DataPath describes a physical/hardware connection/relation of two Components. */
+#define SYS_SAGE_DATAPATH_TYPE_L3CAT 256 /**< DataPath type describing Cache partitioning settings. */
+#define SYS_SAGE_DATAPATH_TYPE_MIG 512 /**< DataPath type describing GPU partitioning settings. */
+#define SYS_SAGE_DATAPATH_TYPE_DATATRANSFER 1024 /**< DataPath type describing data transfer attributes. */
+#define SYS_SAGE_DATAPATH_TYPE_C2C 2048 /**< DataPath type describing cache-to-cache latencies (cccbench data source). */
 
 using namespace std;
 class Component;
@@ -103,6 +103,9 @@ public:
     @see dp_type
     */
     int GetDpType();
+    /**
+     * TODO
+    */
     int GetOriented();
 
     /**
@@ -117,16 +120,19 @@ public:
     */
     void DeleteDataPath();
 
+    /**
+     * TODO
+    */
     map<string,void*> attrib;
 private:
-    Component * source;
-    Component * target;
+    Component * source; /**< TODO */
+    Component * target; /**< TODO */
 
-    const int oriented;
-    const int dp_type; /**< asdasd */
+    const int oriented; /**< TODO */
+    const int dp_type; /**< TODO */
 
-    double bw;
-    double latency;
+    double bw; /**< TODO */
+    double latency; /**< TODO */
 
 };
 

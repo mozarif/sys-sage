@@ -132,8 +132,7 @@ void Component::GetComponentsNLevelsDeeper(vector<Component*>* outArray, int dep
 
 void Component::GetSubcomponentsByType(vector<Component*>* outArray, int _componentType)
 {
-    if(_componentType == componentType)
-    {
+    if(_componentType == componentType){
         outArray->push_back(this);
     }
     for(Component* child: children)
@@ -154,12 +153,16 @@ void Component::GetSubtreeNodeList(vector<Component*>* outArray)
 
 Component* Component::FindSubcomponentById(int _id, int _componentType)
 {
+    return GetSubcomponentById(_id, _componentType);
+}
+Component* Component::GetSubcomponentById(int _id, int _componentType)
+{
     if(componentType == _componentType && id == _id){
         return this;
     }
     for(Component * child : children)
     {
-        Component* ret = child->FindSubcomponentById(_id, _componentType);
+        Component* ret = child->GetSubcomponentById(_id, _componentType);
         if(ret != NULL)
         {
             return ret;
@@ -170,17 +173,57 @@ Component* Component::FindSubcomponentById(int _id, int _componentType)
 
 void Component::FindAllSubcomponentsByType(vector<Component*>* outArray, int _componentType)
 {
+    GetAllSubcomponentsByType(outArray, _componentType);
+}
+vector<Component*> Component::GetAllSubcomponentsByType(int _componentType)
+{
+    vector<Component*> ret;
+    GetAllSubcomponentsByType(&ret, _componentType);
+    return ret;
+}
+void Component::GetAllSubcomponentsByType(vector<Component*>* outArray, int _componentType)
+{
     if(componentType == _componentType){
         outArray->push_back(this);
     }
     for(Component * child : children)
     {
-        child->FindAllSubcomponentsByType(outArray, _componentType);
+        child->GetAllSubcomponentsByType(outArray, _componentType);
     }
     return;
 }
 
+int Component::CountAllSubcomponents()
+{
+    int cnt = children.size();
+    for(Component * child : children)
+    {
+        cnt += child->CountAllSubcomponents();
+    }
+    return cnt;
+}
+
+int Component::CountAllSubcomponentsByType(int _componentType)
+{
+    int cnt = 0;
+    for(Component * child : children)
+    {
+        if(child->GetComponentType() == _componentType)
+            cnt++;
+    }
+    for(Component * child : children)
+    {
+        cnt += child->CountAllSubcomponentsByType(_componentType);
+    }
+    return cnt;
+}
+
 Component* Component::FindParentByType(int _componentType)
+{
+    return GetAncestorType(_componentType);
+}
+
+Component* Component::GetAncestorType(int _componentType)
 {
     if(componentType == _componentType){
         return this;
@@ -402,7 +445,7 @@ void Component::Delete(bool withSubtree)
     if(GetParent()!= NULL) 
     {
         Component *myParent = GetParent();
-        int j = myParent->RemoveChild(this);
+        myParent->RemoveChild(this);
         if (!withSubtree)
         {
             for(Component* child: children)
@@ -430,6 +473,9 @@ vector<Component*>* Component::GetChildren(){return &children;}
 int Component::GetComponentType(){return componentType;}
 string Component::GetName(){return name;}
 int Component::GetId(){return id;}
+
+void Storage::SetSize(long long _size){size = _size;} 
+long long Storage::GetSize(){return size;}
 
 string Chip::GetVendor(){return vendor;}
 void Chip::SetVendor(string _vendor){vendor = _vendor;}

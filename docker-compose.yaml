@@ -1,0 +1,14 @@
+version: '3'
+services:
+  test:
+    build:
+      context: test
+      dockerfile: Dockerfile
+    volumes:
+      - .:/sys-sage
+    entrypoint: [ "/bin/sh", "-c" ]
+    command:
+      - |
+        cmake -S /sys-sage -B /build -DCMAKE_BUILD_TYPE=Debug -DTEST=ON
+        cmake --build build --target test
+        ./build/test/test

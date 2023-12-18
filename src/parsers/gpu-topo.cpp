@@ -405,7 +405,7 @@ int GpuTopo::parseMAIN_MEMORY()
                 if(latency != -1)
                     for(Component * c : *(sm->GetChildren()))
                         if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
-                            DataPath * d = new DataPath(mem, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                            new DataPath(mem, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
             }
         }
     }
@@ -610,7 +610,7 @@ int GpuTopo::parseCaches(string header_name, string cache_type)
                 if(latency != -1)
                     for(Component * c : *(sm->GetChildren()))
                         if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
-                            DataPath * d = new DataPath(cache, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                            new DataPath(cache, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
             }
         }
     }
@@ -675,7 +675,7 @@ int GpuTopo::parseCaches(string header_name, string cache_type)
                             }
 
                             if(latency != -1)
-                                DataPath * d = new DataPath(cache, child, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                                new DataPath(cache, child, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
                         }
                     }
                 }

@@ -5,4 +5,7 @@ main
 *.so
 build/*
 install/*
+inst-dir/*
 src/defines.hpp
+.vscode
+

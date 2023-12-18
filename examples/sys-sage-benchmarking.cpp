@@ -146,7 +146,9 @@ int main(int argc, char *argv[])
     cout << ", mt4g_dataPaths, "<< mt4g_dataPaths;
     cout << ", all_components, " << allComponentList.size() ;
 
-    cout << ", time_getNumaMaxBw, " << time_getNumaMaxBw; //<< "; bw; " << max_bw << "; ComponentId; " << max_bw_component->GetId() << endl;
+    cout << ", time_getNumaMaxBw, " << time_getNumaMaxBw;
+    if(false)
+        cout << "; bw; " << max_bw << "; ComponentId; " << max_bw_component->GetId() << endl;
     cout << ", time_createNewComponent, " << time_createNewComponent;
 
     cout << ", hwloc_component_size[B], " << hwloc_component_size;
