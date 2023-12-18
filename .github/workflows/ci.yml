@@ -37,6 +37,6 @@ jobs:
       - name: Generate documentation
         run: cd docs && doxygen Doxyfile
       - name: Generate documentation coverage
-        run: cd docs && python3 -m coverxygen --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3 --scope public,protected #--prefix *.hpp
+        run: cd docs && python3 -m coverxygen --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3 --scope public,protected --kind enum,enumvalue,friend,typedef,function,class,struct,union,define,file,namespace            #--prefix *.hpp
       - name: Documentation report
         run: cd docs && ./show_undocumented.py doc-coverage.info
