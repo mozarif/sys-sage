@@ -10,6 +10,7 @@
 #include "Topology.hpp"
 
 /*! \file */
+
 /**
 Parser function for importing hwloc XML output to sys-sage.
 \n The parser looks for the XML object names defined in xmlRelevantNames, and considers (i.e. parses) the XML object types as defined in xmlRelevantObjectTypes.

@@ -12,7 +12,7 @@ set(SOURCES
     xml_dump.cpp
     parsers/hwloc.cpp
     parsers/caps-numa-benchmark.cpp
-    parsers/gpu-topo.cpp
+    parsers/mt4g.cpp
     parsers/cccbench.cpp
     )
 
@@ -24,7 +24,7 @@ set(HEADERS
     xml_dump.hpp
     parsers/hwloc.hpp
     parsers/caps-numa-benchmark.hpp
-    parsers/gpu-topo.hpp
+    parsers/mt4g.hpp
     parsers/cccbench.cpp
     )
 

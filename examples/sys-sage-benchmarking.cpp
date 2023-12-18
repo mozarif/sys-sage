@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     //time mt4g parser
     Chip* gpu = new Chip(n, 100, "GPU");
     t_start = high_resolution_clock::now();
-    ret = parseGpuTopo(gpu, mt4gPath, ";");
+    ret = parseMt4gTopo(gpu, mt4gPath, ";");
     t_end = high_resolution_clock::now();
     uint64_t time_parseMt4g = t_end.time_since_epoch().count()-t_start.time_since_epoch().count()-timer_overhead;
     if(ret != 0){

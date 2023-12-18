@@ -1,5 +1,5 @@
 
-#include "gpu-topo.hpp"
+#include "mt4g.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -10,32 +10,32 @@
 #include <string>
 
 
-int parseGpuTopo(Component* parent, string dataSourcePath, int gpuId, string delim)
+int parseMt4gTopo(Component* parent, string dataSourcePath, int gpuId, string delim)
 {
     if(parent == NULL){
-        std::cerr << "parseGpuTopo: parent is null" << std::endl;
+        std::cerr << "parseMt4gTopo: parent is null" << std::endl;
         return 1;
     }
     Chip * gpu = new Chip(parent, gpuId, "GPU", SYS_SAGE_CHIP_TYPE_GPU);
 
-    return parseGpuTopo(gpu, dataSourcePath, delim);
+    return parseMt4gTopo(gpu, dataSourcePath, delim);
 }
 
-int parseGpuTopo(Chip* gpu, string dataSourcePath, string delim)
+int parseMt4gTopo(Chip* gpu, string dataSourcePath, string delim)
 {
-    GpuTopo gpuT(gpu, dataSourcePath, delim);
+    Mt4gParser gpuT(gpu, dataSourcePath, delim);
     int ret = gpuT.ParseBenchmarkData();
     return ret;
 
 }
 
-GpuTopo::GpuTopo(Chip* gpu, string dataSourcePath, string delim) : dataSourcePath(dataSourcePath), delim(delim), root(gpu), Memory_Clock_Frequency(-1), Memory_Bus_Width(-1)  { }
+Mt4gParser::Mt4gParser(Chip* gpu, string dataSourcePath, string delim) : dataSourcePath(dataSourcePath), delim(delim), root(gpu), Memory_Clock_Frequency(-1), Memory_Bus_Width(-1)  { }
 
-int GpuTopo::ReadBenchmarkFile()
+int Mt4gParser::ReadBenchmarkFile()
 {
     std::ifstream file(dataSourcePath);
     if (!file.good()){
-        std::cerr << "parseGpuTopo: could not open data source output file " << dataSourcePath << std::endl;
+        std::cerr << "parseMt4gTopo: could not open data source output file " << dataSourcePath << std::endl;
         return 1;
     }
 
@@ -65,118 +65,118 @@ int GpuTopo::ReadBenchmarkFile()
     return 0;
 }
 
-int GpuTopo::ParseBenchmarkData()
+int Mt4gParser::ParseBenchmarkData()
 {
     int ret = ReadBenchmarkFile();
     if(ret != 0)
         return ret;
 
     if(benchmarkData.find("GPU_INFORMATION") == benchmarkData.end()){
-        cerr << "parseGpuTopo: Could not find GPU_INFORMATION in file " << dataSourcePath << endl;
+        cerr << "parseMt4gTopo: Could not find GPU_INFORMATION in file " << dataSourcePath << endl;
         return 1;
     } else {
         if((ret=parseGPU_INFORMATION()) != 0){
-            cerr << "parseGpuTopo: parseGPU_INFORMATION failed when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseGPU_INFORMATION failed when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("COMPUTE_RESOURCE_INFORMATION") == benchmarkData.end()){
-        cerr << "parseGpuTopo: Could not find COMPUTE_RESOURCE_INFORMATION in file " << dataSourcePath << endl;
+        cerr << "parseMt4gTopo: Could not find COMPUTE_RESOURCE_INFORMATION in file " << dataSourcePath << endl;
         return 1;
     } else {
         if((ret=parseCOMPUTE_RESOURCE_INFORMATION()) != 0){
-            cerr << "parseGpuTopo: parseCOMPUTE_RESOURCE_INFORMATION failed when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseCOMPUTE_RESOURCE_INFORMATION failed when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("REGISTER_INFORMATION") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find REGISTER_INFORMATION in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find REGISTER_INFORMATION in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseREGISTER_INFORMATION()) != 0){
-            cerr << "parseGpuTopo: parseREGISTER_INFORMATION failed when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseREGISTER_INFORMATION failed when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("ADDITIONAL_INFORMATION") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find ADDITIONAL_INFORMATION in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find ADDITIONAL_INFORMATION in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseADDITIONAL_INFORMATION()) != 0){
-            cerr << "parseGpuTopo: parseADDITIONAL_INFORMATION failed when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseADDITIONAL_INFORMATION failed when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("MAIN_MEMORY") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find MAIN_MEMORY in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find MAIN_MEMORY in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseMAIN_MEMORY()) != 0){
-            cerr << "parseGpuTopo: parseMAIN_MEMORY failed when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseMAIN_MEMORY failed when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("L2_DATA_CACHE") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find L2_DATA_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find L2_DATA_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseCaches("L2_DATA_CACHE", "L2")) != 0){
-            cerr << "parseGpuTopo: parseCaches on L2_DATA_CACHE failed when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseCaches on L2_DATA_CACHE failed when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("L1_DATA_CACHE") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find L1_DATA_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find L1_DATA_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseCaches("L1_DATA_CACHE", "L1")) != 0){
-            cerr << "parseGpuTopo: parseCaches failed on L1_DATA_CACHE when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseCaches failed on L1_DATA_CACHE when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("SHARED_MEMORY") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find SHARED_MEMORY in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find SHARED_MEMORY in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseCaches("SHARED_MEMORY", "Shared_Memory")) != 0){
-            cerr << "parseGpuTopo: parseCaches failed on SHARED_MEMORY when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseCaches failed on SHARED_MEMORY when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("TEXTURE_CACHE") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find TEXTURE_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find TEXTURE_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseCaches("TEXTURE_CACHE", "Texture")) != 0){
-            cerr << "parseGpuTopo: parseCaches failed on TEXTURE_CACHE when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseCaches failed on TEXTURE_CACHE when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("READ-ONLY_CACHE") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find READ-ONLY_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find READ-ONLY_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseCaches("READ-ONLY_CACHE", "ReadOnly")) != 0){
-            cerr << "parseGpuTopo: parseCaches failed on READ-ONLY_CACHE when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseCaches failed on READ-ONLY_CACHE when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("CONST_L1_5_CACHE") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find CONST_L1_5_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find CONST_L1_5_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseCaches("CONST_L1_5_CACHE", "Constant_L1.5")) != 0){
-            cerr << "parseGpuTopo: parseCaches failed on CONST_L1_5_CACHE when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseCaches failed on CONST_L1_5_CACHE when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
 
     if(benchmarkData.find("CONSTANT_L1_CACHE") == benchmarkData.end()){
-        cerr << "WARNING: parseGpuTopo: Could not find CONSTANT_L1_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
+        cerr << "WARNING: parseMt4gTopo: Could not find CONSTANT_L1_CACHE in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
         if((ret=parseCaches("CONSTANT_L1_CACHE", "Constant_L1")) != 0){
-            cerr << "parseGpuTopo: parseCaches failed on CONSTANT_L1_CACHE when parsing " << dataSourcePath << endl;
+            cerr << "parseMt4gTopo: parseCaches failed on CONSTANT_L1_CACHE when parsing " << dataSourcePath << endl;
             return ret;
         }
     }
@@ -185,7 +185,7 @@ int GpuTopo::ParseBenchmarkData()
     return ret;
 }
 
-int GpuTopo::parseGPU_INFORMATION()
+int Mt4gParser::parseGPU_INFORMATION()
 {
     vector<string> data = benchmarkData["GPU_INFORMATION"];
     data.erase(data.begin());
@@ -214,7 +214,7 @@ int GpuTopo::parseGPU_INFORMATION()
     return 0;
 }
 
-int GpuTopo::parseCOMPUTE_RESOURCE_INFORMATION()
+int Mt4gParser::parseCOMPUTE_RESOURCE_INFORMATION()
 {
     vector<string> data = benchmarkData["COMPUTE_RESOURCE_INFORMATION"];
     data.erase(data.begin());
@@ -260,12 +260,12 @@ int GpuTopo::parseCOMPUTE_RESOURCE_INFORMATION()
     return 0;
 }
 
-int GpuTopo::parseREGISTER_INFORMATION()
+int Mt4gParser::parseREGISTER_INFORMATION()
 {
     //TODO
     return 0;
 }
-int GpuTopo::parseADDITIONAL_INFORMATION()
+int Mt4gParser::parseADDITIONAL_INFORMATION()
 {
     vector<string> data = benchmarkData["ADDITIONAL_INFORMATION"];
     data.erase(data.begin());
@@ -317,7 +317,7 @@ int GpuTopo::parseADDITIONAL_INFORMATION()
     }
     return 0;
 }
-int GpuTopo::parseMAIN_MEMORY()
+int Mt4gParser::parseMAIN_MEMORY()
 {
     vector<string> data = benchmarkData["MAIN_MEMORY"];
     data.erase(data.begin());
@@ -411,14 +411,14 @@ int GpuTopo::parseMAIN_MEMORY()
     }
     else if(shared_on == 1)
     {
-        std::cerr << "GpuTopo::parseMAIN_MEMORY, shared_on == 1 --> this should not happen...if yes, the implementation needs to be extended." << std::endl;
+        std::cerr << "Mt4gParser::parseMAIN_MEMORY, shared_on == 1 --> this should not happen...if yes, the implementation needs to be extended." << std::endl;
         return 1;
     }
 
     return 0;
 }
 
-int GpuTopo::parseCaches(string header_name, string cache_type)
+int Mt4gParser::parseCaches(string header_name, string cache_type)
 {
     vector<string> data = benchmarkData[header_name];
     data.erase(data.begin());
@@ -684,6 +684,7 @@ int GpuTopo::parseCaches(string header_name, string cache_type)
     }
     return 0;
 }
+
 void trimRight( std::string& str, const std::string& trimChars)
 {
    std::string::size_type pos = str.find_last_not_of( trimChars );
