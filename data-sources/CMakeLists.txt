@@ -11,7 +11,9 @@ if(DS_HWLOC)
     endif()
 
     add_executable(hwloc-output hwloc-output.cpp)
-    target_link_libraries(hwloc-output hwloc)
+    target_include_directories(hwloc-output PUBLIC ${HWLOC_INCLUDE_DIRS})
+    target_link_directories(hwloc-output PRIVATE ${HWLOC_LIBRARY_DIRS})
+    target_link_libraries(hwloc-output PRIVATE ${HWLOC_LIBRARIES})
     install(TARGETS hwloc-output DESTINATION bin)
 endif()
 

@@ -17,7 +17,6 @@ Binary (entrypoint) for generating hwloc topology XML output (to current directo
 \n usage: ./hwloc-output [output_filename]
 @param filename of the output file (default: hwloc_topology.xml)
 */
-
 int main(int argc, char* argv[])
 {
     
@@ -66,16 +65,19 @@ string get_hwloc_topology_xml_string() {
         hwloc_topology_destroy(topology);
         return "";
     }
-    //TODO replace with hwloc_topology_export_xmlbuffer?
-    stringstream xml_output_stream;
-    err = hwloc_topology_export_xml(topology, xml_output_stream.str().c_str(), flags);
+    char * xmlbuffer;
+    int buflen;
+    err = hwloc_topology_export_xmlbuffer(topology, &xmlbuffer, &buflen, flags);
     if (err) {
-        cerr << "hwloc: Failed to export xml" << endl;
+        cerr << "hwloc: Failed to export to a temporary buffer" << endl;
+        hwloc_free_xmlbuffer(topology, xmlbuffer);
         hwloc_topology_destroy(topology);
         return "";
     }
+    std::string xml_output(xmlbuffer, buflen);
 
+    hwloc_free_xmlbuffer(topology, xmlbuffer);
     hwloc_topology_destroy(topology);
-    string xml_output = xml_output_stream.str();
+
     return xml_output;
 }

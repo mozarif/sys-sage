@@ -33,7 +33,6 @@ endif()
 
 if(DATA_SOURCES OR DS_HWLOC)
   find_package(HWLOC REQUIRED)
-  include_directories(${HWLOC_INCLUDE_DIRS})
 endif()
 
 
