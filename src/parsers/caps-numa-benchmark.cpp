@@ -7,7 +7,7 @@
 
 using namespace std;
 
-int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, string delim = ";")
+int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, string delim)
 {
     CSVReader reader(benchmarkPath, delim);
     vector<vector<string> > benchmarkData;

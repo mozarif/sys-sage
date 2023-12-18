@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
         std::string path_prefix(argv[0]);
         std::size_t found = path_prefix.find_last_of("/\\");
         path_prefix=path_prefix.substr(0,found) + "/";
-        gpuTopoPath = path_prefix + "example_data/pascal_gpu_topo.csv";
+        gpuTopoPath = path_prefix + "example_data/ampere_gpu_topo.csv";
     }
     else if(argc == 2){
         gpuTopoPath = argv[1];
@@ -42,9 +42,11 @@ int main(int argc, char *argv[])
 
     string output_name = "sys-sage_gpu_sample_output.xml";
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
+    
+    //topo->DeleteSubtree();
     exportToXml(topo, output_name);
     
-    delete topo;
-    delete n;
+    topo->Delete(true);
+
     return 0;
 }

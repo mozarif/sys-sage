@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <!-- The <sys-sage> root tag -->
+  <xs:element name="sys-sage">
+    <xs:complexType>
+      <xs:all>
+
+        <!-- The component trees -->
+        <xs:element name="components">
+          <xs:complexType>
+            <xs:group ref="components"></xs:group>
+          </xs:complexType>
+        </xs:element>
+
+        <!-- The data paths -->
+        <xs:element name="data-paths">
+          <xs:complexType>
+            <xs:choice>
+              <xs:element name="datapath" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Attribute" type="attribute" minOccurs="0"
+                      maxOccurs="unbounded" />
+                  </xs:sequence>
+                  <xs:attribute name="source" type="addr" />
+                  <xs:attribute name="target" type="addr" />
+                  <xs:attribute name="oriented" type="xs:integer" />
+                  <xs:attribute name="dp_type" type="xs:integer" />
+                  <xs:attribute name="bw" type="xs:double" />
+                  <xs:attribute name="latency" type="xs:double" />
+                </xs:complexType>
+              </xs:element>
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Each component can recursively contain more components -->
+  <xs:group name="components">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="None" type="none" />
+        <xs:element name="HW_thread" type="hw_thread" />
+        <xs:element name="Core" type="core" />
+        <xs:element name="Cache" type="cache" />
+        <xs:element name="Subdivision" type="subdivision" />
+        <xs:element name="NUMA" type="numa" />
+        <xs:element name="Chip" type="chip" />
+        <xs:element name="Memory" type="memory" />
+        <xs:element name="Storage" type="storage" />
+        <xs:element name="Node" type="node" />
+        <xs:element name="Topology" type="topology" />
+        <xs:element name="Attribute" type="attribute" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+
+  <!-- Attributes for components and data paths -->
+  <xs:complexType name="attribute">
+    <xs:sequence>
+      <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+    </xs:sequence>
+    <xs:attribute name="name" />
+    <xs:attribute name="value" />
+  </xs:complexType>
+
+  <!-- Component base class -->
+  <xs:complexType name="component">
+    <xs:group ref="components"></xs:group>
+    <xs:attribute name="id" type="xs:integer" />
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="addr" type="addr" />
+    <xs:attribute name="count" type="xs:integer" />
+  </xs:complexType>
+
+  <!-- Topology component -->
+  <xs:complexType name="topology">
+    <xs:complexContent>
+      <xs:extension base="component" />
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Memory component -->
+  <xs:complexType name="memory">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:attribute name="size" type="xs:integer" />
+        <xs:attribute name="is_volatile" type="xs:integer" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Cache component -->
+  <xs:complexType name="cache">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:attribute name="cache_level" type="xs:integer" />
+        <xs:attribute name="cache_size" type="xs:integer" />
+        <xs:attribute name="cache_associativity_ways" type="xs:integer" />
+        <xs:attribute name="cache_line_size" type="xs:integer" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Storage component -->
+  <xs:complexType name="storage">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:attribute name="size" type="xs:integer" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Chip component -->
+  <xs:complexType name="chip">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:attribute name="vendor" type="xs:string" />
+        <xs:attribute name="model" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Subdivision component -->
+  <xs:complexType name="subdivision">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:attribute name="subdivision_type" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- NUMA component -->
+  <xs:complexType name="numa">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:attribute name="size" type="xs:integer" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Node component -->
+  <xs:complexType name="node">
+    <xs:complexContent>
+      <xs:extension base="component">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- None component -->
+  <xs:complexType name="none">
+    <xs:complexContent>
+      <xs:extension base="component">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- None component -->
+  <xs:complexType name="hw_thread">
+    <xs:complexContent>
+      <xs:extension base="component">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- None component -->
+  <xs:complexType name="core">
+    <xs:complexContent>
+      <xs:extension base="component">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- A memory address, e.g. 0xff0011234 -->
+  <xs:simpleType name="addr">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="0x[0-9a-fA-F]+"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

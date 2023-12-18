@@ -46,6 +46,10 @@ cmake ..
 make all install
 ```
 
+## Testing
+
+Please refer to the [Testing Guide](test/README.md) for more information.
+
 ## About
 
 sys-sage has been created by Stepan Vanecek (stepan.vanecek@tum.de) and the [CAPS TUM](https://www.ce.cit.tum.de/en/caps/homepage/). Please contact us in case of questions, bug reporting etc.

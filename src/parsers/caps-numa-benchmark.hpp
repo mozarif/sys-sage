@@ -4,7 +4,7 @@
 #include "Topology.hpp"
 #include "DataPath.hpp"
 
-int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, string delim);
+int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, string delim = ";");
 
 class CSVReader
 {
