@@ -69,6 +69,12 @@ public:
     */
     void InsertChild(Component * child);
     /**
+     * Inserts this component between a parent and a (subset of) his children. The parent component remains parent, this Component becomes a new child, and the children become parent's grandchildren.
+     * @param TODO
+     * @return 0 on success, 1 on incompatible parent-children components (one or more children are not parent's children); 2 on corrupt component tree (parent is a parent of child but child is NOT in children list of parent); 3 on corrupt component tree (parent is NOT a parent of child but child is in children list of parent)
+    */
+    int InsertBetweenParentAndChildren(Component* parent, vector<Component*> children, bool alreadyParentsChild);
+    /**
     //TODO
     @return how many elements were deleted (normally, 0 or 1 should be possible)
     */
@@ -438,7 +444,7 @@ public:
     @param _name = name, default "Memory"
     @param componentType=>SYS_SAGE_COMPONENT_MEMORY
     */
-    Memory(Component * parent, string _name = "Memory", long long _size = -1);
+    Memory(Component * parent, int id = 0, string _name = "Memory", long long _size = -1);
     /**
      * TODO
     */
@@ -648,7 +654,7 @@ public:
     */
     void SetCacheLineSize(int _cache_line_size);
     /**
-    !!Should normally not be used!! Helper function of XML dump generation.
+    !!Should normally not be caller from the outside!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
     xmlNodePtr CreateXmlSubtree();

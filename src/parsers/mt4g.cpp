@@ -112,7 +112,7 @@ int Mt4gParser::ParseBenchmarkData()
     if(benchmarkData.find("MAIN_MEMORY") == benchmarkData.end()){
         cerr << "WARNING: parseMt4gTopo: Could not find MAIN_MEMORY in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
-        if((ret=parseMAIN_MEMORY()) != 0){
+        if((ret=parseMemory("MAIN_MEMORY", "GPU Global memory")) != 0){
             cerr << "parseMt4gTopo: parseMAIN_MEMORY failed when parsing " << dataSourcePath << endl;
             return ret;
         }
@@ -139,7 +139,7 @@ int Mt4gParser::ParseBenchmarkData()
     if(benchmarkData.find("SHARED_MEMORY") == benchmarkData.end()){
         cerr << "WARNING: parseMt4gTopo: Could not find SHARED_MEMORY in file " << dataSourcePath <<". Will skip."<< endl;
     } else {
-        if((ret=parseCaches("SHARED_MEMORY", "Shared_Memory")) != 0){
+        if((ret=parseMemory("SHARED_MEMORY", "Shared memory")) != 0){
             cerr << "parseMt4gTopo: parseCaches failed on SHARED_MEMORY when parsing " << dataSourcePath << endl;
             return ret;
         }
@@ -275,51 +275,58 @@ int Mt4gParser::parseADDITIONAL_INFORMATION()
         if(data[i]== "Memory_Clock_Frequency")
         {
             if(i>=data.size()-2){
-                cerr << "parseREGISTER_INFORMATION: \"" << data[i] << "\" is supposed to be followed by 2 additional values." << endl;
+                cerr << "parseADDITIONAL_INFORMATION: \"" << data[i] << "\" is supposed to be followed by 2 additional values." << endl;
                 return 1;
             }
             Memory_Clock_Frequency = stod(data[i+1]);
             string unit = data[i+2];
             if(unit == "KHz")
-                Memory_Clock_Frequency *= 1024;
+                Memory_Clock_Frequency *= 1000;
             else if(unit == "MHz")
-                Memory_Clock_Frequency *= 1024*1024;
+                Memory_Clock_Frequency *= 1000*1000;
             else if(unit == "GHz")
-                Memory_Clock_Frequency *= 1024*1024*1024;
+                Memory_Clock_Frequency *= 1000*1000*1000;
             i+=2;
         }
         else if(data[i]== "Memory_Bus_Width")
         {
             if(i>=data.size()-2){
-                cerr << "parseREGISTER_INFORMATION: \"" << data[i] << "\" is supposed to be followed by 2 additional values." << endl;
+                cerr << "parseADDITIONAL_INFORMATION: \"" << data[i] << "\" is supposed to be followed by 2 additional values." << endl;
                 return 1;
             }
             Memory_Bus_Width = stod(data[i+1]);
             string unit = data[i+2];
             if(unit == "KHz")
-                Memory_Bus_Width *= 1024;
+                Memory_Bus_Width *= 1000;
             else if(unit == "MHz")
-                Memory_Bus_Width *= 1024*1024;
+                Memory_Bus_Width *= 1000*1000;
             else if(unit == "GHz")
-                Memory_Bus_Width *= 1024*1024*1024;
+                Memory_Bus_Width *= 1000*1000*1000;
             i+=2;
         }
         else if(data[i]== "GPU_Clock_Rate")
         {
             if(i>=data.size()-2){
-                cerr << "parseREGISTER_INFORMATION: \"" << data[i] << "\" is supposed to be followed by 2 additional values." << endl;
+                cerr << "parseADDITIONAL_INFORMATION: \"" << data[i] << "\" is supposed to be followed by 2 additional values." << endl;
                 return 1;
             }
-            std::tuple<double, std::string>* val = new std::tuple<double, std::string>(stod(data[i+1]), data[i+2]);
+            double * val = new double(std::stod(data[i+1]));
+            string unit = data[i+2];
+            if(unit == "KHz")
+                *val *= 1000;
+            else if(unit == "MHz")
+                *val *= 1000*1000;
+            else if(unit == "GHz")
+                *val *= 1000*1000*1000;
             root->attrib.insert({data[i], (void*)val});
             i+=2;
         }
     }
     return 0;
 }
-int Mt4gParser::parseMAIN_MEMORY()
+int Mt4gParser::parseMemory(string header_name)
 {
-    vector<string> data = benchmarkData["MAIN_MEMORY"];
+    vector<string> data = benchmarkData[header_name];
     data.erase(data.begin());
 
     int shared_on = -1; //0=GPU, 1=SM
@@ -331,7 +338,7 @@ int Mt4gParser::parseMAIN_MEMORY()
         if(data[i]== "Size")
         {
             if(i>=data.size()-3){
-                cerr << "parseMAIN_MEMORY: \"" << data[i] << "\" is supposed to be followed by 3 additional values." << endl;
+                cerr << "parseMemory: \"" << data[i] << "\" is supposed to be followed by 3 additional values." << endl;
                 return 1;
             }
             size = stod(data[i+1]);
@@ -347,10 +354,10 @@ int Mt4gParser::parseMAIN_MEMORY()
         else if(data[i]== "Load_Latency")
         {
             if(i>=data.size()-2){
-                cerr << "parseMAIN_MEMORY: \"" << data[i] << "\" is supposed to be followed by 2 additional values." << endl;
+                cerr << "parseMemory: \"" << data[i] << "\" is supposed to be followed by 2 additional values." << endl;
                 return 1;
             }
-            if(data[i+2] == "cycles")
+            if((data[i+2] == "cycles" && latency_in_cycles) || (data[i+2] == "nanoseconds" && !latency_in_cycles))
             {
                 latency = stod(data[i+1]);
             }
@@ -359,59 +366,102 @@ int Mt4gParser::parseMAIN_MEMORY()
         else if(data[i]== "Shared_On")
         {
             if(i>=data.size()-1){
-                cerr << "parseMAIN_MEMORY: \"" << data[i] << "\" is supposed to be followed by 1 additional value." << endl;
+                cerr << "parseMemory: \"" << data[i] << "\" is supposed to be followed by 1 additional value." << endl;
                 return 1;
             }
             if(data[i+1] == "GPU-level")
                 shared_on = 0;
             else if(data[i+1] == "SM-level")
                 shared_on = 1;
-            else
-            {
-                cerr << "parseMAIN_MEMORY: \"" << data[i] << "\" is supposed to be GPU-level or SM-level." << endl;
+            else{
+                cerr << "parseMemory: \"" << data[i] << "\" is supposed to be GPU-level or SM-level." << endl;
                 return 1;
             }
             i+=1;
         }
     }
-    if(shared_on == 0)
-    {
-        Memory * mem = new Memory(root, "GPU main memory");
-        if(size != -1)
-            mem->SetSize((long long)size);
 
+    if(header_name == "MAIN_MEMORY")
+    {
+        if(shared_on != 0){
+            std::cerr << "Mt4gParser::parseMemory, shared_on == 1 --> this should not happen...if yes, the implementation needs to be extended." << std::endl;
+            return 1;
+        }
+
+        Memory * mem = new Memory(root, 0, "GPU Global memory", (long long)size);
         if(Memory_Clock_Frequency > -1){
             double * mfreq = new double(Memory_Clock_Frequency);
             mem->attrib.insert({"Clock_Frequency", (void*)mfreq});
         }
         if(Memory_Bus_Width > -1){
             int * busW = new int(Memory_Bus_Width);
-            mem->attrib.insert({"Bus_Width_bit", (void*)busW});
+            mem->attrib.insert({"Bus_Width", (void*)busW});
         }
+          
+        //make SMs as main memory's children and insert DP with latency
+        vector<Component*> memory_children;
+        for(Component* sm : *(root->GetChildren()))
+            if(sm->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+                memory_children.push_back(sm);
 
-        //make SMs as memory's children and inserd DP with latency
+        if(memory_children.size() > 0)
+            mem->InsertBetweenParentAndChildren(root, memory_children, true);
+        for(Component* sm: memory_children)
+        
+        //make SMs as main memory's children and insert DP with latency
         vector<Component*> children_copy;
         for(Component* child : *(root->GetChildren())){
             children_copy.push_back(child);
         }
-        for(Component * sm : children_copy)
-        {
-            if(sm->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
-            {
-                root->RemoveChild(sm);
-                mem->InsertChild(sm);
-                sm->SetParent(mem);
 
-                if(latency != -1)
-                    for(Component * c : *(sm->GetChildren()))
-                        if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
-                            new DataPath(mem, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
-            }
-        }
+        if(latency != -1)
+            for(Component * sm : children_copy)
+                for(Component * c : *(sm->GetChildren()))
+                    if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
+                        new DataPath(mem, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                        
     }
-    else if(shared_on == 1)
+    else if(header_name == "SHARED_MEMORY") //very similar to parseCaches
+    {   //shared memory is shared on an SM level
+        if(shared_on != 1){
+            std::cerr << "Mt4gParser::parseMemory, shared_on == 0 --> this should not happen...if yes, the implementation needs to be extended." << std::endl;
+            return 1;
+        }
+
+        vector<Component*> parents;
+        root->FindAllSubcomponentsByType(&parents, SYS_SAGE_COMPONENT_SUBDIVISION);
+        for(Component * parent : parents)
+        {
+            if((Subdivision)parent->GetSubdivisionType() != SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+                continue;
+
+            if(!L2_shared_on_gpu)
+            {
+                vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
+                for(Component * cache: caches){
+                    if(((Cache*)cache)->GetCacheName() == "L2"){
+                        parent = cache;
+                        break;
+                    }
+                }
+            }
+
+            for(int i=0; i<caches_per_sm; i++)
+            {
+                Memory * mem = new Memory(parent, i, "Shared memory", (long long)size);
+
+                //insert DP with latency
+                for(Component* child : *(parent->GetChildren()))
+                    if(child->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
+                        if(latency != -1)
+                            new DataPath(mem, child, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+            }
+
+
+    }
+    else
     {
-        std::cerr << "Mt4gParser::parseMAIN_MEMORY, shared_on == 1 --> this should not happen...if yes, the implementation needs to be extended." << std::endl;
+        std::cerr << "Mt4gParser::parseMemory, shared_on == 1 --> this should not happen...if yes, the implementation needs to be extended." << std::endl;
         return 1;
     }
 
@@ -470,7 +520,7 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
                 cerr << "parseCaches: \"" << data[i] << "\" is supposed to be followed by 1 additional value." << endl;
                 return 1;
             }
-            if(data[i+2] == "cycles")
+            if((data[i+2] == "cycles" && latency_in_cycles) || (data[i+2] == "nanoseconds" && !latency_in_cycles))
             {
                 latency = stod(data[i+1]);
             }
@@ -620,6 +670,9 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
         root->FindAllSubcomponentsByType(&parents, SYS_SAGE_COMPONENT_SUBDIVISION);
         for(Component * parent : parents)
         {
+            if((Subdivision)parent->GetSubdivisionType() != SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+                continue;
+
             //if L2 is not shared on GPU, it will be the parent
             if(cache_type != "L2" && !L2_shared_on_gpu)
             {

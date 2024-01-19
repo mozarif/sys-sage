@@ -9,6 +9,7 @@ The main goal of the library is to to store, update, and provide all relevant in
 
 - [sys-sage Library Concept](Concept.md)
 - [Installation Guide](Installation_Guide.md)
+- [Data Parsers Documentation](Data_Parsers.md)
 - **API documentation**
     - [**Component**](class_component.html) ( [Topology](class_topology.html), [Node](class_node.html), [Memory](class_memory.html), [Storage](class_storage.html),  [Chip](class_chip.html), [Cache](class_cache.html), [Subdivision](class_subdivision.html), [Numa](class_numa.html), [Core](class_core.html), [Thread](class_thread.html) )
     - [**Data Path**](class_data_path.html)

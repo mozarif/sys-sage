@@ -35,6 +35,7 @@ private:
     string dataSourcePath;
     string delim;
     Chip* root;
+    bool latency_in_cycles = true;
     bool L2_shared_on_gpu;
     double Memory_Clock_Frequency;
     int Memory_Bus_Width;
@@ -43,7 +44,7 @@ private:
     int parseCOMPUTE_RESOURCE_INFORMATION();
     int parseREGISTER_INFORMATION();
     int parseADDITIONAL_INFORMATION();
-    int parseMAIN_MEMORY();
+    int parseMemory(string header_name, string memory_name);
     int parseCaches(string header_name, string cache_type);
 };
 

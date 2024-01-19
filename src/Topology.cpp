@@ -49,6 +49,39 @@ void Component::InsertChild(Component * child)
     child->SetParent(this);
     children.push_back(child);
 }
+int Component::InsertBetweenParentAndChildren(Component* parent, vector<Component*> children, bool alreadyParentsChild)
+{
+    vector<Component*> * p_children = parent->GetChildren();
+    for(Component* child: children) //first just check for consistency
+    {
+        bool isParent = (child->GetParent() == parent);      
+        if(std::find(p_children->begin(), p_children->end(), child) == p_children->end()){  //child not listed as parent's child
+            if(isParent)
+                return 2; //corrupt component tree -> bad thing
+            else
+                return 1; // just entered a component in the list, which is not a child of the parent
+        }
+        if(!isParent)
+            return 3; //corrupt component tree -> bad thing
+    }
+
+    for(Component* child: children) //second time do the actual inserting
+    {
+        //remove from grandparent's list; set new parent; insert child into the new component's list
+        p_children.erase(std::remove(p_children.begin(), p_children.end(), child), p_children.end());
+        child->SetParent(this);
+        this->InsertChild(child);
+    }
+
+    //finally, insert new component to grandparent's children list
+    if(!alreadyParentsChild)
+    {
+        this->SetParent(parent);
+        parent->InsertChild(this);
+    }
+    
+    return 0;
+}
 int Component::RemoveChild(Component * child)
 {
     int orig_size = children.size();
