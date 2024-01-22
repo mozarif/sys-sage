@@ -68,7 +68,7 @@ int Component::InsertBetweenParentAndChildren(Component* parent, vector<Componen
     for(Component* child: children) //second time do the actual inserting
     {
         //remove from grandparent's list; set new parent; insert child into the new component's list
-        p_children.erase(std::remove(p_children.begin(), p_children.end(), child), p_children.end());
+        p_children->erase(std::remove(p_children.begin(), p_children.end(), child), p_children.end());
         child->SetParent(this);
         this->InsertChild(child);
     }
