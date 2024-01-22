@@ -68,7 +68,7 @@ int Component::InsertBetweenParentAndChildren(Component* parent, vector<Componen
     for(Component* child: children) //second time do the actual inserting
     {
         //remove from grandparent's list; set new parent; insert child into the new component's list
-        p_children->erase(std::remove(p_children.begin(), p_children.end(), child), p_children.end());
+        p_children->erase(std::remove(p_children->begin(), p_children->end(), child), p_children->end());
         child->SetParent(this);
         this->InsertChild(child);
     }
@@ -570,7 +570,7 @@ Node::Node(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_NODE)
 Node::Node(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_NODE){}
 
 Memory::Memory():Component(0, "Memory", SYS_SAGE_COMPONENT_MEMORY){}
-Memory::Memory(Component * parent, string _name, long long _size):Component(parent, 0, _name, SYS_SAGE_COMPONENT_MEMORY), size(_size){}
+Memory::Memory(Component * parent, int id, string _name, long long _size):Component(parent, _id, _name, SYS_SAGE_COMPONENT_MEMORY), size(_size){}
 
 Storage::Storage():Component(0, "Storage", SYS_SAGE_COMPONENT_STORAGE){}
 Storage::Storage(Component * parent):Component(parent, 0, "Storage", SYS_SAGE_COMPONENT_STORAGE){}
