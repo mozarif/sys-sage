@@ -49,6 +49,35 @@ void Component::InsertChild(Component * child)
     child->SetParent(this);
     children.push_back(child);
 }
+int Component::InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild)
+{
+    //consistency check
+    vector<Component*> * p_children = parent->GetChildren();
+    if(child->GetParent() != parent){
+        if(std::find(p_children->begin(), p_children->end(), child) != p_children->end())
+            return 1; //child and parent are not child and parent in the component tree
+        else
+            return 2; //corrupt component tree -> bad thing
+    }
+    else{
+        if(std::find(p_children->begin(), p_children->end(), child) == p_children->end())
+            return 3; //corrupt component tree -> bad thing
+    }
+
+    //remove from grandparent's list; set new parent; insert child into the new component's list
+    p_children->erase(std::remove(p_children->begin(), p_children->end(), child), p_children->end());
+    child->SetParent(this);
+    this->InsertChild(child);
+
+    //finally, insert new component to grandparent's children list
+    if(!alreadyParentsChild)
+    {
+        this->SetParent(parent);
+        parent->InsertChild(this);
+    }
+
+    return 0;
+}
 int Component::InsertBetweenParentAndChildren(Component* parent, vector<Component*> children, bool alreadyParentsChild)
 {
     vector<Component*> * p_children = parent->GetChildren();
@@ -570,7 +599,7 @@ Node::Node(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_NODE)
 Node::Node(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_NODE){}
 
 Memory::Memory():Component(0, "Memory", SYS_SAGE_COMPONENT_MEMORY){}
-Memory::Memory(Component * parent, int id, string _name, long long _size):Component(parent, _id, _name, SYS_SAGE_COMPONENT_MEMORY), size(_size){}
+Memory::Memory(Component * parent, int _id, string _name, long long _size):Component(parent, _id, _name, SYS_SAGE_COMPONENT_MEMORY), size(_size){}
 
 Storage::Storage():Component(0, "Storage", SYS_SAGE_COMPONENT_STORAGE){}
 Storage::Storage(Component * parent):Component(parent, 0, "Storage", SYS_SAGE_COMPONENT_STORAGE){}

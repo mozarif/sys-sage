@@ -156,7 +156,7 @@ Memory* MusaParser::ParseMemory() {
     else if (output.find("tb") != std::string::npos)
         size *= (long long)1000*(long long)1000*(long long)1000*(long long)1000;
 
-    Memory* mem = new Memory(socket, input, size);
+    Memory* mem = new Memory(socket, 0, input, size);
 	return mem;
 }
 

@@ -9,6 +9,16 @@
 #include <tuple>
 #include <string>
 
+int parseMt4gTopo(Node* parent, string dataSourcePath, int gpuId, string delim)
+{
+    if(parent == NULL){
+        std::cerr << "parseMt4gTopo: parent is null" << std::endl;
+        return 1;
+    }
+    Chip * gpu = new Chip(parent, gpuId, "GPU", SYS_SAGE_CHIP_TYPE_GPU);
+
+    return parseMt4gTopo(gpu, dataSourcePath, delim);
+}
 
 int parseMt4gTopo(Component* parent, string dataSourcePath, int gpuId, string delim)
 {
@@ -29,7 +39,7 @@ int parseMt4gTopo(Chip* gpu, string dataSourcePath, string delim)
 
 }
 
-Mt4gParser::Mt4gParser(Chip* gpu, string dataSourcePath, string delim) : dataSourcePath(dataSourcePath), delim(delim), root(gpu), Memory_Clock_Frequency(-1), Memory_Bus_Width(-1)  { }
+Mt4gParser::Mt4gParser(Chip* gpu, string dataSourcePath, string delim) : dataSourcePath(dataSourcePath), delim(delim), root(gpu), latency_in_cycles(true), Memory_Clock_Frequency(-1), Memory_Bus_Width(-1) { }
 
 int Mt4gParser::ReadBenchmarkFile()
 {
@@ -324,7 +334,7 @@ int Mt4gParser::parseADDITIONAL_INFORMATION()
     }
     return 0;
 }
-int Mt4gParser::parseMemory(string header_name)
+int Mt4gParser::parseMemory(string header_name, string memory_name)
 {
     vector<string> data = benchmarkData[header_name];
     data.erase(data.begin());
@@ -332,6 +342,7 @@ int Mt4gParser::parseMemory(string header_name)
     int shared_on = -1; //0=GPU, 1=SM
     double size = -1;
     double latency = -1;
+    int ret;
     //parse_args
     for(size_t i = 0; i<data.size(); i++)
     {
@@ -388,7 +399,7 @@ int Mt4gParser::parseMemory(string header_name)
             return 1;
         }
 
-        Memory * mem = new Memory(root, 0, "GPU Global memory", (long long)size);
+        Memory * mem = new Memory(root, 0, memory_name, (long long)size);
         if(Memory_Clock_Frequency > -1){
             double * mfreq = new double(Memory_Clock_Frequency);
             mem->attrib.insert({"Clock_Frequency", (void*)mfreq});
@@ -404,22 +415,16 @@ int Mt4gParser::parseMemory(string header_name)
             if(sm->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
                 memory_children.push_back(sm);
 
-        if(memory_children.size() > 0)
-            mem->InsertBetweenParentAndChildren(root, memory_children, true);
-        for(Component* sm: memory_children)
-        
-        //make SMs as main memory's children and insert DP with latency
-        vector<Component*> children_copy;
-        for(Component* child : *(root->GetChildren())){
-            children_copy.push_back(child);
+        if((ret = mem->InsertBetweenParentAndChildren(root, memory_children, true)) != 0)
+        {
+            cerr << "parseMemory:InsertBetweenParentAndChildren failed with return code " << ret << endl;
         }
-
+        
         if(latency != -1)
-            for(Component * sm : children_copy)
+            for(Component* sm: memory_children)
                 for(Component * c : *(sm->GetChildren()))
                     if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
-                        new DataPath(mem, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
-                        
+                        new DataPath(mem, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency); 
     }
     else if(header_name == "SHARED_MEMORY") //very similar to parseCaches
     {   //shared memory is shared on an SM level
@@ -429,35 +434,33 @@ int Mt4gParser::parseMemory(string header_name)
         }
 
         vector<Component*> parents;
-        root->FindAllSubcomponentsByType(&parents, SYS_SAGE_COMPONENT_SUBDIVISION);
+        root->GetAllSubcomponentsByType(&parents, SYS_SAGE_COMPONENT_SUBDIVISION);
         for(Component * parent : parents)
         {
-            if((Subdivision)parent->GetSubdivisionType() != SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
-                continue;
-
-            if(!L2_shared_on_gpu)
+            if(((Subdivision*)parent)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
             {
-                vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
-                for(Component * cache: caches){
-                    if(((Cache*)cache)->GetCacheName() == "L2"){
-                        parent = cache;
-                        break;
+                if(!L2_shared_on_gpu)
+                {
+                    vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
+                    for(Component * cache: caches){
+                        if(((Cache*)cache)->GetCacheName() == "L2"){
+                            parent = cache;
+                            break;
+                        }
                     }
                 }
-            }
 
-            for(int i=0; i<caches_per_sm; i++)
-            {
-                Memory * mem = new Memory(parent, i, "Shared memory", (long long)size);
+                Memory * mem = new Memory(parent, 0, memory_name, (long long)size);
 
                 //insert DP with latency
-                for(Component* child : *(parent->GetChildren()))
-                    if(child->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
-                        if(latency != -1)
-                            new DataPath(mem, child, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                if(latency != -1)
+                {
+                    vector<Component*> threads = parent->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD);
+                    for(Component* t: threads)
+                        new DataPath(mem, t, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                }
             }
-
-
+        }
     }
     else
     {
@@ -480,6 +483,7 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
     int cache_line_size = -1;
     double latency = -1;
     int share_l1 = 0, share_texture = 0, share_ro = 0, share_constant = 0;
+    int ret;
     for(size_t i = 0; i<data.size(); i++)
     {
         if(data[i]== "Size")
@@ -512,7 +516,7 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
                 size *= 1024*1024;
             else if(unit == "GiB")
                 size *= 1024*1024*1024;
-            i+=3;
+            i+=2;
         }
         else if(data[i]== "Load_Latency")
         {
@@ -627,7 +631,7 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
 
     Component* parent = root;
     if(shared_on == 0)
-    { //shared on GPU level, place under main memory or L2(if not L2)
+    { //shared on GPU level, place under main memory or L2(if no L2 available)
         Component * mem = root->GetChildByType(SYS_SAGE_COMPONENT_MEMORY);
         if(mem != NULL)
         {
@@ -645,92 +649,86 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
         if(cache_line_size != -1)
             cache->SetCacheLineSize(cache_line_size);
 
-        vector<Component*> children_copy;
-        for(Component* child : *(parent->GetChildren())){
-            children_copy.push_back(child);
-        }
-        for(Component * sm : children_copy)
-        {
+        vector<Component*> sms;
+        for(Component* sm : *(parent->GetChildren()))
             if(sm->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
-            {
-                parent->RemoveChild(sm);
-                cache->InsertChild(sm);
-                sm->SetParent(cache);
-
-                if(latency != -1)
-                    for(Component * c : *(sm->GetChildren()))
-                        if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
-                            new DataPath(cache, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
-            }
+                sms.push_back(sm);
+        
+        if((ret = cache->InsertBetweenParentAndChildren(parent, sms, true)) != 0)
+        {
+            cerr << "parseCaches:InsertBetweenParentAndChildren failed with return code " << ret << endl;
+        }
+        
+        //insert DP with latency
+        if(latency != -1)
+        {
+            vector<Component*> threads = parent->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD);
+            for(Component* t: threads)
+                new DataPath(cache, t, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
         }
     }
     else if(shared_on == 1) //shared on SM
     {
-        vector<Component*> parents;
-        root->FindAllSubcomponentsByType(&parents, SYS_SAGE_COMPONENT_SUBDIVISION);
-        for(Component * parent : parents)
+        vector<Component*> sms = root->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_SUBDIVISION);
+        for(Component * sm : sms)
         {
-            if((Subdivision)parent->GetSubdivisionType() != SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
-                continue;
-
-            //if L2 is not shared on GPU, it will be the parent
-            if(cache_type != "L2" && !L2_shared_on_gpu)
+            if(((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
             {
-                vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
-                for(Component * cache: caches){
-                    if(((Cache*)cache)->GetCacheName() == "L2"){
-                        parent = cache;
-                        break;
-                    }
-                }
-            }
-            //constant L1 is child of constant L1.5
-            if(cache_type == "Constant_L1")
-            {
-                vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
-                for(Component * cache: caches){
-                    if(((Cache*)cache)->GetCacheName() == "Constant_L1.5"){
-                        parent = cache;
-                        break;
-                    }
-                }
-            }
-
-            for(int i=0; i<caches_per_sm; i++)
-            {
-                Cache * cache = new Cache(parent, i, cache_type);
-                if(size != -1)
-                    cache->SetCacheSize(size);
-                if(cache_line_size != -1)
-                    cache->SetCacheLineSize(cache_line_size);
-
-                int cores_per_cache = (*(int*)root->attrib["Number_of_cores_per_SM"])/caches_per_sm;
-
-                //insert DP with latency
-                vector<Component*> children_copy;
-                for(Component* child : *(parent->GetChildren())){
-                    children_copy.push_back(child);
-                }
-                for(Component * child : children_copy)
+                Component* parent = sm;
+                //if L2 is not shared on GPU, it will be the parent
+                if(cache_type != "L2" && !L2_shared_on_gpu)
                 {
-                    if(child->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
+                    vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
+                    for(Component * cache: caches){
+                        if(((Cache*)cache)->GetCacheName() == "L2"){
+                            parent = cache;
+                            break;
+                        }
+                    }
+                }
+                //constant L1 is child of constant L1.5
+                if(cache_type == "Constant_L1")
+                {
+                    vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
+                    for(Component * cache: caches){
+                        if(((Cache*)cache)->GetCacheName() == "Constant_L1.5"){
+                            parent = cache;
+                            break;
+                        }
+                    }
+                }
+
+                vector<Component*> threads = sm->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD);
+                for(int i=0; i<caches_per_sm; i++)
+                {
+                    Cache * cache = new Cache(parent, i, cache_type);
+                    if(size != -1)
+                        cache->SetCacheSize(size);
+                    if(cache_line_size != -1)
+                        cache->SetCacheLineSize(cache_line_size);
+
+                    int cores_per_cache = (*(int*)root->attrib["Number_of_cores_per_SM"])/caches_per_sm;
+
+                    for(Component * thread : threads)
                     {
                         //if multiple caches per SM, move 1/n-th of threads (by their ID) under each cache
-                        int core_id = child->GetId();
+                        int core_id = thread->GetId();
                         if(core_id >= cores_per_cache*(i) && core_id < cores_per_cache*(i+1))
                         {
-                            //for L1 and L2, move cores as children
-                            if(cache_type.find("L1") != std::string::npos || cache_type == "L2")
+                            //for L1 and L2 caches, insert them between them and their cores as children
+                            if((cache_type.find("L1") != std::string::npos && cache_type.find("Constant") == std::string::npos) || cache_type == "L2")
                             {
-                                parent->RemoveChild(child);
-                                cache->InsertChild(child);
-                                child->SetParent(cache);
+                                if((ret = cache->InsertBetweenParentAndChild(parent, thread, true)) != 0)
+                                {
+                                    cerr << "parseCaches:InsertBetweenParentAndChild failed with return code " << ret << endl;
+                                }
                             }
 
                             if(latency != -1)
-                                new DataPath(cache, child, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                                new DataPath(cache, thread, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
                         }
                     }
+                    
                 }
             }
         }

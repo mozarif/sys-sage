@@ -69,6 +69,10 @@ public:
     */
     void InsertChild(Component * child);
     /**
+     * TODO
+    */
+    int InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild);
+    /**
      * Inserts this component between a parent and a (subset of) his children. The parent component remains parent, this Component becomes a new child, and the children become parent's grandchildren.
      * @param TODO
      * @return 0 on success, 1 on incompatible parent-children components (one or more children are not parent's children); 2 on corrupt component tree (parent is a parent of child but child is NOT in children list of parent); 3 on corrupt component tree (parent is NOT a parent of child but child is in children list of parent)
@@ -190,7 +194,7 @@ public:
     */
     void GetAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
     /**
-     * TODO
+     * TODO -- make this non-public?
     */
     vector<Component*> GetAllSubcomponentsByType(int _componentType);
     /**
