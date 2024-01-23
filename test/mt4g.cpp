@@ -11,9 +11,9 @@ static suite<"mt4g"> _ = []
     expect(that % (0 == parseMt4gTopo(&gpu, SYS_SAGE_TEST_RESOURCE_DIR "/pascal_gpu_topo.csv")) >> fatal);
 
     for (const auto &[type, count] : std::vector{
-             std::tuple{SYS_SAGE_COMPONENT_MEMORY, 1},
+             std::tuple{SYS_SAGE_COMPONENT_MEMORY, 31},
              std::tuple{SYS_SAGE_COMPONENT_SUBDIVISION, 30},
-             std::tuple{SYS_SAGE_COMPONENT_CACHE, 151},
+             std::tuple{SYS_SAGE_COMPONENT_CACHE, 121},
              std::tuple{SYS_SAGE_COMPONENT_THREAD, 3840},
          })
     {
