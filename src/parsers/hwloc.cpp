@@ -27,9 +27,6 @@ vector<string> xmlRelevantObjectTypes
     "Group"
 };
 
-
-
-
 string xmlGetPropStr(xmlNode* node, string key)
 {
     string val;

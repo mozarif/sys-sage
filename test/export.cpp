@@ -137,7 +137,7 @@ static suite<"export"> _ = []
     {
         {
             auto topo = new Topology;
-            new Memory{topo, "A single memory component", 16};
+            new Memory{topo, 56, "A single memory component", 16};
             exportToXml(topo, "test.xml");
         }
 
@@ -156,7 +156,7 @@ static suite<"export"> _ = []
             for (const auto &[node, xpath, value] : std::vector{
                      std::tuple{topo, "string(@id)", "0"},
                      std::tuple{topo, "string(@name)", "sys-sage Topology"},
-                     std::tuple{memory, "string(@id)", "0"},
+                     std::tuple{memory, "string(@id)", "56"},
                      std::tuple{memory, "string(@name)", "A single memory component"},
                      std::tuple{memory, "string(@size)", "16"},
                  })

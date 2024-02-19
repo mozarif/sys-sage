@@ -123,7 +123,7 @@ static suite<"topology"> _ = []
     "Memory"_test = []
     {
         Node root{0};
-        Memory node{&root, "foo", 32};
+        Memory node{&root, 0, "foo", 32};
         expect(that % &root == node.GetParent());
         expect(that % 0 == node.GetId());
         expect(that % "foo"sv == node.GetName());
