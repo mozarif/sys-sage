@@ -1,7 +1,6 @@
 #include <iostream>
 #include <chrono>
 #include <unistd.h>
-#include <cstdio.h>
 
 #include "sys-sage.hpp"
 
@@ -56,7 +55,6 @@ int main(int argc, char *argv[])
         n->UpdateL3Partitioning();
         t_end = std::chrono::high_resolution_clock::now();
         usleep(100000);
-        int remove("/var/lock/libpqos");
         usleep(100000);
         if(i>=REPEATS_START_SKIP)
              cout << "outside, " << t_end.time_since_epoch().count()-t_start.time_since_epoch().count() << endl;
