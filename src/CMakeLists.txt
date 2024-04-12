@@ -6,6 +6,7 @@ configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/sr
 set(SOURCES
     Topology.cpp
     DataPath.cpp
+    fomac.cpp
     CAT_aware.cpp
     cpuinfo.cpp
     nvidia_mig.cpp
@@ -21,6 +22,7 @@ set(HEADERS
     defines.hpp
     Topology.hpp
     DataPath.hpp
+    fomac.hpp
     xml_dump.hpp
     parsers/hwloc.hpp
     parsers/caps-numa-benchmark.hpp
@@ -30,11 +32,32 @@ set(HEADERS
 
 add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
-target_include_directories(sys-sage PUBLIC  
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
-    $<INSTALL_INTERFACE:inc>
-    $<INSTALL_INTERFACE:lib>
+# For Quantum Systems
+# Find QDMI package
+find_package(qdmi REQUIRED)
+
+# Find QInfo package
+find_package(qinfo REQUIRED)
+
+# Find nlohmann_json package
+find_package(nlohmann_json REQUIRED)
+
+target_link_libraries(sys-sage PRIVATE
+  qdmi
+  qinfo
+  nlohmann_json::nlohmann_json
+  )
+  
+target_include_directories(sys-sage 
+    PRIVATE ${CMAKE_BINARY_DIR}/_deps/qdmi-src/src/include/
+    PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
+            $<INSTALL_INTERFACE:inc>
+            $<INSTALL_INTERFACE:lib>
 )
+
+
+
+
 install(
     TARGETS sys-sage
     EXPORT sys-sage-targets
@@ -62,3 +85,5 @@ install(
 install(DIRECTORY "."
     DESTINATION inc
     FILES_MATCHING PATTERN "*.hpp")
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
