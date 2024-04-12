@@ -13,6 +13,18 @@
 
 using namespace std;
 
+
+#define TIME_MEASUREMENT
+#ifdef TIME_MEASUREMENT
+#include <chrono>
+    std::chrono::high_resolution_clock::time_point cat_third_party_t_start, cat_third_party_t_end;
+    std::chrono::high_resolution_clock::time_point cat_sys_sage_t_start, cat_sys_sage_t_end;
+    std::chrono::high_resolution_clock::time_point cat_total_t_start, cat_total_t_end;
+    uint64_t cat_sys_sage_time;
+    uint64_t cat_third_party_time;
+    uint64_t cat_total_time;
+#endif
+
 //l3cat_ids, l3cat_id_count
 uint64_t getCOSL3Bitmask(unsigned int socketId, unsigned int catCosId, unsigned * socketIdArray, unsigned socketIdArraySz)
 {
@@ -30,7 +42,14 @@ uint64_t getCOSL3Bitmask(unsigned int socketId, unsigned int catCosId, unsigned 
         return std::numeric_limits<uint64_t>::max();
 
     unsigned num = 0;
+    #ifdef TIME_MEASUREMENT
+        cat_third_party_t_start = std::chrono::high_resolution_clock::now();
+    #endif
     int ret = pqos_l3ca_get(socketIndex, PQOS_MAX_L3CA_COS, &num, tab);
+    #ifdef TIME_MEASUREMENT
+        cat_third_party_t_end = std::chrono::high_resolution_clock::now();
+        cat_third_party_time += cat_third_party_t_end.time_since_epoch().count()-cat_third_party_t_start.time_since_epoch().count();
+    #endif
     if (ret == PQOS_RETVAL_OK)
     {
         for (unsigned n = 0; n < num; n++) {
@@ -57,7 +76,14 @@ uint64_t getCoreCOS(unsigned int socketId, unsigned int coreId, unsigned * socke
         return std::numeric_limits<uint64_t>::max();
 
     unsigned coreIdArraySz = 0;
+    #ifdef TIME_MEASUREMENT
+        cat_third_party_t_start = std::chrono::high_resolution_clock::now();
+    #endif
     unsigned *coreIdArray = pqos_cpu_get_cores(p_cpu, socketIndex, &coreIdArraySz);
+    #ifdef TIME_MEASUREMENT
+        cat_third_party_t_end = std::chrono::high_resolution_clock::now();
+        cat_third_party_time += cat_third_party_t_end.time_since_epoch().count()-cat_third_party_t_start.time_since_epoch().count();
+    #endif
     if (coreIdArray == NULL || coreIdArray == 0) {
         printf("Error retrieving core information!\n");
         free(coreIdArray);
@@ -77,7 +103,14 @@ uint64_t getCoreCOS(unsigned int socketId, unsigned int coreId, unsigned * socke
         return std::numeric_limits<uint64_t>::max();
 
     unsigned class_id = 0;
+    #ifdef TIME_MEASUREMENT
+        cat_third_party_t_start = std::chrono::high_resolution_clock::now();
+    #endif
     int ret = pqos_alloc_assoc_get(coreIndex, &class_id);
+    #ifdef TIME_MEASUREMENT
+        cat_third_party_t_end = std::chrono::high_resolution_clock::now();
+        cat_third_party_time += cat_third_party_t_end.time_since_epoch().count()-cat_third_party_t_start.time_since_epoch().count();
+    #endif
     if (ret == PQOS_RETVAL_OK){
         //cout << "--returning socket " << socketId << " core " << coreId << "COS " << class_id << endl;
         return class_id;
@@ -85,14 +118,20 @@ uint64_t getCoreCOS(unsigned int socketId, unsigned int coreId, unsigned * socke
     return std::numeric_limits<uint64_t>::max();
 }
 
-int Node::UpdateL3CATCoreCOS(){
+int Node::UpdateL3Partitioning(){
 
+    #ifdef TIME_MEASUREMENT
+        cat_total_t_start = std::chrono::high_resolution_clock::now();
+    #endif
     struct pqos_config cfg;
     const struct pqos_cpuinfo *p_cpu = NULL;
     const struct pqos_cap *p_cap = NULL;
     unsigned l3cat_id_count, *p_l3cat_ids = NULL;
     int ret;
 
+    #ifdef TIME_MEASUREMENT
+        cat_third_party_t_start = std::chrono::high_resolution_clock::now();
+    #endif
     memset(&cfg, 0, sizeof(cfg));
 
     /* PQoS Initialization - Check and initialize CAT and CMT capability */
@@ -113,18 +152,20 @@ int Node::UpdateL3CATCoreCOS(){
             std::cerr << "Error retrieving CPU socket information!" << std::endl;
             return 0;
     }
+    #ifdef TIME_MEASUREMENT
+        cat_third_party_t_end = std::chrono::high_resolution_clock::now();
+        cat_third_party_time = cat_third_party_t_end.time_since_epoch().count()-cat_third_party_t_start.time_since_epoch().count();
+    #endif
 
     vector<Chip*> sockets;
     GetSubcomponentsByType((vector<Component*>*)&sockets, SYS_SAGE_COMPONENT_CHIP);
-    for(auto it = std::begin(sockets); it != std::end(sockets); ++it)
+    for(Chip * socket : sockets)
     {
-        Chip* socket = *it;
         //std::cout << "socket " << socket->GetComponentTypeStr() << " id " << socket->GetId() << std::endl;
         vector<Thread*> threads;
         socket->GetSubcomponentsByType((vector<Component*>*)&threads, SYS_SAGE_COMPONENT_THREAD);
-        for(auto it_threads = std::begin(threads); it_threads != std::end(threads); ++it_threads)
+        for(Thread* thread: threads)
         {
-            Thread* thread = *it_threads;
             //std::cout << "  thread " << thread->GetComponentTypeStr() << " id " << thread->GetId() << std::endl;
             uint64_t* cos = new uint64_t();
             uint64_t* mask = new uint64_t();
@@ -151,18 +192,25 @@ int Node::UpdateL3CATCoreCOS(){
                 cerr << "L3 cache not found" << endl; continue;
             }
 
-            //TODO check if exists -> overwrite
-
-            //add DataPath to thread and L3
-            DataPath* d = NewDataPath(thread, c, SYS_SAGE_DATAPATH_BIDIRECTIONAL, SYS_SAGE_DATAPATH_TYPE_L3CAT);
+            DataPath* d = thread->GetDpByType(SYS_SAGE_DATAPATH_TYPE_L3CAT, SYS_SAGE_DATAPATH_BIDIRECTIONAL);
+            if(d == NULL)
+            {   //no DP exists between this thread and L3; create a new one
+                d = new DataPath(thread, c, SYS_SAGE_DATAPATH_BIDIRECTIONAL, SYS_SAGE_DATAPATH_TYPE_L3CAT);
+            }
             d->attrib.insert({"CATcos", (void*)cos});
             d->attrib.insert({"CATL3mask", (void*)mask});
         }
     }
+    #ifdef TIME_MEASUREMENT
+        cat_total_t_end = std::chrono::high_resolution_clock::now();
+        cat_total_time = cat_total_t_end.time_since_epoch().count()-cat_total_t_start.time_since_epoch().count();
+        cout << "cat_total_time, " << cat_total_time << ", ";
+        cout << "cat_third_party_time, " << cat_third_party_time << ", ";
+    #endif
     return 1;
 }
 
-long long Thread::GetCATAwareL3Size()
+long long Thread::GetDynamicL3Size()
 {
     //look for dp_outgoing where attrib contains "CATL3mask"
     for(auto it = std::begin(dp_outgoing); it != std::end(dp_outgoing); ++it)
@@ -181,7 +229,7 @@ long long Thread::GetCATAwareL3Size()
                 available_cache_associativity_ways++;
             }
         }
-        //cout << "GetCATAwareL3Size: size " << c->GetCacheSize() << " tot_ways " << c->GetCacheAssociativityWays() << ", available ways " << available_cache_associativity_ways << endl;
+        //cout << "GetDynamicL3Size: size " << c->GetCacheSize() << " tot_ways " << c->GetCacheAssociativityWays() << ", available ways " << available_cache_associativity_ways << endl;
         return c->GetCacheSize() / c->GetCacheAssociativityWays() * available_cache_associativity_ways ;
     }
 

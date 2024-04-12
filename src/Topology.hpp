@@ -422,7 +422,7 @@ public:
     \n Creates/updates (bidirectional) data paths between all cores (class Thread) and their L3 cache segment (class Cache). The data paths of type SYS_SAGE_DATAPATH_TYPE_L3CAT contain the COS id (attrib with key "CATcos", value is of type uint64_t*) and the open L3 cache ways (attrib with key "CATL3mask", value is of type uint64_t*) to contain the current settings.
     \n Each time the method is called, new DataPath objects get created, so the last one is always the most up-to-date.
     */
-    int UpdateL3CATCoreCOS();
+    int UpdateL3Partitioning();
 #endif
 
 private:
@@ -835,7 +835,7 @@ public:
         @returns Available L3 cache size in bytes.
         @see int UpdateL3CATCoreCOS();
         */
-        long long GetCATAwareL3Size();
+        long long GetDynamicL3Size();
 #endif
 private:
 };

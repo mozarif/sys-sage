@@ -36,6 +36,21 @@ if(DATA_SOURCES OR DS_HWLOC)
 endif()
 
 
+if(CAT_AWARE)
+  # Try to find the library
+  find_library(LIBRARY_FOUND pqos)
+
+  # Check if the library was found
+  if(LIBRARY_FOUND)
+      message(STATUS "Found pqos: ${LIBRARY_FOUND}")
+      # Link the library to all targets in the project
+      link_libraries(${LIBRARY_FOUND})
+  else()
+      message(FATAL_ERROR "pqos library not found: ${LIBRARY_FOUND}")
+  endif()
+endif()
+
+
 # Create and install package configuration and version files.
 include(CMakePackageConfigHelpers)
 configure_package_config_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage-config.cmake.in

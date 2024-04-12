@@ -11,13 +11,14 @@ endif()
 
 add_executable(basic_usage basic_usage.cpp)
 add_executable(custom_attributes custom_attributes.cpp)
+add_executable(dynamic_overhead dynamic_overhead.cpp)
 add_executable(mt4g-parser mt4g-parser.cpp)
 add_executable(larger_topo larger_topo.cpp)
 add_executable(sys-sage-benchmarking sys-sage-benchmarking.cpp)
 add_executable(use_custom_parser custom_parser_musa/use_custom_parser.cpp custom_parser_musa/musa_parser.cpp custom_parser_musa/musa_parser.hpp)
 add_executable(cccbenchplushwloc cccbenchplushwloc.cpp)
 
-install(TARGETS basic_usage mt4g-parser custom_attributes larger_topo sys-sage-benchmarking use_custom_parser cccbenchplushwloc DESTINATION bin/examples)
+install(TARGETS basic_usage dynamic_overhead mt4g-parser custom_attributes larger_topo sys-sage-benchmarking use_custom_parser cccbenchplushwloc DESTINATION bin/examples)
 install(DIRECTORY example_data DESTINATION bin/examples)
 
 if(CAT_AWARE)

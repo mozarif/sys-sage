@@ -114,9 +114,9 @@ int main(int argc, char *argv[]) {
         //////////////////////////////////// check CAT settings
 #else
 
-        n->UpdateL3CATCoreCOS();
+        n->UpdateL3Partitioning();
         //n->PrintAllDataPathsInSubtree();
-        long long available_L3_size = t->GetCATAwareL3Size();
+        long long available_L3_size = t->GetDynamicL3Size();
 #endif
         ////////////////////////////////////
 

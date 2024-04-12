@@ -16,10 +16,24 @@
 
 #include "Topology.hpp"
 
+#define TIME_MEASUREMENT
+#ifdef TIME_MEASUREMENT
+#include <chrono>
+    std::chrono::high_resolution_clock::time_point third_party_t_start, third_party_t_end;
+    std::chrono::high_resolution_clock::time_point sys_sage_t_start, sys_sage_t_end;
+    std::chrono::high_resolution_clock::time_point total_t_start, total_t_end;
+    uint64_t sys_sage_time;
+    uint64_t third_party_time;
+    uint64_t total_time;
+#endif
+
 //retrieve frequency in MHz from /proc/cpuinfo for each thread in vector<Thread*> threads
 //helper function is called by RefreshCpuCoreFrequency/RefreshFreq methods
 int readCpuinfoFreq(std::vector<Thread*> threads, bool keep_history = false)
 {
+    #ifdef TIME_MEASUREMENT
+        third_party_t_start = std::chrono::high_resolution_clock::now();
+    #endif
     int fd = open("/proc/cpuinfo", O_RDONLY);
     if(fd == -1)
         return -1;
@@ -38,6 +52,10 @@ int readCpuinfoFreq(std::vector<Thread*> threads, bool keep_history = false)
         buf[bytes_read] = '\0';
         file << buf;
     }
+    #ifdef TIME_MEASUREMENT
+        third_party_t_end = std::chrono::high_resolution_clock::now();
+        third_party_time = third_party_t_end.time_since_epoch().count()-third_party_t_start.time_since_epoch().count();
+    #endif
 
     int num_threads = threads.size();
     std::vector<int> threadIds(num_threads);
@@ -101,6 +119,9 @@ int readCpuinfoFreq(std::vector<Thread*> threads, bool keep_history = false)
 
 int Node::RefreshCpuCoreFrequency(bool keep_history)
 {
+    #ifdef TIME_MEASUREMENT
+        total_t_start = std::chrono::high_resolution_clock::now();
+    #endif
     vector<Component*> sockets = this->GetAllChildrenByType(SYS_SAGE_COMPONENT_CHIP);
     vector<Thread*> cpu_hw_threads, hw_threads_to_refresh;
     for(Component * socket : sockets)
@@ -123,7 +144,14 @@ int Node::RefreshCpuCoreFrequency(bool keep_history)
     }
     //cout << endl;
 
-    return readCpuinfoFreq(hw_threads_to_refresh, keep_history);
+    int ret = readCpuinfoFreq(hw_threads_to_refresh, keep_history);
+    #ifdef TIME_MEASUREMENT
+        total_t_end = std::chrono::high_resolution_clock::now();
+        total_time = total_t_end.time_since_epoch().count()-total_t_start.time_since_epoch().count();
+        cout << "total_time, " << total_time << ", ";
+        cout << "third_party_time, " << third_party_time << ", ";
+    #endif
+    return ret;
 }
 
 int Core::RefreshFreq(bool keep_history)

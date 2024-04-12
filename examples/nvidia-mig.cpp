@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     Node* n = new Node(topo,1);
 
     cout << "-- Parsing gpu-topo benchmark from file " << gpuTopoPath << endl;
-    if(parseGpuTopo((Component*)n, gpuTopoPath, 0, ";") != 0) { //adds topo to a next node
+    if(parseMt4gTopo((Component*)n, gpuTopoPath, 0, ";") != 0) { //adds topo to a next node
         return 1;
     }
     cout << "-- End parseGpuTopo" << endl;

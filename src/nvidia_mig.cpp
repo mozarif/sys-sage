@@ -14,9 +14,23 @@
 #include "Topology.hpp"
 
 
+#define TIME_MEASUREMENT
+#ifdef TIME_MEASUREMENT
+    #
+    #include <chrono>
+    std::chrono::high_resolution_clock::time_point mig_third_party_t_start, mig_third_party_t_end;
+    std::chrono::high_resolution_clock::time_point mig_total_t_start, mig_total_t_end;
+    uint64_t mig_third_party_time;
+    uint64_t mig_total_time;
+#endif
+
 //nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex ( nvmlDevice_t device, unsigned int  index, nvmlDevice_t* migDevice ) --> look for all mig devices and add/update them
 int Chip::UpdateMIGSettings(string uuid)
-{
+{    
+    #ifdef TIME_MEASUREMENT
+        mig_total_t_start = std::chrono::high_resolution_clock::now();
+    #endif
+
     int ret = 0;
     if(uuid.empty())
     {
@@ -29,6 +43,9 @@ int Chip::UpdateMIGSettings(string uuid)
         }
     }
 	
+    #ifdef TIME_MEASUREMENT
+        mig_third_party_t_start = std::chrono::high_resolution_clock::now();
+    #endif
     nvmlReturn_t nvml_ret = nvmlInit_v2();
     if(nvml_ret != NVML_SUCCESS){std::cerr << "Chip::UpdateMIGSettings: Couldn't initialize nvml. nvmlInit_v2 returns " << ret << ". Returning without updating the MIG settings." << std::endl; return 2;}
 
@@ -43,6 +60,10 @@ int Chip::UpdateMIGSettings(string uuid)
     nvml_ret =  nvmlShutdown ( );
     if(nvml_ret != NVML_SUCCESS){std::cerr << "Chip::UpdateMIGSettings: nvmlShutdown returns " << ret << ". Will continue, though." << std::endl; ret = 1;}
 
+    #ifdef TIME_MEASUREMENT
+        mig_third_party_t_end = std::chrono::high_resolution_clock::now();
+        mig_third_party_time = mig_third_party_t_end.time_since_epoch().count()-mig_third_party_t_start.time_since_epoch().count();
+    #endif
     //cout << "...........multiprocessorCount " << attributes.multiprocessorCount << " gpuInstanceSliceCount=" << attributes.gpuInstanceSliceCount << "  computeInstanceSliceCount=" << attributes.computeInstanceSliceCount << "    memorySizeMB=" << attributes.memorySizeMB << endl;
     
     //main memory, expects the memory as a child of
@@ -115,7 +136,12 @@ int Chip::UpdateMIGSettings(string uuid)
             d->attrib.insert({"mig_uuid",(void*)mig_uuid});
         }
     }
-
+    #ifdef TIME_MEASUREMENT
+        mig_total_t_end = std::chrono::high_resolution_clock::now();
+        mig_total_time = mig_total_t_end.time_since_epoch().count()-mig_total_t_start.time_since_epoch().count();
+        cout << "mig_total_time, " << mig_total_time << ", ";
+        cout << "mig_third_party_time, " << mig_third_party_time << ", ";
+    #endif
     return ret;
 }
 
