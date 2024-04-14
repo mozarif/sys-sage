@@ -1,9 +1,9 @@
 /**
- * @file fomac.cpp
- * @brief Implementation of global FoMaC.
+ * @file qdmi-interface.hpp
+ * @brief sys-sage's interface to QDMI. Based on MQSS's global FOMAC.
  */
 
-#include "fomac.hpp"
+#include "qdmi-interface.hpp"
 
 /**
  * @brief TODO

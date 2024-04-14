@@ -1,10 +1,10 @@
 /**
- * @file fomac.hpp
- * @brief Header of the global FoMaC.
+ * @file qdmi-interface.hpp
+ * @brief sys-sage's interface to QDMI. Based on MQSS's global FOMAC.
  */
 
-#ifndef FOMAC_HPP
-#define FOMAC_HPP
+#ifndef QDMI_INTERFACE_HPP
+#define QDMI_INTERFACE_HPP
 
 #include <iostream>
 #include <string.h>
@@ -40,4 +40,4 @@ extern "C"
     void FOMAC_print_coupling_mappings(QDMI_Device dev);
 }
 
-#endif // FOMAC_HPP
+#endif // QDMI_INTERFACE_HPP

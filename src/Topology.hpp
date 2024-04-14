@@ -23,6 +23,13 @@
 #define SYS_SAGE_COMPONENT_NODE 512 /**< class Node */
 #define SYS_SAGE_COMPONENT_TOPOLOGY 1024 /**< class Topology */
 
+/* To-do: Add defines for different quantum backends
+* For e.g.: SYS_SAGE_COMPONENT_NEUTRAL_ATOMS, SYS_SAGE_COMPONENT_SUPERCONDUCTING, etc.
+
+*/
+#define SYS_SAGE_COMPONENT_QUANTUM_BACKEND 2048 /**< class QuantumBackend */
+#define SYS_SAGE_COMPONENT_QUBIT 4096 /**< class Qubit */
+
 #define SYS_SAGE_SUBDIVISION_TYPE_NONE 1 /**< Generic Subdivision type. */
 #define SYS_SAGE_SUBDIVISION_TYPE_GPU_SM 2 /**< Subdivision type for GPU SMs */
 
@@ -830,4 +837,63 @@ public:
 private:
 };
 
+class QuantumBackend : public Component {
+public:
+    /**
+    QuantumBackend constructor (no automatic insertion in the Component Tree). Sets:
+    @param _id = id, default 0
+    @param _name = name, default "QuantumBackend"
+    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
+    */
+    QuantumBackend(int _id = 0, string _name = "QuantumBackend");
+    /**
+    QuantumBackend constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
+    @param parent = the parent 
+    @param _id = id, default 0
+    @param _name = name, default "QuantumBackend"
+    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
+    */
+    QuantumBackend(Component * parent, int _id = 0, string _name = "QuantumBackend");
+    /**
+     * TODO
+    */
+    ~QuantumBackend() override = default;
+
+private:
+    int num_qubits;
+    std::vector<std::string> gate_types;
+};
+
+class Qubit : public Component {
+public:
+    /**
+    Qubit constructor (no automatic insertion in the Component Tree). Sets:
+    @param _id = id, default 0
+    @param _name = name, default "Qubit"
+    @param componentType=>SYS_SAGE_COMPONENT_QUBIT
+    */
+    Qubit(int _id = 0, string _name = "Qubit");
+    /**
+    Qubit constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
+    @param parent = the parent 
+    @param _id = id, default 0
+    @param _name = name, default "Qubit0"
+    @param componentType=>SYS_SAGE_COMPONENT_QUBIT
+    */
+    Qubit(Component * parent, int _id = 0, string _name = "Qubit");
+    
+    void SetCouplingMapping(int* _coupling_mapping, int _size_coupling_mapping);
+    /**
+     * TODO
+    */
+    ~Qubit() override = default;
+
+private:
+    int* coupling_mapping;
+    int size_coupling_mapping;
+    float fidelity;
+};
+
 #endif
+
+

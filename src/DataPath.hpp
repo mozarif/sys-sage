@@ -24,6 +24,11 @@
 #define SYS_SAGE_DATAPATH_TYPE_DATATRANSFER 1024 /**< DataPath type describing data transfer attributes. */
 #define SYS_SAGE_DATAPATH_TYPE_C2C 2048 /**< DataPath type describing cache-to-cache latencies (cccbench data source). */
 
+// QuantumGate type
+#define SYS_SAGE_QUANTUMGATE_TYPE_ID 32 /**< Identity Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_RZ 64 /**< RZ Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_CNOT 128 /**< CNOT Gate */
+
 using namespace std;
 class Component;
 class DataPath;
@@ -134,6 +139,28 @@ private:
     double bw; /**< TODO */
     double latency; /**< TODO */
 
+};
+
+/**
+Class DataPath represents Data Paths in the topology -- Data Paths represent an arbitrary relation (or data movement) between two Components from the Component Tree.
+\n Data Paths create a Data-Path graph, which is a structure orthogonal to the Component Tree.
+\n Each Component contains a reference to all Data Paths going to or from this components (as well as parents and children in the Component Tree). Using these references, it is possible to navigate between the Components and to view the data stores in the Components or the Data Paths.
+*/
+class QuantumGate : public DataPath {
+
+public:
+    /**
+    QuantumGate constructor.
+    @param _qubits - An array of all qubits that the gate acts on.
+    @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
+        \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
+    */
+    QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
+private:
+    std::vector<Component*> qubits; /**< TODO */
+    int** coupling_mapping;
+    char *unitary;
+    float fidelity;
 };
 
 #endif

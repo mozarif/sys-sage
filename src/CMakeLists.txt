@@ -6,7 +6,6 @@ configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/sr
 set(SOURCES
     Topology.cpp
     DataPath.cpp
-    fomac.cpp
     CAT_aware.cpp
     cpuinfo.cpp
     nvidia_mig.cpp
@@ -15,6 +14,7 @@ set(SOURCES
     parsers/caps-numa-benchmark.cpp
     parsers/gpu-topo.cpp
     parsers/cccbench.cpp
+    parsers/qdmi-interface.cpp
     )
 
 set(HEADERS
@@ -22,12 +22,12 @@ set(HEADERS
     defines.hpp
     Topology.hpp
     DataPath.hpp
-    fomac.hpp
     xml_dump.hpp
     parsers/hwloc.hpp
     parsers/caps-numa-benchmark.hpp
     parsers/gpu-topo.hpp
     parsers/cccbench.cpp
+    parsers/qdmi-interface.hpp
     )
 
 add_library(sys-sage SHARED ${SOURCES} ${HEADERS})

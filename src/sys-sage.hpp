@@ -4,11 +4,10 @@
 //includes all other headers
 #include "Topology.hpp"
 #include "DataPath.hpp"
-#include "fomac.hpp"
 #include "xml_dump.hpp"
 #include "parsers/hwloc.hpp"
 #include "parsers/caps-numa-benchmark.hpp"
 #include "parsers/gpu-topo.hpp"
 #include "parsers/cccbench.hpp"
-
+#include "parsers/qdmi-interface.hpp"
 #endif //SYS_SAGE
