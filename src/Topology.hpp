@@ -882,15 +882,15 @@ public:
     */
     Qubit(Component * parent, int _id = 0, string _name = "Qubit");
     
-    void SetCouplingMapping(int* _coupling_mapping, int _size_coupling_mapping);
+    void SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping);
     /**
      * TODO
     */
     ~Qubit() override = default;
 
 private:
-    int* coupling_mapping;
-    int size_coupling_mapping;
+    std::vector <int> _coupling_mapping;
+    int _size_coupling_mapping;
     float fidelity;
 };
 

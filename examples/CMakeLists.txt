@@ -37,3 +37,8 @@ if(NVIDIA_MIG)
     add_executable(nvidia-mig nvidia-mig.cpp)
     install(TARGETS nvidia-mig DESTINATION bin/examples)
 endif()
+
+target_link_libraries(qdmi-test PRIVATE
+  qdmi
+  qinfo
+  )

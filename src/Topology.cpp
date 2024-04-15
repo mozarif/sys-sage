@@ -311,6 +311,11 @@ string Component::GetComponentTypeStr()
             return "Node";
         case SYS_SAGE_COMPONENT_TOPOLOGY:
             return "Topology";
+        case SYS_SAGE_COMPONENT_QUANTUM_BACKEND:
+            return "Quantum Backend";
+        case SYS_SAGE_COMPONENT_QUBIT:
+            return "Qubit";
+
     }
     return "";
 }
@@ -574,3 +579,8 @@ QuantumBackend::QuantumBackend(Component * parent, int _id, string _name):Compon
 
 Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUBIT){}
 Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUBIT){}
+void Qubit::SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping)
+{
+    _coupling_mapping = coupling_mapping;
+    _size_coupling_mapping = size_coupling_mapping;
+}

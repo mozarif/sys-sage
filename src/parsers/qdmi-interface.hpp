@@ -9,16 +9,10 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
-
+#include <map>
+#include "Topology.hpp"
 #include <qdmi.h>
 #include <qdmi_internal.h>
-
-//const char *registered_devices[] = {
-//    "/bin/lib/libbackend_qlm.so",
-//    "/bin/lib/libbackend_ibm.so",
-//    "/bin/lib/libbackend_wmi.so",
-//    "/bin/lib/libbackend_q7.so",
-//};
 
 /**
  * @brief TODO
@@ -27,7 +21,44 @@
  */
 extern "C"
 {
-    std::vector<QDMI_Device> FOMAC_available_devices();
+    std::vector<QDMI_Device> get_available_backends();
+}
+
+
+/**
+ * @brief TODO
+ * @return TODO
+ * @todo To be implemented
+ */
+extern "C" 
+{
+    int get_num_qubits(QDMI_Device dev);
+}
+
+/**
+ * @brief TODO
+ * @return TODO
+ * @todo To be implemented
+ */
+extern "C" 
+{
+    void set_qubits(QDMI_Device dev, int device_index);
+}
+
+extern "C"
+{
+    void setCouplingMapping(Qubit *_qubit, int device_index, int qubit_index);
+}
+
+
+/**
+ * @brief TODO
+ * @return TODO
+ * @todo To be implemented
+ */
+extern "C"
+{
+    void get_qubit(QDMI_Device dev, int index);
 }
 
 /**
@@ -37,7 +68,7 @@ extern "C"
  */
 extern "C"
 {
-    void FOMAC_print_coupling_mappings(QDMI_Device dev);
+    void print_coupling_mappings(QDMI_Device dev);
 }
 
 #endif // QDMI_INTERFACE_HPP
