@@ -6,14 +6,9 @@
 
 int main()
 {
-    int err = 0, status = 0;
-    int index = 0;
-    int n_shots = 100;
+    int err = 0;
     QInfo info = NULL;
     QDMI_Session session = NULL;
-    QDMI_Job job;
-    QDMI_Fragment frag = (QDMI_Fragment) malloc(sizeof(QDMI_Fragment));
-    QDMI_Device device = (QDMI_Device) malloc(sizeof(QDMI_Device));
 
     err = QInfo_create(&info);
     CHECK_ERR(err, "QInfo_create");
@@ -21,18 +16,13 @@ int main()
     err = QDMI_session_init(info, &session);
     CHECK_ERR(err, "QDMI_session_init");
 
-    auto vec = get_available_backends();
-    int count = 0;
+    QDMI_Interface qdmi;
+    auto vec = qdmi.get_available_backends();
     std::cout << "Total " << vec.size() << " devices found.\n";
-    // for (auto dev : vec)
-    // {
-    //     std::cout << "Printing for device id: " << count++ << "\n";
-    //     print_coupling_mappings(dev);
-    // }
-
+    
     //create root quantum backend
     QuantumBackend* qc = new QuantumBackend();
-    int num_qubits = get_num_qubits(vec[vec.size()-1]);
+    int num_qubits = qdmi.get_num_qubits(vec[vec.size()-1]); // Using Device index = vec.size()-1
 
     if(num_qubits == -1)
     {
@@ -40,15 +30,30 @@ int main()
         return 1;
     }
 
-    set_qubits(vec[vec.size()-1], vec.size()-1);
+    qdmi.set_qubits(vec[vec.size()-1], vec.size()-1); // Using Device index = vec.size()-1
 
     for (int i = 0; i < num_qubits; i++)
     {
         Qubit* q = new Qubit(qc, i);
-        setCouplingMapping(q, vec.size()-1, i);
+        qdmi.setCouplingMapping(q, vec.size()-1, i); // Using Device index = vec.size()-1
+        auto coupling_map = q->GetCouplingMapping();
+    }
+
+    cout << "---------------- Printing Qubit Coupling Mappings ----------------" << endl;
+    int total_qubits = qc->CountAllSubcomponents();
+    for (int i = 0; i < total_qubits; i++)
+    {
+        // TODO: Dynamic cast or static cast?
+        Qubit* q = dynamic_cast<Qubit*>(qc->GetChild(i));
+        std::cout << "Qubit " << i << " has coupling map { ";
+        auto coupling_map = q->GetCouplingMapping();
+        for (long unsigned j = 0; j < coupling_map.size(); j++)
+        {
+            std::cout << coupling_map[j] << " ";
+        }
+        std::cout << "}\n";
     }
     
-
     cout << "---------------- Printing the configuration of QC ----------------" << endl;
     qc->PrintSubtree();
     

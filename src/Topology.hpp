@@ -883,6 +883,8 @@ public:
     Qubit(Component * parent, int _id = 0, string _name = "Qubit");
     
     void SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping);
+
+    const std::vector <int> &GetCouplingMapping() const;
     /**
      * TODO
     */

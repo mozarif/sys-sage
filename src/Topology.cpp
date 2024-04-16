@@ -584,3 +584,7 @@ void Qubit::SetCouplingMapping( const std::vector <int> &coupling_mapping, const
     _coupling_mapping = coupling_mapping;
     _size_coupling_mapping = size_coupling_mapping;
 }
+const std::vector <int> & Qubit::GetCouplingMapping() const
+{
+    return _coupling_mapping;
+}

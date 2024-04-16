@@ -14,61 +14,23 @@
 #include <qdmi.h>
 #include <qdmi_internal.h>
 
-/**
- * @brief TODO
- * @return TODO
- * @todo To be implemented
- */
-extern "C"
-{
-    std::vector<QDMI_Device> get_available_backends();
-}
-
-
-/**
- * @brief TODO
- * @return TODO
- * @todo To be implemented
- */
-extern "C" 
-{
-    int get_num_qubits(QDMI_Device dev);
-}
-
-/**
- * @brief TODO
- * @return TODO
- * @todo To be implemented
- */
-extern "C" 
-{
-    void set_qubits(QDMI_Device dev, int device_index);
-}
 
 extern "C"
 {
-    void setCouplingMapping(Qubit *_qubit, int device_index, int qubit_index);
-}
-
-
-/**
- * @brief TODO
- * @return TODO
- * @todo To be implemented
- */
-extern "C"
-{
-    void get_qubit(QDMI_Device dev, int index);
-}
-
-/**
- * @brief TODO
- * @return TODO
- * @todo To be implemented
- */
-extern "C"
-{
-    void print_coupling_mappings(QDMI_Device dev);
+    class QDMI_Interface
+    {
+    public:
+        std::vector<QDMI_Device> get_available_backends();
+        int get_num_qubits(QDMI_Device dev);
+        void set_qubits(QDMI_Device dev, int device_index);
+        void get_qubit(QDMI_Device dev, int index);
+        void print_coupling_mappings(QDMI_Device dev);
+        void setCouplingMapping(Qubit *_qubit, int device_index, int qubit_index);
+    private:
+        //TODO: Try storing the QDMI_Qubit instead of QDMI_Qubit_impl_d
+        std::map < int, std::vector <QDMI_Qubit_impl_d >> _qubits;
+    };
+    
 }
 
 #endif // QDMI_INTERFACE_HPP
