@@ -858,13 +858,18 @@ public:
     void SetNumberofQubits(int _num_qubits);
 
     int GetNumberofQubits () const;
-    /**
-     * TODO
-    */
+
+    void SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates);
+
+    std::vector<std::string> GetGateTypes() const;
+
+    int GetNumberofGates() const;
+
     ~QuantumBackend() override = default;
 
 private:
     int num_qubits;
+    int num_gates;
     std::vector<std::string> gate_types;
 };
 
@@ -889,9 +894,7 @@ public:
     void SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping);
 
     const std::vector <int> &GetCouplingMapping() const;
-    /**
-     * TODO
-    */
+
     ~Qubit() override = default;
 
 private:

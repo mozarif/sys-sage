@@ -30,9 +30,10 @@ extern "C"
         void set_qubits(QDMI_Device dev, int device_index);
         void setCouplingMapping(Qubit *_qubit, int device_index, int qubit_index);
         /*********************************************************/
-        void setQubits(QuantumBackend * backend, QDMI_Device dev);
-        void createQcTopo(Topology * topo);
-        void createQcTopo(QuantumBackend * topo, QDMI_Device dev);
+        void setQubits(QuantumBackend *backend, QDMI_Device dev);
+        void setGateSets(QuantumBackend *backend, QDMI_Device dev);
+        void createQcTopo(Topology *topo);
+        void createQcTopo(QuantumBackend *topo, QDMI_Device dev);
     private:
         QInfo info;
         QDMI_Session session;

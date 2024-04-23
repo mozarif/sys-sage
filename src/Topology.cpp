@@ -578,6 +578,13 @@ QuantumBackend::QuantumBackend(int _id, string _name):Component(_id, _name, SYS_
 QuantumBackend::QuantumBackend(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUANTUM_BACKEND){}
 void QuantumBackend::SetNumberofQubits(int _num_qubits) { num_qubits = _num_qubits; }
 int QuantumBackend::GetNumberofQubits() const { return num_qubits; }
+void QuantumBackend::SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates)
+{   
+    gate_types = _gate_types; 
+    num_gates = _num_gates;
+}
+std::vector<std::string> QuantumBackend::GetGateTypes() const {  return gate_types; }
+int QuantumBackend::GetNumberofGates() const { return num_gates; }
 
 Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUBIT){}
 Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUBIT){}

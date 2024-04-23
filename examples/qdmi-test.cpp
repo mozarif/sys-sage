@@ -21,9 +21,9 @@ int main()
     Topology* qc_topo = new Topology();
     qdmi.createQcTopo(qc_topo);
 
-    cout << "---------------- Printing the configuration of QLM ----------------" << endl;
+    cout << "---------------- Printing the configuration of QLM Backend----------------" << endl;
     qc_topo->PrintSubtree();
-    cout << "---------------- Printing Qubit Coupling Mappings of QLM Backend----------------" << endl;
+    cout << "---------------- Printing Qubit Coupling Mappings for QLM Backend----------------" << endl;
     QuantumBackend* qc = dynamic_cast<QuantumBackend*>(qc_topo->GetChild(0));
     int total_qubits = qc->CountAllSubcomponents();
     for (int i = 0; i < total_qubits; i++)
@@ -36,6 +36,13 @@ int main()
             std::cout << coupling_map[j] << " ";
         }
         std::cout << "}\n";
+    }
+    cout << "---------------- Printing Supported Gate Types for QLM Backend----------------" << endl;
+    int num_gates = qc->GetNumberofGates();
+    auto gates = qc->GetGateTypes();
+    for (int i = 0; i < num_gates; ++i)
+    {   
+        std::cout << gates[i] << "\n";
     }
 
     /*******************************************Method 2**********************************************/

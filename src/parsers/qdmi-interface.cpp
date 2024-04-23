@@ -182,7 +182,7 @@ extern "C" void QDMI_Interface::setCouplingMapping(Qubit *_qubit, int device_ind
     return;
 }
 
-extern "C" void QDMI_Interface::setQubits(QuantumBackend * backend, QDMI_Device dev)
+extern "C" void QDMI_Interface::setQubits(QuantumBackend *backend, QDMI_Device dev)
 {
     QDMI_Qubit qubits;
     int err, num_qubits = 0;
@@ -225,7 +225,49 @@ extern "C" void QDMI_Interface::setQubits(QuantumBackend * backend, QDMI_Device 
 
     return;
 }
-extern "C" void QDMI_Interface::createQcTopo(Topology * topo)
+
+extern "C" void QDMI_Interface::setGateSets(QuantumBackend *backend, QDMI_Device dev)
+{
+    QDMI_Gate gates;
+    int err, num_gates;
+    
+    err = QDMI_query_all_gates(dev, &gates);
+
+    if (err != QDMI_SUCCESS || gates == NULL)
+    {
+        std::cout << "   [sys-sage]...............Could not obtain available "
+                  << "gates via QDMI\n";
+        return;
+    }
+
+    err = QDMI_query_gateset_num(dev, &num_gates);
+
+    if (err != QDMI_SUCCESS || num_gates == 0)
+    {
+        std::cout << "   [sys-sage]...............Could not obtain number of "
+                  << "available gates via QDMI\n";
+        return;
+    }
+    else 
+    {
+        std::cout << "   [sys-sage]...............Found "
+                  << num_gates << " supported gates.\n";
+    }
+    std::vector <std::string> gatesets(num_gates);
+
+    for (int i = 0; i < num_gates; i++)
+    {
+        gatesets[i] = gates[i].name;
+    }
+    
+    backend->SetGateTypes(gatesets, num_gates);
+    
+    free(gates);
+
+    return;
+}
+
+extern "C" void QDMI_Interface::createQcTopo(Topology *topo)
 {
     auto quantum_backends = get_available_backends();
 
@@ -240,10 +282,9 @@ extern "C" void QDMI_Interface::createQcTopo(Topology * topo)
 
 }
 
-extern "C" void QDMI_Interface::createQcTopo(QuantumBackend * backend, QDMI_Device dev)
+extern "C" void QDMI_Interface::createQcTopo(QuantumBackend *backend, QDMI_Device dev)
 {
     backend->SetNumberofQubits(get_num_qubits(dev));
     setQubits(backend, dev);
-
-    // setGateSets;
+    setGateSets(backend, dev);
 }
