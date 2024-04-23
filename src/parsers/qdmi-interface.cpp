@@ -6,8 +6,36 @@
 #include "qdmi-interface.hpp"
 
 
+extern "C" QDMI_Interface::QDMI_Interface()
+{
+    initiateSession();
+}
+
+extern "C" int QDMI_Interface::initiateSession()
+{
+    int err = 0;
+    info = NULL;
+    session = NULL;
+
+    err = QInfo_create(&info);
+    CHECK_ERR(err, "QInfo_create");
+
+    err = QDMI_session_init(info, &session);
+    CHECK_ERR(err, "QDMI_session_init");
+    if (err != QDMI_SUCCESS)
+    {
+        std::cout << "   [sys-sage]...............Unable to initiate "
+                  << "QDMI session\n";
+        exit(0);
+    }
+    std::cout << "   [sys-sage]...............Initiated "
+                  << "QDMI session\n";
+    return 0;    
+
+}
+
 // TODO: Change function name (like FOMAC_available_devices)
-extern "C" std::vector<QDMI_Device> QDMI_Interface::get_available_backends()
+extern "C" std::vector<std::pair <std::string, QDMI_Device>> QDMI_Interface::get_available_backends()
 {
     // TODO REPEAT PERIODICALLY WITH A DELAY
 
@@ -17,11 +45,11 @@ extern "C" std::vector<QDMI_Device> QDMI_Interface::get_available_backends()
         std::cout << "   [sys-sage]...............Failed to get "
                   << "qdmi_library_list from QDMI" << std::endl;
 
-        return std::vector<QDMI_Device>();
+        return std::vector<std::pair <std::string, QDMI_Device>>();
     }
 
     int i = 0, err = 0, status = 0;
-    std::vector<QDMI_Device> registered_devices;
+    std::vector<std::pair <std::string, QDMI_Device>> registered_devices;
     while (available_devices[i] != NULL)
     {
         QDMI_Device device =
@@ -49,7 +77,7 @@ extern "C" std::vector<QDMI_Device> QDMI_Interface::get_available_backends()
             std::cout << "   [sys-sage]...............Available device "
                       << "found: " << device_name << std::endl;
 
-            registered_devices.push_back(device);
+            registered_devices.push_back(std::pair<std::string, QDMI_Device> (device_name, device));
         }
 
         free(available_devices[i++]);
@@ -154,11 +182,8 @@ extern "C" void QDMI_Interface::setCouplingMapping(Qubit *_qubit, int device_ind
     return;
 }
 
-// TODO: change function name (like FOMAC_print_coupling_mappings)
-extern "C" void QDMI_Interface::print_coupling_mappings(QDMI_Device dev)
+extern "C" void QDMI_Interface::setQubits(QuantumBackend * backend, QDMI_Device dev)
 {
-    // TODO REPEAT PERIODICALLY WITH A DELAY
-
     QDMI_Qubit qubits;
     int err, num_qubits = 0;
 
@@ -171,37 +196,54 @@ extern "C" void QDMI_Interface::print_coupling_mappings(QDMI_Device dev)
         return;
     }
 
-    err = QDMI_query_qubits_num(dev, &num_qubits);
+    num_qubits = backend->GetNumberofQubits();
     
-    if (err != QDMI_SUCCESS || num_qubits == 0)
-    {
-        std::cout << "   [sys-sage]...............Could not obtain number of "
-                  << "available qubits via QDMI\n";
-        return;
-    }
-    else 
-    {
-        std::cout << "   [sys-sage]...............Found "
-                  << num_qubits << " qubits.\n";
-    }
-
     for (int i = 0; i < num_qubits; i++)
     {
+        Qubit* q = new Qubit(backend, i);
+        
         if (qubits[i].coupling_mapping == NULL)
         {
-            std::cout << "   [sys-sage]...............No coupling mapping"
-                      << std::endl;
+            std::cout << "   [sys-sage]...............No coupling mapping for qubit "
+                      << i << "\n";
             continue;
         }
 
-        std::cout << "   [sys-sage]...............Coupling mapping of qubit[" << i
-                  << "]: { ";
-        for (int j = 0; j < qubits[i].size_coupling_mapping; j++)
-            std::cout << qubits[i].coupling_mapping[j] << " ";
-        std::cout << "}" << std::endl;
+        int coupling_map_size = qubits[i].size_coupling_mapping;
+        
+        std::vector<int> coupling_mapping(coupling_map_size);
+
+        for (int j = 0; j < coupling_map_size; j++)
+        {
+            // Copy the coupling_mapping from qubit_impl
+            std::copy(qubits[i].coupling_mapping, qubits[i].coupling_mapping + coupling_map_size, coupling_mapping.begin());
+        }
+        q->SetCouplingMapping(coupling_mapping, coupling_map_size);
     }
 
     free(qubits);
 
     return;
+}
+extern "C" void QDMI_Interface::createQcTopo(Topology * topo)
+{
+    auto quantum_backends = get_available_backends();
+
+
+    int total_quantum_backends = quantum_backends.size();
+
+    for (auto i = 0; i < total_quantum_backends; ++i)
+    {
+        QuantumBackend* qc = new QuantumBackend(topo, i, quantum_backends[i].first);
+        createQcTopo(qc, quantum_backends[i].second);
+    }
+
+}
+
+extern "C" void QDMI_Interface::createQcTopo(QuantumBackend * backend, QDMI_Device dev)
+{
+    backend->SetNumberofQubits(get_num_qubits(dev));
+    setQubits(backend, dev);
+
+    // setGateSets;
 }

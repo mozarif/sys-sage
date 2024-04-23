@@ -1,49 +1,33 @@
+/* Possible exports
+* CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qinfo-src/include/
+* export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qdmi-src/include
+* export CONF_IBM=/home/diogenes/qdmi.git/inputs/conf.json
+* export QDMI_CONFIG_FILE=/home/diogenes/sys-sage/build/_deps/qdmi-src/.qdmi-config
+*/
+
 #include <iostream>
 #include <string.h>
 #include "sys-sage.hpp"
 
-#define CHECK_ERR(a,b) { if (a!=QDMI_SUCCESS) { printf("\n[Error]: %i at %s",a,b); return 1; }}
-
 int main()
 {
-    int err = 0;
-    QInfo info = NULL;
-    QDMI_Session session = NULL;
 
-    err = QInfo_create(&info);
-    CHECK_ERR(err, "QInfo_create");
-
-    err = QDMI_session_init(info, &session);
-    CHECK_ERR(err, "QDMI_session_init");
-
+    // Create an instance of the interface
     QDMI_Interface qdmi;
-    auto vec = qdmi.get_available_backends();
-    std::cout << "Total " << vec.size() << " devices found.\n";
-    
-    //create root quantum backend
-    QuantumBackend* qc = new QuantumBackend();
-    int num_qubits = qdmi.get_num_qubits(vec[vec.size()-1]); // Using Device index = vec.size()-1
 
-    if(num_qubits == -1)
-    {
-        std::cout << "Error in getting number of qubits\n";
-        return 1;
-    }
+    // Use QDMI_Interface to create the topology of either all the backends or one of the backends
+    /*******************************************Method 1**********************************************/
 
-    qdmi.set_qubits(vec[vec.size()-1], vec.size()-1); // Using Device index = vec.size()-1
+    Topology* qc_topo = new Topology();
+    qdmi.createQcTopo(qc_topo);
 
-    for (int i = 0; i < num_qubits; i++)
-    {
-        Qubit* q = new Qubit(qc, i);
-        qdmi.setCouplingMapping(q, vec.size()-1, i); // Using Device index = vec.size()-1
-        auto coupling_map = q->GetCouplingMapping();
-    }
-
-    cout << "---------------- Printing Qubit Coupling Mappings ----------------" << endl;
+    cout << "---------------- Printing the configuration of QLM ----------------" << endl;
+    qc_topo->PrintSubtree();
+    cout << "---------------- Printing Qubit Coupling Mappings of QLM Backend----------------" << endl;
+    QuantumBackend* qc = dynamic_cast<QuantumBackend*>(qc_topo->GetChild(0));
     int total_qubits = qc->CountAllSubcomponents();
     for (int i = 0; i < total_qubits; i++)
     {
-        // TODO: Dynamic cast or static cast?
         Qubit* q = dynamic_cast<Qubit*>(qc->GetChild(i));
         std::cout << "Qubit " << i << " has coupling map { ";
         auto coupling_map = q->GetCouplingMapping();
@@ -53,9 +37,28 @@ int main()
         }
         std::cout << "}\n";
     }
-    
-    cout << "---------------- Printing the configuration of QC ----------------" << endl;
-    qc->PrintSubtree();
-    
+
+    /*******************************************Method 2**********************************************/
+    // auto quantum_backends = qdmi.get_available_backends();
+    // std::cout << "Total " << quantum_backends.size() << " devices found.\n";
+    // QuantumBackend* qc_topo = new QuantumBackend(0, quantum_backends[0].first);
+    // qdmi.createQcTopo(qc_topo, quantum_backends[0].second);
+
+    // cout << "---------------- Printing the configuration of QLM Backend ----------------" << endl;
+    // qc_topo->PrintSubtree();
+    // cout << "---------------- Printing Qubit Coupling Mappings of QLM Backend----------------" << endl;
+    // int total_qubits = qc_topo->CountAllSubcomponents();
+    // for (int i = 0; i < total_qubits; i++)
+    // {
+    //     Qubit* q = dynamic_cast<Qubit*>(qc_topo->GetChild(i));
+    //     std::cout << "Qubit " << i << " has coupling map { ";
+    //     auto coupling_map = q->GetCouplingMapping();
+    //     for (long unsigned j = 0; j < coupling_map.size(); j++)
+    //     {
+    //         std::cout << coupling_map[j] << " ";
+    //     }
+    //     std::cout << "}\n";
+    // }
+       
     return 0;
 }

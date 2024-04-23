@@ -576,6 +576,8 @@ Thread::Thread(Component * parent, int _id, string _name):Component(parent, _id,
 
 QuantumBackend::QuantumBackend(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUANTUM_BACKEND){}
 QuantumBackend::QuantumBackend(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUANTUM_BACKEND){}
+void QuantumBackend::SetNumberofQubits(int _num_qubits) { num_qubits = _num_qubits; }
+int QuantumBackend::GetNumberofQubits() const { return num_qubits; }
 
 Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUBIT){}
 Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUBIT){}

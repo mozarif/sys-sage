@@ -14,20 +14,29 @@
 #include <qdmi.h>
 #include <qdmi_internal.h>
 
+#define CHECK_ERR(a,b) { if (a!=QDMI_SUCCESS) { printf("\n[Error]: %i at %s",a,b); return 1; }}
 
 extern "C"
 {
     class QDMI_Interface
     {
     public:
-        std::vector<QDMI_Device> get_available_backends();
+        QDMI_Interface();
+        int initiateSession();
+        std::vector<std::pair <std::string, QDMI_Device>> get_available_backends();
+
         int get_num_qubits(QDMI_Device dev);
+        /**********Maybe remove these*****************************/ 
         void set_qubits(QDMI_Device dev, int device_index);
-        void get_qubit(QDMI_Device dev, int index);
-        void print_coupling_mappings(QDMI_Device dev);
         void setCouplingMapping(Qubit *_qubit, int device_index, int qubit_index);
+        /*********************************************************/
+        void setQubits(QuantumBackend * backend, QDMI_Device dev);
+        void createQcTopo(Topology * topo);
+        void createQcTopo(QuantumBackend * topo, QDMI_Device dev);
     private:
-        //TODO: Try storing the QDMI_Qubit instead of QDMI_Qubit_impl_d
+        QInfo info;
+        QDMI_Session session;
+        //TODO: Is this needed?
         std::map < int, std::vector <QDMI_Qubit_impl_d >> _qubits;
     };
     

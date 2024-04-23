@@ -854,6 +854,10 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
     */
     QuantumBackend(Component * parent, int _id = 0, string _name = "QuantumBackend");
+
+    void SetNumberofQubits(int _num_qubits);
+
+    int GetNumberofQubits () const;
     /**
      * TODO
     */
