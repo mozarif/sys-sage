@@ -1,8 +1,8 @@
 /* Possible exports
-* CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qinfo-src/include/
-* export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qdmi-src/include
-* export CONF_IBM=/home/diogenes/qdmi.git/inputs/conf.json
-* export QDMI_CONFIG_FILE=/home/diogenes/sys-sage/build/_deps/qdmi-src/.qdmi-config
+export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qinfo-src/include/
+export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qdmi-src/include
+export CONF_IBM=/home/diogenes/qdmi.git/inputs/conf.json
+export QDMI_CONFIG_FILE=/home/diogenes/sys-sage/build/_deps/qdmi-src/.qdmi-config
 */
 
 #include <iostream>
