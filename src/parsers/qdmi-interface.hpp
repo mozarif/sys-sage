@@ -3,8 +3,8 @@
  * @brief sys-sage's interface to QDMI. Based on MQSS's global FOMAC.
  */
 
-#ifndef QDMI_INTERFACE_HPP
-#define QDMI_INTERFACE_HPP
+#ifndef QDMI_Parser_HPP
+#define QDMI_Parser_HPP
 
 #include <iostream>
 #include <string.h>
@@ -18,10 +18,10 @@
 
 extern "C"
 {
-    class QDMI_Interface
+    class QDMI_Parser
     {
     public:
-        QDMI_Interface();
+        QDMI_Parser();
         int initiateSession();
         std::vector<std::pair <std::string, QDMI_Device>> get_available_backends();
 
@@ -34,13 +34,21 @@ extern "C"
         void setGateSets(QuantumBackend *backend, QDMI_Device dev);
         void createQcTopo(Topology *topo);
         void createQcTopo(QuantumBackend *topo, QDMI_Device dev);
+        static void refreshQubitProprties(QuantumBackend *qc, Qubit *qubit)
+        {
+            //     //auto quantum_backends = get_available_backends();
+
+            //     // Search for required QuantumBackend in the device and call these:
+            //     //QDMI_Device dev = qc->
+            //     //QDMI_query_qubit_property(QDMI_Device dev, QDMI_Qubit_property prop, QDMI_Qubit qubit, int* coupling_map);
+        }
     private:
-        QInfo info;
-        QDMI_Session session;
+        static QInfo info;
+        static QDMI_Session session;
         //TODO: Is this needed?
         std::map < int, std::vector <QDMI_Qubit_impl_d >> _qubits;
     };
     
 }
 
-#endif // QDMI_INTERFACE_HPP
+#endif // QDMI_Parser_HPP

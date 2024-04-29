@@ -13,9 +13,9 @@ int main()
 {
 
     // Create an instance of the interface
-    QDMI_Interface qdmi;
+    QDMI_Parser qdmi;
 
-    // Use QDMI_Interface to create the topology of either all the backends or one of the backends
+    // Use QDMI_Parser to create the topology of either all the backends or one of the backends
     /*******************************************Method 1**********************************************/
 
     Topology* qc_topo = new Topology();

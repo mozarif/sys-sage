@@ -865,6 +865,8 @@ public:
 
     int GetNumberofGates() const;
 
+    void RefreshTopology();
+
     ~QuantumBackend() override = default;
 
 private:
@@ -894,6 +896,8 @@ public:
     void SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping);
 
     const std::vector <int> &GetCouplingMapping() const;
+
+    void RefreshProperties();
 
     ~Qubit() override = default;
 
