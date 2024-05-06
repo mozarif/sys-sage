@@ -1,5 +1,5 @@
 /**
- * @file qdmi-interface.hpp
+ * @file qdmi-parser.hpp
  * @brief sys-sage's interface to QDMI. Based on MQSS's global FOMAC.
  */
 
@@ -26,10 +26,11 @@ extern "C"
         std::vector<std::pair <std::string, QDMI_Device>> get_available_backends();
 
         int get_num_qubits(QDMI_Device dev);
-        /**********Maybe remove these*****************************/ 
+        /**********Maybe remove this*****************************/ 
         void set_qubits(QDMI_Device dev, int device_index);
-        void setCouplingMapping(Qubit *_qubit, int device_index, int qubit_index);
         /*********************************************************/
+        void getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubit, std::vector<int> &coupling_mapping, int &coupling_map_size);
+        void getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit);
         void setQubits(QuantumBackend *backend, QDMI_Device dev);
         void setGateSets(QuantumBackend *backend, QDMI_Device dev);
         void createQcTopo(Topology *topo);

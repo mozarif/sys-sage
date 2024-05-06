@@ -3,15 +3,17 @@ export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qinfo-src/include/
 export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qdmi-src/include
 export CONF_IBM=/home/diogenes/qdmi.git/inputs/conf.json
 export QDMI_CONFIG_FILE=/home/diogenes/sys-sage/build/_deps/qdmi-src/.qdmi-config
+export PROP_IBM=/home/diogenes/qdmi.git/inputs/props.json
 */
 
 #include <iostream>
 #include <string.h>
+#include <iomanip>
 #include "sys-sage.hpp"
 
 int main()
 {
-
+    std::cout << std::setprecision(15);
     // Create an instance of the interface
     QDMI_Parser qdmi;
 
@@ -21,9 +23,9 @@ int main()
     Topology* qc_topo = new Topology();
     qdmi.createQcTopo(qc_topo);
 
-    cout << "---------------- Printing the configuration of QLM Backend----------------" << endl;
+    cout << "---------------- Printing the configuration of IBM Backend----------------" << endl;
     qc_topo->PrintSubtree();
-    cout << "---------------- Printing Qubit Coupling Mappings for QLM Backend----------------" << endl;
+    cout << "---------------- Printing Qubit Coupling Mappings for IBM Backend----------------" << endl;
     QuantumBackend* qc = dynamic_cast<QuantumBackend*>(qc_topo->GetChild(0));
     int total_qubits = qc->CountAllSubcomponents();
     for (int i = 0; i < total_qubits; i++)
@@ -37,12 +39,23 @@ int main()
         }
         std::cout << "}\n";
     }
-    cout << "---------------- Printing Supported Gate Types for QLM Backend----------------" << endl;
+    cout << "---------------- Printing Supported Gate Types for IBM Backend----------------" << endl;
     int num_gates = qc->GetNumberofGates();
     auto gates = qc->GetGateTypes();
     for (int i = 0; i < num_gates; ++i)
     {   
         std::cout << gates[i] << "\n";
+    }
+
+    std::cout << "---------------- Printing Qubit Properties for IBM Backend----------------" << endl;
+    for (int i = 0; i < total_qubits; i++)
+    {
+        Qubit* q = dynamic_cast<Qubit*>(qc->GetChild(i));
+        std::cout << "Qubit " << i << " has following properties: \n";
+        std::cout << "      T1: " << q->GetT1() << "\n";
+        std::cout << "      T2: " << q->GetT2() << "\n";
+        std::cout << "      Readout Error: " << q->GetReadoutError() << "\n";
+        std::cout << "      Readout Length: " << q->GetReadoutLength() << "\n";
     }
 
     /*******************************************Method 2**********************************************/

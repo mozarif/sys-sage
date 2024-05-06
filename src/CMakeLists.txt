@@ -14,7 +14,7 @@ set(SOURCES
     parsers/caps-numa-benchmark.cpp
     parsers/gpu-topo.cpp
     parsers/cccbench.cpp
-    parsers/qdmi-interface.cpp
+    parsers/qdmi-parser.cpp
     )
 
 set(HEADERS
@@ -27,7 +27,7 @@ set(HEADERS
     parsers/caps-numa-benchmark.hpp
     parsers/gpu-topo.hpp
     parsers/cccbench.cpp
-    parsers/qdmi-interface.hpp
+    parsers/qdmi-parser.hpp
     )
 
 add_library(sys-sage SHARED ${SOURCES} ${HEADERS})

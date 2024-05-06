@@ -895,7 +895,17 @@ public:
     
     void SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping);
 
+    void SetProperties(double t1, double t2, double readout_error, double readout_length);
+
     const std::vector <int> &GetCouplingMapping() const;
+
+    const double GetT1() const;
+    
+    const double GetT2() const;
+
+    const double GetReadoutError() const;
+
+    const double GetReadoutLength() const;
 
     void RefreshProperties();
 
@@ -904,7 +914,11 @@ public:
 private:
     std::vector <int> _coupling_mapping;
     int _size_coupling_mapping;
-    float fidelity;
+    double fidelity;
+    double _t1;
+    double _t2;
+    double _readout_error;
+    double _readout_length;
 };
 
 #endif

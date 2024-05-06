@@ -597,3 +597,17 @@ const std::vector <int> & Qubit::GetCouplingMapping() const
 {
     return _coupling_mapping;
 }
+
+void Qubit::SetProperties(double t1, double t2, double readout_error, double readout_length)
+{
+    _t1 = t1;
+    _t2 = t2;
+    _readout_error = readout_error;
+    _readout_length = readout_length;
+
+}
+
+const double Qubit::GetT1() const { return _t1; }    
+const double Qubit::GetT2() const { return _t2; }
+const double Qubit::GetReadoutError() const { return _readout_error; }
+const double Qubit::GetReadoutLength() const { return _readout_length; }

@@ -1,9 +1,9 @@
 /**
- * @file qdmi-interface.hpp
+ * @file qdmi-parser.hpp
  * @brief sys-sage's interface to QDMI. Based on MQSS's global FOMAC.
  */
 
-#include "qdmi-interface.hpp"
+#include "qdmi-parser.hpp"
 
 QInfo QDMI_Parser::info; 
 QDMI_Session QDMI_Parser::session; 
@@ -146,42 +146,51 @@ extern "C" void QDMI_Parser::set_qubits(QDMI_Device dev, int device_index)
 
 }
 
-extern "C" void QDMI_Parser::setCouplingMapping(Qubit *_qubit, int device_index, int qubit_index)
+extern "C" void QDMI_Parser::getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubit, std::vector<int> &coupling_mapping, int &coupling_map_size)
 {
 
-    if (_qubits.find(device_index) == _qubits.end())
+    if (qubit->size_coupling_mapping == 0)
     {
-        std::cout << "   [sys-sage]...............No qubits found for device "
-                  << device_index << std::endl;
+        std::cout << "   [sys-sage]...............No coupling mapping for qubit\n";
         return;
     }
 
+    coupling_map_size = qubit->size_coupling_mapping;
+    coupling_mapping.resize(coupling_map_size);
 
-    auto qubit_impl = _qubits[device_index][qubit_index];
-    // if (!qubit_impl)
-    // {
-    //     std::cout << "   [sys-sage]...............Qubit is null for device "
-    //               << device_index << " and qubit index " << qubit_index << std::endl;
-    //     return;
-    // }
+    //for (int j = 0; j < coupling_map_size; j++)
+    //{
+        // Copy the coupling_mapping from qubit_impl
+        std::copy(qubit->coupling_mapping, qubit->coupling_mapping + coupling_map_size, coupling_mapping.begin());
+    //}
+}
 
-    int size = qubit_impl.size_coupling_mapping; //qubit_impl->size_coupling_mapping;
-    if (size <= 0)
+extern "C" void QDMI_Parser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit)
+{
+    int scope;
+    // Declare prop as a vector
+    //std::vector<int> prop{QDMI_T1_TIME, QDMI_T2_TIME, QDMI_READOUT_ERROR, QDMI_READOUT_LENGTH};
+    std::array<int, 4> prop{1, 2, 4, 5};
+    std::array<std::string, 4> properties{"T1", "T2", "readout_error", "readout_length"};
+    double value;
+    for (size_t i = 0; i < 4; ++i)
     {
-        std::cout << "   [sys-sage]...............Invalid size of coupling mapping for qubit "
-                  << "with device index " << device_index << " and qubit index " << qubit_index << std::endl;
-        return;
+        int err = QDMI_query_qubit_property_exists(dev, prop[i], qubit, &scope);
+        if(err)
+        {
+            std::cout << "   [sys-sage]...............Queried property doesn't exist: " << i <<"\n";
+            continue;
+        }
+        err = QDMI_query_qubit_property(dev, prop[i], qubit, &value);
+        if(err)
+        {
+            std::cout << "   [sys-sage]...............Unable to query property: " << i <<"\n";
+            continue;
+        }
+        //std::cout << "   [sys-sage]...............Value of " << properties[i] << ": " << value << "\n";
+
     }
-
-
-    std::vector<int> coupling_mapping(size);
-
-    // Copy the coupling_mapping from qubit_impl
-    std::copy(qubit_impl.coupling_mapping, qubit_impl.coupling_mapping + size, coupling_mapping.begin());
-
-    _qubit->SetCouplingMapping(coupling_mapping, size);
-
-    return;
+    
 }
 
 extern "C" void QDMI_Parser::setQubits(QuantumBackend *backend, QDMI_Device dev)
@@ -204,27 +213,18 @@ extern "C" void QDMI_Parser::setQubits(QuantumBackend *backend, QDMI_Device dev)
     {
         Qubit* q = new Qubit(backend, i);
         
-        if (qubits[i].coupling_mapping == NULL)
-        {
-            std::cout << "   [sys-sage]...............No coupling mapping for qubit "
-                      << i << "\n";
-            continue;
-        }
-
-        int coupling_map_size = qubits[i].size_coupling_mapping;
-        
-        std::vector<int> coupling_mapping(coupling_map_size);
-
-        for (int j = 0; j < coupling_map_size; j++)
-        {
-            // Copy the coupling_mapping from qubit_impl
-            std::copy(qubits[i].coupling_mapping, qubits[i].coupling_mapping + coupling_map_size, coupling_mapping.begin());
-        }
+        // Set coupling map
+        int coupling_map_size; 
+        std::vector<int> coupling_mapping;
+        getCouplingMapping(dev, &qubits[i], coupling_mapping, coupling_map_size);
         q->SetCouplingMapping(coupling_mapping, coupling_map_size);
+
+        // Set all the qubit properties
+        getQubitProperties(dev, &qubits[i]);
+        q->SetProperties(qubits[i].t1, qubits[i].t2, qubits[i].readout_error, qubits[i].readout_length);
     }
 
     free(qubits);
-
     return;
 }
 
@@ -264,28 +264,28 @@ extern "C" void QDMI_Parser::setGateSets(QuantumBackend *backend, QDMI_Device de
     
     backend->SetGateTypes(gatesets, num_gates);
     
-    for(int num = 0; num < num_gates; ++num)
-    {
-        auto mapping = gates[num].coupling_mapping;
-        auto size_coupling_map = gates[num].size_coupling_map;
-        auto gate_size = gates[num].gate_size;
-        if(mapping != NULL)
-        {
+    // for(int num = 0; num < num_gates; ++num)
+    // {
+    //     auto mapping = gates[num].coupling_mapping;
+    //     auto size_coupling_map = gates[num].sizcde_coupling_map;
+    //     auto gate_size = gates[num].gate_size;
+    //     if(mapping != NULL)
+    //     {
 
-            std::cout << "[sys-sage] Coupling map of gate: " << gates[num].name <<", size_coupling_map: "<< size_coupling_map << ", gate_size: " << gate_size<< "\n";
+    //         // std::cout << "[sys-sage] Coupling map of gate: " << gates[num].name <<", size_coupling_map: "<< size_coupling_map << ", gate_size: " << gate_size<< "\n";
             
-            for (size_t i = 0; i < size_coupling_map; ++i) {
-                std::cout << "[";
-                for (size_t j = 0; j < gate_size; ++j)
-                {
-                    std::cout << mapping[i][j] << ", ";
-                }
+    //         for (size_t i = 0; i < size_coupling_map; ++i) {
+    //             std::cout << "[";
+    //             for (size_t j = 0; j < gate_size; ++j)
+    //             {
+    //                 std::cout << mapping[i][j] << ", ";
+    //             }
     
-                printf("]\n");
-            }
-        }
+    //             printf("]\n");
+    //         }
+    //     }
         
-    }
+    // }
     
     free(gates);
 

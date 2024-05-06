@@ -9,5 +9,5 @@
 #include "parsers/caps-numa-benchmark.hpp"
 #include "parsers/gpu-topo.hpp"
 #include "parsers/cccbench.hpp"
-#include "parsers/qdmi-interface.hpp"
+#include "parsers/qdmi-parser.hpp"
 #endif //SYS_SAGE
