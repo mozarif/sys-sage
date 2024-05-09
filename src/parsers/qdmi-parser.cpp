@@ -169,25 +169,30 @@ extern "C" void QDMI_Parser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubi
 {
     int scope;
     // Declare prop as a vector
-    //std::vector<int> prop{QDMI_T1_TIME, QDMI_T2_TIME, QDMI_READOUT_ERROR, QDMI_READOUT_LENGTH};
-    std::array<int, 4> prop{1, 2, 4, 5};
+    std::vector<int> prop{QDMI_T1_TIME, QDMI_T2_TIME, QDMI_READOUT_ERROR, QDMI_READOUT_LENGTH};
     std::array<std::string, 4> properties{"T1", "T2", "readout_error", "readout_length"};
     double value;
     for (size_t i = 0; i < 4; ++i)
     {
-        int err = QDMI_query_qubit_property_exists(dev, prop[i], qubit, &scope);
+        // QDMI_Qubit_property prop_index;
+        QDMI_Qubit_property prop_index = new (QDMI_Qubit_property_impl_t);
+        prop_index->name = prop[i];
+        int err = QDMI_query_qubit_property_exists(dev, prop_index, qubit, &scope);
         if(err)
         {
             std::cout << "   [sys-sage]...............Queried property doesn't exist: " << i <<"\n";
             continue;
         }
-        err = QDMI_query_qubit_property(dev, prop[i], qubit, &value);
-        if(err)
-        {
-            std::cout << "   [sys-sage]...............Unable to query property: " << i <<"\n";
-            continue;
+        if(prop_index->type == QDMI_DOUBLE){
+            err = QDMI_query_qubit_property_d(dev, qubit, prop_index, &value);
+            if(err)
+            {
+                std::cout << "   [sys-sage]...............Unable to query property: " << i <<"\n";
+                continue;
+            }
+            //std::cout << "   [sys-sage]...............Value of " << properties[i] << ": " << value << "\n";
         }
-        //std::cout << "   [sys-sage]...............Value of " << properties[i] << ": " << value << "\n";
+        delete prop_index;
 
     }
     
