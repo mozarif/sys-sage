@@ -41,7 +41,7 @@
 
 using namespace std;
 class DataPath;
-
+class QuantumGate;
 /**
 Generic class Component - all components inherit from this class, i.e. this class defines attributes and methods common to all components.
 \n Therefore, these can be used universally among all components. Usually, a Component instance would be an instance of one of the child classes, but a generic component (instance of class Component) is also possible.
@@ -872,6 +872,8 @@ public:
 private:
     int num_qubits;
     int num_gates;
+
+    // TO-DO: make it a std::vector < QuantumGate*>
     std::vector<std::string> gate_types;
 };
 
@@ -919,6 +921,35 @@ private:
     double _t2;
     double _readout_error;
     double _readout_length;
+};
+
+
+class QuantumGate {
+
+public:
+    /**
+    QuantumGate constructor.
+    @param _qubits - An array of all qubits that the gate acts on.
+    @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
+        \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
+    */
+    //QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
+
+    QuantumGate();
+
+    void setGateProperties();
+
+    void setAdditionalProperties();
+
+private:
+    std::string _name;
+    int _gate_size; // "No. of qubits involved"
+    int _gate_length; // "Time needed to execute that gate operation"
+    std::string _unitary;    
+    double fidelity;
+    std::vector<std::vector <int>> coupling_mapping;
+    std::vector<Component*> qubits; /**< TODO */
+    std::map <std::string, double > _additional_properties;
 };
 
 #endif
