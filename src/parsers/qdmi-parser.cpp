@@ -260,14 +260,25 @@ extern "C" void QDMI_Parser::setGateSets(QuantumBackend *backend, QDMI_Device de
         std::cout << "   [sys-sage]...............Found "
                   << num_gates << " supported gates.\n";
     }
-    std::vector <std::string> gatesets(num_gates);
+    //std::vector <std::string> gatesets(num_gates);
 
     for (int i = 0; i < num_gates; i++)
     {
-        gatesets[i] = gates[i].name;
+
+        std::string name = gates[i].name;
+        double fidelity = gates[i].fidelity;
+        std::string unitary = gates[i].unitary;
+        size_t gate_size = gates[i].gate_size;
+
+        // Add a destructor
+        QuantumGate *qgate = new QuantumGate(gate_size);
+        qgate->SetGateProperties(name, fidelity, unitary);
+
+        //qgate->setAdditionalProperties();
+        backend->addGate(qgate);
     }
     
-    backend->SetGateTypes(gatesets, num_gates);
+    //backend->SetGateTypes(gatesets, num_gates);
     
     // for(int num = 0; num < num_gates; ++num)
     // {

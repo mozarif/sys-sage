@@ -38,6 +38,10 @@
 #define SYS_SAGE_CHIP_TYPE_CPU_SOCKET 4 /**< Chip type used for one CPU socket. */
 #define SYS_SAGE_CHIP_TYPE_GPU 8 /**< Chip type used for a GPU.*/
 
+#define SYS_SAGE_1Q_QUANTUM_GATE 1 /**< Quantum Gate of size 1-Qubit. */
+#define SYS_SAGE_2Q_QUANTUM_GATE 2 /**< Quantum Gate of size 2-Qubits. */
+#define SYS_SAGE_MQ_QUANTUM_GATE 4 /**< Quantum Gate of size M-Qubits (where M >2). */
+#define SYS_SAGE_NO_TYPE_QUANTUM_GATE 8 /**< Quantum Gate of size 0 or invalid size. */
 
 using namespace std;
 class DataPath;
@@ -859,9 +863,17 @@ public:
 
     int GetNumberofQubits () const;
 
-    void SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates);
+    //void SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates);
 
-    std::vector<std::string> GetGateTypes() const;
+    void addGate(QuantumGate *gate);
+
+    std::vector<QuantumGate*> Get1QGates() const;
+
+    std::vector<QuantumGate*> Get2QGates() const;
+
+    std::vector<QuantumGate*> GetMQGates() const;
+
+    std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
 
     int GetNumberofGates() const;
 
@@ -874,7 +886,9 @@ private:
     int num_gates;
 
     // TO-DO: make it a std::vector < QuantumGate*>
-    std::vector<std::string> gate_types;
+    std::vector <QuantumGate*> _1q_gates;
+    std::vector <QuantumGate*> _2q_gates;
+    std::vector <QuantumGate*> _mq_gates;
 };
 
 class Qubit : public Component {
@@ -936,20 +950,28 @@ public:
     //QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
 
     QuantumGate();
+    QuantumGate(size_t _gate_size);
 
-    void setGateProperties();
-
-    void setAdditionalProperties();
+    void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
+    void SetGateCouplingMap(std::vector<std::vector <Qubit*> > _coupling_mapping);
+    void SetAdditionalProperties();
+    int GetGateType() const;
+    double GetFidelity() const;
+    size_t GetGateSize() const;
+    std::string GetUnitary() const;
+    std::string GetName() const;
 
 private:
-    std::string _name;
-    int _gate_size; // "No. of qubits involved"
-    int _gate_length; // "Time needed to execute that gate operation"
-    std::string _unitary;    
+    int type;
+    std::string name;
+    size_t gate_size; // "No. of qubits involved"
+    int gate_length; // "Time needed to execute that gate operation"
+    std::string unitary;    
     double fidelity;
-    std::vector<std::vector <int>> coupling_mapping;
+
+    std::vector<std::vector <Qubit*>> coupling_mapping;
     std::vector<Component*> qubits; /**< TODO */
-    std::map <std::string, double > _additional_properties;
+    std::map <std::string, double > additional_properties;
 };
 
 #endif

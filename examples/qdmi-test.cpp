@@ -40,12 +40,41 @@ int main()
         std::cout << "}\n";
     }
     cout << "---------------- Printing Supported Gate Types for IBM Backend----------------" << endl;
-    int num_gates = qc->GetNumberofGates();
-    auto gates = qc->GetGateTypes();
-    for (int i = 0; i < num_gates; ++i)
-    {   
-        std::cout << gates[i] << "\n";
+    auto _1q_gates = qc->Get1QGates();
+    auto _2q_gates = qc->Get2QGates();
+    auto _mq_gates = qc->GetMQGates();
+
+    if(_1q_gates.size())
+    {
+        int size = _1q_gates.size();
+        std::cout << "Total " << size << " 1-Qubit gates\n";
+        for (int i = 0; i < size; ++i)
+        {   
+            std::cout << "  Gate name:" << _1q_gates[i]->GetName() << "\n";
+        }
+
     }
+    if(_2q_gates.size())
+    {
+        int size = _2q_gates.size();
+        std::cout << "Total " << size << " 2-Qubit gates\n";
+        for (int i = 0; i < size; ++i)
+        {   
+            std::cout << "  Gate name:" << _2q_gates[i]->GetName() << "\n";
+        }
+        
+    }
+    if(_mq_gates.size())
+    {
+        int size = _mq_gates.size();
+        std::cout << "Total " << size << " M-Qubit gates\n";
+        for (int i = 0; i < size; ++i)
+        {   
+            std::cout << "  Gate name:" << _mq_gates[i]->GetName() << "\n";
+        }
+        
+    }
+    
 
     std::cout << "---------------- Printing Qubit Properties for IBM Backend----------------" << endl;
     for (int i = 0; i < total_qubits; i++)

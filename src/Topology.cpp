@@ -575,16 +575,42 @@ Thread::Thread(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_T
 Thread::Thread(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_THREAD){}
 
 QuantumBackend::QuantumBackend(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUANTUM_BACKEND){}
-QuantumBackend::QuantumBackend(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUANTUM_BACKEND){}
+QuantumBackend::QuantumBackend(Component * _parent, int _id, string _name):Component(_parent, _id, _name, SYS_SAGE_COMPONENT_QUANTUM_BACKEND){}
 void QuantumBackend::SetNumberofQubits(int _num_qubits) { num_qubits = _num_qubits; }
 int QuantumBackend::GetNumberofQubits() const { return num_qubits; }
-void QuantumBackend::SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates)
-{   
-    gate_types = _gate_types; 
-    num_gates = _num_gates;
+// void QuantumBackend::SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates)
+// {   
+//     gate_types = _gate_types; 
+//     num_gates = _num_gates;
+// }
+void QuantumBackend::addGate(QuantumGate *_gate)
+{
+    if(_gate->GetGateType() == SYS_SAGE_1Q_QUANTUM_GATE)
+        _1q_gates.push_back(_gate);
+    else if(_gate->GetGateType() == SYS_SAGE_2Q_QUANTUM_GATE)
+        _2q_gates.push_back(_gate);
+    else if(_gate->GetGateType() == SYS_SAGE_MQ_QUANTUM_GATE)
+        _mq_gates.push_back(_gate);
 }
-std::vector<std::string> QuantumBackend::GetGateTypes() const {  return gate_types; }
-int QuantumBackend::GetNumberofGates() const { return num_gates; }
+std::vector<QuantumGate*> QuantumBackend::Get1QGates() const { return _1q_gates; }
+
+std::vector<QuantumGate*> QuantumBackend::Get2QGates() const { return _2q_gates; }
+
+std::vector<QuantumGate*> QuantumBackend::GetMQGates() const { return _mq_gates; }
+
+std::vector<QuantumGate*> QuantumBackend::GetGatesByTypes(int _gate_type) const 
+{
+    if(_gate_type == SYS_SAGE_1Q_QUANTUM_GATE)
+        return _1q_gates;
+    else if(_gate_type == SYS_SAGE_2Q_QUANTUM_GATE)
+        return _2q_gates;
+    else if(_gate_type == SYS_SAGE_MQ_QUANTUM_GATE)
+        return _mq_gates;
+    else 
+        return {};
+}
+
+int QuantumBackend::GetNumberofGates() const { return (_1q_gates.size() + _2q_gates.size() + _mq_gates.size()); }
 
 Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUBIT){}
 Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUBIT){}
@@ -611,3 +637,51 @@ const double Qubit::GetT1() const { return _t1; }
 const double Qubit::GetT2() const { return _t2; }
 const double Qubit::GetReadoutError() const { return _readout_error; }
 const double Qubit::GetReadoutLength() const { return _readout_length; }
+
+QuantumGate::QuantumGate()
+{
+    gate_size = 1;
+    type = SYS_SAGE_1Q_QUANTUM_GATE;
+}
+QuantumGate::QuantumGate(size_t _gate_size) : gate_size(_gate_size)
+{
+    if (gate_size == 1)
+        type = SYS_SAGE_1Q_QUANTUM_GATE;
+    else if (gate_size == 2)
+        type = SYS_SAGE_2Q_QUANTUM_GATE;
+    else if(gate_size > 2)
+        type = SYS_SAGE_MQ_QUANTUM_GATE;
+    else  
+    {
+        type = SYS_SAGE_NO_TYPE_QUANTUM_GATE;
+    }      
+        
+}
+
+void QuantumGate::SetGateProperties(std::string _name, double _fidelity, std::string _unitary)
+{
+    name = _name;
+    fidelity = _fidelity;
+    unitary = _unitary;
+}
+int QuantumGate::GetGateType() const
+{
+    return type;
+}
+
+double QuantumGate::GetFidelity() const
+{
+    return fidelity;
+}
+size_t QuantumGate::GetGateSize() const
+{
+    return gate_size;
+}
+std::string QuantumGate::GetUnitary() const
+{
+    return unitary;
+}
+std::string QuantumGate::GetName() const
+{
+    return name;
+}
