@@ -591,12 +591,16 @@ void QuantumBackend::addGate(QuantumGate *_gate)
         _2q_gates.push_back(_gate);
     else if(_gate->GetGateType() == SYS_SAGE_MQ_QUANTUM_GATE)
         _mq_gates.push_back(_gate);
+    else
+        _0q_gates.push_back(_gate);
 }
 std::vector<QuantumGate*> QuantumBackend::Get1QGates() const { return _1q_gates; }
 
 std::vector<QuantumGate*> QuantumBackend::Get2QGates() const { return _2q_gates; }
 
 std::vector<QuantumGate*> QuantumBackend::GetMQGates() const { return _mq_gates; }
+
+std::vector<QuantumGate*> QuantumBackend::GetInvalidTypeGates() const { return _0q_gates; }
 
 std::vector<QuantumGate*> QuantumBackend::GetGatesByTypes(int _gate_type) const 
 {
@@ -607,7 +611,7 @@ std::vector<QuantumGate*> QuantumBackend::GetGatesByTypes(int _gate_type) const
     else if(_gate_type == SYS_SAGE_MQ_QUANTUM_GATE)
         return _mq_gates;
     else 
-        return {};
+        return _0q_gates;
 }
 
 int QuantumBackend::GetNumberofGates() const { return (_1q_gates.size() + _2q_gates.size() + _mq_gates.size()); }
@@ -652,9 +656,7 @@ QuantumGate::QuantumGate(size_t _gate_size) : gate_size(_gate_size)
     else if(gate_size > 2)
         type = SYS_SAGE_MQ_QUANTUM_GATE;
     else  
-    {
-        type = SYS_SAGE_NO_TYPE_QUANTUM_GATE;
-    }      
+        type = SYS_SAGE_NO_TYPE_QUANTUM_GATE; 
         
 }
 

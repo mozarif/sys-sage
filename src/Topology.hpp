@@ -873,6 +873,8 @@ public:
 
     std::vector<QuantumGate*> GetMQGates() const;
 
+    std::vector<QuantumGate*> GetInvalidTypeGates() const;
+
     std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
 
     int GetNumberofGates() const;
@@ -885,7 +887,7 @@ private:
     int num_qubits;
     int num_gates;
 
-    // TO-DO: make it a std::vector < QuantumGate*>
+    std::vector <QuantumGate*> _0q_gates; // For gates with gate_size = 0
     std::vector <QuantumGate*> _1q_gates;
     std::vector <QuantumGate*> _2q_gates;
     std::vector <QuantumGate*> _mq_gates;

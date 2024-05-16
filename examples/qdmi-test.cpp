@@ -43,34 +43,53 @@ int main()
     auto _1q_gates = qc->Get1QGates();
     auto _2q_gates = qc->Get2QGates();
     auto _mq_gates = qc->GetMQGates();
+    auto _0q_gates = qc->GetInvalidTypeGates();
 
     if(_1q_gates.size())
     {
         int size = _1q_gates.size();
-        std::cout << "Total " << size << " 1-Qubit gates\n";
+        std::cout << "Total " << size << " 1-Qubit gate(s)\n";
         for (int i = 0; i < size; ++i)
         {   
-            std::cout << "  Gate name:" << _1q_gates[i]->GetName() << "\n";
+            std::cout << "  Gate name:" << _1q_gates[i]->GetName() << ", ";
+            std::cout << "Gate size:" << _1q_gates[i]->GetGateSize() << ", ";
+            std::cout << "Gate fidelity:" << _1q_gates[i]->GetFidelity() << "\n";
         }
 
     }
     if(_2q_gates.size())
     {
         int size = _2q_gates.size();
-        std::cout << "Total " << size << " 2-Qubit gates\n";
+        std::cout << "Total " << size << " 2-Qubit gate(s)\n";
         for (int i = 0; i < size; ++i)
         {   
-            std::cout << "  Gate name:" << _2q_gates[i]->GetName() << "\n";
+            std::cout << "  Gate name:" << _2q_gates[i]->GetName() << ", ";
+            std::cout << "Gate size:" << _2q_gates[i]->GetGateSize() << ", ";
+            std::cout << "Gate fidelity:" << _2q_gates[i]->GetFidelity() << "\n";
         }
         
     }
     if(_mq_gates.size())
     {
         int size = _mq_gates.size();
-        std::cout << "Total " << size << " M-Qubit gates\n";
+        std::cout << "Total " << size << " M-Qubit gate(s)\n";
         for (int i = 0; i < size; ++i)
         {   
-            std::cout << "  Gate name:" << _mq_gates[i]->GetName() << "\n";
+            std::cout << "  Gate name:" << _mq_gates[i]->GetName() << ", ";
+            std::cout << "Gate size:" << _mq_gates[i]->GetGateSize() << ", ";
+            std::cout << "Gate fidelity:" << _mq_gates[i]->GetFidelity() << "\n";
+        }
+        
+    }
+    if(_0q_gates.size())
+    {
+        int size = _0q_gates.size();
+        std::cout << "Total " << size << " gate(s) with no type\n";
+        for (int i = 0; i < size; ++i)
+        {   
+            std::cout << "  Gate name:" << _0q_gates[i]->GetName() << ", ";
+            std::cout << "Gate size:" << _0q_gates[i]->GetGateSize() << ", ";
+            std::cout << "Gate fidelity:" << _0q_gates[i]->GetFidelity() << "\n";
         }
         
     }
