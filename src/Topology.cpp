@@ -120,6 +120,11 @@ int Component::RemoveChild(Component * child)
 }
 Component* Component::GetChild(int _id)
 {
+    return GetChildById(_id);
+}
+
+Component* Component::GetChildById(int _id)
+{
     for(Component* child: children)
     {
         if(child->id == _id)
@@ -282,10 +287,10 @@ int Component::CountAllSubcomponentsByType(int _componentType)
 
 Component* Component::FindParentByType(int _componentType)
 {
-    return GetAncestorType(_componentType);
+    return GetAncestorByType(_componentType);
 }
 
-Component* Component::GetAncestorType(int _componentType)
+Component* Component::GetAncestorByType(int _componentType)
 {
     if(componentType == _componentType){
         return this;
@@ -529,6 +534,7 @@ void Component::Delete(bool withSubtree)
     delete this;
 }
 
+void Component::SetName(string _name){ name = _name; }
 Component* Component::GetParent(){return parent;}
 void Component::SetParent(Component* _parent){parent = _parent;}
 vector<Component*>* Component::GetChildren(){return &children;}
@@ -550,11 +556,13 @@ void Subdivision::SetSubdivisionType(int subdivisionType){type = subdivisionType
 int Subdivision::GetSubdivisionType(){return type;}
 
 long long Numa::GetSize(){return size;}
+void Numa::SetSize(long long _size) { size = _size;}
 
 long long Memory::GetSize() {return size;}
 void Memory::SetSize(long long _size) {size = _size;}
 
 string Cache::GetCacheName(){return cache_type;}
+void Cache::SetCacheName(string _name) { cache_type = _name;}
 
 int Cache::GetCacheLevel(){
 
@@ -573,11 +581,14 @@ int Cache::GetCacheLevel(){
         return 0;
     
 }
+
+void Cache::SetCacheLevel(int _cache_level) { cache_type = to_string(_cache_level); }
 long long Cache::GetCacheSize(){return cache_size;}
 void Cache::SetCacheSize(long long _cache_size){cache_size = _cache_size;}
 int Cache::GetCacheLineSize(){return cache_line_size;}
 void Cache::SetCacheLineSize(int _cache_line_size){cache_line_size = _cache_line_size;}
 int Cache::GetCacheAssociativityWays(){return cache_associativity_ways;}
+void Cache::SetCacheAssociativityWays(int _associativity) { cache_associativity_ways = _associativity;}
 
 Component::Component(int _id, string _name, int _componentType) : id(_id), name(_name), componentType(_componentType)
 {

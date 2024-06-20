@@ -94,7 +94,9 @@ public:
     For each component in the subtree, the following is printed: "<string component type> (name <name>) id <id> - children: <num children>
     */
     void PrintSubtree();
+    
     /**
+    @private
     Helper function of PrintSubtree();, which ensures the proper indentation. Using PrintSubtree(); is recommended, however this method can be used as well.
     @param level - number of "  " to print out in front of the first component.
     @see PrintSubtree();
@@ -111,6 +113,12 @@ public:
     @see name
     */
     string GetName();
+    /**
+    Sets name of the component.
+    @param _name - name of the component
+    @see name
+    */
+    void SetName(string _name);
     /**
     Returns id of the component.
     @return id
@@ -161,10 +169,19 @@ public:
     */
     Component* GetParent();
     /**
-    Retrieve a Componet* to a child with child.id=_id.
+    Identical to GetChildById
+    Retrieve a Component* to a child with child.id=_id.
     \n Should there be more children with the same id, the first match will be retrieved (i.e. the one with lower index in the children array.)
+    @see GetChildById
     */
     Component* GetChild(int _id);
+
+    /**
+    Retrieve a Component* to a child with child.id=_id.
+    \n Should there be more children with the same id, the first match will be retrieved (i.e. the one with lower index in the children array.)
+    */
+    Component* GetChildById(int _id);
+
     /**
      * TODO
     */
@@ -174,10 +191,12 @@ public:
     */
     vector<Component*> GetAllChildrenByType(int _componentType);
     /**
+    @private
     OBSOLETE. Use GetSubcomponentById instead. This function will be removed in the future.
     */
     Component* FindSubcomponentById(int _id, int _componentType);
     /**
+    @private
     OBSOLETE. Use GetAllSubcomponentsByType instead. This function will be removed in the future.
     */
     void FindAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
@@ -210,13 +229,15 @@ public:
     @param _componentType - the desired component type
     @return Component * matching the criteria. NULL if no match found
     */
-    Component* GetAncestorType(int _componentType);
+    Component* GetAncestorByType(int _componentType);
     /**
-    OBSOLETE. Use GetAncestorType instead. This function will be removed in the future.
+    @private 
+    OBSOLETE. Use GetAncestorByType instead. This function will be removed in the future.
     */
     Component* FindParentByType(int _componentType);
 
     /**
+    @private
     OBSOLETE. Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.
     Returns the number of Components of type SYS_SAGE_COMPONENT_THREAD in the subtree.
     */
@@ -264,6 +285,7 @@ public:
     */
     vector<DataPath*>* GetDataPaths(int orientation);
     /**
+    @private
     !!Normally should not be called; Use NewDataPath() instead!!
     Stores (pushes back) a DataPath pointer to the list(std::vector) of DataPaths of this component. According to the orientation param, the proper list is chosen.
     @param p - the pointer to store
@@ -462,6 +484,7 @@ public:
     */
     void SetSize(long long _size);
     /**
+    @private
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
@@ -510,6 +533,7 @@ public:
     */
     void SetSize(long long _size);
     /**
+    @private
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
@@ -570,6 +594,7 @@ public:
     */
     int GetChipType();
     /**
+    @private
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
@@ -633,10 +658,23 @@ public:
     @returns cache level of this cache, assuming there's only 1 or no digit in the "cache_type" (e.g. "L1", "texture")
     */
     int GetCacheLevel();
+    
+    /**
+    Sets cache level of this cache using integer value (For e.g. "1" for "L1", etc.)
+    @param _cache_level - value for cache_type
+    */
+    void SetCacheLevel(int _cache_level);
+    
     /**
      * TODO
     */
     string GetCacheName();
+
+    /**
+    Sets cache name of this cache (e.g. "L1", "texture")
+    @param _cache_name - value for cache_type
+    */
+    void SetCacheName(string _name);
     /**
     @returns cache size of this cache
     */
@@ -650,6 +688,11 @@ public:
     */
     int GetCacheAssociativityWays();
     /**
+    Sets cache associativity ways of this cache
+    @param _associativity - value for cache_associativity_ways
+    */
+    void SetCacheAssociativityWays(int _associativity);
+    /**
     @returns the size of a cache line of this cache
     */
     int GetCacheLineSize();
@@ -658,6 +701,7 @@ public:
     */
     void SetCacheLineSize(int _cache_line_size);
     /**
+    @private
     !!Should normally not be caller from the outside!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
@@ -708,6 +752,7 @@ public:
     */
     int GetSubdivisionType();
     /**
+    @private
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
@@ -750,6 +795,13 @@ public:
     long long GetSize();
 
     /**
+    Set size of the Numa memory segment.
+    @param _size - size of the Numa memory segment.
+    */
+    void SetSize(long long _size);
+
+    /**
+    @private
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
