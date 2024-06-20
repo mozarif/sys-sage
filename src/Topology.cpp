@@ -171,14 +171,14 @@ int Component::GetNumThreads()
     return numPu;
 }
 
-int Component::GetTopoTreeDepth()
+int Component::GetSubtreeDepth()
 {
     if(children.empty()) //is leaf
         return 0;
     int maxDepth = 0;
     for(Component* child: children)
     {
-        int subtreeDepth = child->GetTopoTreeDepth();
+        int subtreeDepth = child->GetSubtreeDepth();
         if(subtreeDepth > maxDepth)
             maxDepth = subtreeDepth;
     }

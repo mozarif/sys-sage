@@ -310,6 +310,6 @@ static suite<"topology"> _ = []
         e.InsertChild(&f);
         a.InsertChild(&g);
 
-        expect(that % 3 == a.GetTopoTreeDepth());
+        expect(that % 3 == a.GetSubtreeDepth());
     };
 };
