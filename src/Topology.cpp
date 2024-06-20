@@ -145,12 +145,18 @@ Component* Component::GetChildByType(int _componentType)
 vector<Component*> Component::GetAllChildrenByType(int _componentType)
 {
     vector<Component*> ret;
+    GetAllChildrenByType(&ret, _componentType);
+    return ret;
+}
+
+void Component::GetAllChildrenByType(vector <Component *> *_outArray, int _componentType)
+{
     for(Component * child : children)
     {
         if(child->GetComponentType() == _componentType)
-            ret.push_back(child);
+            _outArray->push_back(child);
     }
-    return ret;
+    return;
 }
 
 int Component::GetNumThreads()
@@ -197,6 +203,13 @@ void Component::GetComponentsNLevelsDeeper(vector<Component*>* outArray, int dep
     return;
 }
 
+vector<Component*> Component::GetComponentsNLevelsDeeper(int depth)
+{
+    vector<Component*> outArray;
+    GetComponentsNLevelsDeeper(&outArray, depth);
+    return outArray;
+}
+
 void Component::GetSubcomponentsByType(vector<Component*>* outArray, int _componentType)
 {
     if(_componentType == componentType){
@@ -208,6 +221,13 @@ void Component::GetSubcomponentsByType(vector<Component*>* outArray, int _compon
     }
 }
 
+vector<Component*> Component::GetSubcomponentsByType(int _componentType)
+{
+    vector<Component*> outArray;
+    GetSubcomponentsByType(&outArray, _componentType);
+    return outArray;
+}
+
 void Component::GetSubtreeNodeList(vector<Component*>* outArray)
 {
     outArray->push_back(this);
@@ -216,6 +236,13 @@ void Component::GetSubtreeNodeList(vector<Component*>* outArray)
         child->GetSubtreeNodeList(outArray);
     }
     return;
+}
+
+vector<Component*> Component::GetSubtreeNodeList()
+{
+    vector<Component*> outArray;
+    GetSubtreeNodeList(&outArray);
+    return outArray;
 }
 
 Component* Component::FindSubcomponentById(int _id, int _componentType)

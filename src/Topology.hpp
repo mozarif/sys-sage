@@ -94,7 +94,7 @@ public:
     For each component in the subtree, the following is printed: "<string component type> (name <name>) id <id> - children: <num children>
     */
     void PrintSubtree();
-    
+
     /**
     @private
     Helper function of PrintSubtree();, which ensures the proper indentation. Using PrintSubtree(); is recommended, however this method can be used as well.
@@ -186,12 +186,26 @@ public:
      * TODO
     */
     Component* GetChildByType(int _componentType);
+
     /**
-     * TODO
+     * Searches for all the children matching the given component type.
+     * 
+     * @param _componentType - Required type of components
+     * @return A vector of all the children matching the _componentType
+     * @see void GetAllChildrenByType(vector <Component *> *_outArray, int _componentType)
     */
     vector<Component*> GetAllChildrenByType(int _componentType);
+
     /**
-    @private
+     * Searches for all the children matching the given component type.
+     * 
+     * @param _componentType - Required type of components
+     * @param outArray - output parameter (vector with results)
+        \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
+        \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
+    */
+    void GetAllChildrenByType(vector <Component *> *_outArray, int _componentType);
+    /**
     OBSOLETE. Use GetSubcomponentById instead. This function will be removed in the future.
     */
     Component* FindSubcomponentById(int _id, int _componentType);
@@ -237,7 +251,6 @@ public:
     Component* FindParentByType(int _componentType);
 
     /**
-    @private
     OBSOLETE. Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.
     Returns the number of Components of type SYS_SAGE_COMPONENT_THREAD in the subtree.
     */
@@ -257,16 +270,15 @@ public:
         \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
     */
     void GetComponentsNLevelsDeeper(vector<Component*>* outArray, int depth);
+
     /**
-    Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. The tree is traversed in order as the children are stored in each std::vector children.
+    Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. The tree is traversed in order as the children are stored in the std::vector.
     \n E.g. if depth=1, only children of the current are retrieved; if depth=2, only children of the children are retrieved..
     @param depth - how many levels down the tree should be looked
-    @param outArray - output parameter (vector with results)
-        \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
-        \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
-
+    @return A std::vector<Component*> with the results.
     */
-    void GetSubcomponentsByType(vector<Component*>* outArray, int componentType);
+    vector<Component*> GetComponentsNLevelsDeeper(int depth);
+
     /**
     Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. The tree is traversed DFS in order as the children are stored in each std::vector children.
     @param componentType - componentType
@@ -274,7 +286,28 @@ public:
         \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
         \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
     */
+    void GetSubcomponentsByType(vector<Component*>* outArray, int componentType);
+
+    /**
+    Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. The tree is traversed DFS in order as the children are stored in the std::vector.
+    @param componentType - componentType
+    @return A std::vector<Component*> with the results.
+    */
+    vector<Component*> GetSubcomponentsByType(int _componentType);
+    
+    /** 
+    Retrieves a std::vector of Component pointers, which form the subtree (current node and all the subcomponents) of this.
+    @param outArray - output parameter (vector with results)
+        \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
+        \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
+    */
     void GetSubtreeNodeList(vector<Component*>* outArray);
+
+    /**  
+    Retrieves a std::vector of Component pointers, which form the subtree (current node and all the subcomponents) of this.
+    @return A std::vector<Component*> with the results.
+    */
+    vector<Component*> GetSubtreeNodeList();
 
     /**
     Returns the DataPaths of this component according to their orientation.
@@ -669,12 +702,13 @@ public:
      * TODO
     */
     string GetCacheName();
-
+    
     /**
     Sets cache name of this cache (e.g. "L1", "texture")
     @param _cache_name - value for cache_type
     */
     void SetCacheName(string _name);
+
     /**
     @returns cache size of this cache
     */
@@ -687,6 +721,7 @@ public:
     @returns the number of the cache associativity ways of this cache
     */
     int GetCacheAssociativityWays();
+
     /**
     Sets cache associativity ways of this cache
     @param _associativity - value for cache_associativity_ways
@@ -801,7 +836,7 @@ public:
     void SetSize(long long _size);
 
     /**
-    @private
+    @private 
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
