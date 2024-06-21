@@ -29,16 +29,19 @@ class Component;
 class DataPath;
 
 /**
+ @private
 Obsolete; use DataPath() constructors directly instead
 @see DataPath()
 */
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type = SYS_SAGE_DATAPATH_TYPE_NONE);
 /**
+ * @private
 Obsolete; use DataPath() constructors directly instead
 @see DataPath()
 */
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, double _bw, double _latency);
 /**
+ * @private
 Obsolete; use DataPath() constructors directly instead
 @see DataPath()
 */
@@ -93,11 +96,25 @@ public:
     /**
     @returns Bandwidth from the source(provides the data) to the target(requests the data)
     */
-    double GetBw();
+    double GetBandwidth();
+    
+    /**
+     * Sets the bandwidth from the source to the target.
+    @param _bandwidth - value for bw
+    @see bw
+    */
+    void SetBandwidth(double _bandwidth);
     /**
     @returns Data load latency from the source(provides the data) to the target(requests the data)
     */
     double GetLatency();
+
+    /**
+     * Sets the data load latency from the source to the target.
+    @param _latency - value for latency
+    @see latency
+    */
+    void SetLatency(double _latency);
     /**
     @returns Type of the Data Path.
     @see dp_type
@@ -106,7 +123,7 @@ public:
     /**
      * TODO
     */
-    int GetOriented();
+    int GetOrientation();
 
     /**
     Prints basic information about the Data Path to stdout. Prints componentType and Id of the source and target Components, the bandwidth, load latency, and the attributes; for each attribute, the name and value are printed, however the value is only retyped to uint64_t (therefore will print nonsensical values for other data types).

@@ -14,7 +14,7 @@ static suite<"data-path"> _ = []
             DataPath dp{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
             expect(that % &a == dp.GetSource());
             expect(that % &b == dp.GetTarget());
-            expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp.GetOriented());
+            expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp.GetOrientation());
             expect(that % SYS_SAGE_DATAPATH_TYPE_PHYSICAL == dp.GetDataPathType());
         };
         "Constructor #2"_test = []
@@ -23,9 +23,9 @@ static suite<"data-path"> _ = []
             DataPath dp{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, 5.0, 42.0};
             expect(that % &a == dp.GetSource());
             expect(that % &b == dp.GetTarget());
-            expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp.GetOriented());
+            expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp.GetOrientation());
             expect(that % SYS_SAGE_DATAPATH_TYPE_NONE == dp.GetDataPathType());
-            expect(that % 5.0 == dp.GetBw());
+            expect(that % 5.0 == dp.GetBandwidth());
             expect(that % 42.0 == dp.GetLatency());
         };
         "Constructor #3"_test = []
@@ -34,9 +34,9 @@ static suite<"data-path"> _ = []
             DataPath dp{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL, 5.0, 42.0};
             expect(that % &a == dp.GetSource());
             expect(that % &b == dp.GetTarget());
-            expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp.GetOriented());
+            expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp.GetOrientation());
             expect(that % SYS_SAGE_DATAPATH_TYPE_PHYSICAL == dp.GetDataPathType());
-            expect(that % 5.0 == dp.GetBw());
+            expect(that % 5.0 == dp.GetBandwidth());
             expect(that % 42.0 == dp.GetLatency());
         };
     };
