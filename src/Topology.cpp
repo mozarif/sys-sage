@@ -312,6 +312,18 @@ int Component::CountAllSubcomponentsByType(int _componentType)
     return cnt;
 }
 
+int Component::CountAllChildrenByType(int _componentType)
+{
+    int cnt = 0;
+    for(Component * child : children)
+    {
+        if(child->GetComponentType() == _componentType)
+            cnt++;
+    }
+
+    return cnt;
+}
+
 Component* Component::FindParentByType(int _componentType)
 {
     return GetAncestorByType(_componentType);
@@ -367,6 +379,13 @@ void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, int dp_type, 
         }
     }
     return;
+}
+
+vector<DataPath*> Component::GetAllDataPathsByType(int dp_type, int orientation)
+{
+    vector<DataPath*> outDpArr;
+    GetAllDataPathsByType(&outDpArr, dp_type, orientation);
+    return outDpArr;
 }
 
 vector<DataPath*>* Component::GetDataPaths(int orientation)

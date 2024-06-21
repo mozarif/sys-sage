@@ -231,13 +231,28 @@ public:
     */
     vector<Component*> GetAllSubcomponentsByType(int _componentType);
     /**
-     * TODO
+    Counts number of subcomponents (children, their children and so on).
+
+    @return Returns number of subcomponents.
     */
     int CountAllSubcomponents();
+    
     /**
-     * TODO
+    Counts number of subcomponents (children, their children and so on) matching the requested component type.
+
+    @param _componentType - Component type to look for.
+    @return Returns number of subcomponents matching the requested component type.
     */
     int CountAllSubcomponentsByType(int _componentType);
+
+    /**
+    Counts number of children matching the requested component type.
+
+    @param _componentType - Component type to look for.
+    @return Returns number of children matching the requested component type.
+    */
+    int CountAllChildrenByType(int _componentType);
+    
     /**
     Moves up the tree until a parent of given type.
     @param _componentType - the desired component type
@@ -344,6 +359,16 @@ public:
         \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
     */
     void GetAllDataPathsByType(vector<DataPath*>* outDpArr, int dp_type, int orientation);
+
+    /**
+    Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
+    Results are returned in a vector<DataPath*>*, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
+    @param dp_type - DataPath type (dp_type) to search for.
+    @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
+    @return A std::vector<DataPath*> with the results.
+    */
+    vector<DataPath*> GetAllDataPathsByType(int dp_type, int orientation);
+
     /**
      * TODO
     */
@@ -356,6 +381,7 @@ public:
     */
     int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize);
     /**
+    @private
     Helper function of int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize); -- normally you would call this one.
     \n Calculates approximate memory footprint of the subtree of this element (including the relevant data paths). Does not count DataPaths stored in counted_dataPaths.
     @param out_component_size - output parameter (contains the footprint of the component tree elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
@@ -367,6 +393,7 @@ public:
     int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths);
 
     /**
+    @private
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
