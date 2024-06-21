@@ -333,7 +333,7 @@ public:
     @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
     @return DataPath pointer to the found data path; NULL if nothing found.
     */
-    DataPath* GetDpByType(int dp_type, int orientation);
+    DataPath* GetDataPathByType(int dp_type, int orientation);
     /**
     Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
     Results are returned in vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
@@ -343,7 +343,7 @@ public:
         \n An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
         \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
     */
-    void GetAllDpByType(vector<DataPath*>* outDpArr, int dp_type, int orientation);
+    void GetAllDataPathsByType(vector<DataPath*>* outDpArr, int dp_type, int orientation);
     /**
      * TODO
     */

@@ -19,7 +19,7 @@ Component * DataPath::GetSource() {return source;}
 Component * DataPath::GetTarget() {return target;}
 double DataPath::GetBw() {return bw;}
 double DataPath::GetLatency() {return latency;}
-int DataPath::GetDpType() {return dp_type;}
+int DataPath::GetDataPathType() {return dp_type;}
 int DataPath::GetOriented() {return oriented;}
 
 DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type): DataPath(_source, _target, _oriented, _type, -1, -1) {}

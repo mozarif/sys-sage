@@ -102,7 +102,7 @@ public:
     @returns Type of the Data Path.
     @see dp_type
     */
-    int GetDpType();
+    int GetDataPathType();
     /**
      * TODO
     */

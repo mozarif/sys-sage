@@ -336,33 +336,33 @@ void Component::AddDataPath(DataPath* p, int orientation)
         dp_incoming.push_back(p);
 }
 
-DataPath* Component::GetDpByType(int dp_type, int orientation)
+DataPath* Component::GetDataPathByType(int dp_type, int orientation)
 {
     if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
         for(DataPath* dp : dp_outgoing){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDataPathType() == dp_type)
                 return dp;
         }
     }
     if(orientation & SYS_SAGE_DATAPATH_INCOMING){
         for(DataPath* dp : dp_incoming){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDataPathType() == dp_type)
                 return dp;
         }
     }
     return NULL;
 }
-void Component::GetAllDpByType(vector<DataPath*>* outDpArr, int dp_type, int orientation)
+void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, int dp_type, int orientation)
 {
     if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
         for(DataPath* dp : dp_outgoing){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDataPathType() == dp_type)
                 outDpArr->push_back(dp);
         }
     }
     if(orientation & SYS_SAGE_DATAPATH_INCOMING){
         for(DataPath* dp : dp_incoming){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDataPathType() == dp_type)
                 outDpArr->push_back(dp);
         }
     }
