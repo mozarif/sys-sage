@@ -68,18 +68,38 @@ public:
     @see GetChild(int _id)
     */
     void InsertChild(Component * child);
+    
     /**
-     * TODO
+     * Inserts this component between a parent and one of its children. The parent component remains the parent, this Component becomes a new child of the parent, and the specified child becomes this component's child.
+     * @param parent The parent component to which this component will be inserted as a child.
+     * @param child The child component that will become the child of this component and will remain a descendant of the original parent.
+     * @param alreadyParentsChild A boolean flag indicating whether this component is already a child of the parent. 
+     *        \n If true, the function assumes that this component is already present as a child of the parent and only needs to reassign the specified child.
+     *        \n If false, the function will add this component as a new child of the parent after reassigning the specified child.
+     * @return 0 on success; 
+     *         1 if the child and parent are not child and parent in the component tree; 
+     *         2 if the component tree is corrupt (parent is a parent of child but child is not in the parent's children list); 
+     *         3 if the component tree is corrupt (parent is not a parent of child but child is in the parent's children list).
     */
     int InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild);
+    
     /**
      * Inserts this component between a parent and a (subset of) his children. The parent component remains parent, this Component becomes a new child, and the children become parent's grandchildren.
-     * @param TODO
-     * @return 0 on success, 1 on incompatible parent-children components (one or more children are not parent's children); 2 on corrupt component tree (parent is a parent of child but child is NOT in children list of parent); 3 on corrupt component tree (parent is NOT a parent of child but child is in children list of parent)
+     * @param parent The parent component to which this component will be inserted as a child.
+     * @param children A vector of child components that will become the children of this component and the grandchildren of the original parent.
+     * @param alreadyParentsChild A boolean flag indicating whether this component is already a child of the parent. 
+     *        \n If true, the function assumes that this component is already present as a child of the parent and only needs to reassign the specified children.
+     *        \n If false, the function will add this component as a new child of the parent after reassigning the specified children.
+     * @return 0 on success
+     *        \n 1 on incompatible parent-children components (one or more children are not parent's children); 
+     *        \n 2 on corrupt component tree (parent is a parent of child but child is NOT in children list of parent); 
+     *        \n 3 on corrupt component tree (parent is NOT a parent of child but child is in children list of parent)
     */
     int InsertBetweenParentAndChildren(Component* parent, vector<Component*> children, bool alreadyParentsChild);
+    
     /**
-    //TODO
+    Removes the passed component from the list of children, without completely deleting (and deallocating) the child itself
+    @param child - child to remove
     @return how many elements were deleted (normally, 0 or 1 should be possible)
     */
     int RemoveChild(Component * child);
@@ -183,7 +203,8 @@ public:
     Component* GetChildById(int _id);
 
     /**
-     * TODO
+    Retrieve a Component* to a child matching the given component type.
+    \n Should there be more children with the same type, the first match will be retrieved (i.e. the one with lower index in the children array.)
     */
     Component* GetChildByType(int _componentType);
 
@@ -191,8 +212,7 @@ public:
      * Searches for all the children matching the given component type.
      * 
      * @param _componentType - Required type of components
-     * @return A vector of all the children matching the _componentType
-     * @see void GetAllChildrenByType(vector <Component *> *_outArray, int _componentType)
+     * @returns A vector of all the children matching the _componentType
     */
     vector<Component*> GetAllChildrenByType(int _componentType);
 
@@ -222,24 +242,33 @@ public:
     @return Component * matching the criteria. Returns the first match. NULL if no match found
     */
     Component* GetSubcomponentById(int _id, int _componentType);
+    
     /**
-     * TODO
+     * Searches for all the subcomponents (children, their children and so on) matching the given component type.
+     * 
+     * @param _componentType - Required type of components
+     * @param outArray - output parameter (vector with results)
+        \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
+        \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
     */
     void GetAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
+    
     /**
-     * TODO -- make this non-public?
+     * Searches for all the subcomponents (children, their children and so on) matching the given component type.
+     * 
+     * @param _componentType - Required type of components.
+     * @returns A vector of all the subcomponents matching the _componentType.
     */
     vector<Component*> GetAllSubcomponentsByType(int _componentType);
+    
     /**
     Counts number of subcomponents (children, their children and so on).
-
     @return Returns number of subcomponents.
     */
     int CountAllSubcomponents();
     
     /**
     Counts number of subcomponents (children, their children and so on) matching the requested component type.
-
     @param _componentType - Component type to look for.
     @return Returns number of subcomponents matching the requested component type.
     */
@@ -270,12 +299,14 @@ public:
     Returns the number of Components of type SYS_SAGE_COMPONENT_THREAD in the subtree.
     */
     int GetNumThreads();
+    
     /**
     Retrieves maximal distance to a leaf (i.e. the depth of the subtree).
     \n 0=leaf, 1=children are leaves, 2=at most children's children are leaves .....
     @return maximal distance to a leaf
     */
     int GetSubtreeDepth();//0=empty, 1=1element,...
+    
     /**
     Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. The tree is traversed in order as the children are stored in std::vector children.
     \n E.g. if depth=1, only children of the current are retrieved; if depth=2, only children of the children are retrieved..
@@ -370,7 +401,15 @@ public:
     vector<DataPath*> GetAllDataPathsByType(int dp_type, int orientation);
 
     /**
-     * TODO
+    @brief Checks the consistency of the component tree starting from this component.
+
+    This function verifies that each child component has this component set as its parent.
+    It logs an error message for each child that has an incorrect parent and increments the error count.
+    The function then recursively checks the consistency of the entire subtree rooted at each child component.
+
+    @return The total number of inconsistencies found in the component tree.
+    
+    The function returns the total number of errors found in the component tree, including errors in the direct children and any nested descendants.
     */
     int CheckComponentTreeConsistency();
     /**
@@ -415,7 +454,8 @@ public:
     void Delete(bool withSubtree = true);
 
     /**
-    TODO this part
+    For storing arbitrary pieces of information or data. key denotes the name of the attribute,
+    and the value points to the data.
     */
     map<string,void*> attrib;
 protected:
@@ -536,11 +576,14 @@ public:
     */
     ~Memory() override = default;
     /**
-     * TODO
+     * Retrieves size/capacity of the memory element
+     * @return size
+     * @see size
     */
     long long GetSize();
     /**
-     * TODO
+     * Sets size/capacity of the memory element
+     * @param _size = size
     */
     void SetSize(long long _size);
     /**
@@ -585,11 +628,14 @@ public:
     */
     ~Storage() override = default;
     /**
-     * TODO
+     * Retrieves size/capacity of the storage device
+     * @return size
+     * @see size
     */
     long long GetSize();
     /**
-     * TODO
+     * Sets size/capacity of the storage device
+     * @param _size = size
     */
     void SetSize(long long _size);
     /**
@@ -630,29 +676,43 @@ public:
     */
     ~Chip() override = default;
     /**
-     * TODO
+    Sets the vendor of the chip.
+    @param _vendor - The name of the vendor to set.
     */
     void SetVendor(string _vendor);
     /**
-     * TODO
+    Gets the vendor of the chip.
+    @return The name of the vendor.
+    @see vendor
     */
     string GetVendor();
+    
     /**
-     * TODO
+    Sets the model of the chip.
+    @param _model - The model name to set.
     */
     void SetModel(string _model);
+    
     /**
-     * TODO
+    Gets the model of the chip.
+    @return The model name.
+    @see model
     */
     string GetModel();
+    
     /**
-     * TODO
+    Sets the type of the chip.
+    @param chipType - The chip type to set.
     */
     void SetChipType(int chipType);
+    
     /**
-     * TODO
+    Gets the type of the chip.
+    @return The chip type.
+    @see type
     */
     int GetChipType();
+    
     /**
     @private
     !!Should normally not be used!! Helper function of XML dump generation.
@@ -660,13 +720,30 @@ public:
     */
     xmlNodePtr CreateXmlSubtree();
 private:
-    string vendor; /**< TODO  */
-    string model; /**< TODO  */
-    int type; /**< TODO  */
+    string vendor; /**< Vendor of the chip */
+    string model; /**< Model of the chip */
+    int type; /**< Type of the chip, e.g., CPU, GPU */
 #ifdef NVIDIA_MIG
 public:
+    /**
+    Updates the MIG settings for the chip.
+    @param uuid - The UUID of the chip, default is an empty string.
+    @return Status of the update operation.
+    */
     int UpdateMIGSettings(string uuid = "");
+
+    /**
+    Gets the number of SMs for the MIG.
+    @param uuid - The UUID of the chip, default is an empty string.
+    @return The number of SMs.
+    */
     int GetMIGNumSMs(string uuid = "");
+
+    /**
+    Gets the number of cores for the MIG.
+    @param uuid - The UUID of the chip, default is an empty string.
+    @return The number of cores.
+    */
     int GetMIGNumCores(string uuid = "");
 #endif
 };
@@ -726,7 +803,9 @@ public:
     void SetCacheLevel(int _cache_level);
     
     /**
-     * TODO
+    Retrieves cache name of this cache (e.g. "L1", "texture")
+    @returns cache name 
+    @see cache_name
     */
     string GetCacheName();
     
@@ -737,11 +816,14 @@ public:
     void SetCacheName(string _name);
 
     /**
-    @returns cache size of this cache
+     * Retrieves size/capacity of the cache
+     * @return size
+     * @see size
     */
     long long GetCacheSize();
     /**
-     * TODO
+     * Sets size/capacity of the cache
+     * @param _size = size
     */
     void SetCacheSize(long long _cache_size);
     /**
@@ -759,7 +841,8 @@ public:
     */
     int GetCacheLineSize();
     /**
-     * TODO
+     * Sets the size of a cache line of this cache
+    @param _cache_line_size = cache_line_size
     */
     void SetCacheLineSize(int _cache_line_size);
     /**
@@ -806,11 +889,13 @@ public:
     */
     ~Subdivision() override = default;
     /**
-     * TODO
+     * Sets the type of the subdivision
+    @param subdivisionType = type 
     */
     void SetSubdivisionType(int subdivisionType);
     /**
-     * TODO
+    @returns the type of subdivision
+    @see type
     */
     int GetSubdivisionType();
     /**

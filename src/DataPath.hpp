@@ -121,7 +121,10 @@ public:
     */
     int GetDataPathType();
     /**
-     * TODO
+     * Retrieves the orientation of the datapath (SYS_SAGE_DATAPATH_ORIENTED or SYS_SAGE_DATAPATH_BIDIRECTIONAL)
+     * @returns orientation 
+     * @see oriented
+     * 
     */
     int GetOrientation();
 
@@ -138,18 +141,19 @@ public:
     void DeleteDataPath();
 
     /**
-     * TODO
+    For storing arbitrary pieces of information or data. key denotes the name of the attribute,
+    and the value points to the data.
     */
     map<string,void*> attrib;
 private:
-    Component * source; /**< TODO */
-    Component * target; /**< TODO */
+    Component * source; /**< source component of the datapath */
+    Component * target; /**< taget component of the datapath */
 
-    const int oriented; /**< TODO */
-    const int dp_type; /**< TODO */
+    const int oriented; /**< orientation of the datapath (SYS_SAGE_DATAPATH_ORIENTED or SYS_SAGE_DATAPATH_BIDIRECTIONAL) */
+    const int dp_type; /**< type of the datapath */
 
-    double bw; /**< TODO */
-    double latency; /**< TODO */
+    double bw; /**< Bandwidth from the source(provides the data) to the target(requests the data) */
+    double latency; /**< Data load latency from the source(provides the data) to the target(requests the data) */
 
 };
 
