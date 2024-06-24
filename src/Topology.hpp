@@ -57,7 +57,8 @@ public:
     */
     Component(Component * parent, int _id = 0, string _name = "unknown", int _componentType = SYS_SAGE_COMPONENT_NONE);
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     virtual ~Component() = default;
     /**
@@ -502,7 +503,8 @@ public:
     */
     Topology();
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Topology() override = default;
 private:
@@ -530,7 +532,8 @@ public:
     */
     Node(Component * parent, int _id = 0, string _name = "Node");
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Node() override = default;
 #ifdef CPUINFO
@@ -572,7 +575,8 @@ public:
     */
     Memory(Component * parent, int id = 0, string _name = "Memory", long long _size = -1);
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Memory() override = default;
     /**
@@ -624,7 +628,8 @@ public:
     */
     Storage(Component * parent);
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Storage() override = default;
     /**
@@ -672,7 +677,8 @@ public:
     */
     Chip(Component * parent, int _id = 0, string _name = "Chip", int _type = SYS_SAGE_CHIP_TYPE_NONE);
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Chip() override = default;
     /**
@@ -787,7 +793,8 @@ public:
     */
     Cache(Component * parent, int _id = 0, int _cache_level = 0, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Cache() override = default;
 
@@ -885,7 +892,8 @@ public:
     */
     Subdivision(Component * parent, int _id = 0, string _name = "Subdivision", int _componentType = SYS_SAGE_COMPONENT_SUBDIVISION);
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Subdivision() override = default;
     /**
@@ -932,7 +940,8 @@ public:
     */
     Numa(Component * parent, int _id = 0, long long _size = -1);
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Numa() override = default;
     /**
@@ -979,7 +988,8 @@ public:
     */
     Core(Component * parent, int _id = 0, string _name = "Core");
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Core() override = default;
 private:
@@ -1016,7 +1026,8 @@ public:
     */    
     Thread(Component * parent, int _id = 0, string _name = "Thread");
     /**
-     * TODO
+    * @private
+    * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Thread() override = default;
 
