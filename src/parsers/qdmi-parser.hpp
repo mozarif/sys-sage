@@ -1,7 +1,7 @@
 /**
- * @file qdmi-parser.hpp
- * @brief sys-sage's interface to QDMI. Based on MQSS's global FOMAC.
- */
+* @file qdmi-parser.hpp
+* @brief sys-sage's interface to QDMI.
+*/
 
 #ifndef QDMI_Parser_HPP
 #define QDMI_Parser_HPP
@@ -22,19 +22,15 @@ extern "C"
     {
     public:
         QDMI_Parser();
-        int initiateSession();
         std::vector<std::pair <std::string, QDMI_Device>> get_available_backends();
 
         int get_num_qubits(QDMI_Device dev);
-        /**********Maybe remove this*****************************/ 
-        void set_qubits(QDMI_Device dev, int device_index);
-        /*********************************************************/
-        void getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubit, std::vector<int> &coupling_mapping, int &coupling_map_size);
-        void getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit);
-        void setQubits(QuantumBackend *backend, QDMI_Device dev);
-        void setGateSets(QuantumBackend *backend, QDMI_Device dev);
         void createQcTopo(Topology *topo);
         void createQcTopo(QuantumBackend *topo, QDMI_Device dev);
+        
+        /**********TODO: remove this*****************************/ 
+        void set_qubits(QDMI_Device dev, int device_index);
+        /*********************************************************/
         static void refreshQubitProprties(QuantumBackend *qc, Qubit *qubit)
         {
             //     //auto quantum_backends = get_available_backends();
@@ -44,8 +40,13 @@ extern "C"
             //     //QDMI_query_qubit_property(QDMI_Device dev, QDMI_Qubit_property prop, QDMI_Qubit qubit, int* coupling_map);
         }
     private:
+        int initiateSession();
         static QInfo info;
         static QDMI_Session session;
+        void getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubit, std::vector<int> &coupling_mapping, int &coupling_map_size);
+        void getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit);
+        void setQubits(QuantumBackend *backend, QDMI_Device dev);
+        void setGateSets(QuantumBackend *backend, QDMI_Device dev);
         //TODO: Is this needed?
         std::map < int, std::vector <QDMI_Qubit_impl_d >> _qubits;
     };

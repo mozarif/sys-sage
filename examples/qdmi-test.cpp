@@ -15,6 +15,7 @@ int main()
 {
     std::cout << std::setprecision(15);
     // Create an instance of the interface
+    // To-Do: Consider QDMI_Parser as a static class
     QDMI_Parser qdmi;
 
     // Use QDMI_Parser to create the topology of either all the backends or one of the backends
@@ -43,7 +44,7 @@ int main()
     auto _1q_gates = qc->Get1QGates();
     auto _2q_gates = qc->Get2QGates();
     auto _mq_gates = qc->GetMQGates();
-    auto _0q_gates = qc->GetInvalidTypeGates();
+    auto _0q_gates = qc->GetNoTypeGates();
 
     if(_1q_gates.size())
     {

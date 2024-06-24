@@ -177,12 +177,13 @@ extern "C" void QDMI_Parser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubi
         // QDMI_Qubit_property prop_index;
         QDMI_Qubit_property prop_index = new (QDMI_Qubit_property_impl_t);
         prop_index->name = prop[i];
-        int err = QDMI_query_qubit_property_exists(dev, prop_index, qubit, &scope);
+        int err = QDMI_query_qubit_property_exists(dev, qubit, prop_index, &scope);
         if(err)
         {
             std::cout << "   [sys-sage]...............Queried property doesn't exist: " << i <<"\n";
             continue;
         }
+        err = QDMI_query_qubit_property_type(dev, qubit, prop_index);
         if(prop_index->type == QDMI_DOUBLE){
             err = QDMI_query_qubit_property_d(dev, qubit, prop_index, &value);
             if(err)

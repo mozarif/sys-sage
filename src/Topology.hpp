@@ -873,9 +873,11 @@ public:
 
     std::vector<QuantumGate*> GetMQGates() const;
 
-    std::vector<QuantumGate*> GetInvalidTypeGates() const;
+    std::vector<QuantumGate*> GetNoTypeGates() const;
 
     std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
+
+    std::vector<QuantumGate*> GetAllGateTypes() const;
 
     int GetNumberofGates() const;
 
@@ -886,11 +888,8 @@ public:
 private:
     int num_qubits;
     int num_gates;
-
-    std::vector <QuantumGate*> _0q_gates; // For gates with gate_size = 0
-    std::vector <QuantumGate*> _1q_gates;
-    std::vector <QuantumGate*> _2q_gates;
-    std::vector <QuantumGate*> _mq_gates;
+    // To-DO: Use only one gates memeber
+    std::vector <QuantumGate*> gate_types;
 };
 
 class Qubit : public Component {
@@ -939,7 +938,7 @@ private:
     double _readout_length;
 };
 
-
+// TO DO: May be keep this as a nested class
 class QuantumGate {
 
 public:
