@@ -309,6 +309,14 @@ public:
     int GetSubtreeDepth();//0=empty, 1=1element,...
     
     /**
+    Retrieves Nth ancestor, which resides N levels above. 
+    \n E.g. if n=1, the parent is retrieved; if n=2, the grandparent is retrieved and so on.
+    @param n - how many levels above the tree should be looked.
+    @returns The ancestor residing N levels above.
+    */
+    Component* GetNthAncestor(int n);
+
+    /**
     Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. The tree is traversed in order as the children are stored in std::vector children.
     \n E.g. if depth=1, only children of the current are retrieved; if depth=2, only children of the children are retrieved..
     @param depth - how many levels down the tree should be looked
@@ -316,7 +324,7 @@ public:
         \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
         \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
     */
-    void GetComponentsNLevelsDeeper(vector<Component*>* outArray, int depth);
+    void GetNthDescendents(vector<Component*>* outArray, int depth);
 
     /**
     Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. The tree is traversed in order as the children are stored in the std::vector.
@@ -324,7 +332,7 @@ public:
     @param depth - how many levels down the tree should be looked
     @return A std::vector<Component*> with the results.
     */
-    vector<Component*> GetComponentsNLevelsDeeper(int depth);
+    vector<Component*> GetNthDescendents(int depth);
 
     /**
     Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. The tree is traversed DFS in order as the children are stored in each std::vector children.

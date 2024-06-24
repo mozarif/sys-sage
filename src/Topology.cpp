@@ -185,7 +185,30 @@ int Component::GetSubtreeDepth()
     return maxDepth + 1;
 }
 
-void Component::GetComponentsNLevelsDeeper(vector<Component*>* outArray, int depth)
+Component* Component::GetNthAncestor(int n)
+{
+    // For cases with incorrect inputs (0 and negative values)
+    if (n < 0)
+        return nullptr; // n can't be negative
+    else if(n == 0)
+        return this; // n = 0 means "this"
+    
+    Component* parent = GetParent();
+    
+    // No parent means no further ancestors, the search can be stopped here.
+    if(parent == nullptr)
+        return nullptr; 
+    
+    // base case
+    if(n == 1) 
+    {
+        return parent;
+    }
+    return parent->GetNthAncestor(n - 1);
+        
+}
+
+void Component::GetNthDescendents(vector<Component*>* outArray, int depth)
 {
     
     if(depth <= 0)
@@ -198,15 +221,15 @@ void Component::GetComponentsNLevelsDeeper(vector<Component*>* outArray, int dep
     {   
         cout << GetComponentTypeStr() << " (name " << name << ") id " << id << " - children: " << children.size();
         cout << " depth: " << depth<<"\n";
-        child->GetComponentsNLevelsDeeper(outArray, depth - 1);
+        child->GetNthDescendents(outArray, depth - 1);
     }
     return;
 }
 
-vector<Component*> Component::GetComponentsNLevelsDeeper(int depth)
+vector<Component*> Component::GetNthDescendents(int depth)
 {
     vector<Component*> outArray;
-    GetComponentsNLevelsDeeper(&outArray, depth);
+    GetNthDescendents(&outArray, depth);
     return outArray;
 }
 

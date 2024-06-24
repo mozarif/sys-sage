@@ -239,7 +239,7 @@ static suite<"topology"> _ = []
         c.InsertChild(&d);
 
         std::vector<Component *> array;
-        a.GetComponentsNLevelsDeeper(&array, 1);
+        a.GetNthDescendents(&array, 1);
         expect(that % 2_u == array.size());
     };
 
