@@ -33,18 +33,21 @@ class DataPath;
 Obsolete; use DataPath() constructors directly instead
 @see DataPath()
 */
+[[deprecated("Use DataPath() constructors directly instead.")]]
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type = SYS_SAGE_DATAPATH_TYPE_NONE);
 /**
  * @private
 Obsolete; use DataPath() constructors directly instead
 @see DataPath()
 */
+[[deprecated("Use DataPath() constructors directly instead.")]]
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, double _bw, double _latency);
 /**
  * @private
 Obsolete; use DataPath() constructors directly instead
 @see DataPath()
 */
+[[deprecated("Use DataPath() constructors directly instead.")]]
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type, double _bw, double _latency);
 
 /**

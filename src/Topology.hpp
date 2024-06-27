@@ -229,11 +229,13 @@ public:
     /**
     OBSOLETE. Use GetSubcomponentById instead. This function will be removed in the future.
     */
+    [[deprecated("Use GetSubcomponentById instead. This function will be removed in the future.")]]
     Component* FindSubcomponentById(int _id, int _componentType);
     /**
     @private
     OBSOLETE. Use GetAllSubcomponentsByType instead. This function will be removed in the future.
     */
+   [[deprecated("Use GetAllSubcomponentsByType instead. This function will be removed in the future.")]]
     void FindAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
     /**
     Searches the subtree to find a component with a matching id and componentType, i.e. looks for a certain component with a matching ID. The search is a DFS. The search starts with the calling component.
@@ -293,12 +295,14 @@ public:
     @private 
     OBSOLETE. Use GetAncestorByType instead. This function will be removed in the future.
     */
+   [[deprecated("Use GetAncestorByType instead. This function will be removed in the future.")]]
     Component* FindParentByType(int _componentType);
 
     /**
     OBSOLETE. Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.
     Returns the number of Components of type SYS_SAGE_COMPONENT_THREAD in the subtree.
     */
+   [[deprecated("Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.")]]
     int GetNumThreads();
     
     /**
