@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     //time get a vector with all Components (of hwloc parser)
     hwlocComponentList.clear();
     t_start = high_resolution_clock::now();
-    n->GetSubtreeNodeList(&hwlocComponentList);
+    n->GetComponentsInSubtree(&hwlocComponentList);
     t_end = high_resolution_clock::now();
     uint64_t time_GetHwlocSubtreeNodeList = t_end.time_since_epoch().count()-t_start.time_since_epoch().count()-timer_overhead;
 
@@ -112,14 +112,14 @@ int main(int argc, char *argv[])
     //time get a vector with all Components (of mt4g parser)
     mt4gComponentList.clear();
     t_start = high_resolution_clock::now();
-    gpu->GetSubtreeNodeList(&mt4gComponentList);
+    gpu->GetComponentsInSubtree(&mt4gComponentList);
     t_end = high_resolution_clock::now();
     uint64_t time_GetMt4gSubtreeNodeList = t_end.time_since_epoch().count()-t_start.time_since_epoch().count()-timer_overhead;
 
     //time get a vector with all Components
     allComponentList.clear();
     t_start = high_resolution_clock::now();
-    t->GetSubtreeNodeList(&allComponentList);
+    t->GetComponentsInSubtree(&allComponentList);
     t_end = high_resolution_clock::now();
     uint64_t time_GetAllComponentsList = t_end.time_since_epoch().count()-t_start.time_since_epoch().count()-timer_overhead;
 

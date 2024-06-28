@@ -289,7 +289,7 @@ static suite<"topology"> _ = []
         a.InsertChild(&c);
 
         std::vector<Component *> array;
-        a.GetSubtreeNodeList(&array);
+        a.GetComponentsInSubtree(&array);
         expect(that % array == (std::vector<Component *>{&a, &b, &d, &c}));
     };
 

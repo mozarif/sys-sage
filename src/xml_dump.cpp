@@ -245,7 +245,7 @@ int exportToXml(Component* root, string path, std::function<int(string,void*,str
 
     //scan all Components for their DataPaths
     vector<Component*> components;
-    root->GetSubtreeNodeList(&components);
+    root->GetComponentsInSubtree(&components);
     std::cout << "Number of components to export: " << components.size() << std::endl;
     for(Component* cPtr : components)
     {

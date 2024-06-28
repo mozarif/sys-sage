@@ -137,12 +137,12 @@ public:
     void Print();
 
     /**
-    Deletes and de-allocated the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of source and target Components.
+    Deletes and de-allocates the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of source and target Components.
     @see dp_incoming
     @see dp_outgoing
     */
     void DeleteDataPath();
-
+    
     /**
     For storing arbitrary pieces of information or data. key denotes the name of the attribute,
     and the value points to the data.

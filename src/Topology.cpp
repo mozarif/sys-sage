@@ -22,7 +22,7 @@ void Component::PrintSubtree(int level)
 void Component::PrintAllDataPathsInSubtree()
 {
     vector<Component*> subtreeList;
-    GetSubtreeNodeList(&subtreeList);
+    GetComponentsInSubtree(&subtreeList);
     for(Component * c : subtreeList)
     {   
         vector<DataPath*>* dp_in = c->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
@@ -251,20 +251,20 @@ vector<Component*> Component::GetSubcomponentsByType(int _componentType)
     return outArray;
 }
 
-void Component::GetSubtreeNodeList(vector<Component*>* outArray)
+void Component::GetComponentsInSubtree(vector<Component*>* outArray)
 {
     outArray->push_back(this);
     for(Component * child : children)
     {
-        child->GetSubtreeNodeList(outArray);
+        child->GetComponentsInSubtree(outArray);
     }
     return;
 }
 
-vector<Component*> Component::GetSubtreeNodeList()
+vector<Component*> Component::GetComponentsInSubtree()
 {
     vector<Component*> outArray;
-    GetSubtreeNodeList(&outArray);
+    GetComponentsInSubtree(&outArray);
     return outArray;
 }
 
@@ -546,6 +546,11 @@ int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dat
     return component_size + dataPathSize + subtreeSize;
 }
 
+
+void Component::DeleteDataPath(DataPath * dp)
+{
+    dp->DeleteDataPath();
+}
 
 void Component::DeleteAllDataPaths()
 {

@@ -360,13 +360,13 @@ public:
         \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
         \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
     */
-    void GetSubtreeNodeList(vector<Component*>* outArray);
+    void GetComponentsInSubtree(vector<Component*>* outArray);
 
     /**  
     Retrieves a std::vector of Component pointers, which form the subtree (current node and all the subcomponents) of this.
     @return A std::vector<Component*> with the results.
     */
-    vector<Component*> GetSubtreeNodeList();
+    vector<Component*> GetComponentsInSubtree();
 
     /**
     Returns the DataPaths of this component according to their orientation.
@@ -451,6 +451,12 @@ public:
     */
     xmlNodePtr CreateXmlSubtree();
     
+    /**
+    Deletes and de-allocates the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of the Components.
+    @param dp - DataPath to Delete
+    */
+    void DeleteDataPath(DataPath * dp);
+
     /**
     Deletes all DataPaths of this component.
     */
