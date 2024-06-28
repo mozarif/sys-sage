@@ -57,13 +57,13 @@ int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, strin
 
         if(cpu_is_source){
             src_cpu_id = stoi(benchmarkData[i][src_cpu_idx]);
-            src = rootComponent->FindSubcomponentById(src_cpu_id, SYS_SAGE_COMPONENT_THREAD);
+            src = rootComponent->GetSubcomponentById(src_cpu_id, SYS_SAGE_COMPONENT_THREAD);
         }else{
             src_numa_id = stoi(benchmarkData[i][src_numa_idx]);
-            src = rootComponent->FindSubcomponentById(src_numa_id, SYS_SAGE_COMPONENT_NUMA);
+            src = rootComponent->GetSubcomponentById(src_numa_id, SYS_SAGE_COMPONENT_NUMA);
         }
         target_numa_id = stoi(benchmarkData[i][target_numa_idx]);
-        target = rootComponent->FindSubcomponentById(target_numa_id, SYS_SAGE_COMPONENT_NUMA);
+        target = rootComponent->GetSubcomponentById(target_numa_id, SYS_SAGE_COMPONENT_NUMA);
         if(src == NULL || target == NULL)
             cerr << "error: could not find components; skipping " << endl;
         else{

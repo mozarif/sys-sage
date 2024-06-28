@@ -166,7 +166,7 @@ int Component::GetNumThreads()
     int numPu = 0;
     for(Component * child: children)
     {
-        numPu += child->GetNumThreads();
+        numPu += child->CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD);
     }
     return numPu;
 }
@@ -358,7 +358,7 @@ Component* Component::GetAncestorByType(int _componentType)
         return this;
     }
     if(parent != NULL){
-        return parent->FindParentByType(_componentType);
+        return parent->GetAncestorByType(_componentType);
     }
     return NULL;
 }

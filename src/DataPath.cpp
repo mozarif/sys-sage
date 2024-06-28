@@ -4,15 +4,17 @@
 #include <algorithm>
 
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type){
-    return NewDataPath(_source,_target,_oriented,_type,(double)-1,(double)-1);
+    DataPath *dp = new DataPath(_source, _target, _oriented, _type, -1, -1);
+    return dp;
 }
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, double _bw, double _latency){
-    return NewDataPath(_source,_target,_oriented,SYS_SAGE_DATAPATH_TYPE_NONE,_bw,_latency);
+    DataPath *dp = new DataPath(_source,_target,_oriented,SYS_SAGE_DATAPATH_TYPE_NONE,_bw,_latency);
+    return dp;
 }
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type, double _bw, double _latency)
 {
-    DataPath* p = new DataPath(_source, _target, _oriented, _type, _bw, _latency);
-    return p;
+    DataPath* dp = new DataPath(_source, _target, _oriented, _type, _bw, _latency);
+    return dp;
 }
 
 Component * DataPath::GetSource() {return source;}

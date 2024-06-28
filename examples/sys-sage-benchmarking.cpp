@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     unsigned total_size = n->GetTopologySize(&hwloc_component_size, &caps_numa_dataPathSize);
 
     //for NUMA 0 get NUMA with min BW
-    Numa * numa = (Numa*)n->FindSubcomponentById(0, SYS_SAGE_COMPONENT_NUMA);
+    Numa * numa = (Numa*)n->GetSubcomponentById(0, SYS_SAGE_COMPONENT_NUMA);
     if(numa==NULL){ cerr << "numa 0 not found in sys-sage" << endl; return 1;}
     unsigned int max_bw = 0;
     Component* max_bw_component = NULL;

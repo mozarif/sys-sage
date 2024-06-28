@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     }
     cout << "-- End parseHwlocOutput" << endl;
 
-    cout << "Total num HW threads: " << topo->GetNumThreads() << endl;
+    cout << "Total num HW threads: " << topo->CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) << endl;
 
     cout << "---------------- Printing the whole tree ----------------" << endl;
     topo->PrintSubtree();
