@@ -470,6 +470,7 @@ int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dat
 {
     return GetTopologySize(out_component_size, out_dataPathSize, NULL);
 }
+
 int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths)
 {
     if(counted_dataPaths == NULL)
@@ -546,6 +547,21 @@ int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dat
     return component_size + dataPathSize + subtreeSize;
 }
 
+int Component::GetDepth(bool refresh)
+{
+    if(refresh)
+    {
+        depth = 0;
+        Component *parent = GetParent();
+        while(parent != NULL)
+        {
+            depth++;
+            parent = parent->GetParent();
+        }
+    }
+    
+    return depth;
+}
 
 void Component::DeleteDataPath(DataPath * dp)
 {

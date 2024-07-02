@@ -445,6 +445,15 @@ public:
     int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths);
 
     /**
+     * Retrieves the depth (level) of a component in the topology.
+     * @param refresh - Boolean value, if true: recalculate the position (depth) of the component in the tree,
+     *                  if false, return the already stored value
+     * @return The depth (level) of a component in the topology
+     * @see depth
+    */
+    int GetDepth(bool refresh);
+
+    /**
     @private
     !!Should normally not be used!! Helper function of XML dump generation.
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
@@ -480,7 +489,7 @@ public:
 protected:
 
     int id; /**< Numeric ID of the component. There is no requirement for uniqueness of the ID, however it is advised to have unique IDs at least in the realm of parent's children. Some tree search functions, which take the id as a search parameter search for first match, so the user is responsible to manage uniqueness in the realm of the search subtree (or should be aware of the consequences of not doing so). Component's ID is set by the constructor, and is retrieved via int GetId(); */
-    int depth; /**< TODO not implemented */
+    int depth; /**< Depth (level) of the Component in the Component Tree */
     string name; /**< Name of the component (as a string). */
     int count{-1}; /**< Can be used to represent multiple Components with the same properties. By default, it represents only 1 component, and is set to -1. */
     /**
