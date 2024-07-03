@@ -118,6 +118,21 @@ public:
     @see latency
     */
     void SetLatency(double _latency);
+    
+    /**
+     * Updates the source of the DataPath. The datapath is removed from the outgoing/incoming vectors of the old source and 
+     * added to the vectors of the newer source.
+     * @param _new_source - New source of the DataPath.
+     */
+    void UpdateSource(Component * _new_source);
+
+    /**
+     * Updates the target of the DataPath. The datapath is removed from the outgoing/incoming vectors of the old target and 
+     * added to the vectors of the newer target.
+     * @param _new_source - New target of the DataPath.
+     */
+    void UpdateTarget(Component * _new_target);
+    
     /**
     @returns Type of the Data Path.
     @see dp_type
