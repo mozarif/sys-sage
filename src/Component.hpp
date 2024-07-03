@@ -1,5 +1,5 @@
-#ifndef TOPOLOGY
-#define TOPOLOGY
+#ifndef COMPONENT
+#define COMPONENT
 
 #include <iostream>
 #include <vector>

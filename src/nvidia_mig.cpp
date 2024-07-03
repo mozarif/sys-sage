@@ -11,7 +11,7 @@
 
 #include <nvml.h>
 
-#include "Topology.hpp"
+#include "Component.hpp"
 
 
 //nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex ( nvmlDevice_t device, unsigned int  index, nvmlDevice_t* migDevice ) --> look for all mig devices and add/update them

@@ -14,7 +14,7 @@
 #include <tuple>
 #include <chrono>
 
-#include "Topology.hpp"
+#include "Component.hpp"
 
 //retrieve frequency in MHz from /proc/cpuinfo for each thread in vector<Thread*> threads
 //helper function is called by RefreshCpuCoreFrequency/RefreshFreq methods

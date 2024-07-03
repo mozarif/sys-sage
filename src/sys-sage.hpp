@@ -2,7 +2,7 @@
 #define SYS_SAGE
 
 //includes all other headers
-#include "Topology.hpp"
+#include "Component.hpp"
 #include "DataPath.hpp"
 #include "xml_dump.hpp"
 #include "parsers/hwloc.hpp"

@@ -4,7 +4,7 @@
 #include <map>
 
 #include "defines.hpp"
-#include "Topology.hpp"
+#include "Component.hpp"
 
 //Component pointing to a DataPath 
 #define SYS_SAGE_DATAPATH_NONE 1 /**< Reserved for development purposes. */

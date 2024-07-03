@@ -4,7 +4,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/src/defines.hpp)
 
 set(SOURCES
-    Topology.cpp
+    Component.cpp
     DataPath.cpp
     CAT_aware.cpp
     cpuinfo.cpp
@@ -19,7 +19,7 @@ set(SOURCES
 set(HEADERS
     sys-sage.hpp
     defines.hpp
-    Topology.hpp
+    Component.hpp
     DataPath.hpp
     xml_dump.hpp
     parsers/hwloc.hpp

@@ -9,7 +9,7 @@
 #include <cstring> //memset
 #include <limits> //numeric_limits
 
-#include "Topology.hpp"
+#include "Component.hpp"
 
 using namespace std;
 
