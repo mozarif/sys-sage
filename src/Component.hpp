@@ -563,7 +563,7 @@ public:
     * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
     */
     ~Node() override = default;
-#ifdef CPUINFO
+#ifdef PROC_CPUINFO
 public:
     int RefreshCpuCoreFrequency(bool keep_history = false);
 #endif
@@ -1021,7 +1021,7 @@ public:
     ~Core() override = default;
 private:
 
-#ifdef CPUINFO
+#ifdef PROC_CPUINFO
 public:
     int RefreshFreq(bool keep_history = false);
     void SetFreq(double _freq);
@@ -1058,7 +1058,7 @@ public:
     */
     ~Thread() override = default;
 
-#ifdef CPUINFO //defined in cpuinfo.cpp
+#ifdef PROC_CPUINFO //defined in proc_cpuinfo.cpp
 public:
     int RefreshFreq(bool keep_history = false);
     double GetFreq();

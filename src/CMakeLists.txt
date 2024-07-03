@@ -7,7 +7,7 @@ set(SOURCES
     Component.cpp
     DataPath.cpp
     intel_pqos.cpp
-    cpuinfo.cpp
+    proc_cpuinfo.cpp
     nvidia_mig.cpp
     xml_dump.cpp
     parsers/hwloc.cpp

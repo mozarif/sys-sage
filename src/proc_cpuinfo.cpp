@@ -1,8 +1,8 @@
-#ifndef CPUINFO_CPP
-#define CPUINFO_CPP
+#ifndef PROC_CPUINFO_CPP
+#define PROC_CPUINFO_CPP
 
 #include "defines.hpp"
-#ifdef CPUINFO
+#ifdef PROC_CPUINFO
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -152,5 +152,5 @@ double Thread::GetFreq()
     return c->GetFreq();
 }
 
-#endif //CPUINFO
-#endif //CPUINFO_CPP
+#endif //PROC_CPUINFO
+#endif //PROC_CPUINFO_CPP

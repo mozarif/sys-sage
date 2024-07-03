@@ -27,7 +27,7 @@ if(INTEL_PQOS)
     install(TARGETS matmul DESTINATION bin/examples)
 endif()
 
-if(CPUINFO)
+if(PROC_CPUINFO)
     add_executable(cpu-frequency cpu-frequency.cpp)
     install(TARGETS cpu-frequency DESTINATION bin/examples)
 endif()

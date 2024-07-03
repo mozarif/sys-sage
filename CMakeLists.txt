@@ -58,7 +58,7 @@ install(FILES ${sys-sage_BINARY_DIR}/pkg/sys-sage.pc
 ###Options:
 option(INTEL_PQOS "Build and install functionality regarding Intel L3 CAT" OFF)
 option(NVIDIA_MIG "Build and install functionality regarding NVidia MIG(multi-instance GPU, ampere or newer)" OFF)
-option(CPUINFO "Build and install functionality regarding Linux cpuinfo" OFF)
+option(PROC_CPUINFO "Build and install functionality regarding Linux cpuinfo" OFF)
 option(DATA_SOURCES "Build and install all data sources" OFF)
 option(DS_HWLOC "Build and install data source hwloc (Retrieves hwloc topology information)" OFF)
 option(DS_MT4G "Build and install data source mt4g (Compute and memory topology of NVidia GPUs)" OFF)
