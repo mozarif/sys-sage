@@ -56,7 +56,7 @@ install(FILES ${sys-sage_BINARY_DIR}/pkg/sys-sage.pc
 
 
 ###Options:
-option(CAT_AWARE "Build and install functionality regarding Intel L3 CAT" OFF)
+option(INTEL_PQOS "Build and install functionality regarding Intel L3 CAT" OFF)
 option(NVIDIA_MIG "Build and install functionality regarding NVidia MIG(multi-instance GPU, ampere or newer)" OFF)
 option(CPUINFO "Build and install functionality regarding Linux cpuinfo" OFF)
 option(DATA_SOURCES "Build and install all data sources" OFF)

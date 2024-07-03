@@ -35,7 +35,7 @@ cd sys-sage
 mkdir build && cd build
 cmake ..
 # build options:
-# -DCAT_AWARE=ON            - builds with Intel CAT functionality. For that, Intel-specific pqos header/library are necessary.
+# -DINTEL_PQOS=ON            - builds with Intel CAT functionality. For that, Intel-specific pqos header/library are necessary.
 # -DNVIDIA_MIG=ON           - Build and install functionality regarding NVidia MIG(multi-instance GPU, ampere or newer).
 # -DCPUINFO=ON              - Build and install functionality regarding Linux cpuinfo (only x86) -- default ON.
 # -DDATA_SOURCES=ON         - builds all data sources from folder 'data-sources' listed below. Data sources are used to collecting HW-related information, so it only makes sense to compile that on the system where the topology information is queried.

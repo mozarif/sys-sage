@@ -567,10 +567,10 @@ public:
 public:
     int RefreshCpuCoreFrequency(bool keep_history = false);
 #endif
-#ifdef CAT_AWARE //defined in CAT_aware.cpp
+#ifdef INTEL_PQOS //defined in intel_pqos.cpp
 public:
     /**
-    !!! Only if compiled with CAT_AWARE functionality, only for Intel CPUs !!!
+    !!! Only if compiled with INTEL_PQOS functionality, only for Intel CPUs !!!
     \n Creates/updates (bidirectional) data paths between all cores (class Thread) and their L3 cache segment (class Cache). The data paths of type SYS_SAGE_DATAPATH_TYPE_L3CAT contain the COS id (attrib with key "CATcos", value is of type uint64_t*) and the open L3 cache ways (attrib with key "CATL3mask", value is of type uint64_t*) to contain the current settings.
     \n Each time the method is called, new DataPath objects get created, so the last one is always the most up-to-date.
     */
@@ -1064,10 +1064,10 @@ public:
     double GetFreq();
 #endif
 
-#ifdef CAT_AWARE //defined in CAT_aware.cpp
+#ifdef INTEL_PQOS //defined in intel_pqos.cpp
 public:
         /**
-        !!! Only if compiled with CAT_AWARE functionality, only for Intel CPUs !!!
+        !!! Only if compiled with INTEL_PQOS functionality, only for Intel CPUs !!!
         \n Retrieves the L3 cache size available to this thread. This size is retrieved based on the last update with UpdateL3CATCoreCOS() -- i.e. you should call that method before.
         @returns Available L3 cache size in bytes.
         @see int UpdateL3CATCoreCOS();

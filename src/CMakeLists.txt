@@ -6,7 +6,7 @@ configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/sr
 set(SOURCES
     Component.cpp
     DataPath.cpp
-    CAT_aware.cpp
+    intel_pqos.cpp
     cpuinfo.cpp
     nvidia_mig.cpp
     xml_dump.cpp
