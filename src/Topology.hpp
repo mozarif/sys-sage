@@ -892,6 +892,25 @@ private:
     std::vector <QuantumGate*> gate_types;
 };
 
+class AtomSite : public QuantumBackend{
+public:
+    struct SiteProperties {
+
+        int nRows;
+        int nColumns;
+        int nAods;
+        int nAodIntermediateLevels;
+        int nAodCoordinates;
+        double   interQubitDistance;
+        double   interactionRadius;
+        double   blockingFactor;   
+    } properties;
+
+    std::map <std::string, double> shuttlingTimes;
+    std::map <std::string, double> shuttlingAverageFidelities;
+
+};
+
 class Qubit : public Component {
 public:
     /**
