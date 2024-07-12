@@ -3,17 +3,20 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #defines.hpp header with #cmakedefine 
 configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/src/defines.hpp)
 
+include_directories(../external_interfaces)
+set(EXT_INTF "../external_interfaces")
+
 set(SOURCES
     Component.cpp
     DataPath.cpp
-    intel_pqos.cpp
-    proc_cpuinfo.cpp
-    nvidia_mig.cpp
     xml_dump.cpp
-    parsers/hwloc.cpp
-    parsers/caps-numa-benchmark.cpp
-    parsers/mt4g.cpp
-    parsers/cccbench.cpp
+    ${EXT_INTF}/intel_pqos.cpp
+    ${EXT_INTF}/proc_cpuinfo.cpp
+    ${EXT_INTF}/nvidia_mig.cpp
+    ${EXT_INTF}/parsers/hwloc.cpp
+    ${EXT_INTF}/parsers/caps-numa-benchmark.cpp
+    ${EXT_INTF}/parsers/mt4g.cpp
+    ${EXT_INTF}/parsers/cccbench.cpp
     )
 
 set(HEADERS
@@ -22,10 +25,10 @@ set(HEADERS
     Component.hpp
     DataPath.hpp
     xml_dump.hpp
-    parsers/hwloc.hpp
-    parsers/caps-numa-benchmark.hpp
-    parsers/mt4g.hpp
-    parsers/cccbench.cpp
+    ${EXT_INTF}/parsers/hwloc.hpp
+    ${EXT_INTF}/parsers/caps-numa-benchmark.hpp
+    ${EXT_INTF}/parsers/mt4g.hpp
+    ${EXT_INTF}/parsers/cccbench.cpp
     )
 
 add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
