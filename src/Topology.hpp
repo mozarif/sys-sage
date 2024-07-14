@@ -863,7 +863,41 @@ public:
 
     int GetNumberofQubits () const;
 
-    //void SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates);
+    class QuantumGate {
+
+    public:
+        /**
+        QuantumGate constructor.
+        @param _qubits - An array of all qubits that the gate acts on.
+        @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
+            \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
+        */
+        // QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
+
+        QuantumGate();
+        QuantumGate(size_t _gate_size);
+
+        void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
+        void SetGateCouplingMap(std::vector<std::vector <Qubit*> > _coupling_mapping);
+        void SetAdditionalProperties();
+        int GetGateType() const;
+        double GetFidelity() const;
+        size_t GetGateSize() const;
+        std::string GetUnitary() const;
+        std::string GetName() const;
+
+    private:
+        int type;
+        std::string name;
+        size_t gate_size; // "No. of qubits involved"
+        int gate_length; // "Time needed to execute that gate operation"
+        std::string unitary;    
+        double fidelity;
+
+        std::vector<std::vector <Qubit*>> coupling_mapping;
+        std::vector<Component*> qubits; /**< TODO */
+        std::map <std::string, double > additional_properties;
+    };
 
     void addGate(QuantumGate *gate);
 
@@ -892,6 +926,7 @@ private:
     std::vector <QuantumGate*> gate_types;
 };
 
+// TO-DO: Choose a better name for NA and TI systems
 class AtomSite : public QuantumBackend{
 public:
     struct SiteProperties {
@@ -943,6 +978,8 @@ public:
 
     const double GetReadoutLength() const;
 
+    const double GetFrequency() const;
+
     void RefreshProperties();
 
     ~Qubit() override = default;
@@ -955,43 +992,8 @@ private:
     double _t2;
     double _readout_error;
     double _readout_length;
-};
-
-// TO DO: May be keep this as a nested class
-class QuantumGate {
-
-public:
-    /**
-    QuantumGate constructor.
-    @param _qubits - An array of all qubits that the gate acts on.
-    @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
-        \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
-    */
-    //QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
-
-    QuantumGate();
-    QuantumGate(size_t _gate_size);
-
-    void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
-    void SetGateCouplingMap(std::vector<std::vector <Qubit*> > _coupling_mapping);
-    void SetAdditionalProperties();
-    int GetGateType() const;
-    double GetFidelity() const;
-    size_t GetGateSize() const;
-    std::string GetUnitary() const;
-    std::string GetName() const;
-
-private:
-    int type;
-    std::string name;
-    size_t gate_size; // "No. of qubits involved"
-    int gate_length; // "Time needed to execute that gate operation"
-    std::string unitary;    
-    double fidelity;
-
-    std::vector<std::vector <Qubit*>> coupling_mapping;
-    std::vector<Component*> qubits; /**< TODO */
-    std::map <std::string, double > additional_properties;
+    double _fequency;
+    std::string _calibration_time;
 };
 
 #endif
