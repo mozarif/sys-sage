@@ -107,6 +107,13 @@ int main()
         std::cout << "      Readout Length: " << q->GetReadoutLength() << "\n";
     }
 
+    std::cout << "---------------- Printing Coupling Maps of all the Qubits----------------" << endl;
+    auto children = qc->GetAllCouplingMaps();
+    for (auto it = children.begin(); it != children.end(); ++it) {
+        std::cout << "{" << it->first << ", " << it->second << "}\n";
+    }
+
+
     /*******************************************Method 2**********************************************/
     // auto quantum_backends = qdmi.get_available_backends();
     // std::cout << "Total " << quantum_backends.size() << " devices found.\n";

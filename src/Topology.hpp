@@ -841,57 +841,6 @@ public:
 private:
 };
 
-class QuantumBackend : public Component {
-public:
-    /**
-    QuantumBackend constructor (no automatic insertion in the Component Tree). Sets:
-    @param _id = id, default 0
-    @param _name = name, default "QuantumBackend"
-    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
-    */
-    QuantumBackend(int _id = 0, string _name = "QuantumBackend");
-    /**
-    QuantumBackend constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
-    @param parent = the parent 
-    @param _id = id, default 0
-    @param _name = name, default "QuantumBackend"
-    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
-    */
-    QuantumBackend(Component * parent, int _id = 0, string _name = "QuantumBackend");
-
-    void SetNumberofQubits(int _num_qubits);
-
-    int GetNumberofQubits () const;
-
-    //void SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates);
-
-    void addGate(QuantumGate *gate);
-
-    std::vector<QuantumGate*> Get1QGates() const;
-
-    std::vector<QuantumGate*> Get2QGates() const;
-
-    std::vector<QuantumGate*> GetMQGates() const;
-
-    std::vector<QuantumGate*> GetNoTypeGates() const;
-
-    std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
-
-    std::vector<QuantumGate*> GetAllGateTypes() const;
-
-    int GetNumberofGates() const;
-
-    void RefreshTopology();
-
-    ~QuantumBackend() override = default;
-
-private:
-    int num_qubits;
-    int num_gates;
-    // To-DO: Use only one gates memeber
-    std::vector <QuantumGate*> gate_types;
-};
-
 class Qubit : public Component {
 public:
     /**
@@ -936,6 +885,62 @@ private:
     double _t2;
     double _readout_error;
     double _readout_length;
+};
+
+
+class QuantumBackend : public Component {
+public:
+    /**
+    QuantumBackend constructor (no automatic insertion in the Component Tree). Sets:
+    @param _id = id, default 0
+    @param _name = name, default "QuantumBackend"
+    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
+    */
+    QuantumBackend(int _id = 0, string _name = "QuantumBackend");
+    /**
+    QuantumBackend constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
+    @param parent = the parent 
+    @param _id = id, default 0
+    @param _name = name, default "QuantumBackend"
+    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
+    */
+    QuantumBackend(Component * parent, int _id = 0, string _name = "QuantumBackend");
+
+    void SetNumberofQubits(int _num_qubits);
+
+    int GetNumberofQubits () const;
+
+    //void SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates);
+
+    void addGate(QuantumGate *gate);
+
+    std::vector<QuantumGate*> Get1QGates() const;
+
+    std::vector<QuantumGate*> Get2QGates() const;
+
+    std::vector<QuantumGate*> GetMQGates() const;
+
+    std::vector<QuantumGate*> GetNoTypeGates() const;
+
+    std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
+
+    std::vector<QuantumGate*> GetAllGateTypes() const;
+
+    int GetNumberofGates() const;
+
+    std::vector<Qubit *> GetAllQubits();
+
+    std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
+
+    void RefreshTopology();
+
+    ~QuantumBackend() override = default;
+
+private:
+    int num_qubits;
+    int num_gates;
+    // To-DO: Use only one gates memeber
+    std::vector <QuantumGate*> gate_types;
 };
 
 // TO DO: May be keep this as a nested class

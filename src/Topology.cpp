@@ -666,8 +666,38 @@ std::vector<QuantumGate*> QuantumBackend::GetAllGateTypes() const
 
 int QuantumBackend::GetNumberofGates() const { return gate_types.size(); }
 
-Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUBIT){}
+std::vector<Qubit *> QuantumBackend::GetAllQubits()
+{
+    auto all_children = GetAllChildrenByType(SYS_SAGE_COMPONENT_QUBIT);
+    std::vector<Qubit *> qubits;
+    qubits.reserve(all_children.size());
+    
+    for (size_t i = 0; i < all_children.size(); ++i)
+    {
+        Qubit* q = dynamic_cast<Qubit*>(all_children[i]);
+        qubits.push_back(q);
+    }
 
+    return qubits;
+}
+
+std::set<std::pair<std::uint16_t, std::uint16_t> > QuantumBackend::GetAllCouplingMaps()
+{
+    std::set<std::pair<std::uint16_t, std::uint16_t>> result; 
+    for(auto i = 0; i < num_qubits; ++i)
+    {
+        Qubit* q = dynamic_cast<Qubit*>(GetChild(i));
+        auto coupling_map = q->GetCouplingMapping();
+        for (size_t j = 0; j < coupling_map.size(); ++j)
+        {
+            result.emplace(i, coupling_map[j]);
+        }
+    }
+
+    return result;
+}
+
+Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUBIT){}
 Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUBIT){}
 
 void Qubit::SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping)
