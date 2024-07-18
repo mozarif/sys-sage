@@ -901,12 +901,14 @@ public:
 
     void addGate(QuantumGate *gate);
 
+    // TO-DO: Remove these redundant methods
     std::vector<QuantumGate*> Get1QGates() const;
 
     std::vector<QuantumGate*> Get2QGates() const;
 
     std::vector<QuantumGate*> GetMQGates() const;
 
+    // TODO: This could be a 1Q Gate, generalize this
     std::vector<QuantumGate*> GetNoTypeGates() const;
 
     std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
