@@ -41,10 +41,10 @@ int main()
         std::cout << "}\n";
     }
     cout << "---------------- Printing Supported Gate Types for IBM Backend----------------" << endl;
-    auto _1q_gates = qc->Get1QGates();
-    auto _2q_gates = qc->Get2QGates();
-    auto _mq_gates = qc->GetMQGates();
-    auto _0q_gates = qc->GetNoTypeGates();
+    auto _1q_gates = qc->GetGatesByTypes(SYS_SAGE_1Q_QUANTUM_GATE);
+    auto _2q_gates = qc->GetGatesByTypes(SYS_SAGE_2Q_QUANTUM_GATE);
+    auto _mq_gates = qc->GetGatesByTypes(SYS_SAGE_MQ_QUANTUM_GATE);
+    auto _0q_gates = qc->GetGatesByTypes(SYS_SAGE_NO_TYPE_QUANTUM_GATE);
 
     if(_1q_gates.size())
     {

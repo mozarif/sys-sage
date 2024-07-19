@@ -37,11 +37,13 @@ extern "C" int QDMI_Parser::initiateSession()
 }
 
 // TODO: Change function name (like FOMAC_available_devices)
+// This will get the list of all the available devices and check individually if that devide is up and running.
+
 extern "C" std::vector<std::pair <std::string, QDMI_Device>> QDMI_Parser::get_available_backends()
 {
-    // TODO REPEAT PERIODICALLY WITH A DELAY
 
-    char **available_devices = get_qdmi_library_list_names();
+    // 46-74: Replace this with newer QDMI calls
+    char **available_devices = get_qdmi_library_list_names(); // --> 
     if (available_devices == NULL)
     {
         std::cout << "   [sys-sage]...............Failed to get "
@@ -57,7 +59,7 @@ extern "C" std::vector<std::pair <std::string, QDMI_Device>> QDMI_Parser::get_av
         QDMI_Device device =
             (QDMI_Device)malloc(sizeof(struct QDMI_Device_impl_d));
 
-        QDMI_Library lib = find_library_by_name(available_devices[i]);
+        QDMI_Library lib = find_library_by_name(available_devices[i]); // --> 
 
         if (!lib)
         {

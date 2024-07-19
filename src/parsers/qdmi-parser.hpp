@@ -18,6 +18,7 @@
 
 extern "C"
 {
+    // To-Do: Change the name of class
     class QDMI_Parser
     {
     public:
@@ -31,7 +32,7 @@ extern "C"
         /**********TODO: remove this*****************************/ 
         void set_qubits(QDMI_Device dev, int device_index);
         /*********************************************************/
-        static void refreshQubitProprties(QuantumBackend *qc, Qubit *qubit)
+        static void refreshQubitProperties(QuantumBackend *qc, Qubit *qubit)
         {
             //     //auto quantum_backends = get_available_backends();
 
