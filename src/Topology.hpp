@@ -841,103 +841,6 @@ public:
 private:
 };
 
-class QuantumBackend : public Component {
-public:
-    /**
-    QuantumBackend constructor (no automatic insertion in the Component Tree). Sets:
-    @param _id = id, default 0
-    @param _name = name, default "QuantumBackend"
-    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
-    */
-    QuantumBackend(int _id = 0, string _name = "QuantumBackend");
-    /**
-    QuantumBackend constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
-    @param parent = the parent 
-    @param _id = id, default 0
-    @param _name = name, default "QuantumBackend"
-    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
-    */
-    QuantumBackend(Component * parent, int _id = 0, string _name = "QuantumBackend");
-
-    void SetNumberofQubits(int _num_qubits);
-
-    int GetNumberofQubits () const;
-
-    class QuantumGate {
-
-    public:
-        /**
-        QuantumGate constructor.
-        @param _qubits - An array of all qubits that the gate acts on.
-        @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
-            \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
-        */
-        // QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
-
-        QuantumGate();
-        QuantumGate(size_t _gate_size);
-
-        void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
-        void SetGateCouplingMap(std::vector<std::vector <Qubit*> > _coupling_mapping);
-        void SetAdditionalProperties();
-        int GetGateType() const;
-        double GetFidelity() const;
-        size_t GetGateSize() const;
-        std::string GetUnitary() const;
-        std::string GetName() const;
-
-    private:
-        int type;
-        std::string name;
-        size_t gate_size; // "No. of qubits involved"
-        int gate_length; // "Time needed to execute that gate operation"
-        std::string unitary;    
-        double fidelity;
-
-        std::vector<std::vector <Qubit*>> coupling_mapping;
-        std::vector<Component*> qubits; /**< TODO */
-        std::map <std::string, double > additional_properties;
-    };
-
-    void addGate(QuantumGate *gate);
-
-    std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
-
-    std::vector<QuantumGate*> GetAllGateTypes() const;
-
-    int GetNumberofGates() const;
-
-    void RefreshTopology();
-
-    ~QuantumBackend() override = default;
-
-private:
-    int num_qubits;
-    int num_gates;
-    // To-DO: Use only one gates memeber
-    std::vector <QuantumGate*> gate_types;
-};
-
-// TO-DO: Choose a better name for NA and TI systems
-class AtomSite : public QuantumBackend{
-public:
-    struct SiteProperties {
-
-        int nRows;
-        int nColumns;
-        int nAods;
-        int nAodIntermediateLevels;
-        int nAodCoordinates;
-        double   interQubitDistance;
-        double   interactionRadius;
-        double   blockingFactor;   
-    } properties;
-
-    std::map <std::string, double> shuttlingTimes;
-    std::map <std::string, double> shuttlingAverageFidelities;
-
-};
-
 class Qubit : public Component {
 public:
     /**
@@ -987,6 +890,104 @@ private:
     double _fequency;
     std::string _calibration_time;
 };
+
+
+class QuantumBackend : public Component {
+public:
+    /**
+    QuantumBackend constructor (no automatic insertion in the Component Tree). Sets:
+    @param _id = id, default 0
+    @param _name = name, default "QuantumBackend"
+    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
+    */
+    QuantumBackend(int _id = 0, string _name = "QuantumBackend");
+    /**
+    QuantumBackend constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
+    @param parent = the parent 
+    @param _id = id, default 0
+    @param _name = name, default "QuantumBackend"
+    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
+    */
+    QuantumBackend(Component * parent, int _id = 0, string _name = "QuantumBackend");
+
+    void SetNumberofQubits(int _num_qubits);
+
+    int GetNumberofQubits () const;
+
+    void addGate(QuantumGate *gate);
+
+    std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
+
+    std::vector<QuantumGate*> GetAllGateTypes() const;
+
+    int GetNumberofGates() const;
+
+    void RefreshTopology();
+
+    ~QuantumBackend() override = default;
+
+private:
+    int num_qubits;
+    int num_gates;
+
+    std::vector <QuantumGate*> gate_types;
+};
+
+// TO-DO: Choose a better name for NA and TI systems
+class AtomSite : public QuantumBackend{
+public:
+    struct SiteProperties {
+
+        int nRows;
+        int nColumns;
+        int nAods;
+        int nAodIntermediateLevels;
+        int nAodCoordinates;
+        double   interQubitDistance;
+        double   interactionRadius;
+        double   blockingFactor;   
+    } properties;
+
+    std::map <std::string, double> shuttlingTimes;
+    std::map <std::string, double> shuttlingAverageFidelities;
+
+};
+
+class QuantumGate {
+
+    public:
+        /**
+        QuantumGate constructor.
+        @param _qubits - An array of all qubits that the gate acts on.
+        @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
+            \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
+        */
+        // QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
+
+        QuantumGate();
+        QuantumGate(size_t _gate_size);
+
+        void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
+        void SetGateCouplingMap(std::vector<std::vector <Qubit*> > _coupling_mapping);
+        void SetAdditionalProperties();
+        int GetGateType() const;
+        double GetFidelity() const;
+        size_t GetGateSize() const;
+        std::string GetUnitary() const;
+        std::string GetName() const;
+
+    private:
+        int type;
+        std::string name;
+        size_t gate_size; // "No. of qubits involved"
+        int gate_length; // "Time needed to execute that gate operation"
+        std::string unitary;    
+        double fidelity;
+
+        std::vector<std::vector <Qubit*>> coupling_mapping;
+        std::vector<Component*> qubits; /**< TODO */
+        std::map <std::string, double > additional_properties;
+    };
 
 #endif
 

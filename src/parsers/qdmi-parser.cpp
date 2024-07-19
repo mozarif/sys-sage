@@ -107,6 +107,25 @@ extern "C" int QdmiParser::get_num_qubits(QDMI_Device dev)
 
 }
 
+extern "C" void QdmiParser::getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubit, std::vector<int> &coupling_mapping, int &coupling_map_size)
+{
+
+    if (qubit->size_coupling_mapping == 0)
+    {
+        std::cout << "   [sys-sage]...............No coupling mapping for qubit\n";
+        return;
+    }
+
+    coupling_map_size = qubit->size_coupling_mapping;
+    coupling_mapping.resize(coupling_map_size);
+
+    //for (int j = 0; j < coupling_map_size; j++)
+    //{
+        // Copy the coupling_mapping from qubit_impl
+        std::copy(qubit->coupling_mapping, qubit->coupling_mapping + coupling_map_size, coupling_mapping.begin());
+    //}
+}
+
 extern "C" void QdmiParser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit)
 {
     int scope;
@@ -310,7 +329,7 @@ void QuantumBackend::RefreshTopology()
 
 void Qubit::RefreshProperties()
 {
-    QuantumBackend *qc = dynamic_cast<QuantumBackend*> (this->GetParent());
-    QdmiParser::refreshQubitProprties(qc, this);
+    // QuantumBackend *qc = dynamic_cast<QuantumBackend*> (this->GetParent());
+    // QdmiParser::refreshQubitProprties(qc, this);
     
 }
