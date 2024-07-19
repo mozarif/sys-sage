@@ -15,10 +15,10 @@ int main()
 {
     std::cout << std::setprecision(15);
     // Create an instance of the interface
-    // To-Do: Consider QDMI_Parser as a static class
-    QDMI_Parser qdmi;
+    // To-Do: Consider QdmiParser as a static class
+    QdmiParser qdmi;
 
-    // Use QDMI_Parser to create the topology of either all the backends or one of the backends
+    // Use QdmiParser to create the topology of either all the backends or one of the backends
     /*******************************************Method 1**********************************************/
 
     Topology* qc_topo = new Topology();
@@ -52,7 +52,7 @@ int main()
         std::cout << "Total " << size << " 1-Qubit gate(s)\n";
         for (int i = 0; i < size; ++i)
         {   
-            std::cout << "  Gate name:" << _1q_gates[i]->GetName() << ", ";
+            std::cout << "Gate name:" << _1q_gates[i]->GetName() << ", ";
             std::cout << "Gate size:" << _1q_gates[i]->GetGateSize() << ", ";
             std::cout << "Gate fidelity:" << _1q_gates[i]->GetFidelity() << "\n";
         }

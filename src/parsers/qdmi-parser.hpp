@@ -3,8 +3,8 @@
 * @brief sys-sage's interface to QDMI.
 */
 
-#ifndef QDMI_Parser_HPP
-#define QDMI_Parser_HPP
+#ifndef QDMIParser_HPP
+#define QDMIParser_HPP
 
 #include <iostream>
 #include <string.h>
@@ -19,10 +19,10 @@
 extern "C"
 {
     // To-Do: Change the name of class
-    class QDMI_Parser
+    class QdmiParser
     {
     public:
-        QDMI_Parser();
+        QdmiParser();
         std::vector<std::pair <std::string, QDMI_Device>> get_available_backends();
 
         int get_num_qubits(QDMI_Device dev);
@@ -54,4 +54,4 @@ extern "C"
     
 }
 
-#endif // QDMI_Parser_HPP
+#endif // QDMIParser_HPP
