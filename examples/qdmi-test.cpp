@@ -22,7 +22,7 @@ int main()
     /*******************************************Method 1**********************************************/
 
     Topology* qc_topo = new Topology();
-    qdmi.createQcTopo(qc_topo);
+    qdmi.createAllQcTopo(qc_topo);
 
     cout << "---------------- Printing the configuration of IBM Backend----------------" << endl;
     qc_topo->PrintSubtree();

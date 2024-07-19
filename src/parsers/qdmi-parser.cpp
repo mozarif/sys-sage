@@ -107,66 +107,6 @@ extern "C" int QdmiParser::get_num_qubits(QDMI_Device dev)
 
 }
 
-extern "C" void QdmiParser::set_qubits(QDMI_Device dev, int device_index)
-{
-    QDMI_Qubit qubits;
-    int err, num_qubits = 0;
-
-    err = QDMI_query_all_qubits(dev, &qubits);
-
-    if (err != QDMI_SUCCESS || qubits == NULL)
-    {
-        std::cout << "   [sys-sage]...............Could not obtain available "
-                  << "qubits via QDMI\n";
-        return;
-    }
-
-    err = QDMI_query_qubits_num(dev, &num_qubits);
-    
-    if (err != QDMI_SUCCESS || num_qubits == 0)
-    {
-        std::cout << "   [sys-sage]...............Could not obtain number of "
-                  << "available qubits via QDMI\n";
-        return;
-    }
-    else 
-    {
-        std::cout << "   [sys-sage]...............Found "
-                  << num_qubits << " qubits.\n";
-    }
-
-    _qubits[device_index] = std::vector <QDMI_Qubit_impl_d >();
-
-    for(int i = 0; i < num_qubits; ++i)
-    {
-        _qubits[device_index].push_back(qubits[i]);
-    }
-
-    free(qubits);
-
-    return;
-
-}
-
-extern "C" void QdmiParser::getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubit, std::vector<int> &coupling_mapping, int &coupling_map_size)
-{
-
-    if (qubit->size_coupling_mapping == 0)
-    {
-        std::cout << "   [sys-sage]...............No coupling mapping for qubit\n";
-        return;
-    }
-
-    coupling_map_size = qubit->size_coupling_mapping;
-    coupling_mapping.resize(coupling_map_size);
-
-    //for (int j = 0; j < coupling_map_size; j++)
-    //{
-        // Copy the coupling_mapping from qubit_impl
-        std::copy(qubit->coupling_mapping, qubit->coupling_mapping + coupling_map_size, coupling_mapping.begin());
-    //}
-}
-
 extern "C" void QdmiParser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit)
 {
     int scope;
@@ -311,10 +251,9 @@ extern "C" void QdmiParser::setGateSets(QuantumBackend *backend, QDMI_Device dev
     return;
 }
 
-extern "C" void QdmiParser::createQcTopo(Topology *topo)
+extern "C" void QdmiParser::createAllQcTopo(Topology *topo)
 {
     auto quantum_backends = get_available_backends();
-
 
     int total_quantum_backends = quantum_backends.size();
 
@@ -326,11 +265,28 @@ extern "C" void QdmiParser::createQcTopo(Topology *topo)
 
 }
 
+extern "C" Topology QdmiParser::createAllQcTopo()
+{
+
+    Topology qc_topo = Topology();
+    createAllQcTopo(&qc_topo);
+
+    return qc_topo;
+}
+
 extern "C" void QdmiParser::createQcTopo(QuantumBackend *backend, QDMI_Device dev)
 {
     backend->SetNumberofQubits(get_num_qubits(dev));
     setQubits(backend, dev);
     setGateSets(backend, dev);
+}
+
+extern "C" QuantumBackend QdmiParser::createQcTopo(QDMI_Device dev, int device_index, std::string device_name)
+{
+    QuantumBackend qc = QuantumBackend(device_index, device_name);
+    createQcTopo(&qc, dev);
+
+    return qc;
 }
 
 // extern "C" static void refreshQubitProprties(QuantumBackend *qc, Qubit *qubit)
