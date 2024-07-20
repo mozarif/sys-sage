@@ -587,7 +587,21 @@ void QuantumBackend::addGate(QuantumGate *_gate)
     gate_types.push_back(_gate);
 }
 
-std::vector<QuantumGate*> QuantumBackend::GetGatesByTypes(int _gate_type) const 
+std::vector<QuantumGate*> QuantumBackend::GetGatesBySize(size_t _gate_size) const 
+{
+    std::vector<QuantumGate*> gates;
+    gates.reserve(gate_types.size());
+    
+    for (QuantumGate * gate : gate_types)
+    {
+        if(_gate_size == gate->GetGateSize())
+            gates.emplace_back(gate);        
+    }
+    
+    return gates;
+}
+
+std::vector<QuantumGate*> QuantumBackend::GetGatesByType(size_t _gate_type) const 
 {
     std::vector<QuantumGate*> gates;
     gates.reserve(gate_types.size());
@@ -643,24 +657,44 @@ QuantumGate::QuantumGate()
     type = SYS_SAGE_1Q_QUANTUM_GATE;
 }
 
-QuantumGate::QuantumGate(size_t _gate_size) : gate_size(_gate_size)
-{
-    if (gate_size == 1)
-        type = SYS_SAGE_1Q_QUANTUM_GATE;
-    else if (gate_size == 2)
-        type = SYS_SAGE_2Q_QUANTUM_GATE;
-    else if(gate_size > 2)
-        type = SYS_SAGE_MQ_QUANTUM_GATE;
-    else  
-        type = SYS_SAGE_NO_TYPE_QUANTUM_GATE; 
-        
-}
+QuantumGate::QuantumGate(size_t _gate_size) : gate_size(_gate_size){}
 
 void QuantumGate::SetGateProperties(std::string _name, double _fidelity, std::string _unitary)
 {
     name = _name;
     fidelity = _fidelity;
     unitary = _unitary;
+    SetGateType();
+}
+
+void QuantumGate::SetGateType()
+{
+    if(gate_size == 1)
+    {
+        if(name == "id") type = SYS_SAGE_QUANTUMGATE_TYPE_ID;
+        else if(name == "rz") type = SYS_SAGE_QUANTUMGATE_TYPE_RZ;
+        else if(name == "sx") type = SYS_SAGE_QUANTUMGATE_TYPE_SX;
+        else if(name == "x") type = SYS_SAGE_QUANTUMGATE_TYPE_X;
+        else type = SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN;
+    }
+
+    else if(gate_size == 2)
+    {
+        if(name == "cx") type = SYS_SAGE_QUANTUMGATE_TYPE_CNOT;
+        else type = SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN;
+    }
+
+    else if(gate_size > 2)
+    {
+        if(name == "toffoli") type = SYS_SAGE_QUANTUMGATE_TYPE_TOFFOLI;
+        else type = SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN;
+    }
+
+    else
+    {
+        type = SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN;
+    }
+
 }
 
 int QuantumGate::GetGateType() const

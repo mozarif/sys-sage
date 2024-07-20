@@ -24,11 +24,6 @@
 #define SYS_SAGE_DATAPATH_TYPE_DATATRANSFER 1024 /**< DataPath type describing data transfer attributes. */
 #define SYS_SAGE_DATAPATH_TYPE_C2C 2048 /**< DataPath type describing cache-to-cache latencies (cccbench data source). */
 
-// QuantumGate type
-#define SYS_SAGE_QUANTUMGATE_TYPE_ID 32 /**< Identity Gate */
-#define SYS_SAGE_QUANTUMGATE_TYPE_RZ 64 /**< RZ Gate */
-#define SYS_SAGE_QUANTUMGATE_TYPE_CNOT 128 /**< CNOT Gate */
-
 using namespace std;
 class Component;
 class DataPath;

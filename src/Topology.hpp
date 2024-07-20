@@ -41,7 +41,17 @@
 #define SYS_SAGE_1Q_QUANTUM_GATE 1 /**< Quantum Gate of size 1-Qubit. */
 #define SYS_SAGE_2Q_QUANTUM_GATE 2 /**< Quantum Gate of size 2-Qubits. */
 #define SYS_SAGE_MQ_QUANTUM_GATE 4 /**< Quantum Gate of size M-Qubits (where M >2). */
-#define SYS_SAGE_NO_TYPE_QUANTUM_GATE 8 /**< Quantum Gate of size 0 or invalid size. */
+#define SYS_SAGE_NO_TYPE_QUANTUM_GATE 0 /**< Quantum Gate of size 0 or invalid size. */
+
+
+// QuantumGate type
+#define SYS_SAGE_QUANTUMGATE_TYPE_ID 32          /**< Identity Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_RZ 64          /**< RZ Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_CNOT 128       /**< CNOT Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_SX 256         /**< SX Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_X 512          /**< X Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_TOFFOLI 1024   /**< Toffoli Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN 2048   /**< Unknown Gate */
 
 using namespace std;
 class DataPath;
@@ -916,7 +926,9 @@ public:
 
     void addGate(QuantumGate *gate);
 
-    std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
+    std::vector<QuantumGate*> GetGatesBySize(size_t _gate_size) const;
+
+    std::vector<QuantumGate*> GetGatesByType(size_t _gate_type) const;
 
     std::vector<QuantumGate*> GetAllGateTypes() const;
 
@@ -958,7 +970,7 @@ class QuantumGate {
     public:
         /**
         QuantumGate constructor.
-        @param _qubits - An array of all qubits that the gate acts on.
+        @param _gate_size - No. of qubits involved in a qubit.
         @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
             \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
         */
@@ -970,6 +982,7 @@ class QuantumGate {
         void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
         void SetGateCouplingMap(std::vector<std::vector <Qubit*> > _coupling_mapping);
         void SetAdditionalProperties();
+        void SetGateType();
         int GetGateType() const;
         double GetFidelity() const;
         size_t GetGateSize() const;
@@ -977,7 +990,7 @@ class QuantumGate {
         std::string GetName() const;
 
     private:
-        int type;
+        int type; // Denotes type of the QuantumGate -- helps to distinguish between different gates (ID, RZ, etc.)
         std::string name;
         size_t gate_size; // "No. of qubits involved"
         int gate_length; // "Time needed to execute that gate operation"
