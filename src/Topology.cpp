@@ -622,6 +622,13 @@ std::vector<QuantumGate*> QuantumBackend::GetAllGateTypes() const
 
 int QuantumBackend::GetNumberofGates() const { return gate_types.size(); }
 
+void QuantumBackend::SetQDMIDevice(QDMI_Device dev)
+{
+    device = dev;
+}
+
+QDMI_Device QuantumBackend::GetQDMIDevice(){ return device; }
+
 Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUBIT){}
 
 Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUBIT){}

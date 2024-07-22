@@ -9,6 +9,8 @@
 #include "defines.hpp"
 #include "DataPath.hpp"
 #include <libxml/parser.h>
+#include <qdmi.h>
+#include <qdmi_internal.h>
 
 
 #define SYS_SAGE_COMPONENT_NONE 1 /**< class Component (do not use normally)*/
@@ -922,6 +924,10 @@ public:
 
     void SetNumberofQubits(int _num_qubits);
 
+    void SetQDMIDevice(QDMI_Device dev);
+
+    QDMI_Device GetQDMIDevice();
+
     int GetNumberofQubits () const;
 
     void addGate(QuantumGate *gate);
@@ -934,14 +940,14 @@ public:
 
     int GetNumberofGates() const;
 
-    void RefreshTopology();
+    void RefreshTopology(std::set<int> qubit_indices); // qubit_indices: indices of the qubits that need to be refreshed
 
     ~QuantumBackend() override = default;
 
 private:
     int num_qubits;
     int num_gates;
-
+    QDMI_Device device; // For refreshing the topology
     std::vector <QuantumGate*> gate_types;
 };
 

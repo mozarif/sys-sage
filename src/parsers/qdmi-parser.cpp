@@ -308,6 +308,7 @@ extern "C" QuantumBackend QdmiParser::createQcTopo(QDMI_Device dev, int device_i
     return qc;
 }
 
+
 // extern "C" static void refreshQubitProprties(QuantumBackend *qc, Qubit *qubit)
 // {
 //     //auto quantum_backends = get_available_backends();
@@ -317,19 +318,19 @@ extern "C" QuantumBackend QdmiParser::createQcTopo(QDMI_Device dev, int device_i
 //     //QDMI_query_qubit_property(QDMI_Device dev, QDMI_Qubit_property prop, QDMI_Qubit qubit, int* coupling_map);
 // }
 
-void QuantumBackend::RefreshTopology()
+void QuantumBackend::RefreshTopology(std::set<int> qubit_indices)
 {
     
-    for (auto child : *(this->GetChildren())) {
-        if (auto qubit = dynamic_cast<Qubit*>(child)) {
-            qubit->RefreshProperties();
-        }
+    for (auto q : qubit_indices) {
+        auto qubit = dynamic_cast<Qubit*>(GetChild(q));
+        qubit->RefreshProperties();
     }
 }
 
 void Qubit::RefreshProperties()
 {
-    // QuantumBackend *qc = dynamic_cast<QuantumBackend*> (this->GetParent());
-    // QdmiParser::refreshQubitProprties(qc, this);
+
+    QuantumBackend *qc = dynamic_cast<QuantumBackend*> (this->GetParent());
+    QdmiParser::refreshQubitProperties(qc->GetQDMIDevice(), this);
     
 }
