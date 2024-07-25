@@ -159,8 +159,76 @@ public:
     void DeleteDataPath();
     
     /**
-    For storing arbitrary pieces of information or data. key denotes the name of the attribute,
-    and the value points to the data.
+    * A map for storing arbitrary pieces of information or data.
+    * - The `key` denotes the name of the attribute.
+    * - The `value` points to the data, stored as a `void*`.
+    *
+    * This data structure is designed to store a wide variety of data types by
+    * utilizing pointers to void. Due to its flexibility, it is essential to manage
+    * the types and memory allocation/deallocation carefully to avoid issues such
+    * as memory leaks or undefined behavior.
+    *
+    * Usage:
+    * 
+    * 1. Adding a new key-value pair:
+    * 
+    * ```cpp
+    * std::string key = "exampleKey";
+    * int* value = new int(42); // Dynamically allocate memory for the value
+    * attrib[key] = static_cast<void*>(value); // Store the value in the map
+    * ```
+    * 
+    * 2. Retrieving data from an existing key:
+    * 
+    * ```cpp
+    * std::string key = "exampleKey";
+    * if (attrib.find(key) != attrib.end()) {
+    *     int* retrievedValue = static_cast<int*>(attrib[key]);
+    *     std::cout << "Value: " << *retrievedValue << std::endl;
+    * } else {
+    *     std::cout << "Key not found." << std::endl;
+    * }
+    * ```
+    * 
+    * 3. Checking for the existence of a key:
+    * 
+    * ```cpp
+    * std::string key = "exampleKey";
+    * if (attrib.find(key) != attrib.end()) {
+    *     std::cout << "Key exists." << std::endl;
+    * } else {
+    *     std::cout << "Key does not exist." << std::endl;
+    * }
+    * ```
+    * 
+    * 4. Removing a key-value pair and freeing memory:
+    * 
+    * ```cpp
+    * std::string key = "exampleKey";
+    * if (attrib.find(key) != attrib.end()) {
+    *     int* value = static_cast<int*>(attrib[key]);
+    *     delete value; // Free the dynamically allocated memory
+    *     attrib.erase(key); // Remove the key-value pair from the map
+    * }
+    * ```
+    * 
+    * 5. Updating the value for an existing key:
+    * 
+    * ```cpp
+    * std::string key = "exampleKey";
+    * if (attrib.find(key) != attrib.end()) {
+    *     int* oldValue = static_cast<int*>(attrib[key]);
+    *     delete oldValue; // Free the old value
+    *     int* newValue = new int(100); // Allocate new value
+    *     attrib[key] = static_cast<void*>(newValue); // Update the map
+    * }
+    * ```
+    * 
+    * Note:
+    * - Proper memory management is crucial when using `void*` pointers. Always ensure
+    *   that dynamically allocated memory is freed when no longer needed.
+    * - Type safety is not enforced, so it is important to cast pointers to the correct
+    *   type when retrieving values from the map.
     */
     map<string,void*> attrib;
 private:
