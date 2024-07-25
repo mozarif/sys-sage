@@ -1,4 +1,5 @@
 include_directories(../src) # The include path is not set in the sys-sage target because CMAKE_INCLUDE_CURRENT_DIR is used instead
+include_directories(../external_interfaces)
 
 add_subdirectory(ut)
 add_executable(test test.cpp topology.cpp datapath.cpp hwloc.cpp mt4g.cpp caps-numa-benchmark.cpp proc_cpuinfo.cpp export.cpp)
