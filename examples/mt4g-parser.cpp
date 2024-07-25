@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     }
     cout << "-- End parseGpuTopo" << endl;
 
-    cout << "Total num GPU cores: " << topo->GetNumThreads() << endl;
+    cout << "Total num GPU cores: " << topo->CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) << endl;
 
     string output_name = "sys-sage_gpu_sample_output.xml";
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
