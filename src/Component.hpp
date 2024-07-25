@@ -553,7 +553,8 @@ public:
     * - Type safety is not enforced, so it is important to cast pointers to the correct
     *   type when retrieving values from the map.
     */
-    map<string,void*> attrib;
+    std::map<std::string, void*> attrib;
+    
 protected:
 
     int id; /**< Numeric ID of the component. There is no requirement for uniqueness of the ID, however it is advised to have unique IDs at least in the realm of parent's children. Some tree search functions, which take the id as a search parameter search for first match, so the user is responsible to manage uniqueness in the realm of the search subtree (or should be aware of the consequences of not doing so). Component's ID is set by the constructor, and is retrieved via int GetId(); */
