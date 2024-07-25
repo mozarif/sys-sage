@@ -230,7 +230,8 @@ public:
     * - Type safety is not enforced, so it is important to cast pointers to the correct
     *   type when retrieving values from the map.
     */
-    map<string,void*> attrib;
+    std::map<std::string, void*> attrib;
+
 private:
     Component * source; /**< source component of the datapath */
     Component * target; /**< taget component of the datapath */
