@@ -9,6 +9,8 @@
 #include "defines.hpp"
 #include "DataPath.hpp"
 #include <libxml/parser.h>
+#include <ibm.h>
+// #include <qdmi_internal.h>
 
 
 #define SYS_SAGE_COMPONENT_NONE 1 /**< class Component (do not use normally)*/
@@ -41,7 +43,17 @@
 #define SYS_SAGE_1Q_QUANTUM_GATE 1 /**< Quantum Gate of size 1-Qubit. */
 #define SYS_SAGE_2Q_QUANTUM_GATE 2 /**< Quantum Gate of size 2-Qubits. */
 #define SYS_SAGE_MQ_QUANTUM_GATE 4 /**< Quantum Gate of size M-Qubits (where M >2). */
-#define SYS_SAGE_NO_TYPE_QUANTUM_GATE 8 /**< Quantum Gate of size 0 or invalid size. */
+#define SYS_SAGE_NO_TYPE_QUANTUM_GATE 0 /**< Quantum Gate of size 0 or invalid size. */
+
+
+// QuantumGate type
+#define SYS_SAGE_QUANTUMGATE_TYPE_ID 32          /**< Identity Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_RZ 64          /**< RZ Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_CNOT 128       /**< CNOT Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_SX 256         /**< SX Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_X 512          /**< X Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_TOFFOLI 1024   /**< Toffoli Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN 2048   /**< Unknown Gate */
 
 using namespace std;
 class DataPath;
@@ -873,6 +885,8 @@ public:
 
     const double GetReadoutLength() const;
 
+    const double GetFrequency() const;
+
     void RefreshProperties();
 
     ~Qubit() override = default;
@@ -885,6 +899,8 @@ private:
     double _t2;
     double _readout_error;
     double _readout_length;
+    double _fequency;
+    std::string _calibration_time;
 };
 
 
@@ -908,21 +924,17 @@ public:
 
     void SetNumberofQubits(int _num_qubits);
 
-    int GetNumberofQubits () const;
+    void SetQDMIDevice(QDMI_Device dev);
 
-    //void SetGateTypes(const std::vector<std::string> &_gate_types, int _num_gates);
+    QDMI_Device GetQDMIDevice();
+
+    int GetNumberofQubits () const;
 
     void addGate(QuantumGate *gate);
 
-    std::vector<QuantumGate*> Get1QGates() const;
+    std::vector<QuantumGate*> GetGatesBySize(size_t _gate_size) const;
 
-    std::vector<QuantumGate*> Get2QGates() const;
-
-    std::vector<QuantumGate*> GetMQGates() const;
-
-    std::vector<QuantumGate*> GetNoTypeGates() const;
-
-    std::vector<QuantumGate*> GetGatesByTypes(int gate_type) const;
+    std::vector<QuantumGate*> GetGatesByType(size_t _gate_type) const;
 
     std::vector<QuantumGate*> GetAllGateTypes() const;
 
@@ -932,53 +944,73 @@ public:
 
     std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
 
-    void RefreshTopology();
+    void RefreshTopology(std::set<int> qubit_indices); // qubit_indices: indices of the qubits that need to be refreshed
 
     ~QuantumBackend() override = default;
 
 private:
     int num_qubits;
     int num_gates;
-    // To-DO: Use only one gates memeber
+    QDMI_Device device; // For refreshing the topology
     std::vector <QuantumGate*> gate_types;
 };
 
-// TO DO: May be keep this as a nested class
+// TO-DO: Choose a better name for NA and TI systems
+class AtomSite : public QuantumBackend{
+public:
+    struct SiteProperties {
+
+        int nRows;
+        int nColumns;
+        int nAods;
+        int nAodIntermediateLevels;
+        int nAodCoordinates;
+        double   interQubitDistance;
+        double   interactionRadius;
+        double   blockingFactor;   
+    } properties;
+
+    std::map <std::string, double> shuttlingTimes;
+    std::map <std::string, double> shuttlingAverageFidelities;
+
+};
+
 class QuantumGate {
 
-public:
-    /**
-    QuantumGate constructor.
-    @param _qubits - An array of all qubits that the gate acts on.
-    @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
-        \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
-    */
-    //QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
+    public:
+        /**
+        QuantumGate constructor.
+        @param _gate_size - No. of qubits involved in a qubit.
+        @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
+            \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
+        */
+        // QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
 
-    QuantumGate();
-    QuantumGate(size_t _gate_size);
+        QuantumGate();
+        QuantumGate(size_t _gate_size);
 
-    void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
-    void SetGateCouplingMap(std::vector<std::vector <Qubit*> > _coupling_mapping);
-    void SetAdditionalProperties();
-    int GetGateType() const;
-    double GetFidelity() const;
-    size_t GetGateSize() const;
-    std::string GetUnitary() const;
-    std::string GetName() const;
+        void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
+        void SetGateCouplingMap(std::vector<std::vector <Qubit*> > _coupling_mapping);
+        void SetAdditionalProperties();
+        void SetGateType();
+        int GetGateType() const;
+        double GetFidelity() const;
+        size_t GetGateSize() const;
+        std::string GetUnitary() const;
+        std::string GetName() const;
 
-private:
-    int type;
-    std::string name;
-    size_t gate_size; // "No. of qubits involved"
-    int gate_length; // "Time needed to execute that gate operation"
-    std::string unitary;    
-    double fidelity;
+    private:
+        int type; // Denotes type of the QuantumGate -- helps to distinguish between different gates (ID, RZ, etc.)
+        std::string name;
+        size_t gate_size; // "No. of qubits involved"
+        int gate_length; // "Time needed to execute that gate operation"
+        std::string unitary;    
+        double fidelity;
 
-    std::vector<std::vector <Qubit*>> coupling_mapping;
-    std::vector<Component*> qubits; /**< TODO */
-    std::map <std::string, double > additional_properties;
-};
+        std::vector<std::vector <Qubit*>> coupling_mapping;
+        std::vector<Component*> qubits; /**< TODO */
+        std::map <std::string, double > additional_properties;
+    };
 
 #endif
 

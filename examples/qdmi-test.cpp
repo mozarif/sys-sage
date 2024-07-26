@@ -1,9 +1,9 @@
 /* Possible exports
 export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qinfo-src/include/
 export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qdmi-src/include
-export CONF_IBM=/home/diogenes/qdmi.git/inputs/conf.json
+export CONF_IBM=/home/diogenes/sys-sage/build/_deps/backends-src/tests/ibm_conf.json
 export QDMI_CONFIG_FILE=/home/diogenes/sys-sage/build/_deps/qdmi-src/.qdmi-config
-export PROP_IBM=/home/diogenes/qdmi.git/inputs/props.json
+export PROP_IBM=/home/diogenes/sys-sage/build/_deps/backends-src/tests/ibm_prob.json
 */
 
 #include <iostream>
@@ -15,14 +15,14 @@ int main()
 {
     std::cout << std::setprecision(15);
     // Create an instance of the interface
-    // To-Do: Consider QDMI_Parser as a static class
-    QDMI_Parser qdmi;
+    // To-Do: Consider QdmiParser as a static class
+    QdmiParser qdmi;
 
-    // Use QDMI_Parser to create the topology of either all the backends or one of the backends
+    // Use QdmiParser to create the topology of either all the backends or one of the backends
     /*******************************************Method 1**********************************************/
 
     Topology* qc_topo = new Topology();
-    qdmi.createQcTopo(qc_topo);
+    qdmi.createAllQcTopo(qc_topo);
 
     cout << "---------------- Printing the configuration of IBM Backend----------------" << endl;
     qc_topo->PrintSubtree();
@@ -41,10 +41,10 @@ int main()
         std::cout << "}\n";
     }
     cout << "---------------- Printing Supported Gate Types for IBM Backend----------------" << endl;
-    auto _1q_gates = qc->Get1QGates();
-    auto _2q_gates = qc->Get2QGates();
-    auto _mq_gates = qc->GetMQGates();
-    auto _0q_gates = qc->GetNoTypeGates();
+    auto _1q_gates = qc->GetGatesBySize(SYS_SAGE_1Q_QUANTUM_GATE);
+    auto _2q_gates = qc->GetGatesBySize(SYS_SAGE_2Q_QUANTUM_GATE);
+    auto _mq_gates = qc->GetGatesBySize(SYS_SAGE_MQ_QUANTUM_GATE);
+    auto _0q_gates = qc->GetGatesBySize(SYS_SAGE_NO_TYPE_QUANTUM_GATE);
 
     if(_1q_gates.size())
     {
@@ -52,7 +52,7 @@ int main()
         std::cout << "Total " << size << " 1-Qubit gate(s)\n";
         for (int i = 0; i < size; ++i)
         {   
-            std::cout << "  Gate name:" << _1q_gates[i]->GetName() << ", ";
+            std::cout << "Gate name:" << _1q_gates[i]->GetName() << ", ";
             std::cout << "Gate size:" << _1q_gates[i]->GetGateSize() << ", ";
             std::cout << "Gate fidelity:" << _1q_gates[i]->GetFidelity() << "\n";
         }
@@ -94,7 +94,6 @@ int main()
         }
         
     }
-    
 
     std::cout << "---------------- Printing Qubit Properties for IBM Backend----------------" << endl;
     for (int i = 0; i < total_qubits; i++)
@@ -117,8 +116,8 @@ int main()
     /*******************************************Method 2**********************************************/
     // auto quantum_backends = qdmi.get_available_backends();
     // std::cout << "Total " << quantum_backends.size() << " devices found.\n";
-    // QuantumBackend* qc_topo = new QuantumBackend(0, quantum_backends[0].first);
-    // qdmi.createQcTopo(qc_topo, quantum_backends[0].second);
+    // QuantumBackend* qc_topo = new QuantumBackend(0, "");
+    // qdmi.createQcTopo(qc_topo, quantum_backends[0]);
 
     // cout << "---------------- Printing the configuration of QLM Backend ----------------" << endl;
     // qc_topo->PrintSubtree();

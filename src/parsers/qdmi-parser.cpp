@@ -1,28 +1,28 @@
 /**
  * @file qdmi-parser.hpp
- * @brief sys-sage's interface to QDMI. Based on MQSS's global FOMAC.
+ * @brief sys-sage's interface to QDMI.
  */
 
 #include "qdmi-parser.hpp"
 
-QInfo QDMI_Parser::info; 
-QDMI_Session QDMI_Parser::session; 
+QInfo QdmiParser::info; 
+QDMI_Session QdmiParser::session; 
 
-extern "C" QDMI_Parser::QDMI_Parser()
+extern "C" QdmiParser::QdmiParser()
 {
     initiateSession();
 }
 
-extern "C" int QDMI_Parser::initiateSession()
+extern "C" int QdmiParser::initiateSession()
 {
     int err = 0;
-    QDMI_Parser::info = NULL;
-    QDMI_Parser::session = NULL;
+    QdmiParser::info = NULL;
+    QdmiParser::session = NULL;
 
-    err = QInfo_create(&QDMI_Parser::info);
+    err = QInfo_create(&QdmiParser::info);
     CHECK_ERR(err, "QInfo_create");
 
-    err = QDMI_session_init(QDMI_Parser::info, &QDMI_Parser::session);
+    err = QDMI_session_init(QdmiParser::info, &QdmiParser::session);
     CHECK_ERR(err, "QDMI_session_init");
     if (err != QDMI_SUCCESS)
     {
@@ -37,59 +37,92 @@ extern "C" int QDMI_Parser::initiateSession()
 }
 
 // TODO: Change function name (like FOMAC_available_devices)
-extern "C" std::vector<std::pair <std::string, QDMI_Device>> QDMI_Parser::get_available_backends()
-{
-    // TODO REPEAT PERIODICALLY WITH A DELAY
+// This will get the list of all the available devices and check individually if that devide is up and running.
 
-    char **available_devices = get_qdmi_library_list_names();
+extern "C" std::vector<QDMI_Device> QdmiParser::get_available_backends()
+{
+
+    // 46-74: Replace this with newer QDMI calls
+    // char **available_devices = get_qdmi_library_list_names(); // --> 
+    // if (available_devices == NULL)
+    // {
+    //     std::cout << "   [sys-sage]...............Failed to get "
+    //               << "qdmi_library_list from QDMI" << std::endl;
+
+    //     return std::vector<std::pair <std::string, QDMI_Device>>();
+    // }
+
+    // int i = 0, err = 0, status = 0;
+    // std::vector<std::pair <std::string, QDMI_Device>> registered_devices;
+    // while (available_devices[i] != NULL)
+    // {
+    //     QDMI_Device device =
+    //         (QDMI_Device)malloc(sizeof(struct QDMI_Device_impl_d));
+
+    //     QDMI_Library lib = find_library_by_name(available_devices[i]); // --> 
+
+    //     if (!lib)
+    //     {
+    //         std::cout << "   [sys-sage]...............A backend's library "
+    //                   << "could not be found" << std::endl;
+
+    //         free(available_devices[i++]);
+    //         continue;
+    //     }
+
+    //     device->library = *lib;
+
+    //     // TODO HANDLE err
+    //     err = QDMI_device_status(device, device->library.info, &status);
+
+    //     if (status)
+    //     {
+    //         const char *device_name = strrchr(available_devices[i], '/');
+    //         std::cout << "   [sys-sage]...............Available device "
+    //                   << "found: " << device_name << std::endl;
+
+    //         registered_devices.push_back(std::pair<std::string, QDMI_Device> (device_name, device));
+    //     }
+
+    //     free(available_devices[i++]);
+    // }
+    // free(available_devices);
+    int count;
+    QDMI_core_device_count(&QdmiParser::session, &count);
+
+    if(count == 0){
+        std::cout << "   [sys-sage]...............QDMI_core_device_count from QDMI returned 0." << std::endl;
+        return {};
+    }
+
+    else {
+        std::cout << "   [sys-sage]...............QDMI_core_device_count returned " << count << ".\n";
+    }
+
+    std::vector<QDMI_Device> registered_devices;
+    char **available_devices = get_qdmi_library_list_names(); // --> 
     if (available_devices == NULL)
     {
         std::cout << "   [sys-sage]...............Failed to get "
                   << "qdmi_library_list from QDMI" << std::endl;
 
-        return std::vector<std::pair <std::string, QDMI_Device>>();
+        return {};
     }
 
-    int i = 0, err = 0, status = 0;
-    std::vector<std::pair <std::string, QDMI_Device>> registered_devices;
-    while (available_devices[i] != NULL)
-    {
-        QDMI_Device device =
-            (QDMI_Device)malloc(sizeof(struct QDMI_Device_impl_d));
+    for(int i = 0; i < count; i++){
+        QDMI_Device device;
+        QDMI_core_open_device(&QdmiParser::session, i , &QdmiParser::info, &device);
 
-        QDMI_Library lib = find_library_by_name(available_devices[i]);
-
-        if (!lib)
-        {
-            std::cout << "   [sys-sage]...............A backend's library "
-                      << "could not be found" << std::endl;
-
-            free(available_devices[i++]);
-            continue;
-        }
-
-        device->library = *lib;
-
-        // TODO HANDLE err
-        err = QDMI_device_status(device, device->library.info, &status);
-
-        if (status)
-        {
-            const char *device_name = strrchr(available_devices[i], '/');
-            std::cout << "   [sys-sage]...............Available device "
-                      << "found: " << device_name << std::endl;
-
-            registered_devices.push_back(std::pair<std::string, QDMI_Device> (device_name, device));
-        }
-
-        free(available_devices[i++]);
+        // const char *device_name = strrchr(available_devices[i], '/');
+        //     std::cout << "   [sys-sage]...............Available device "
+        //               << "found: " << device_name << std::endl;
+        registered_devices.emplace_back(device);
     }
-    free(available_devices);
 
     return registered_devices;
 }
 
-extern "C" int QDMI_Parser::get_num_qubits(QDMI_Device dev)
+extern "C" int QdmiParser::get_num_qubits(QDMI_Device dev)
 {
     int err, num_qubits = 0;
 
@@ -105,48 +138,7 @@ extern "C" int QDMI_Parser::get_num_qubits(QDMI_Device dev)
 
 }
 
-extern "C" void QDMI_Parser::set_qubits(QDMI_Device dev, int device_index)
-{
-    QDMI_Qubit qubits;
-    int err, num_qubits = 0;
-
-    err = QDMI_query_all_qubits(dev, &qubits);
-
-    if (err != QDMI_SUCCESS || qubits == NULL)
-    {
-        std::cout << "   [sys-sage]...............Could not obtain available "
-                  << "qubits via QDMI\n";
-        return;
-    }
-
-    err = QDMI_query_qubits_num(dev, &num_qubits);
-    
-    if (err != QDMI_SUCCESS || num_qubits == 0)
-    {
-        std::cout << "   [sys-sage]...............Could not obtain number of "
-                  << "available qubits via QDMI\n";
-        return;
-    }
-    else 
-    {
-        std::cout << "   [sys-sage]...............Found "
-                  << num_qubits << " qubits.\n";
-    }
-
-    _qubits[device_index] = std::vector <QDMI_Qubit_impl_d >();
-
-    for(int i = 0; i < num_qubits; ++i)
-    {
-        _qubits[device_index].push_back(qubits[i]);
-    }
-
-    free(qubits);
-
-    return;
-
-}
-
-extern "C" void QDMI_Parser::getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubit, std::vector<int> &coupling_mapping, int &coupling_map_size)
+extern "C" void QdmiParser::getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubit, std::vector<int> &coupling_mapping, int &coupling_map_size)
 {
 
     if (qubit->size_coupling_mapping == 0)
@@ -165,7 +157,7 @@ extern "C" void QDMI_Parser::getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubi
     //}
 }
 
-extern "C" void QDMI_Parser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit)
+extern "C" void QdmiParser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit)
 {
     int scope;
     // Declare prop as a vector
@@ -183,7 +175,7 @@ extern "C" void QDMI_Parser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubi
             std::cout << "   [sys-sage]...............Queried property doesn't exist: " << i <<"\n";
             continue;
         }
-        err = QDMI_query_qubit_property_type(dev, qubit, prop_index);
+        // err = QDMI_query_qubit_property_type(dev, qubit, prop_index);
         if(prop_index->type == QDMI_DOUBLE){
             err = QDMI_query_qubit_property_d(dev, qubit, prop_index, &value);
             if(err)
@@ -199,7 +191,7 @@ extern "C" void QDMI_Parser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubi
     
 }
 
-extern "C" void QDMI_Parser::setQubits(QuantumBackend *backend, QDMI_Device dev)
+extern "C" void QdmiParser::setQubits(QuantumBackend *backend, QDMI_Device dev)
 {
     QDMI_Qubit qubits;
     int err, num_qubits = 0;
@@ -234,7 +226,7 @@ extern "C" void QDMI_Parser::setQubits(QuantumBackend *backend, QDMI_Device dev)
     return;
 }
 
-extern "C" void QDMI_Parser::setGateSets(QuantumBackend *backend, QDMI_Device dev)
+extern "C" void QdmiParser::setGateSets(QuantumBackend *backend, QDMI_Device dev)
 {
     QDMI_Gate gates;
     int err, num_gates;
@@ -309,27 +301,44 @@ extern "C" void QDMI_Parser::setGateSets(QuantumBackend *backend, QDMI_Device de
     return;
 }
 
-extern "C" void QDMI_Parser::createQcTopo(Topology *topo)
+extern "C" void QdmiParser::createAllQcTopo(Topology *topo)
 {
     auto quantum_backends = get_available_backends();
-
 
     int total_quantum_backends = quantum_backends.size();
 
     for (auto i = 0; i < total_quantum_backends; ++i)
     {
-        QuantumBackend* qc = new QuantumBackend(topo, i, quantum_backends[i].first);
-        createQcTopo(qc, quantum_backends[i].second);
+        QuantumBackend* qc = new QuantumBackend(topo, i);
+        createQcTopo(qc, quantum_backends[i]);
     }
 
 }
 
-extern "C" void QDMI_Parser::createQcTopo(QuantumBackend *backend, QDMI_Device dev)
+extern "C" Topology QdmiParser::createAllQcTopo()
+{
+
+    Topology qc_topo = Topology();
+    createAllQcTopo(&qc_topo);
+
+    return qc_topo;
+}
+
+extern "C" void QdmiParser::createQcTopo(QuantumBackend *backend, QDMI_Device dev)
 {
     backend->SetNumberofQubits(get_num_qubits(dev));
     setQubits(backend, dev);
     setGateSets(backend, dev);
 }
+
+extern "C" QuantumBackend QdmiParser::createQcTopo(QDMI_Device dev, int device_index, std::string device_name)
+{
+    QuantumBackend qc = QuantumBackend(device_index, device_name);
+    createQcTopo(&qc, dev);
+
+    return qc;
+}
+
 
 // extern "C" static void refreshQubitProprties(QuantumBackend *qc, Qubit *qubit)
 // {
@@ -340,19 +349,19 @@ extern "C" void QDMI_Parser::createQcTopo(QuantumBackend *backend, QDMI_Device d
 //     //QDMI_query_qubit_property(QDMI_Device dev, QDMI_Qubit_property prop, QDMI_Qubit qubit, int* coupling_map);
 // }
 
-void QuantumBackend::RefreshTopology()
+void QuantumBackend::RefreshTopology(std::set<int> qubit_indices)
 {
     
-    for (auto child : *(this->GetChildren())) {
-        if (auto qubit = dynamic_cast<Qubit*>(child)) {
-            qubit->RefreshProperties();
-        }
+    for (auto q : qubit_indices) {
+        auto qubit = dynamic_cast<Qubit*>(GetChild(q));
+        qubit->RefreshProperties();
     }
 }
 
 void Qubit::RefreshProperties()
 {
+
     QuantumBackend *qc = dynamic_cast<QuantumBackend*> (this->GetParent());
-    QDMI_Parser::refreshQubitProprties(qc, this);
+    QdmiParser::refreshQubitProperties(qc->GetQDMIDevice(), this);
     
 }
