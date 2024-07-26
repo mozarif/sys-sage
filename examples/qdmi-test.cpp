@@ -1,9 +1,9 @@
 /* Possible exports
 export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qinfo-src/include/
 export CPATH=$CPATH:/home/diogenes/sys-sage/build/_deps/qdmi-src/include
-export CONF_IBM=/home/diogenes/qdmi.git/inputs/conf.json
+export CONF_IBM=/home/diogenes/sys-sage/build/_deps/backends-src/tests/ibm_conf.json
 export QDMI_CONFIG_FILE=/home/diogenes/sys-sage/build/_deps/qdmi-src/.qdmi-config
-export PROP_IBM=/home/diogenes/qdmi.git/inputs/props.json
+export PROP_IBM=/home/diogenes/sys-sage/build/_deps/backends-src/tests/ibm_prob.json
 */
 
 #include <iostream>
@@ -109,8 +109,8 @@ int main()
     /*******************************************Method 2**********************************************/
     // auto quantum_backends = qdmi.get_available_backends();
     // std::cout << "Total " << quantum_backends.size() << " devices found.\n";
-    // QuantumBackend* qc_topo = new QuantumBackend(0, quantum_backends[0].first);
-    // qdmi.createQcTopo(qc_topo, quantum_backends[0].second);
+    // QuantumBackend* qc_topo = new QuantumBackend(0, "");
+    // qdmi.createQcTopo(qc_topo, quantum_backends[0]);
 
     // cout << "---------------- Printing the configuration of QLM Backend ----------------" << endl;
     // qc_topo->PrintSubtree();

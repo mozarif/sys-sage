@@ -28,7 +28,7 @@ extern "C"
          * Returns all the available backends registered with QDMI.
          * @return A vector of all the backends with their names and "QDMI_Device" handles
          */
-        std::vector<std::pair <std::string, QDMI_Device>> get_available_backends();
+        std::vector<QDMI_Device> get_available_backends();
 
         int get_num_qubits(QDMI_Device dev);
         /**
