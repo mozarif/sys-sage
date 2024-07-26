@@ -9,8 +9,8 @@
 #include "defines.hpp"
 #include "DataPath.hpp"
 #include <libxml/parser.h>
-#include <qdmi.h>
-#include <qdmi_internal.h>
+#include <ibm.h>
+// #include <qdmi_internal.h>
 
 
 #define SYS_SAGE_COMPONENT_NONE 1 /**< class Component (do not use normally)*/

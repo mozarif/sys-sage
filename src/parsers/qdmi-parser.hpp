@@ -11,8 +11,8 @@
 #include <vector>
 #include <map>
 #include "Topology.hpp"
-#include <qdmi.h>
-#include <qdmi_internal.h>
+#include <ibm.h>
+// #include <qdmi_internal.h>
 
 #define CHECK_ERR(a,b) { if (a!=QDMI_SUCCESS) { printf("\n[Error]: %i at %s",a,b); return 1; }}
 
@@ -28,7 +28,7 @@ extern "C"
          * Returns all the available backends registered with QDMI.
          * @return A vector of all the backends with their names and "QDMI_Device" handles
          */
-        std::vector<std::pair <std::string, QDMI_Device>> get_available_backends();
+        std::vector<QDMI_Device> get_available_backends();
 
         int get_num_qubits(QDMI_Device dev);
         /**

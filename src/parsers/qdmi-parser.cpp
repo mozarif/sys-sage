@@ -39,54 +39,85 @@ extern "C" int QdmiParser::initiateSession()
 // TODO: Change function name (like FOMAC_available_devices)
 // This will get the list of all the available devices and check individually if that devide is up and running.
 
-extern "C" std::vector<std::pair <std::string, QDMI_Device>> QdmiParser::get_available_backends()
+extern "C" std::vector<QDMI_Device> QdmiParser::get_available_backends()
 {
 
     // 46-74: Replace this with newer QDMI calls
+    // char **available_devices = get_qdmi_library_list_names(); // --> 
+    // if (available_devices == NULL)
+    // {
+    //     std::cout << "   [sys-sage]...............Failed to get "
+    //               << "qdmi_library_list from QDMI" << std::endl;
+
+    //     return std::vector<std::pair <std::string, QDMI_Device>>();
+    // }
+
+    // int i = 0, err = 0, status = 0;
+    // std::vector<std::pair <std::string, QDMI_Device>> registered_devices;
+    // while (available_devices[i] != NULL)
+    // {
+    //     QDMI_Device device =
+    //         (QDMI_Device)malloc(sizeof(struct QDMI_Device_impl_d));
+
+    //     QDMI_Library lib = find_library_by_name(available_devices[i]); // --> 
+
+    //     if (!lib)
+    //     {
+    //         std::cout << "   [sys-sage]...............A backend's library "
+    //                   << "could not be found" << std::endl;
+
+    //         free(available_devices[i++]);
+    //         continue;
+    //     }
+
+    //     device->library = *lib;
+
+    //     // TODO HANDLE err
+    //     err = QDMI_device_status(device, device->library.info, &status);
+
+    //     if (status)
+    //     {
+    //         const char *device_name = strrchr(available_devices[i], '/');
+    //         std::cout << "   [sys-sage]...............Available device "
+    //                   << "found: " << device_name << std::endl;
+
+    //         registered_devices.push_back(std::pair<std::string, QDMI_Device> (device_name, device));
+    //     }
+
+    //     free(available_devices[i++]);
+    // }
+    // free(available_devices);
+    int count;
+    QDMI_core_device_count(&QdmiParser::session, &count);
+
+    if(count == 0){
+        std::cout << "   [sys-sage]...............QDMI_core_device_count from QDMI returned 0." << std::endl;
+        return {};
+    }
+
+    else {
+        std::cout << "   [sys-sage]...............QDMI_core_device_count returned " << count << ".\n";
+    }
+
+    std::vector<QDMI_Device> registered_devices;
     char **available_devices = get_qdmi_library_list_names(); // --> 
     if (available_devices == NULL)
     {
         std::cout << "   [sys-sage]...............Failed to get "
                   << "qdmi_library_list from QDMI" << std::endl;
 
-        return std::vector<std::pair <std::string, QDMI_Device>>();
+        return {};
     }
 
-    int i = 0, err = 0, status = 0;
-    std::vector<std::pair <std::string, QDMI_Device>> registered_devices;
-    while (available_devices[i] != NULL)
-    {
-        QDMI_Device device =
-            (QDMI_Device)malloc(sizeof(struct QDMI_Device_impl_d));
+    for(int i = 0; i < count; i++){
+        QDMI_Device device;
+        QDMI_core_open_device(&QdmiParser::session, i , &QdmiParser::info, &device);
 
-        QDMI_Library lib = find_library_by_name(available_devices[i]); // --> 
-
-        if (!lib)
-        {
-            std::cout << "   [sys-sage]...............A backend's library "
-                      << "could not be found" << std::endl;
-
-            free(available_devices[i++]);
-            continue;
-        }
-
-        device->library = *lib;
-
-        // TODO HANDLE err
-        err = QDMI_device_status(device, device->library.info, &status);
-
-        if (status)
-        {
-            const char *device_name = strrchr(available_devices[i], '/');
-            std::cout << "   [sys-sage]...............Available device "
-                      << "found: " << device_name << std::endl;
-
-            registered_devices.push_back(std::pair<std::string, QDMI_Device> (device_name, device));
-        }
-
-        free(available_devices[i++]);
+        // const char *device_name = strrchr(available_devices[i], '/');
+        //     std::cout << "   [sys-sage]...............Available device "
+        //               << "found: " << device_name << std::endl;
+        registered_devices.emplace_back(device);
     }
-    free(available_devices);
 
     return registered_devices;
 }
@@ -144,7 +175,7 @@ extern "C" void QdmiParser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit
             std::cout << "   [sys-sage]...............Queried property doesn't exist: " << i <<"\n";
             continue;
         }
-        err = QDMI_query_qubit_property_type(dev, qubit, prop_index);
+        // err = QDMI_query_qubit_property_type(dev, qubit, prop_index);
         if(prop_index->type == QDMI_DOUBLE){
             err = QDMI_query_qubit_property_d(dev, qubit, prop_index, &value);
             if(err)
@@ -278,8 +309,8 @@ extern "C" void QdmiParser::createAllQcTopo(Topology *topo)
 
     for (auto i = 0; i < total_quantum_backends; ++i)
     {
-        QuantumBackend* qc = new QuantumBackend(topo, i, quantum_backends[i].first);
-        createQcTopo(qc, quantum_backends[i].second);
+        QuantumBackend* qc = new QuantumBackend(topo, i);
+        createQcTopo(qc, quantum_backends[i]);
     }
 
 }
