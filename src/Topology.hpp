@@ -940,6 +940,10 @@ public:
 
     int GetNumberofGates() const;
 
+    std::vector<Qubit *> GetAllQubits();
+
+    std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
+
     void RefreshTopology(std::set<int> qubit_indices); // qubit_indices: indices of the qubits that need to be refreshed
 
     ~QuantumBackend() override = default;
