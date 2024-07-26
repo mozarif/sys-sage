@@ -1,7 +1,6 @@
 #ifndef DATAPATH
 #define DATAPATH
 
-#pragma once
 #include <map>
 
 #include "defines.hpp"

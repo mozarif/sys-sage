@@ -12,7 +12,6 @@
 #include <map>
 #include "Topology.hpp"
 #include <ibm.h>
-// #include <qdmi_internal.h>
 
 #define CHECK_ERR(a,b) { if (a!=QDMI_SUCCESS) { printf("\n[Error]: %i at %s",a,b); return 1; }}
 
