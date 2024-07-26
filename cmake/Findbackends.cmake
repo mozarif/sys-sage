@@ -3,7 +3,7 @@ include(FetchContent)
 FetchContent_Declare(
     backends
     GIT_REPOSITORY git@github.com:Munich-Quantum-Software-Stack/backends.git
-    GIT_TAG develop
+    GIT_TAG cmake-install
 )
 
 FetchContent_MakeAvailable(backends)
