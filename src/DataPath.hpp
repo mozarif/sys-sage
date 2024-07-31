@@ -1,19 +1,20 @@
-#ifndef DATAPATH
-#define DATAPATH
+#ifndef RELATION_HPP
+#define RELATION_HPP
 
 #include <map>
+#include <vector>
+#include <string>
 
 #include "defines.hpp"
 #include "Topology.hpp"
 
-//Component pointing to a DataPath 
 #define SYS_SAGE_DATAPATH_NONE 1 /**< TODO */
 #define SYS_SAGE_DATAPATH_OUTGOING 2 /**< This Component is the source DataPath. */
-#define SYS_SAGE_DATAPATH_INCOMING 4 /**< This Component is the taerget DataPath. */
+#define SYS_SAGE_DATAPATH_INCOMING 4 /**< This Component is the target DataPath. */
 
 //int oriented
 #define SYS_SAGE_DATAPATH_BIDIRECTIONAL 8 /**< DataPath has no direction. */
-#define SYS_SAGE_DATAPATH_ORIENTED 16 /**< DataPath is directec from the source to the target. */
+#define SYS_SAGE_DATAPATH_ORIENTED 16 /**< DataPath is directed from the source to the target. */
 
 //dp_type
 #define SYS_SAGE_DATAPATH_TYPE_NONE 32 /**< Generic type of DataPath */
@@ -24,10 +25,37 @@
 #define SYS_SAGE_DATAPATH_TYPE_DATATRANSFER 1024 /**< DataPath type describing data transfer attributes. */
 #define SYS_SAGE_DATAPATH_TYPE_C2C 2048 /**< DataPath type describing cache-to-cache latencies (cccbench data source). */
 
-using namespace std;
-class Component;
-class DataPath;
+#define SYS_SAGE_1Q_QUANTUM_GATE 1 /**< Quantum Gate of size 1-Qubit. */
+#define SYS_SAGE_2Q_QUANTUM_GATE 2 /**< Quantum Gate of size 2-Qubits. */
+#define SYS_SAGE_MQ_QUANTUM_GATE 4 /**< Quantum Gate of size M-Qubits (where M >2). */
+#define SYS_SAGE_NO_TYPE_QUANTUM_GATE 0 /**< Quantum Gate of size 0 or invalid size. */
 
+
+// QuantumGate type
+#define SYS_SAGE_QUANTUMGATE_TYPE_ID 32          /**< Identity Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_RZ 64          /**< RZ Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_CNOT 128       /**< CNOT Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_SX 256         /**< SX Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_X 512          /**< X Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_TOFFOLI 1024   /**< Toffoli Gate */
+#define SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN 2048   /**< Unknown Gate */
+class Component;
+class Qubit;
+
+/**
+ * Abstract class Relation representing a generic relationship or connectivity between two components.
+ */
+class Relation {
+public:
+    
+    virtual ~Relation() = default;
+
+    
+    virtual void Print() = 0;
+
+    virtual void DeleteRelation() = 0;
+};
+class DataPath;
 /**
 Obsolete; use DataPath() constructors directly instead
 @see DataPath()
@@ -49,7 +77,8 @@ Class DataPath represents Data Paths in the topology -- Data Paths represent an 
 \n Data Paths create a Data-Path graph, which is a structure orthogonal to the Component Tree.
 \n Each Component contains a reference to all Data Paths going to or from this components (as well as parents and children in the Component Tree). Using these references, it is possible to navigate between the Components and to view the data stores in the Components or the Data Paths.
 */
-class DataPath {
+
+class DataPath : public Relation {
 
 public:
     /**
@@ -120,20 +149,55 @@ public:
     */
     void DeleteDataPath();
 
+    void DeleteRelation() override;
     /**
      * TODO
     */
-    map<string,void*> attrib;
+    std::map<std::string,void*> attrib;
+
 private:
-    Component * source; /**< TODO */
-    Component * target; /**< TODO */
-
-    const int oriented; /**< TODO */
-    const int dp_type; /**< TODO */
-
-    double bw; /**< TODO */
-    double latency; /**< TODO */
-
+    Component *source;
+    Component *target;
+    const int oriented;
+    const int dp_type;
+    double bw;
+    double latency;
 };
 
-#endif
+class QuantumGate : public Relation {
+
+public:
+    QuantumGate();
+    QuantumGate(size_t _gate_size);
+    QuantumGate(size_t _gate_size, std::string _name, double _fidelity, std::string _unitary);
+    QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits);
+    QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, std::string _name, double _fidelity, std::string _unitary);
+
+    void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
+    void SetGateCouplingMap(std::vector<std::vector<Qubit*>> _coupling_mapping);
+    void SetAdditionalProperties();
+    void SetGateType();
+    int GetGateType() const;
+    double GetFidelity() const;
+    size_t GetGateSize() const;
+    void SetGateId(int _id);
+    int GetGateId();
+    std::string GetUnitary() const;
+    std::string GetName() const;
+    void Print() override;
+    void DeleteRelation() override;
+
+private:
+    int id;
+    int type;
+    std::string name;
+    size_t gate_size;
+    int gate_length;
+    std::string unitary;
+    double fidelity;
+    std::vector<std::vector<Qubit*>> coupling_mapping;
+    std::vector<Qubit*> qubits;
+    std::map<std::string, double> additional_properties;
+};
+
+#endif // RELATION_HPP

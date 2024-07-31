@@ -263,7 +263,7 @@ extern "C" void QdmiParser::setGateSets(QuantumBackend *backend, QDMI_Device dev
         std::string unitary = gates[i].unitary;
         size_t gate_size = gates[i].gate_size;
 
-        // Add a destructor
+        // Add a constructor
         QuantumGate *qgate = new QuantumGate(gate_size);
         qgate->SetGateProperties(name, fidelity, unitary);
 
