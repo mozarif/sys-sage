@@ -16,7 +16,7 @@
 #define SYS_SAGE_DATAPATH_BIDIRECTIONAL 8 /**< DataPath has no direction. */
 #define SYS_SAGE_DATAPATH_ORIENTED 16 /**< DataPath is directed from the source to the target. */
 
-//dp_type
+//datapath type
 #define SYS_SAGE_DATAPATH_TYPE_NONE 32 /**< Generic type of DataPath */
 #define SYS_SAGE_DATAPATH_TYPE_LOGICAL 64 /**< DataPath describes a logical connection/relation of two Components. */
 #define SYS_SAGE_DATAPATH_TYPE_PHYSICAL 128 /**< DataPath describes a physical/hardware connection/relation of two Components. */
@@ -47,10 +47,19 @@ class Qubit;
  */
 class Relation {
 public:
-    
+
+    void SetType();
+    int GetType();
+    void SetId();
+    int GetId();
+    void SetName();
+    std::string GetName();
+    int id;
+    int type;
+    std::string name;
+
     virtual ~Relation() = default;
 
-    
     virtual void Print() = 0;
 
     virtual void DeleteRelation() = 0;
@@ -129,8 +138,9 @@ public:
     double GetLatency();
     /**
     @returns Type of the Data Path.
-    @see dp_type
+    @see type
     */
+    //TO-DO: Replace this with type, no type required
     int GetDpType();
     /**
      * TODO
@@ -159,7 +169,7 @@ private:
     Component *source;
     Component *target;
     const int oriented;
-    const int dp_type;
+    const int type;
     double bw;
     double latency;
 };
@@ -176,21 +186,19 @@ public:
     void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
     void SetGateCouplingMap(std::vector<std::vector<Qubit*>> _coupling_mapping);
     void SetAdditionalProperties();
-    void SetGateType();
-    int GetGateType() const;
+    void SetType();
+    int GetType();
     double GetFidelity() const;
     size_t GetGateSize() const;
-    void SetGateId(int _id);
-    int GetGateId();
+    void SetId(int _id);
+    int GetId();
     std::string GetUnitary() const;
-    std::string GetName() const;
+    std::string GetName();
     void Print() override;
     void DeleteRelation() override;
 
 private:
-    int id;
-    int type;
-    std::string name;
+
     size_t gate_size;
     int gate_length;
     std::string unitary;

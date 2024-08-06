@@ -242,33 +242,33 @@ void Component::AddDataPath(DataPath* p, int orientation)
         dp_incoming.push_back(p);
 }
 
-DataPath* Component::GetDpByType(int dp_type, int orientation)
+DataPath* Component::GetDpByType(int type, int orientation)
 {
     if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
         for(DataPath* dp : dp_outgoing){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDpType() == type)
                 return dp;
         }
     }
     if(orientation & SYS_SAGE_DATAPATH_INCOMING){
         for(DataPath* dp : dp_incoming){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDpType() == type)
                 return dp;
         }
     }
     return NULL;
 }
-void Component::GetAllDpByType(vector<DataPath*>* outDpArr, int dp_type, int orientation)
+void Component::GetAllDpByType(vector<DataPath*>* outDpArr, int type, int orientation)
 {
     if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
         for(DataPath* dp : dp_outgoing){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDpType() == type)
                 outDpArr->push_back(dp);
         }
     }
     if(orientation & SYS_SAGE_DATAPATH_INCOMING){
         for(DataPath* dp : dp_incoming){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDpType() == type)
                 outDpArr->push_back(dp);
         }
     }
@@ -608,7 +608,7 @@ std::vector<QuantumGate*> QuantumBackend::GetGatesByType(size_t _gate_type) cons
     
     for (QuantumGate * gate : gate_types)
     {
-        if(_gate_type == gate->GetGateType())
+        if(_gate_type == gate->GetType())
             gates.emplace_back(gate);        
     }
     

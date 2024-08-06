@@ -19,12 +19,12 @@ Component * DataPath::GetSource() {return source;}
 Component * DataPath::GetTarget() {return target;}
 double DataPath::GetBw() {return bw;}
 double DataPath::GetLatency() {return latency;}
-int DataPath::GetDpType() {return dp_type;}
+int DataPath::GetDpType() {return type;}
 int DataPath::GetOriented() {return oriented;}
 
 DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type): DataPath(_source, _target, _oriented, _type, -1, -1) {}
 DataPath::DataPath(Component* _source, Component* _target, int _oriented, double _bw, double _latency): DataPath(_source, _target, _oriented, SYS_SAGE_DATAPATH_TYPE_NONE, _bw, _latency) {}
-DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type, double _bw, double _latency): source(_source), target(_target), oriented(_oriented), dp_type(_type), bw(_bw), latency(_latency)
+DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type, double _bw, double _latency): source(_source), target(_target), oriented(_oriented), type(_type), bw(_bw), latency(_latency)
 {
     if(_oriented == SYS_SAGE_DATAPATH_BIDIRECTIONAL)
     {
@@ -98,24 +98,24 @@ QuantumGate::QuantumGate()
 QuantumGate::QuantumGate(size_t _gate_size) : gate_size(_gate_size){}
 
 QuantumGate::QuantumGate(size_t _gate_size, std::string _name, double _fidelity, std::string _unitary)
-: gate_size(_gate_size), name(_name), fidelity(_fidelity), unitary(_unitary){}
+: gate_size(_gate_size), fidelity(_fidelity), unitary(_unitary){ name =_name ;}
 
 QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits)
 : gate_size(_gate_size), qubits(_qubits) {}
 
 QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, std::string _name, double _fidelity, std::string _unitary)
-: gate_size(_gate_size), qubits(_qubits), name(_name), fidelity(_fidelity), unitary(_unitary) {}
+: gate_size(_gate_size), qubits(_qubits), fidelity(_fidelity), unitary(_unitary) { name =_name ;}
 
 void QuantumGate::SetGateProperties(std::string _name, double _fidelity, std::string _unitary)
 {
     name = _name;
     fidelity = _fidelity;
     unitary = _unitary;
-    SetGateType();
+    SetType();
 }
 
 
-void QuantumGate::SetGateType()
+void QuantumGate::SetType()
 {
     if(gate_size == 1)
     {
@@ -145,7 +145,7 @@ void QuantumGate::SetGateType()
 
 }
 
-int QuantumGate::GetGateType() const
+int QuantumGate::GetType()
 {
     return type;
 }
@@ -165,7 +165,7 @@ std::string QuantumGate::GetUnitary() const
     return unitary;
 }
 
-std::string QuantumGate::GetName() const
+std::string QuantumGate::GetName()
 {
     return name;
 }
