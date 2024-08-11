@@ -43,26 +43,29 @@ class Component;
 class Qubit;
 
 /**
- * Abstract class Relation representing a generic relationship or connectivity between two components.
+ * class Relation representing a generic relationship or connectivity between two components.
  */
 class Relation {
 public:
 
-    void SetType();
+    void SetType(int _type);
     int GetType();
-    void SetId();
+    void SetId(int _id);
     int GetId();
-    void SetName();
+    void SetName(std::string _name);
     std::string GetName();
-    int id;
-    int type;
-    std::string name;
-
     virtual ~Relation() = default;
 
     virtual void Print() = 0;
 
     virtual void DeleteRelation() = 0;
+    
+    int id;
+    int type;
+    std::string name;
+    std::vector <Component *> components;
+
+    
 };
 class DataPath;
 /**
@@ -136,11 +139,13 @@ public:
     @returns Data load latency from the source(provides the data) to the target(requests the data)
     */
     double GetLatency();
+    
     /**
+     * @private
+    Obsolete;use GetType() instead.
     @returns Type of the Data Path.
     @see type
     */
-    //TO-DO: Replace this with type, no type required
     int GetDpType();
     /**
      * TODO
@@ -204,7 +209,7 @@ private:
     std::string unitary;
     double fidelity;
     std::vector<std::vector<Qubit*>> coupling_mapping;
-    std::vector<Qubit*> qubits;
+    std::vector<Qubit*> qubits; // Remove from here.
     std::map<std::string, double> additional_properties;
 };
 

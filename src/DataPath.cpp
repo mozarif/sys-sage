@@ -3,6 +3,13 @@
 #include <cstdint>
 #include <algorithm>
 
+void Relation::SetType(int _type) {_type = type;}
+int Relation::GetType(){ return type;}
+void Relation::SetId(int _id) {id = _id;}
+int Relation::GetId(){ return id;}
+void Relation::SetName(std::string _name) { name = _name;}
+std::string Relation::GetName() {return name;}
+
 DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type){
     return NewDataPath(_source,_target,_oriented,_type,(double)-1,(double)-1);
 }
@@ -19,7 +26,7 @@ Component * DataPath::GetSource() {return source;}
 Component * DataPath::GetTarget() {return target;}
 double DataPath::GetBw() {return bw;}
 double DataPath::GetLatency() {return latency;}
-int DataPath::GetDpType() {return type;}
+int DataPath::GetDpType() {return GetType();}
 int DataPath::GetOriented() {return oriented;}
 
 DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type): DataPath(_source, _target, _oriented, _type, -1, -1) {}
