@@ -36,57 +36,9 @@ extern "C" int QdmiParser::initiateSession()
 
 }
 
-// TODO: Change function name (like FOMAC_available_devices)
-// This will get the list of all the available devices and check individually if that devide is up and running.
-
 extern "C" std::vector<QDMI_Device> QdmiParser::get_available_backends()
 {
 
-    // 46-74: Replace this with newer QDMI calls
-    // char **available_devices = get_qdmi_library_list_names(); // --> 
-    // if (available_devices == NULL)
-    // {
-    //     std::cout << "   [sys-sage]...............Failed to get "
-    //               << "qdmi_library_list from QDMI" << std::endl;
-
-    //     return std::vector<std::pair <std::string, QDMI_Device>>();
-    // }
-
-    // int i = 0, err = 0, status = 0;
-    // std::vector<std::pair <std::string, QDMI_Device>> registered_devices;
-    // while (available_devices[i] != NULL)
-    // {
-    //     QDMI_Device device =
-    //         (QDMI_Device)malloc(sizeof(struct QDMI_Device_impl_d));
-
-    //     QDMI_Library lib = find_library_by_name(available_devices[i]); // --> 
-
-    //     if (!lib)
-    //     {
-    //         std::cout << "   [sys-sage]...............A backend's library "
-    //                   << "could not be found" << std::endl;
-
-    //         free(available_devices[i++]);
-    //         continue;
-    //     }
-
-    //     device->library = *lib;
-
-    //     // TODO HANDLE err
-    //     err = QDMI_device_status(device, device->library.info, &status);
-
-    //     if (status)
-    //     {
-    //         const char *device_name = strrchr(available_devices[i], '/');
-    //         std::cout << "   [sys-sage]...............Available device "
-    //                   << "found: " << device_name << std::endl;
-
-    //         registered_devices.push_back(std::pair<std::string, QDMI_Device> (device_name, device));
-    //     }
-
-    //     free(available_devices[i++]);
-    // }
-    // free(available_devices);
     int count;
     QDMI_core_device_count(&QdmiParser::session, &count);
 
@@ -113,9 +65,6 @@ extern "C" std::vector<QDMI_Device> QdmiParser::get_available_backends()
         QDMI_Device device;
         QDMI_core_open_device(&QdmiParser::session, i , &QdmiParser::info, &device);
 
-        // const char *device_name = strrchr(available_devices[i], '/');
-        //     std::cout << "   [sys-sage]...............Available device "
-        //               << "found: " << device_name << std::endl;
         registered_devices.emplace_back(device);
     }
 
@@ -150,11 +99,7 @@ extern "C" void QdmiParser::getCouplingMapping(QDMI_Device dev, QDMI_Qubit qubit
     coupling_map_size = qubit->size_coupling_mapping;
     coupling_mapping.resize(coupling_map_size);
 
-    //for (int j = 0; j < coupling_map_size; j++)
-    //{
-        // Copy the coupling_mapping from qubit_impl
-        std::copy(qubit->coupling_mapping, qubit->coupling_mapping + coupling_map_size, coupling_mapping.begin());
-    //}
+    std::copy(qubit->coupling_mapping, qubit->coupling_mapping + coupling_map_size, coupling_mapping.begin());
 }
 
 extern "C" void QdmiParser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit)
@@ -175,7 +120,7 @@ extern "C" void QdmiParser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit
             std::cout << "   [sys-sage]...............Queried property doesn't exist: " << i <<"\n";
             continue;
         }
-        // err = QDMI_query_qubit_property_type(dev, qubit, prop_index);
+
         if(prop_index->type == QDMI_DOUBLE){
             err = QDMI_query_qubit_property_d(dev, qubit, prop_index, &value);
             if(err)
@@ -183,7 +128,7 @@ extern "C" void QdmiParser::getQubitProperties(QDMI_Device dev, QDMI_Qubit qubit
                 std::cout << "   [sys-sage]...............Unable to query property: " << i <<"\n";
                 continue;
             }
-            //std::cout << "   [sys-sage]...............Value of " << properties[i] << ": " << value << "\n";
+
         }
         delete prop_index;
 
@@ -253,7 +198,6 @@ extern "C" void QdmiParser::setGateSets(QuantumBackend *backend, QDMI_Device dev
         std::cout << "   [sys-sage]...............Found "
                   << num_gates << " supported gates.\n";
     }
-    //std::vector <std::string> gatesets(num_gates);
 
     for (int i = 0; i < num_gates; i++)
     {
@@ -267,34 +211,9 @@ extern "C" void QdmiParser::setGateSets(QuantumBackend *backend, QDMI_Device dev
         QuantumGate *qgate = new QuantumGate(gate_size);
         qgate->SetGateProperties(name, fidelity, unitary);
 
-        //qgate->setAdditionalProperties();
         backend->addGate(qgate);
     }
     
-    //backend->SetGateTypes(gatesets, num_gates);
-    
-    // for(int num = 0; num < num_gates; ++num)
-    // {
-    //     auto mapping = gates[num].coupling_mapping;
-    //     auto size_coupling_map = gates[num].sizcde_coupling_map;
-    //     auto gate_size = gates[num].gate_size;
-    //     if(mapping != NULL)
-    //     {
-
-    //         // std::cout << "[sys-sage] Coupling map of gate: " << gates[num].name <<", size_coupling_map: "<< size_coupling_map << ", gate_size: " << gate_size<< "\n";
-            
-    //         for (size_t i = 0; i < size_coupling_map; ++i) {
-    //             std::cout << "[";
-    //             for (size_t j = 0; j < gate_size; ++j)
-    //             {
-    //                 std::cout << mapping[i][j] << ", ";
-    //             }
-    
-    //             printf("]\n");
-    //         }
-    //     }
-        
-    // }
     
     free(gates);
 
@@ -338,16 +257,6 @@ extern "C" QuantumBackend QdmiParser::createQcTopo(QDMI_Device dev, int device_i
 
     return qc;
 }
-
-
-// extern "C" static void refreshQubitProprties(QuantumBackend *qc, Qubit *qubit)
-// {
-//     //auto quantum_backends = get_available_backends();
-
-//     // Search for required QuantumBackend in the device and call these:
-//     //QDMI_Device dev = qc->
-//     //QDMI_query_qubit_property(QDMI_Device dev, QDMI_Qubit_property prop, QDMI_Qubit qubit, int* coupling_map);
-// }
 
 void QuantumBackend::RefreshTopology(std::set<int> qubit_indices)
 {
