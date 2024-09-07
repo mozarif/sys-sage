@@ -13,10 +13,10 @@ set(SOURCES
     ${EXT_INTF}/intel_pqos.cpp
     ${EXT_INTF}/proc_cpuinfo.cpp
     ${EXT_INTF}/nvidia_mig.cpp
-    ${EXT_INTF}/parsers/hwloc.cpp
-    ${EXT_INTF}/parsers/caps-numa-benchmark.cpp
-    ${EXT_INTF}/parsers/mt4g.cpp
-    ${EXT_INTF}/parsers/cccbench.cpp
+    parsers/hwloc.cpp
+    parsers/caps-numa-benchmark.cpp
+    parsers/mt4g.cpp
+    parsers/cccbench.cpp
     )
 
 set(HEADERS
@@ -25,10 +25,10 @@ set(HEADERS
     Component.hpp
     DataPath.hpp
     xml_dump.hpp
-    ${EXT_INTF}/parsers/hwloc.hpp
-    ${EXT_INTF}/parsers/caps-numa-benchmark.hpp
-    ${EXT_INTF}/parsers/mt4g.hpp
-    ${EXT_INTF}/parsers/cccbench.cpp
+    parsers/hwloc.hpp
+    parsers/caps-numa-benchmark.hpp
+    parsers/mt4g.hpp
+    parsers/cccbench.cpp
     )
 
 add_library(sys-sage SHARED ${SOURCES} ${HEADERS})

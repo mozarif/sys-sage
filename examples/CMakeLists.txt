@@ -1,7 +1,8 @@
 
 link_libraries(sys-sage sys-sage)
 include_directories(../src)
-include_directories(../src/external_interfaces)
+# include_directories(../src/external_interfaces)
+# include_directories(../src/pa)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
