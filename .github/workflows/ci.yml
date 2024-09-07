@@ -3,41 +3,52 @@ jobs:
   test:
     name: Unit Tests
     uses: ./.github/workflows/test.yml
+
   asan:
     name: Address Sanitizer
     needs: test
     uses: ./.github/workflows/test.yml
     with:
       flags: -DTEST_ASAN=OFF
-      #TODO -DTEST_ASAN=ON
+      # TODO: Change to -DTEST_ASAN=ON when ready
+
   tsan:
     name: Thread Sanitizer
     needs: test
     uses: ./.github/workflows/test.yml
     with:
       flags: -DTEST_TSAN=ON
+
   ubsan:
     name: Undefined Behaviour Sanitizer
     needs: test
     uses: ./.github/workflows/test.yml
     with:
       flags: -DTEST_UBSAN=ON
-  # TODO check documentation CI so that unnecessary files (.cpp, examples/,...) can be left out
-  # doc:
-  #   name: Documentation
-  #   runs-on: [ubuntu-latest]
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
-  #       with:
-  #         submodules: true
-  #     - name: Install Doxygen
-  #       run: sudo apt install doxygen
-  #     - name: Install coverxygen
-  #       run: pip3 install coverxygen
-  #     - name: Generate documentation
-  #       run: cd docs && doxygen Doxyfile
-  #     - name: Generate documentation coverage
-  #       run: cd docs && python3 -m coverxygen --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3 --scope public,protected --kind enum,enumvalue,friend,typedef,function,class,struct,union,define,file,namespace --prefix */src/
-  #     - name: Documentation report
-  #       run: cd docs && ./show_undocumented.py doc-coverage.info
+  #  check documentation CI so that unnecessary files (.cpp, examples/,...) can be left out    
+  doc:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install Doxygen
+        run: sudo apt-get install -y doxygen
+
+      - name: Install coverxygen
+        run: pip3 install coverxygen
+
+      - name: Generate documentation
+        run: cd docs && doxygen Doxyfile
+
+      - name: Generate documentation coverage
+        run: cd docs && python3 -m coverxygen --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3 --scope public,protected --kind enum,enumvalue,friend,typedef,function,class,struct,union,define,file,namespace --prefix */src/
+
+      - name: Documentation report
+        run: cd docs && ./show_undocumented.py doc-coverage.info
+
+      - name: Check documentation completeness
+        run: ./docs/check_docs.sh
