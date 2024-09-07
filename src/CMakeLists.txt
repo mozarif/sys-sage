@@ -3,8 +3,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #defines.hpp header with #cmakedefine 
 configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/src/defines.hpp)
 
-include_directories(../external_interfaces)
-set(EXT_INTF "../external_interfaces")
+include_directories(external_interfaces)
+set(EXT_INTF "external_interfaces")
 
 set(SOURCES
     Component.cpp
