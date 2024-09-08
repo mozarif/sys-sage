@@ -1,6 +1,8 @@
 
 link_libraries(sys-sage sys-sage)
 include_directories(../src)
+# include_directories(../src/external_interfaces)
+# include_directories(../src/pa)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -20,14 +22,14 @@ add_executable(cccbenchplushwloc cccbenchplushwloc.cpp)
 install(TARGETS basic_usage mt4g-parser custom_attributes larger_topo sys-sage-benchmarking use_custom_parser cccbenchplushwloc DESTINATION bin/examples)
 install(DIRECTORY example_data DESTINATION bin/examples)
 
-if(CAT_AWARE)
+if(INTEL_PQOS)
     add_executable(matmul matmul.cpp)
     set_source_files_properties(matmul.cpp PROPERTIES COMPILE_FLAGS -O3)
     target_link_libraries(matmul hwloc pqos )
     install(TARGETS matmul DESTINATION bin/examples)
 endif()
 
-if(CPUINFO)
+if(PROC_CPUINFO)
     add_executable(cpu-frequency cpu-frequency.cpp)
     install(TARGETS cpu-frequency DESTINATION bin/examples)
 endif()

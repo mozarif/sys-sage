@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include "Topology.hpp"
+#include "Component.hpp"
 #include "DataPath.hpp"
 
 int exportToXml(Component *root, string path = "", std::function<int(string, void *, string *)> search_custom_attrib_key_fcn = NULL, std::function<int(string, void *, xmlNodePtr)> search_custom_complex_attrib_key_fcn = NULL);

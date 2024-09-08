@@ -7,7 +7,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#include "Topology.hpp"
+#include "Component.hpp"
 
 /*! \file */
 

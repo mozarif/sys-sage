@@ -274,7 +274,7 @@ static suite<"topology"> _ = []
         d.InsertChild(&e);
         d.InsertChild(&f);
 
-        expect(that % 3 == a.GetNumThreads());
+        expect(that % 3 == a.CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD));
     };
 
     "Linearize subtree"_test = []

@@ -1,15 +1,15 @@
-#ifndef CAT_AWARE_CPP
-#define CAT_AWARE_CPP
+#ifndef INTEL_PQOS_CPP
+#define INTEL_PQOS_CPP
 
 #include "defines.hpp"
-#ifdef CAT_AWARE
+#ifdef INTEL_PQOS
 //code written based on https://github.com/intel/intel-cmt-cat/blob/master/examples/c/CAT_MBA/allocation_app_l3cat.c
 
 #include <pqos.h>
 #include <cstring> //memset
 #include <limits> //numeric_limits
 
-#include "Topology.hpp"
+#include "Component.hpp"
 
 using namespace std;
 
@@ -195,5 +195,5 @@ long long Thread::GetCATAwareL3Size()
     return -1;
 }
 
-#endif //CAT_AWARE
-#endif //CAT_AWARE_CPP
+#endif //INTEL_PQOS
+#endif //INTEL_PQOS_CPP
