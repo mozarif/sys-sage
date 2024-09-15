@@ -160,7 +160,7 @@ The set of Data Paths forms a Data-path Graph.
 Each Data Path has a **source** and a **target Component**, but apart from that, no other rules apply.
 Data Paths may be oriented (differentiating between the source and the target) or bidirectional.
 There may also be multiple Data Paths connecting the same pair of Components, enabling the representation of multiple dependencies or relationships.
-To differentiate between these, attribute ‘dp_type’ is used to easily group or tell apart different kinds of information carried by Data Paths.
+To differentiate between these, attribute ‘type’ is used to easily group or tell apart different kinds of information carried by Data Paths.
 
 Analogously to Components, Data Paths have a set of default properties, such as bandwidth or latency, and an std::map **attrib**, where arbitrary information can be attached.
 Data Paths may carry all different kinds of information, including but not limited to performance-related or power consumption-related information, or even application-specific data

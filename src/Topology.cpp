@@ -242,33 +242,33 @@ void Component::AddDataPath(DataPath* p, int orientation)
         dp_incoming.push_back(p);
 }
 
-DataPath* Component::GetDpByType(int dp_type, int orientation)
+DataPath* Component::GetDpByType(int type, int orientation)
 {
     if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
         for(DataPath* dp : dp_outgoing){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDpType() == type)
                 return dp;
         }
     }
     if(orientation & SYS_SAGE_DATAPATH_INCOMING){
         for(DataPath* dp : dp_incoming){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDpType() == type)
                 return dp;
         }
     }
     return NULL;
 }
-void Component::GetAllDpByType(vector<DataPath*>* outDpArr, int dp_type, int orientation)
+void Component::GetAllDpByType(vector<DataPath*>* outDpArr, int type, int orientation)
 {
     if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
         for(DataPath* dp : dp_outgoing){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDpType() == type)
                 outDpArr->push_back(dp);
         }
     }
     if(orientation & SYS_SAGE_DATAPATH_INCOMING){
         for(DataPath* dp : dp_incoming){
-            if(dp->GetDpType() == dp_type)
+            if(dp->GetDpType() == type)
                 outDpArr->push_back(dp);
         }
     }
@@ -608,7 +608,7 @@ std::vector<QuantumGate*> QuantumBackend::GetGatesByType(size_t _gate_type) cons
     
     for (QuantumGate * gate : gate_types)
     {
-        if(_gate_type == gate->GetGateType())
+        if(_gate_type == gate->GetType())
             gates.emplace_back(gate);        
     }
     
@@ -688,74 +688,3 @@ const double Qubit::GetT1() const { return _t1; }
 const double Qubit::GetT2() const { return _t2; }
 const double Qubit::GetReadoutError() const { return _readout_error; }
 const double Qubit::GetReadoutLength() const { return _readout_length; }
-
-QuantumGate::QuantumGate()
-{
-    gate_size = 1;
-    type = SYS_SAGE_1Q_QUANTUM_GATE;
-}
-
-QuantumGate::QuantumGate(size_t _gate_size) : gate_size(_gate_size){}
-
-void QuantumGate::SetGateProperties(std::string _name, double _fidelity, std::string _unitary)
-{
-    name = _name;
-    fidelity = _fidelity;
-    unitary = _unitary;
-    SetGateType();
-}
-
-void QuantumGate::SetGateType()
-{
-    if(gate_size == 1)
-    {
-        if(name == "id") type = SYS_SAGE_QUANTUMGATE_TYPE_ID;
-        else if(name == "rz") type = SYS_SAGE_QUANTUMGATE_TYPE_RZ;
-        else if(name == "sx") type = SYS_SAGE_QUANTUMGATE_TYPE_SX;
-        else if(name == "x") type = SYS_SAGE_QUANTUMGATE_TYPE_X;
-        else type = SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN;
-    }
-
-    else if(gate_size == 2)
-    {
-        if(name == "cx") type = SYS_SAGE_QUANTUMGATE_TYPE_CNOT;
-        else type = SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN;
-    }
-
-    else if(gate_size > 2)
-    {
-        if(name == "toffoli") type = SYS_SAGE_QUANTUMGATE_TYPE_TOFFOLI;
-        else type = SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN;
-    }
-
-    else
-    {
-        type = SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN;
-    }
-
-}
-
-int QuantumGate::GetGateType() const
-{
-    return type;
-}
-
-double QuantumGate::GetFidelity() const
-{
-    return fidelity;
-}
-
-size_t QuantumGate::GetGateSize() const
-{
-    return gate_size;
-}
-
-std::string QuantumGate::GetUnitary() const
-{
-    return unitary;
-}
-
-std::string QuantumGate::GetName() const
-{
-    return name;
-}

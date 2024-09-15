@@ -40,22 +40,8 @@
 #define SYS_SAGE_CHIP_TYPE_CPU_SOCKET 4 /**< Chip type used for one CPU socket. */
 #define SYS_SAGE_CHIP_TYPE_GPU 8 /**< Chip type used for a GPU.*/
 
-#define SYS_SAGE_1Q_QUANTUM_GATE 1 /**< Quantum Gate of size 1-Qubit. */
-#define SYS_SAGE_2Q_QUANTUM_GATE 2 /**< Quantum Gate of size 2-Qubits. */
-#define SYS_SAGE_MQ_QUANTUM_GATE 4 /**< Quantum Gate of size M-Qubits (where M >2). */
-#define SYS_SAGE_NO_TYPE_QUANTUM_GATE 0 /**< Quantum Gate of size 0 or invalid size. */
-
-
-// QuantumGate type
-#define SYS_SAGE_QUANTUMGATE_TYPE_ID 32          /**< Identity Gate */
-#define SYS_SAGE_QUANTUMGATE_TYPE_RZ 64          /**< RZ Gate */
-#define SYS_SAGE_QUANTUMGATE_TYPE_CNOT 128       /**< CNOT Gate */
-#define SYS_SAGE_QUANTUMGATE_TYPE_SX 256         /**< SX Gate */
-#define SYS_SAGE_QUANTUMGATE_TYPE_X 512          /**< X Gate */
-#define SYS_SAGE_QUANTUMGATE_TYPE_TOFFOLI 1024   /**< Toffoli Gate */
-#define SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN 2048   /**< Unknown Gate */
-
 using namespace std;
+class Relation;
 class DataPath;
 class QuantumGate;
 /**
@@ -287,21 +273,21 @@ public:
     /**
     Retrieves a DataPath * from the list of this component's data paths with matching type and orientation.
     \n The first match is returned -- first SYS_SAGE_DATAPATH_OUTGOING are searched, then SYS_SAGE_DATAPATH_INCOMING.
-    @param dp_type - DataPath type (dp_type) to search for
+    @param type - DataPath type (type) to search for
     @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
     @return DataPath pointer to the found data path; NULL if nothing found.
     */
-    DataPath* GetDpByType(int dp_type, int orientation);
+    DataPath* GetDpByType(int type, int orientation);
     /**
     Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
     Results are returned in vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
-    @param dp_type - DataPath type (dp_type) to search for.
+    @param type - DataPath type (type) to search for.
     @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
     @param outDpArr - output parameter (vector with results)
         \n An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
         \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
     */
-    void GetAllDpByType(vector<DataPath*>* outDpArr, int dp_type, int orientation);
+    void GetAllDpByType(vector<DataPath*>* outDpArr, int type, int orientation);
     /**
      * TODO
     */
@@ -870,23 +856,69 @@ public:
     @param componentType=>SYS_SAGE_COMPONENT_QUBIT
     */
     Qubit(Component * parent, int _id = 0, string _name = "Qubit");
-    
+
+    /**
+    * @brief Sets the coupling mapping for the qubit.
+    * 
+    * @param coupling_mapping A vector of integers representing the coupling mapping.
+    * @param size_coupling_mapping The size of the coupling mapping.
+    */
     void SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping);
 
+    /**
+    * @brief Sets the properties of the qubit.
+    * 
+    * @param t1 The T1 relaxation time.
+    * @param t2 The T2 dephasing time.
+    * @param readout_error The readout error rate.
+    * @param readout_length The readout length.
+    */
     void SetProperties(double t1, double t2, double readout_error, double readout_length);
 
+    /**
+    * @brief Gets the coupling mapping of the qubit.
+    * 
+    * @return A constant reference to a vector of integers representing the coupling mapping.
+    */
     const std::vector <int> &GetCouplingMapping() const;
 
+    /**
+    * @brief Gets the T1 relaxation time of the qubit.
+    * 
+    * @return The T1 relaxation time.
+    */
     const double GetT1() const;
-    
+    /**
+    * @brief Gets the T2 dephasing time of the qubit.
+    * 
+    * @return The T2 dephasing time.
+    */
     const double GetT2() const;
 
+    /**
+    * @brief Gets the readout error rate of the qubit.
+    * 
+    * @return The readout error rate.
+    */
     const double GetReadoutError() const;
 
+    /**
+    * @brief Gets the readout length of the qubit.
+    * 
+    * @return The readout length.
+    */
     const double GetReadoutLength() const;
 
+    /**
+    * @brief Gets the frequency of the qubit.
+    * 
+    * @return The frequency of the qubit.
+    */
     const double GetFrequency() const;
 
+    /**
+    * @brief Refreshes the properties of the qubit.
+    */
     void RefreshProperties();
 
     ~Qubit() override = default;
@@ -922,28 +954,90 @@ public:
     */
     QuantumBackend(Component * parent, int _id = 0, string _name = "QuantumBackend");
 
+    /**
+    * @brief Sets the number of qubits in the quantum backend.
+    * 
+    * @param _num_qubits The number of qubits to set.
+    */
     void SetNumberofQubits(int _num_qubits);
 
+    /**
+    * @brief Sets the QDMI device for the quantum backend.
+    * 
+    * @param dev The QDMI device to set.
+    */
     void SetQDMIDevice(QDMI_Device dev);
 
+    /**
+    * @brief Gets the QDMI device of the quantum backend.
+    * 
+    * @return The QDMI device.
+    */
     QDMI_Device GetQDMIDevice();
 
+    /**
+    * @brief Gets the number of qubits in the quantum backend.
+    * 
+    * @return The number of qubits.
+    */
     int GetNumberofQubits () const;
 
+    /**
+    * @brief Adds a quantum gate to the quantum backend.
+    * 
+    * @param gate The quantum gate to add.
+    */
     void addGate(QuantumGate *gate);
 
+    /**
+    * @brief Gets the quantum gates by their size.
+    * 
+    * @param _gate_size The size of the gates to retrieve.
+    * @return A vector of quantum gates with the specified size.
+    */
     std::vector<QuantumGate*> GetGatesBySize(size_t _gate_size) const;
 
+    /**
+    * @brief Gets the quantum gates by their type.
+    * 
+    * @param _gate_type The type of the gates to retrieve.
+    * @return A vector of quantum gates with the specified type.
+    */
     std::vector<QuantumGate*> GetGatesByType(size_t _gate_type) const;
 
+    /**
+    * @brief Gets all types of quantum gates in the quantum backend.
+    * 
+    * @return A vector of all quantum gate types.
+    */
     std::vector<QuantumGate*> GetAllGateTypes() const;
 
+    /**
+    * @brief Gets the number of quantum gates in the quantum backend.
+    * 
+    * @return The number of quantum gates.
+    */
     int GetNumberofGates() const;
 
+    /**
+    * @brief Gets all qubits in the quantum backend.
+    * 
+    * @return A vector of pointers to all qubits.
+    */
     std::vector<Qubit *> GetAllQubits();
 
+    /**
+    * @brief Gets all coupling maps in the quantum backend.
+    * 
+    * @return A set of pairs representing the coupling maps.
+    */
     std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
 
+    /**
+     * @brief Refreshes the topology of the quantum backend.
+     * 
+     * @param qubit_indices The indices of the qubits that need to be refreshed.
+     */
     void RefreshTopology(std::set<int> qubit_indices); // qubit_indices: indices of the qubits that need to be refreshed
 
     ~QuantumBackend() override = default;
@@ -974,43 +1068,6 @@ public:
     std::map <std::string, double> shuttlingAverageFidelities;
 
 };
-
-class QuantumGate {
-
-    public:
-        /**
-        QuantumGate constructor.
-        @param _gate_size - No. of qubits involved in a qubit.
-        @param _type - Denotes type of the QuantumGate -- helps to distinguish between different gates.
-            \n Predefined types: SYS_SAGE_QUANTUMGATE_TYPE_ID, SYS_SAGE_QUANTUMGATE_TYPE_RZ, SYS_SAGE_QUANTUMGATE_TYPE_CNOT. Each user can define an arbitrary type as an integer value > 1024
-        */
-        // QuantumGate(std::vector<Component*> _qubits, int _type = SYS_SAGE_QUANTUMGATE_TYPE_ID);
-
-        QuantumGate();
-        QuantumGate(size_t _gate_size);
-
-        void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
-        void SetGateCouplingMap(std::vector<std::vector <Qubit*> > _coupling_mapping);
-        void SetAdditionalProperties();
-        void SetGateType();
-        int GetGateType() const;
-        double GetFidelity() const;
-        size_t GetGateSize() const;
-        std::string GetUnitary() const;
-        std::string GetName() const;
-
-    private:
-        int type; // Denotes type of the QuantumGate -- helps to distinguish between different gates (ID, RZ, etc.)
-        std::string name;
-        size_t gate_size; // "No. of qubits involved"
-        int gate_length; // "Time needed to execute that gate operation"
-        std::string unitary;    
-        double fidelity;
-
-        std::vector<std::vector <Qubit*>> coupling_mapping;
-        std::vector<Component*> qubits; /**< TODO */
-        std::map <std::string, double > additional_properties;
-    };
 
 #endif
 
