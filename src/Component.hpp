@@ -69,6 +69,8 @@ public:
     @see GetChild(int _id)
     */
     void InsertChild(Component * child);
+
+    void DocumentationDemo();
     
     /**
      * Inserts this component between a parent and one of its children. The parent component remains the parent, this Component becomes a new child of the parent, and the specified child becomes this component's child.
