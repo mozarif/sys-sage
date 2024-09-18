@@ -13,6 +13,9 @@ if len(sys.argv) != 2:
 
 cov = json.load(open(sys.argv[1]))
 
+with open(sys.argv[1], 'r') as f:
+    print(f.read())
+    
 print(f"Loading coverage file: {sys.argv[1]}")
 
 missing = 0
