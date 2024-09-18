@@ -12,6 +12,9 @@ if len(sys.argv) != 2:
     exit(-1)
 
 cov = json.load(open(sys.argv[1]))
+
+print(f"Loading coverage file: {sys.argv[1]}")
+
 missing = 0
 for file in cov['files']:
     for sym in cov['files'][file]:
