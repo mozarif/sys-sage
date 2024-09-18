@@ -7,16 +7,17 @@
 import sys
 import json
 
-if len(sys.argv) != 2:
-    print("Missing input file argument")
-    exit(-1)
+# if len(sys.argv) != 2:
+#     print("Missing input file argument")
+#     exit(-1)
 
-cov = json.load(open(sys.argv[1]))
+#cov = json.load(open(sys.argv[1]))
+cov = json.load(open("doc-coverage.info"))
 
-with open(sys.argv[1], 'r') as f:
-    print(f.read())
-    
-print(f"Loading coverage file: {sys.argv[1]}")
+# with open(sys.argv[1], 'r') as f:
+#     print(f.read())
+
+# print(f"Loading coverage file: {sys.argv[1]}")
 
 missing = 0
 for file in cov['files']:
