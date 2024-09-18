@@ -48,7 +48,7 @@ jobs:
         run: cd docs && python3 -m coverxygen --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3 --scope public,protected --kind enum,enumvalue,friend,typedef,function,class,struct,union,define,file,namespace --prefix */src/
 
       - name: Documentation report
-        run: ./show_undocumented.py doc-coverage.info
+        run: cd docs && ./show_undocumented.py doc-coverage.info
 
       - name: Check documentation completeness
-        run: ./docs/check_docs.sh
+        run: cd docs && ./check_docs.sh
