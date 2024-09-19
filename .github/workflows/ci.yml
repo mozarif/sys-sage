@@ -46,7 +46,7 @@ jobs:
 
       - name: Documentation coverage and Report
         #run: cd docs && python3 -m coverxygen --verbose --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3 --scope public,protected --kind enum,enumvalue,friend,typedef,function,class,struct,union,define,file,namespace --prefix */src/ && ./show_undocumented.py
-        run: cd docs && python3 -m coverxygen --verbose --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3 --prefix */src/ && ./show_undocumented.py
+        run: cd docs && python3 -m coverxygen --verbose --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3 && ./show_undocumented.py
 
       - name: Documentation report
         run: cd docs && ./show_undocumented.py
