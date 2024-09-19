@@ -69,8 +69,6 @@ public:
     @see GetChild(int _id)
     */
     void InsertChild(Component * child);
-
-    void DocumentationDemo();
     
     /**
      * Inserts this component between a parent and one of its children. The parent component remains the parent, this Component becomes a new child of the parent, and the specified child becomes this component's child.
@@ -636,6 +634,11 @@ public:
     ~Node() override = default;
 #ifdef PROC_CPUINFO
 public:
+    /**
+     * @private
+     * Refreshes the CPU core frequency of the node.
+     * @param keep_history - If true, the history of the CPU core frequency will be kept.
+     */
     int RefreshCpuCoreFrequency(bool keep_history = false);
 #endif
 #ifdef INTEL_PQOS //defined in intel_pqos.cpp
@@ -701,6 +704,10 @@ private:
 
 #ifdef NVIDIA_MIG
 public:
+    /**
+     * @private
+     * Gets the MIG size of the memory element.
+     */
     long long GetMIGSize(string uuid = "");
 #endif
 };
@@ -965,6 +972,10 @@ private:
 
 #ifdef NVIDIA_MIG
 public:
+    /**
+     * @private
+     * Gets the MIG size of the cache element.
+     */
     long long GetMIGSize(string uuid = "");
 #endif
 };
@@ -1095,8 +1106,22 @@ private:
 
 #ifdef PROC_CPUINFO
 public:
+    /**
+    * @private
+    * Refreshes the frequency of the core.
+    */
     int RefreshFreq(bool keep_history = false);
+
+    /**
+    * @private
+    * Sets the frequency of the core.
+    */
     void SetFreq(double _freq);
+
+    /**
+    * @private
+    * Gets the frequency of the core.
+    */
     double GetFreq();
 private:
     double freq;
@@ -1132,7 +1157,16 @@ public:
 
 #ifdef PROC_CPUINFO //defined in proc_cpuinfo.cpp
 public:
+    /**
+    * @private
+    * Refreshes the frequency of the thread.
+    */
     int RefreshFreq(bool keep_history = false);
+
+    /**
+    * @private
+    * Gets the frequency of the thread.
+    */
     double GetFreq();
 #endif
 
