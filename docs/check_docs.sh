@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./show_undocumented.py
+./show_undocumented.py doc-coverage.info
 RESULT=$?
 echo "Script exit status: $RESULT"
 if [ $RESULT -ne 0 ]; then
