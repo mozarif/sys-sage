@@ -44,7 +44,7 @@ jobs:
       - name: Generate documentation
         run: cd docs && doxygen Doxyfile
 
-      - name: Documentation coverage and Report
+      - name: Documentation coverage
         run: cd docs && python3 -m coverxygen --verbose --xml-dir xml --src-dir ../src/ --output doc-coverage.info --format json-v3 --scope public,protected --kind enum,enumvalue,friend,typedef,function,class,struct,union,define,file,namespace --exclude '.*\/parsers\/.*' --exclude '.*\/external_interfaces\/.*' --exclude '.*\/examples\/.*' --exclude '.*\/data-sources\/.*' --exclude '.*\.cpp$'
 
       - name: Check documentation completeness
