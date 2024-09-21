@@ -635,7 +635,6 @@ public:
 #ifdef PROC_CPUINFO
 public:
     /**
-     * @private
      * Refreshes the CPU core frequency of the node.
      * @param keep_history - If true, the history of the CPU core frequency will be kept.
      */
@@ -705,7 +704,6 @@ private:
 #ifdef NVIDIA_MIG
 public:
     /**
-     * @private
      * Gets the MIG size of the memory element.
      */
     long long GetMIGSize(string uuid = "");
@@ -973,7 +971,6 @@ private:
 #ifdef NVIDIA_MIG
 public:
     /**
-     * @private
      * Gets the MIG size of the cache element.
      */
     long long GetMIGSize(string uuid = "");
@@ -1107,19 +1104,16 @@ private:
 #ifdef PROC_CPUINFO
 public:
     /**
-    * @private
     * Refreshes the frequency of the core.
     */
     int RefreshFreq(bool keep_history = false);
 
     /**
-    * @private
     * Sets the frequency of the core.
     */
     void SetFreq(double _freq);
 
     /**
-    * @private
     * Gets the frequency of the core.
     */
     double GetFreq();
@@ -1158,13 +1152,11 @@ public:
 #ifdef PROC_CPUINFO //defined in proc_cpuinfo.cpp
 public:
     /**
-    * @private
     * Refreshes the frequency of the thread.
     */
     int RefreshFreq(bool keep_history = false);
 
     /**
-    * @private
     * Gets the frequency of the thread.
     */
     double GetFreq();
