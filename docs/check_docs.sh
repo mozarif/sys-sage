@@ -1,6 +1,5 @@
 #!/bin/bash
 
-cd docs
 ./show_undocumented.py doc-coverage.info
 RESULT=$?
 echo "Script exit status: $RESULT"
