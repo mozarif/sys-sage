@@ -4,7 +4,7 @@
 
 using namespace boost::ut;
 
-#if CPUINFO
+#if PROC_CPUINFO
 
 static suite<"cpuinfo"> _ = []
 {

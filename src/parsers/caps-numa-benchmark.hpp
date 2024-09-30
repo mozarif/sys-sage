@@ -1,7 +1,7 @@
 #ifndef CAPS_NUMA_BENCHMARK
 #define CAPS_NUMA_BENCHMARK
 
-#include "Topology.hpp"
+#include "Component.hpp"
 #include "DataPath.hpp"
 
 int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, string delim = ";");

@@ -2,7 +2,7 @@
 #define CCCBENCH_PARSER
 
 #include <vector>
-#include "Topology.hpp"
+#include "Component.hpp"
 #include "DataPath.hpp"
 
 int parseCccbenchOutput(Node* , std::string );

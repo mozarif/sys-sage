@@ -1,7 +1,7 @@
 #ifndef MT4G_PARSER
 #define MT4G_PARSER
 
-#include "Topology.hpp"
+#include "Component.hpp"
 #include "DataPath.hpp"
 
 /*! \file */
