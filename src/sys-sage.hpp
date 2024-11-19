@@ -2,12 +2,12 @@
 #define SYS_SAGE
 
 //includes all other headers
-#include "Topology.hpp"
+#include "Component.hpp"
 #include "DataPath.hpp"
 #include "xml_dump.hpp"
 #include "parsers/hwloc.hpp"
 #include "parsers/caps-numa-benchmark.hpp"
-#include "parsers/gpu-topo.hpp"
+#include "parsers/mt4g.hpp"
 #include "parsers/cccbench.hpp"
 #include "parsers/qdmi-parser.hpp"
 #endif //SYS_SAGE

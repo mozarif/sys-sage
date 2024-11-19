@@ -123,7 +123,7 @@ static suite<"topology"> _ = []
     "Memory"_test = []
     {
         Node root{0};
-        Memory node{&root, "foo", 32};
+        Memory node{&root, 0, "foo", 32};
         expect(that % &root == node.GetParent());
         expect(that % 0 == node.GetId());
         expect(that % "foo"sv == node.GetName());
@@ -239,7 +239,7 @@ static suite<"topology"> _ = []
         c.InsertChild(&d);
 
         std::vector<Component *> array;
-        a.GetComponentsNLevelsDeeper(&array, 1);
+        a.GetNthDescendents(&array, 1);
         expect(that % 2_u == array.size());
     };
 
@@ -274,7 +274,7 @@ static suite<"topology"> _ = []
         d.InsertChild(&e);
         d.InsertChild(&f);
 
-        expect(that % 3 == a.GetNumThreads());
+        expect(that % 3 == a.CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD));
     };
 
     "Linearize subtree"_test = []
@@ -289,7 +289,7 @@ static suite<"topology"> _ = []
         a.InsertChild(&c);
 
         std::vector<Component *> array;
-        a.GetSubtreeNodeList(&array);
+        a.GetComponentsInSubtree(&array);
         expect(that % array == (std::vector<Component *>{&a, &b, &d, &c}));
     };
 
@@ -310,6 +310,6 @@ static suite<"topology"> _ = []
         e.InsertChild(&f);
         a.InsertChild(&g);
 
-        expect(that % 3 == a.GetTopoTreeDepth());
+        expect(that % 3 == a.GetSubtreeDepth());
     };
 };

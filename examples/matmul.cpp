@@ -15,7 +15,7 @@
 #include <hwloc.h>
 
 //intel cat
-#ifdef CAT_AWARE
+#ifdef INTEL_PQOS
 #include <pqos.h>
 #endif
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
         }
 
         //////////////////////////////////// whole L3 size
-#ifndef CAT_AWARE
+#ifndef INTEL_PQOS
 
         Component * c = (Component*)t;
         while(c->GetParent() != NULL){

@@ -12,10 +12,10 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string topoPath;
+    string xmlPath;
     const char *cccPath;
     if(argc == 3){
-        topoPath = argv[1];
+        xmlPath = argv[1];
         cccPath = argv[2];
     }
     else{
@@ -27,13 +27,13 @@ int main(int argc, char *argv[])
     Topology* topo = new Topology();
     Node* n = new Node(topo, 1);
 
-    if(parseHwlocOutput(n, topoPath) != 0) { //adds topo to a next node
+    if(parseHwlocOutput(n, xmlPath) != 0) { //adds topo to a next node
         usage(argv[0]);
         return 1;
     }
     cout << "-- End parseHwlocOutput" << endl;
 
-    cout << "Total num HW threads: " << topo->GetNumThreads() << endl;
+    cout << "Total num HW threads: " << topo->CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) << endl;
 
     cout << "---------------- Printing the whole tree ----------------" << endl;
     topo->PrintSubtree(2);
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     cccparser->applyDataPaths(n);
 
     auto allcores = new vector<Component *>();
-    topo->FindAllSubcomponentsByType(allcores, SYS_SAGE_COMPONENT_CORE);    
+    topo->GetAllSubcomponentsByType(allcores, SYS_SAGE_COMPONENT_CORE);    
     //auto allcores = topo->GetAllChildrenByType(SYS_SAGE_COMPONENT_CORE);
 
     for(auto c0 : *allcores)

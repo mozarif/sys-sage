@@ -87,7 +87,7 @@ CccbenchParser::CccbenchParser(const char *csv_path)
 void CccbenchParser::applyDataPaths(Component *root)
 {
     auto corev = new vector<Component *>();
-    root->FindAllSubcomponentsByType(corev, SYS_SAGE_COMPONENT_CORE);
+    root->GetAllSubcomponentsByType(corev, SYS_SAGE_COMPONENT_CORE);
     //auto corev = root->GetAllChildrenByType(SYS_SAGE_COMPONENT_CORE);
 
     for(auto xcore : *corev)

@@ -1,6 +1,8 @@
 
 link_libraries(sys-sage sys-sage)
 include_directories(../src)
+# include_directories(../src/external_interfaces)
+# include_directories(../src/pa)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -11,24 +13,24 @@ endif()
 
 add_executable(basic_usage basic_usage.cpp)
 add_executable(custom_attributes custom_attributes.cpp)
-add_executable(gpu-topo-parser gpu-topo-parser.cpp)
+add_executable(mt4g-parser mt4g-parser.cpp)
 add_executable(larger_topo larger_topo.cpp)
 add_executable(sys-sage-benchmarking sys-sage-benchmarking.cpp)
 add_executable(use_custom_parser custom_parser_musa/use_custom_parser.cpp custom_parser_musa/musa_parser.cpp custom_parser_musa/musa_parser.hpp)
 add_executable(cccbenchplushwloc cccbenchplushwloc.cpp)
 add_executable(qdmi-test qdmi-test.cpp)
 
-install(TARGETS basic_usage gpu-topo-parser custom_attributes larger_topo sys-sage-benchmarking use_custom_parser cccbenchplushwloc DESTINATION bin/examples)
+install(TARGETS basic_usage mt4g-parser custom_attributes larger_topo sys-sage-benchmarking use_custom_parser cccbenchplushwloc DESTINATION bin/examples)
 install(DIRECTORY example_data DESTINATION bin/examples)
 
-if(CAT_AWARE)
+if(INTEL_PQOS)
     add_executable(matmul matmul.cpp)
     set_source_files_properties(matmul.cpp PROPERTIES COMPILE_FLAGS -O3)
     target_link_libraries(matmul hwloc pqos )
     install(TARGETS matmul DESTINATION bin/examples)
 endif()
 
-if(CPUINFO)
+if(PROC_CPUINFO)
     add_executable(cpu-frequency cpu-frequency.cpp)
     install(TARGETS cpu-frequency DESTINATION bin/examples)
 endif()

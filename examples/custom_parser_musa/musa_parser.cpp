@@ -128,10 +128,14 @@ Memory* MusaParser::ParseMemory() {
 	int pos1 = input.find("_");
 	int pos2 = input.find("_", pos1+1);
 	std::string output;
-    if(pos2 == std::string::npos) //no second underscore
+    if(pos2 == std::string::npos) {//no second underscore
         output = input.substr(pos1 + 1);
-    else
-        output = input.substr(pos1 + 1, pos2 - pos1 - 1);
+	}
+    else{
+		output = input.substr(pos1 + 1, pos2 - pos1 - 1);
+	}
+        
+		
 	long long size = stol(output);
     long long channels = stol(mapping["RAMULATOR"]["channels"]);
     if(channels > 0)
@@ -156,7 +160,7 @@ Memory* MusaParser::ParseMemory() {
     else if (output.find("tb") != std::string::npos)
         size *= (long long)1000*(long long)1000*(long long)1000*(long long)1000;
 
-    Memory* mem = new Memory(socket, input, size);
+    Memory* mem = new Memory(socket, 0, input, size);
 	return mem;
 }
 
