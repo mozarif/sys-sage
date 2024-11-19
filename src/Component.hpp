@@ -9,6 +9,8 @@
 #include "defines.hpp"
 #include "DataPath.hpp"
 #include <libxml/parser.h>
+#include <ibm.h>
+// #include <qdmi_internal.h>
 
 
 #define SYS_SAGE_COMPONENT_NONE 1 /**< class Component (do not use normally)*/
@@ -23,6 +25,13 @@
 #define SYS_SAGE_COMPONENT_NODE 512 /**< class Node */
 #define SYS_SAGE_COMPONENT_TOPOLOGY 1024 /**< class Topology */
 
+/* To-do: Add defines for different quantum backends
+* For e.g.: SYS_SAGE_COMPONENT_NEUTRAL_ATOMS, SYS_SAGE_COMPONENT_SUPERCONDUCTING, etc.
+
+*/
+#define SYS_SAGE_COMPONENT_QUANTUM_BACKEND 2048 /**< class QuantumBackend */
+#define SYS_SAGE_COMPONENT_QUBIT 4096 /**< class Qubit */
+
 #define SYS_SAGE_SUBDIVISION_TYPE_NONE 1 /**< Generic Subdivision type. */
 #define SYS_SAGE_SUBDIVISION_TYPE_GPU_SM 2 /**< Subdivision type for GPU SMs */
 
@@ -31,10 +40,10 @@
 #define SYS_SAGE_CHIP_TYPE_CPU_SOCKET 4 /**< Chip type used for one CPU socket. */
 #define SYS_SAGE_CHIP_TYPE_GPU 8 /**< Chip type used for a GPU.*/
 
-
 using namespace std;
+class Relation;
 class DataPath;
-
+class QuantumGate;
 /**
 Generic class Component - all components inherit from this class, i.e. this class defines attributes and methods common to all components.
 \n Therefore, these can be used universally among all components. Usually, a Component instance would be an instance of one of the child classes, but a generic component (instance of class Component) is also possible.
@@ -388,7 +397,7 @@ public:
     /**
     Retrieves a DataPath * from the list of this component's data paths with matching type and orientation.
     \n The first match is returned -- first SYS_SAGE_DATAPATH_OUTGOING are searched, then SYS_SAGE_DATAPATH_INCOMING.
-    @param dp_type - DataPath type (dp_type) to search for
+    @param type - DataPath type (type) to search for
     @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
     @return DataPath pointer to the found data path; NULL if nothing found.
     */
@@ -396,7 +405,7 @@ public:
     /**
     Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
     Results are returned in vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
-    @param dp_type - DataPath type (dp_type) to search for.
+    @param type - DataPath type (type) to search for.
     @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
     @param outDpArr - output parameter (vector with results)
         \n An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
@@ -1175,4 +1184,236 @@ public:
 private:
 };
 
+class Qubit : public Component {
+public:
+    /**
+    Qubit constructor (no automatic insertion in the Component Tree). Sets:
+    @param _id = id, default 0
+    @param _name = name, default "Qubit"
+    @param componentType=>SYS_SAGE_COMPONENT_QUBIT
+    */
+    Qubit(int _id = 0, string _name = "Qubit");
+    /**
+    Qubit constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
+    @param parent = the parent 
+    @param _id = id, default 0
+    @param _name = name, default "Qubit0"
+    @param componentType=>SYS_SAGE_COMPONENT_QUBIT
+    */
+    Qubit(Component * parent, int _id = 0, string _name = "Qubit");
+
+    /**
+    * @brief Sets the coupling mapping for the qubit.
+    * 
+    * @param coupling_mapping A vector of integers representing the coupling mapping.
+    * @param size_coupling_mapping The size of the coupling mapping.
+    */
+    void SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping);
+
+    /**
+    * @brief Sets the properties of the qubit.
+    * 
+    * @param t1 The T1 relaxation time.
+    * @param t2 The T2 dephasing time.
+    * @param readout_error The readout error rate.
+    * @param readout_length The readout length.
+    */
+    void SetProperties(double t1, double t2, double readout_error, double readout_length);
+
+    /**
+    * @brief Gets the coupling mapping of the qubit.
+    * 
+    * @return A constant reference to a vector of integers representing the coupling mapping.
+    */
+    const std::vector <int> &GetCouplingMapping() const;
+
+    /**
+    * @brief Gets the T1 relaxation time of the qubit.
+    * 
+    * @return The T1 relaxation time.
+    */
+    const double GetT1() const;
+    /**
+    * @brief Gets the T2 dephasing time of the qubit.
+    * 
+    * @return The T2 dephasing time.
+    */
+    const double GetT2() const;
+
+    /**
+    * @brief Gets the readout error rate of the qubit.
+    * 
+    * @return The readout error rate.
+    */
+    const double GetReadoutError() const;
+
+    /**
+    * @brief Gets the readout length of the qubit.
+    * 
+    * @return The readout length.
+    */
+    const double GetReadoutLength() const;
+
+    /**
+    * @brief Gets the frequency of the qubit.
+    * 
+    * @return The frequency of the qubit.
+    */
+    const double GetFrequency() const;
+
+    /**
+    * @brief Refreshes the properties of the qubit.
+    */
+    void RefreshProperties();
+
+    ~Qubit() override = default;
+
+private:
+    std::vector <int> _coupling_mapping;
+    int _size_coupling_mapping;
+    double fidelity;
+    double _t1;
+    double _t2;
+    double _readout_error;
+    double _readout_length;
+    double _fequency;
+    std::string _calibration_time;
+};
+
+
+class QuantumBackend : public Component {
+public:
+    /**
+    QuantumBackend constructor (no automatic insertion in the Component Tree). Sets:
+    @param _id = id, default 0
+    @param _name = name, default "QuantumBackend"
+    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
+    */
+    QuantumBackend(int _id = 0, string _name = "QuantumBackend");
+    /**
+    QuantumBackend constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
+    @param parent = the parent 
+    @param _id = id, default 0
+    @param _name = name, default "QuantumBackend"
+    @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
+    */
+    QuantumBackend(Component * parent, int _id = 0, string _name = "QuantumBackend");
+
+    /**
+    * @brief Sets the number of qubits in the quantum backend.
+    * 
+    * @param _num_qubits The number of qubits to set.
+    */
+    void SetNumberofQubits(int _num_qubits);
+
+    /**
+    * @brief Sets the QDMI device for the quantum backend.
+    * 
+    * @param dev The QDMI device to set.
+    */
+    void SetQDMIDevice(QDMI_Device dev);
+
+    /**
+    * @brief Gets the QDMI device of the quantum backend.
+    * 
+    * @return The QDMI device.
+    */
+    QDMI_Device GetQDMIDevice();
+
+    /**
+    * @brief Gets the number of qubits in the quantum backend.
+    * 
+    * @return The number of qubits.
+    */
+    int GetNumberofQubits () const;
+
+    /**
+    * @brief Adds a quantum gate to the quantum backend.
+    * 
+    * @param gate The quantum gate to add.
+    */
+    void addGate(QuantumGate *gate);
+
+    /**
+    * @brief Gets the quantum gates by their size.
+    * 
+    * @param _gate_size The size of the gates to retrieve.
+    * @return A vector of quantum gates with the specified size.
+    */
+    std::vector<QuantumGate*> GetGatesBySize(size_t _gate_size) const;
+
+    /**
+    * @brief Gets the quantum gates by their type.
+    * 
+    * @param _gate_type The type of the gates to retrieve.
+    * @return A vector of quantum gates with the specified type.
+    */
+    std::vector<QuantumGate*> GetGatesByType(size_t _gate_type) const;
+
+    /**
+    * @brief Gets all types of quantum gates in the quantum backend.
+    * 
+    * @return A vector of all quantum gate types.
+    */
+    std::vector<QuantumGate*> GetAllGateTypes() const;
+
+    /**
+    * @brief Gets the number of quantum gates in the quantum backend.
+    * 
+    * @return The number of quantum gates.
+    */
+    int GetNumberofGates() const;
+
+    /**
+    * @brief Gets all qubits in the quantum backend.
+    * 
+    * @return A vector of pointers to all qubits.
+    */
+    std::vector<Qubit *> GetAllQubits();
+
+    /**
+    * @brief Gets all coupling maps in the quantum backend.
+    * 
+    * @return A set of pairs representing the coupling maps.
+    */
+    std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
+
+    /**
+     * @brief Refreshes the topology of the quantum backend.
+     * 
+     * @param qubit_indices The indices of the qubits that need to be refreshed.
+     */
+    void RefreshTopology(std::set<int> qubit_indices); // qubit_indices: indices of the qubits that need to be refreshed
+
+    ~QuantumBackend() override = default;
+
+private:
+    int num_qubits;
+    int num_gates;
+    QDMI_Device device; // For refreshing the topology
+    std::vector <QuantumGate*> gate_types;
+};
+
+// TO-DO: Choose a better name for NA and TI systems
+class AtomSite : public QuantumBackend{
+public:
+    struct SiteProperties {
+
+        int nRows;
+        int nColumns;
+        int nAods;
+        int nAodIntermediateLevels;
+        int nAodCoordinates;
+        double   interQubitDistance;
+        double   interactionRadius;
+        double   blockingFactor;   
+    } properties;
+
+    std::map <std::string, double> shuttlingTimes;
+    std::map <std::string, double> shuttlingAverageFidelities;
+
+};
+
 #endif
+
+

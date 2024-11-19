@@ -269,41 +269,41 @@
     </Topology>
   </components>
   <data-paths>
-    <datapath source="0x600001c10000" target="0x600001c10000" oriented="16" dp_type="128"
+    <datapath source="0x600001c10000" target="0x600001c10000" oriented="16" type="128"
       bw="8621.000000" latency="244.000000" />
-    <datapath source="0x600001c100a0" target="0x600001c10000" oriented="16" dp_type="128"
+    <datapath source="0x600001c100a0" target="0x600001c10000" oriented="16" type="128"
       bw="8502.000000" latency="195.000000" />
-    <datapath source="0x600001c10140" target="0x600001c10000" oriented="16" dp_type="128"
+    <datapath source="0x600001c10140" target="0x600001c10000" oriented="16" type="128"
       bw="6467.000000" latency="307.000000" />
-    <datapath source="0x600001c101e0" target="0x600001c10000" oriented="16" dp_type="128"
+    <datapath source="0x600001c101e0" target="0x600001c10000" oriented="16" type="128"
       bw="6476.000000" latency="313.000000" />
-    <datapath source="0x600001c10000" target="0x600001c100a0" oriented="16" dp_type="128"
+    <datapath source="0x600001c10000" target="0x600001c100a0" oriented="16" type="128"
       bw="8237.000000" latency="203.000000" />
-    <datapath source="0x600001c100a0" target="0x600001c100a0" oriented="16" dp_type="128"
+    <datapath source="0x600001c100a0" target="0x600001c100a0" oriented="16" type="128"
       bw="8663.000000" latency="237.000000" />
-    <datapath source="0x600001c10140" target="0x600001c100a0" oriented="16" dp_type="128"
+    <datapath source="0x600001c10140" target="0x600001c100a0" oriented="16" type="128"
       bw="6291.000000" latency="315.000000" />
-    <datapath source="0x600001c101e0" target="0x600001c100a0" oriented="16" dp_type="128"
+    <datapath source="0x600001c101e0" target="0x600001c100a0" oriented="16" type="128"
       bw="6267.000000" latency="319.000000" />
-    <datapath source="0x600001c10000" target="0x600001c10140" oriented="16" dp_type="128"
+    <datapath source="0x600001c10000" target="0x600001c10140" oriented="16" type="128"
       bw="6439.000000" latency="302.000000">
       <Attribute name="info" value="measured with no load on 07.07." />
     </datapath>
-    <datapath source="0x600001c100a0" target="0x600001c10140" oriented="16" dp_type="128"
+    <datapath source="0x600001c100a0" target="0x600001c10140" oriented="16" type="128"
       bw="6609.000000" latency="313.000000" />
-    <datapath source="0x600001c10140" target="0x600001c10140" oriented="16" dp_type="128"
+    <datapath source="0x600001c10140" target="0x600001c10140" oriented="16" type="128"
       bw="8539.000000" latency="237.000000">
       <Attribute name="info" value="measured with no load on 07.07." />
     </datapath>
-    <datapath source="0x600001c101e0" target="0x600001c10140" oriented="16" dp_type="128"
+    <datapath source="0x600001c101e0" target="0x600001c10140" oriented="16" type="128"
       bw="8412.000000" latency="210.000000" />
-    <datapath source="0x600001c10000" target="0x600001c101e0" oriented="16" dp_type="128"
+    <datapath source="0x600001c10000" target="0x600001c101e0" oriented="16" type="128"
       bw="6315.000000" latency="309.000000" />
-    <datapath source="0x600001c100a0" target="0x600001c101e0" oriented="16" dp_type="128"
+    <datapath source="0x600001c100a0" target="0x600001c101e0" oriented="16" type="128"
       bw="6324.000000" latency="316.000000" />
-    <datapath source="0x600001c10140" target="0x600001c101e0" oriented="16" dp_type="128"
+    <datapath source="0x600001c10140" target="0x600001c101e0" oriented="16" type="128"
       bw="8177.000000" latency="211.000000" />
-    <datapath source="0x600001c101e0" target="0x600001c101e0" oriented="16" dp_type="128"
+    <datapath source="0x600001c101e0" target="0x600001c101e0" oriented="16" type="128"
       bw="8466.000000" latency="246.000000" />
   </data-paths>
 </sys-sage>
