@@ -447,6 +447,11 @@ string Component::GetComponentTypeStr()
             return "Node";
         case SYS_SAGE_COMPONENT_TOPOLOGY:
             return "Topology";
+        case SYS_SAGE_COMPONENT_QUANTUM_BACKEND:
+            return "Quantum Backend";
+        case SYS_SAGE_COMPONENT_QUBIT:
+            return "Qubit";
+
     }
     return "";
 }
@@ -731,3 +736,118 @@ Core::Core(Component * parent, int _id, string _name):Component(parent, _id, _na
 
 Thread::Thread(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_THREAD){}
 Thread::Thread(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_THREAD){}
+
+QuantumBackend::QuantumBackend(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUANTUM_BACKEND){}
+
+QuantumBackend::QuantumBackend(Component * _parent, int _id, string _name):Component(_parent, _id, _name, SYS_SAGE_COMPONENT_QUANTUM_BACKEND){}
+
+void QuantumBackend::SetNumberofQubits(int _num_qubits) { num_qubits = _num_qubits; }
+
+int QuantumBackend::GetNumberofQubits() const { return num_qubits; }
+
+void QuantumBackend::addGate(QuantumGate *_gate)
+{
+    gate_types.push_back(_gate);
+}
+
+std::vector<QuantumGate*> QuantumBackend::GetGatesBySize(size_t _gate_size) const 
+{
+    std::vector<QuantumGate*> gates;
+    gates.reserve(gate_types.size());
+    
+    for (QuantumGate * gate : gate_types)
+    {
+        if(_gate_size == gate->GetGateSize())
+            gates.emplace_back(gate);        
+    }
+    
+    return gates;
+}
+
+std::vector<QuantumGate*> QuantumBackend::GetGatesByType(size_t _gate_type) const 
+{
+    std::vector<QuantumGate*> gates;
+    gates.reserve(gate_types.size());
+    
+    for (QuantumGate * gate : gate_types)
+    {
+        if(_gate_type == gate->GetType())
+            gates.emplace_back(gate);        
+    }
+    
+    return gates;
+}
+
+std::vector<QuantumGate*> QuantumBackend::GetAllGateTypes() const 
+{
+    return gate_types;
+}
+
+int QuantumBackend::GetNumberofGates() const { return gate_types.size(); }
+
+std::vector<Qubit *> QuantumBackend::GetAllQubits()
+{
+    auto all_children = GetAllChildrenByType(SYS_SAGE_COMPONENT_QUBIT);
+    std::vector<Qubit *> qubits;
+    qubits.reserve(all_children.size());
+    
+    for (size_t i = 0; i < all_children.size(); ++i)
+    {
+        Qubit* q = dynamic_cast<Qubit*>(all_children[i]);
+        qubits.push_back(q);
+    }
+
+    return qubits;
+}
+
+std::set<std::pair<std::uint16_t, std::uint16_t> > QuantumBackend::GetAllCouplingMaps()
+{
+    std::set<std::pair<std::uint16_t, std::uint16_t>> result; 
+    for(auto i = 0; i < num_qubits; ++i)
+    {
+        Qubit* q = dynamic_cast<Qubit*>(GetChild(i));
+        auto coupling_map = q->GetCouplingMapping();
+        for (size_t j = 0; j < coupling_map.size(); ++j)
+        {
+            result.emplace(i, coupling_map[j]);
+        }
+    }
+
+    return result;
+}
+
+void QuantumBackend::SetQDMIDevice(QDMI_Device dev)
+{
+    device = dev;
+}
+
+QDMI_Device QuantumBackend::GetQDMIDevice(){ return device; }
+
+Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUBIT){}
+
+Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUBIT){}
+
+void Qubit::SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping)
+{
+    _coupling_mapping = coupling_mapping;
+    _size_coupling_mapping = size_coupling_mapping;
+}
+
+const std::vector <int> & Qubit::GetCouplingMapping() const
+{
+    return _coupling_mapping;
+}
+
+void Qubit::SetProperties(double t1, double t2, double readout_error, double readout_length)
+{
+    _t1 = t1;
+    _t2 = t2;
+    _readout_error = readout_error;
+    _readout_length = readout_length;
+
+}
+
+const double Qubit::GetT1() const { return _t1; }    
+const double Qubit::GetT2() const { return _t2; }
+const double Qubit::GetReadoutError() const { return _readout_error; }
+const double Qubit::GetReadoutLength() const { return _readout_length; }
