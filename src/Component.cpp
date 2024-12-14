@@ -858,3 +858,18 @@ const double Qubit::GetT2() const { return _t2; }
 const double Qubit::GetReadoutFidelity() const { return _readout_fidelity; }
 const double Qubit::Get1QFidelity() const { return _q1_fidelity;}
 const double Qubit::GetReadoutLength() const { return _readout_length; }
+
+const double Qubit::GetWeight() const
+{
+    return _qubit_weight;
+}
+
+void Qubit::CalculateWeight()
+{
+    _qubit_weight = _t1 + _t2 + _q1_fidelity + _readout_fidelity;
+
+    for (const auto neighbour :  _coupling_mapping)
+    {
+        _qubit_weight += neighbour._fidelity;
+    }
+}

@@ -23,9 +23,10 @@ int main()
         auto coupling_map = q->GetCouplingMapping();
         for (long unsigned j = 0; j < coupling_map.size(); j++)
         {
-            std::cout << coupling_map[j]._qubit_index << "(" << coupling_map[j]._fidelity << ") ";
+            std::cout << coupling_map[j]._qubit_index << " ";
         }
-        std::cout << "}\n";
+        std::cout << "} and weight = " << q->GetWeight() << "\n";
+
     }
 
     return 0;

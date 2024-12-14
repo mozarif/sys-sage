@@ -1281,6 +1281,10 @@ public:
     */
     const double GetFrequency() const;
 
+    const double GetWeight() const;
+
+    void CalculateWeight();
+
     /**
     * @brief Refreshes the properties of the qubit.
     */
@@ -1297,6 +1301,7 @@ private:
     double _readout_fidelity;
     double _readout_length;
     double _fequency;
+    double _qubit_weight;
     std::string _calibration_time;
 };
 

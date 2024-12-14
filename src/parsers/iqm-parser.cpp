@@ -91,6 +91,7 @@ void IQMParser::setQubits(QuantumBackend *backend)
         }
         
         q->SetCouplingMapping(cmp, coupling_map[i].size());
+        q->CalculateWeight();
     }
 
     return;
