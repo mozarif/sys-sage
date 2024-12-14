@@ -824,6 +824,8 @@ void QuantumBackend::SetQDMIDevice(QDMI_Device dev)
 
 QDMI_Device QuantumBackend::GetQDMIDevice(){ return device; }
 
+#endif
+
 Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUBIT){}
 
 Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUBIT){}
@@ -834,23 +836,24 @@ void Qubit::SetCouplingMapping( const std::vector <int> &coupling_mapping, const
     _size_coupling_mapping = size_coupling_mapping;
 }
 
-#endif
+
 
 const std::vector <int> & Qubit::GetCouplingMapping() const
 {
     return _coupling_mapping;
 }
 
-void Qubit::SetProperties(double t1, double t2, double readout_error, double readout_length)
+void Qubit::SetProperties(double t1, double t2, double readout_fidelity, double q1_fidelity, double readout_length)
 {
     _t1 = t1;
     _t2 = t2;
-    _readout_error = readout_error;
+    _readout_fidelity = readout_fidelity;
+    _q1_fidelity = q1_fidelity;
     _readout_length = readout_length;
 
 }
 
 const double Qubit::GetT1() const { return _t1; }    
 const double Qubit::GetT2() const { return _t2; }
-const double Qubit::GetReadoutError() const { return _readout_error; }
+const double Qubit::GetReadoutFidelity() const { return _readout_fidelity; }
 const double Qubit::GetReadoutLength() const { return _readout_length; }

@@ -12,7 +12,7 @@
 #include <string.h>
 #include <vector>
 #include <map>
-#include "Topology.hpp"
+#include "Component.hpp"
 #include <ibm.h>
 
 #define CHECK_ERR(a,b) { if (a!=QDMI_SUCCESS) { printf("\n[Error]: %i at %s",a,b); return 1; }}

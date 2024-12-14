@@ -1218,10 +1218,11 @@ public:
     * 
     * @param t1 The T1 relaxation time.
     * @param t2 The T2 dephasing time.
-    * @param readout_error The readout error rate.
+    * @param readout_fidelty The readout fidelity.
+    * @param q1_fidelity 1 qubit fidelity
     * @param readout_length The readout length.
     */
-    void SetProperties(double t1, double t2, double readout_error, double readout_length);
+    void SetProperties(double t1, double t2, double readout_fidelty, double q1_fidelity = 0, double readout_length = 0);
 
     /**
     * @brief Gets the coupling mapping of the qubit.
@@ -1244,11 +1245,11 @@ public:
     const double GetT2() const;
 
     /**
-    * @brief Gets the readout error rate of the qubit.
+    * @brief Gets the readout fidelity of the qubit.
     * 
-    * @return The readout error rate.
+    * @return The readout fidelity 
     */
-    const double GetReadoutError() const;
+    const double GetReadoutFidelity() const;
 
     /**
     * @brief Gets the readout length of the qubit.
@@ -1274,10 +1275,10 @@ public:
 private:
     std::vector <int> _coupling_mapping;
     int _size_coupling_mapping;
-    double fidelity;
+    double _q1_fidelity;
     double _t1;
     double _t2;
-    double _readout_error;
+    double _readout_fidelity;
     double _readout_length;
     double _fequency;
     std::string _calibration_time;

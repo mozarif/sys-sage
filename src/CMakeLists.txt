@@ -19,6 +19,7 @@ set(SOURCES
     parsers/mt4g.cpp
     parsers/cccbench.cpp
     parsers/qdmi-parser.cpp
+    parsers/iqm-parser.cpp
     )
 
 set(HEADERS
@@ -32,6 +33,7 @@ set(HEADERS
     parsers/mt4g.hpp
     parsers/cccbench.cpp
     parsers/qdmi-parser.hpp
+    parsers/iqm-parser.hpp
     )
 
 add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
@@ -45,9 +47,6 @@ if(QDMI)
 # Find QInfo package
     find_package(qinfo REQUIRED)
 
-# Find nlohmann_json package
-    find_package(nlohmann_json REQUIRED)
-
     target_link_libraries(sys-sage PUBLIC
       backend_ibm
       qdmi
@@ -55,6 +54,11 @@ if(QDMI)
       nlohmann_json::nlohmann_json
       )
 endif()
+
+# Find nlohmann_json package
+find_package(nlohmann_json REQUIRED)
+
+target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
 
 target_include_directories(sys-sage 
     PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
