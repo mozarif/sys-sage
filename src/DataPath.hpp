@@ -356,8 +356,8 @@ private:
     Component * source; /**< source component of the datapath */
     Component * target; /**< taget component of the datapath */
 
-    const int oriented; /**< orientation of the datapath (SYS_SAGE_DATAPATH_ORIENTED or SYS_SAGE_DATAPATH_BIDIRECTIONAL) */
-    const int dp_type; /**< type of the datapath */
+    int oriented; /**< orientation of the datapath (SYS_SAGE_DATAPATH_ORIENTED or SYS_SAGE_DATAPATH_BIDIRECTIONAL) */
+    int dp_type; /**< type of the datapath */
 
     double bw; /**< Bandwidth from the source(provides the data) to the target(requests the data) */
     double latency; /**< Data load latency from the source(provides the data) to the target(requests the data) */
@@ -506,9 +506,21 @@ private:
     size_t gate_size;
 
     /**
+     * @brief List of the qubits involved in a quantum gate. 
+     * 
+     * This vector of qubit pointers stores the list of the qubits involved in the gate.
+     */
+    std::vector<Qubit*> qubits;
+
+    /**
      * @brief The length of the quantum gate operation in terms of time or depth.
      */
     int gate_length;
+
+    /**
+     * @brief The fidelity of the quantum gate, indicating its accuracy or performance.
+     */
+    double fidelity;
 
     /**
      * @brief The unitary matrix representing the quantum gate's operation.
@@ -518,23 +530,12 @@ private:
     std::string unitary;
 
     /**
-     * @brief The fidelity of the quantum gate, indicating its accuracy or performance.
-     */
-    double fidelity;
-
-    /**
      * @brief The coupling map for the quantum gate.
      * 
      * This 2D vector of qubit pointers represents the coupling map, defining how qubits interact within the gate.
      */
     std::vector<std::vector<Qubit*>> coupling_mapping;
 
-    /**
-     * @brief List of the qubits involved in a quantum gate. 
-     * 
-     * This vector of qubit pointers stores the list of the qubits involved in the gate.
-     */
-    std::vector<Qubit*> qubits;
 
     /**
      * @brief Additional properties of the quantum gate.

@@ -3,6 +3,7 @@
  * @brief sys-sage's interface to QDMI.
  */
 
+#ifdef QDMI
 #include "qdmi-parser.hpp"
 
 QInfo QdmiParser::info; 
@@ -274,3 +275,5 @@ void Qubit::RefreshProperties()
     QdmiParser::refreshQubitProperties(qc->GetQDMIDevice(), this);
     
 }
+
+#endif // QDMI

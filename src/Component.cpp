@@ -816,6 +816,7 @@ std::set<std::pair<std::uint16_t, std::uint16_t> > QuantumBackend::GetAllCouplin
     return result;
 }
 
+#ifdef QDMI
 void QuantumBackend::SetQDMIDevice(QDMI_Device dev)
 {
     device = dev;
@@ -832,6 +833,8 @@ void Qubit::SetCouplingMapping( const std::vector <int> &coupling_mapping, const
     _coupling_mapping = coupling_mapping;
     _size_coupling_mapping = size_coupling_mapping;
 }
+
+#endif
 
 const std::vector <int> & Qubit::GetCouplingMapping() const
 {

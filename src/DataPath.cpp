@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <algorithm>
 
-void Relation::SetType(int _type) {_type = type;}
+void Relation::SetType(int _type) {type = _type;}
 int Relation::GetType(){ return type;}
 void Relation::SetId(int _id) {id = _id;}
 int Relation::GetId(){ return id;}
@@ -87,7 +87,7 @@ void DataPath::UpdateTarget(Component * _new_target)
 
 DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type): DataPath(_source, _target, _oriented, _type, -1, -1) {}
 DataPath::DataPath(Component* _source, Component* _target, int _oriented, double _bw, double _latency): DataPath(_source, _target, _oriented, SYS_SAGE_DATAPATH_TYPE_NONE, _bw, _latency) {}
-DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type, double _bw, double _latency): source(_source), target(_target), oriented(_oriented), type(_type), bw(_bw), latency(_latency)
+DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type, double _bw, double _latency): source(_source), target(_target), oriented(_oriented), bw(_bw), latency(_latency)
 {
     if(_oriented == SYS_SAGE_DATAPATH_BIDIRECTIONAL)
     {

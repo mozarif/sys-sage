@@ -9,7 +9,10 @@
 #include "defines.hpp"
 #include "DataPath.hpp"
 #include <libxml/parser.h>
+
+#ifdef QDMI
 #include <ibm.h>
+#endif
 // #include <qdmi_internal.h>
 
 
@@ -1306,6 +1309,7 @@ public:
     */
     void SetNumberofQubits(int _num_qubits);
 
+#ifdef QDMI
     /**
     * @brief Sets the QDMI device for the quantum backend.
     * 
@@ -1319,7 +1323,7 @@ public:
     * @return The QDMI device.
     */
     QDMI_Device GetQDMIDevice();
-
+#endif
     /**
     * @brief Gets the number of qubits in the quantum backend.
     * 
@@ -1390,8 +1394,10 @@ public:
 private:
     int num_qubits;
     int num_gates;
-    QDMI_Device device; // For refreshing the topology
     std::vector <QuantumGate*> gate_types;
+#ifdef QDMI
+    QDMI_Device device; // For refreshing the topology
+#endif
 };
 
 // TO-DO: Choose a better name for NA and TI systems

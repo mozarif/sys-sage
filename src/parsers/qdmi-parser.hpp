@@ -6,6 +6,8 @@
 #ifndef QDMIParser_HPP
 #define QDMIParser_HPP
 
+#ifdef QDMI
+
 #include <iostream>
 #include <string.h>
 #include <vector>
@@ -132,4 +134,5 @@ extern "C"
     
 }
 
+#endif //QDMI
 #endif // QDMIParser_HPP

@@ -18,7 +18,9 @@ add_executable(larger_topo larger_topo.cpp)
 add_executable(sys-sage-benchmarking sys-sage-benchmarking.cpp)
 add_executable(use_custom_parser custom_parser_musa/use_custom_parser.cpp custom_parser_musa/musa_parser.cpp custom_parser_musa/musa_parser.hpp)
 add_executable(cccbenchplushwloc cccbenchplushwloc.cpp)
-add_executable(qdmi-test qdmi-test.cpp)
+if (QDMI)
+    add_executable(qdmi-test qdmi-test.cpp)
+endif()
 
 install(TARGETS basic_usage mt4g-parser custom_attributes larger_topo sys-sage-benchmarking use_custom_parser cccbenchplushwloc DESTINATION bin/examples)
 install(DIRECTORY example_data DESTINATION bin/examples)
@@ -40,7 +42,9 @@ if(NVIDIA_MIG)
     install(TARGETS nvidia-mig DESTINATION bin/examples)
 endif()
 
-target_link_libraries(qdmi-test PRIVATE
-  qdmi
-  qinfo
-  )
+if (QDMI)
+    target_link_libraries(qdmi-test PRIVATE
+      qdmi
+      qinfo
+      )
+endif()
