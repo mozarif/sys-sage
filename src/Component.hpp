@@ -1205,13 +1205,22 @@ public:
     */
     Qubit(Component * parent, int _id = 0, string _name = "Qubit");
 
+    struct NeighbouringQubit
+    {   
+        NeighbouringQubit (int qubit_index, double fidelity)
+        : _qubit_index (qubit_index), _fidelity (fidelity){}
+        
+        int _qubit_index;
+        double _fidelity; // Two qubit fidelity
+    };
+
     /**
     * @brief Sets the coupling mapping for the qubit.
     * 
     * @param coupling_mapping A vector of integers representing the coupling mapping.
     * @param size_coupling_mapping The size of the coupling mapping.
     */
-    void SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping);
+    void SetCouplingMapping( const std::vector <NeighbouringQubit> &coupling_mapping, const int &size_coupling_mapping);
 
     /**
     * @brief Sets the properties of the qubit.
@@ -1229,7 +1238,7 @@ public:
     * 
     * @return A constant reference to a vector of integers representing the coupling mapping.
     */
-    const std::vector <int> &GetCouplingMapping() const;
+    const std::vector <NeighbouringQubit> &GetCouplingMapping() const;
 
     /**
     * @brief Gets the T1 relaxation time of the qubit.
@@ -1250,6 +1259,13 @@ public:
     * @return The readout fidelity 
     */
     const double GetReadoutFidelity() const;
+
+    /**
+    * @brief Gets the 1Q fidelity of the qubit.
+    * 
+    * @return 1Q fidelity 
+    */
+    const double Get1QFidelity() const;
 
     /**
     * @brief Gets the readout length of the qubit.
@@ -1273,7 +1289,7 @@ public:
     ~Qubit() override = default;
 
 private:
-    std::vector <int> _coupling_mapping;
+    std::vector <NeighbouringQubit> _coupling_mapping;
     int _size_coupling_mapping;
     double _q1_fidelity;
     double _t1;
@@ -1381,7 +1397,7 @@ public:
     * 
     * @return A set of pairs representing the coupling maps.
     */
-    std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
+    //std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
 
     /**
      * @brief Refreshes the topology of the quantum backend.

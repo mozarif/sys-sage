@@ -5,6 +5,8 @@
 
 #include "iqm-parser.hpp"
 
+using CouplingMap = std::unordered_map<int, std::vector<int>>;
+using FidelityMap = std::map<std::pair<int, int>, double>; // For storing fidelities
 
 IQMParser::IQMParser(std::ifstream& filepath)
 { 
@@ -46,35 +48,72 @@ void IQMParser::setQubits(QuantumBackend *backend)
 
     backend->SetNumberofQubits(T1.size());
 
+    auto two_q_fidelity = _data["two_q_fidelity"];
+    auto parse_pair = [](const std::string& pair_str) -> std::pair<int, int>
+    {
+        std::stringstream ss(pair_str);
+        int x, y;
+        char comma;
+        ss >> x >> comma >> y;
+        return {x, y};
+    };
+
+    // Save coupling map and 2q fidelities
+    CouplingMap coupling_map;
+    FidelityMap fidelity_map;
+
+    for (auto it = two_q_fidelity.begin(); it != two_q_fidelity.end(); ++it)
+    {
+        std::string pair_str = it.key();
+        double fidelity = std::stod(it.value().get<std::string>());
+
+        auto [q1, q2] = parse_pair(pair_str);
+
+        // Update the coupling map
+        coupling_map[q1].push_back(q2);
+        coupling_map[q2].push_back(q1);
+
+        // Store the fidelity
+        fidelity_map[{q1, q2}] = fidelity;
+        fidelity_map[{q2, q1}] = fidelity;
+    }
+
     for ( auto i = 0; i < backend->GetNumberofQubits(); i++)
     {
         Qubit* q = new Qubit(backend, i);
-        q->SetProperties(T1[i], T2[i],readout_fidelity[i],q1_fidelity[i]);
+        q->SetProperties(T1[i], T2[i], readout_fidelity[i], q1_fidelity[i]);
+
+        std::vector <Qubit::NeighbouringQubit> cmp;
+        for (auto qubit : coupling_map[i])
+        {
+            double fidelity = fidelity_map[{i, qubit}];
+            cmp.emplace_back(Qubit::NeighbouringQubit(qubit, fidelity));
+        }
+        
+        q->SetCouplingMapping(cmp, coupling_map[i].size());
     }
 
     return;
-
 }
 
-void IQMParser::createQcTopo(QuantumBackend *backend)
-{   
-    //backend->SetNumberofQubits(get_num_qubits(dev));
+void IQMParser::CreateQcTopo(QuantumBackend *backend)
+{
     setQubits(backend);
 }
 
-QuantumBackend IQMParser::createQcTopo(int device_index, std::string device_name)
+QuantumBackend IQMParser::CreateQcTopo(int device_index, std::string device_name)
 {
     QuantumBackend qc = QuantumBackend(device_index, device_name);
-    createQcTopo(&qc);
+    CreateQcTopo(&qc);
 
     return qc;
 }
 
-QuantumBackend IQMParser::createQcTopo()
+QuantumBackend IQMParser::CreateQcTopo()
 {
     std::string name = _data["backend_name"];
     QuantumBackend qc = QuantumBackend(0, name);
-    createQcTopo(&qc);
+    CreateQcTopo(&qc);
 
     return qc;
 }

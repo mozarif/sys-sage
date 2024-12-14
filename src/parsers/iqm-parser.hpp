@@ -25,7 +25,7 @@ public:
      * @param dev - A QDMI_Device for which the topology needs to be created.
      * @see createQcTopo(Topology *topo)
      */
-    void createQcTopo(QuantumBackend *backend);
+    void CreateQcTopo(QuantumBackend *backend);
 
     /**
      * Creates a topology of a single quantum backend corresponding to the provided "QDMI_Device".
@@ -34,14 +34,13 @@ public:
      * @returns Object of type "QuantumBackend", storing the topology of a quantum backend.
      * @see createQcTopo(QuantumBackend *backend, QDMI_Device dev)
      */
-    QuantumBackend createQcTopo(int device_index, std::string device_name="");
+    QuantumBackend CreateQcTopo(int device_index, std::string device_name="");
 
-    QuantumBackend createQcTopo();
+    QuantumBackend CreateQcTopo();
 
 private:
     json _data;
     void setQubits(QuantumBackend *backend);
-
 
 };
 
