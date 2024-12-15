@@ -650,6 +650,8 @@ void Numa::SetSize(long long _size) { size = _size;}
 
 long long Memory::GetSize() {return size;}
 void Memory::SetSize(long long _size) {size = _size;}
+bool Memory::IsVolatile() {return is_volatile;}
+void Memory::SetVolatile(bool _is_volatile) {is_volatile = _is_volatile;}
 
 string Cache::GetCacheName(){return cache_type;}
 void Cache::SetCacheName(string _name) { cache_type = _name;}
@@ -699,27 +701,27 @@ Topology::Topology():Component(0, "sys-sage Topology", SYS_SAGE_COMPONENT_TOPOLO
 Node::Node(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_NODE){}
 Node::Node(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_NODE){}
 
-Memory::Memory():Component(0, "Memory", SYS_SAGE_COMPONENT_MEMORY){}
+Memory::Memory(long long _size, bool _is_volatile):Component(0, "Memory", SYS_SAGE_COMPONENT_MEMORY), size(_size), is_volatile(_is_volatile){}
 //Memory::Memory(Component * parent, int _id, string _name, long long _size):Component(parent, _id, _name, SYS_SAGE_COMPONENT_MEMORY), size(_size){}
 Memory::Memory(Component * parent, int _id, string _name, long long _size, bool _is_volatile):Component(parent, _id, _name, SYS_SAGE_COMPONENT_MEMORY), size(_size), is_volatile(_is_volatile){}
 
 
-Storage::Storage():Component(0, "Storage", SYS_SAGE_COMPONENT_STORAGE){}
-Storage::Storage(Component * parent):Component(parent, 0, "Storage", SYS_SAGE_COMPONENT_STORAGE){}
+Storage::Storage(long long _size):Component(0, "Storage", SYS_SAGE_COMPONENT_STORAGE), size(_size){}
+Storage::Storage(Component * parent, long long _size):Component(parent, 0, "Storage", SYS_SAGE_COMPONENT_STORAGE), size(_size){}
 
-Chip::Chip(int _id, string _name, int _type):Component(_id, _name, SYS_SAGE_COMPONENT_CHIP), type(_type) {}
-Chip::Chip(Component * parent, int _id, string _name, int _type):Component(parent, _id, _name, SYS_SAGE_COMPONENT_CHIP), type(_type){}
+Chip::Chip(int _id, string _name, int _type, string _vendor, string _model):Component(_id, _name, SYS_SAGE_COMPONENT_CHIP), type(_type), vendor(_vendor), model(_model) {}
+Chip::Chip(Component * parent, int _id, string _name, int _type, string _vendor, string _model):Component(parent, _id, _name, SYS_SAGE_COMPONENT_CHIP), type(_type), vendor(_vendor), model(_model){}
 
 Cache::Cache(int _id, int  _cache_level, long long _cache_size, int _associativity, int _cache_line_size): Component(_id, "Cache", SYS_SAGE_COMPONENT_CACHE), cache_type(to_string(_cache_level)), cache_size(_cache_size), cache_associativity_ways(_associativity), cache_line_size(_cache_line_size){}
 Cache::Cache(Component * parent, int _id, string _cache_type, long long _cache_size, int _associativity, int _cache_line_size): Component(parent, _id, "Cache", SYS_SAGE_COMPONENT_CACHE), cache_type(_cache_type), cache_size(_cache_size), cache_associativity_ways(_associativity), cache_line_size(_cache_line_size){}
 Cache::Cache(Component * parent, int _id, int _cache_level, long long _cache_size, int _associativity, int _cache_line_size): Cache(parent, _id, to_string(_cache_level), _cache_size, _associativity, -1){}
 
-Subdivision::Subdivision(Component * parent, int _id, string _name, int _componentType): Component(parent, _id, _name, _componentType)
+Subdivision::Subdivision(Component * parent, int _id, string _name, int _componentType, int _subdivisionType): Component(parent, _id, _name, _componentType), type(_subdivisionType)
 {
     //if(_componentType != SYS_SAGE_COMPONENT_SUBDIVISION && componentType != SYS_SAGE_COMPONENT_NUMA)
         //TODO solve this -- this should not happen
 }
-Subdivision::Subdivision(int _id, string _name, int _componentType): Component(_id, _name, _componentType)
+Subdivision::Subdivision(int _id, string _name, int _componentType, int _subdivisionType): Component(_id, _name, _componentType), type(_subdivisionType)
 {
     //if(_componentType != SYS_SAGE_COMPONENT_SUBDIVISION && componentType != SYS_SAGE_COMPONENT_NUMA)
         //TODO solve this -- this should not happen
