@@ -10,4 +10,5 @@
 #include "parsers/mt4g.hpp"
 #include "parsers/cccbench.hpp"
 #include "parsers/qdmi-parser.hpp"
+#include "parsers/iqm-parser.hpp"
 #endif //SYS_SAGE

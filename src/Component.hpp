@@ -9,7 +9,10 @@
 #include "defines.hpp"
 #include "DataPath.hpp"
 #include <libxml/parser.h>
+
+#ifdef QDMI
 #include <ibm.h>
+#endif
 // #include <qdmi_internal.h>
 
 
@@ -1202,30 +1205,40 @@ public:
     */
     Qubit(Component * parent, int _id = 0, string _name = "Qubit");
 
+    struct NeighbouringQubit
+    {   
+        NeighbouringQubit (int qubit_index, double fidelity)
+        : _qubit_index (qubit_index), _fidelity (fidelity){}
+        
+        int _qubit_index;
+        double _fidelity; // Two qubit fidelity
+    };
+
     /**
     * @brief Sets the coupling mapping for the qubit.
     * 
     * @param coupling_mapping A vector of integers representing the coupling mapping.
     * @param size_coupling_mapping The size of the coupling mapping.
     */
-    void SetCouplingMapping( const std::vector <int> &coupling_mapping, const int &size_coupling_mapping);
+    void SetCouplingMapping( const std::vector <NeighbouringQubit> &coupling_mapping, const int &size_coupling_mapping);
 
     /**
     * @brief Sets the properties of the qubit.
     * 
     * @param t1 The T1 relaxation time.
     * @param t2 The T2 dephasing time.
-    * @param readout_error The readout error rate.
+    * @param readout_fidelty The readout fidelity.
+    * @param q1_fidelity 1 qubit fidelity
     * @param readout_length The readout length.
     */
-    void SetProperties(double t1, double t2, double readout_error, double readout_length);
+    void SetProperties(double t1, double t2, double readout_fidelty, double q1_fidelity = 0, double readout_length = 0);
 
     /**
     * @brief Gets the coupling mapping of the qubit.
     * 
     * @return A constant reference to a vector of integers representing the coupling mapping.
     */
-    const std::vector <int> &GetCouplingMapping() const;
+    const std::vector <NeighbouringQubit> &GetCouplingMapping() const;
 
     /**
     * @brief Gets the T1 relaxation time of the qubit.
@@ -1241,11 +1254,18 @@ public:
     const double GetT2() const;
 
     /**
-    * @brief Gets the readout error rate of the qubit.
+    * @brief Gets the readout fidelity of the qubit.
     * 
-    * @return The readout error rate.
+    * @return The readout fidelity 
     */
-    const double GetReadoutError() const;
+    const double GetReadoutFidelity() const;
+
+    /**
+    * @brief Gets the 1Q fidelity of the qubit.
+    * 
+    * @return 1Q fidelity 
+    */
+    const double Get1QFidelity() const;
 
     /**
     * @brief Gets the readout length of the qubit.
@@ -1261,6 +1281,10 @@ public:
     */
     const double GetFrequency() const;
 
+    const double GetWeight() const;
+
+    void CalculateWeight();
+
     /**
     * @brief Refreshes the properties of the qubit.
     */
@@ -1269,14 +1293,15 @@ public:
     ~Qubit() override = default;
 
 private:
-    std::vector <int> _coupling_mapping;
+    std::vector <NeighbouringQubit> _coupling_mapping;
     int _size_coupling_mapping;
-    double fidelity;
+    double _q1_fidelity;
     double _t1;
     double _t2;
-    double _readout_error;
+    double _readout_fidelity;
     double _readout_length;
     double _fequency;
+    double _qubit_weight;
     std::string _calibration_time;
 };
 
@@ -1306,6 +1331,7 @@ public:
     */
     void SetNumberofQubits(int _num_qubits);
 
+#ifdef QDMI
     /**
     * @brief Sets the QDMI device for the quantum backend.
     * 
@@ -1319,7 +1345,7 @@ public:
     * @return The QDMI device.
     */
     QDMI_Device GetQDMIDevice();
-
+#endif
     /**
     * @brief Gets the number of qubits in the quantum backend.
     * 
@@ -1376,7 +1402,7 @@ public:
     * 
     * @return A set of pairs representing the coupling maps.
     */
-    std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
+    //std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
 
     /**
      * @brief Refreshes the topology of the quantum backend.
@@ -1390,8 +1416,10 @@ public:
 private:
     int num_qubits;
     int num_gates;
-    QDMI_Device device; // For refreshing the topology
     std::vector <QuantumGate*> gate_types;
+#ifdef QDMI
+    QDMI_Device device; // For refreshing the topology
+#endif
 };
 
 // TO-DO: Choose a better name for NA and TI systems
