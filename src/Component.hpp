@@ -673,8 +673,10 @@ public:
     @param _id = 0
     @param _name = name, default "Memory"
     @param componentType=>SYS_SAGE_COMPONENT_MEMORY
+    @param _size = size/capacity of the memory element, default -1
+    @param is_volatile = true if the memory is volatile, default false
     */
-    Memory(Component * parent, int id = 0, string _name = "Memory", long long _size = -1);
+    Memory(Component * parent, int id = 0, string _name = "Memory", long long _size = -1, bool is_volatile = false);
     /**
     * @private
     * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
