@@ -2,8 +2,8 @@
  * @file iqm-parser.cpp
  * @brief sys-sage's interface to IQM
  */
-
 #include "iqm-parser.hpp"
+#include <algorithm>
 
 using CouplingMap = std::unordered_map<int, std::vector<int>>;
 using FidelityMap = std::map<std::pair<int, int>, double>; // For storing fidelities
@@ -27,24 +27,29 @@ void IQMParser::setQubits(QuantumBackend *backend)
     {
         T1.push_back(std::stod(element.get<std::string>()));
     }
+    auto t1_max = *(std::max_element(T1.begin(), T1.end()));
 
     std::vector<double> T2;
     for (const auto& element : _data["T2"]) 
     {
         T2.push_back(std::stod(element.get<std::string>()));
     }
+    auto t2_max = *(std::max_element(T2.begin(), T2.end()));
 
     std::vector<double> q1_fidelity;
     for (const auto& element : _data["1q_fidelity"]) 
     {
         q1_fidelity.push_back(std::stod(element.get<std::string>()));
     }
+    auto fidelity_max = *(std::max_element(q1_fidelity.begin(), q1_fidelity.end()));
 
     std::vector<double> readout_fidelity;
     for (const auto& element : _data["readout_fidelity"]) 
     {
         readout_fidelity.push_back(std::stod(element.get<std::string>()));
     }
+    auto readout_max = *(std::max_element(readout_fidelity.begin(), readout_fidelity.end()));
+    
 
     backend->SetNumberofQubits(T1.size());
 
@@ -78,6 +83,11 @@ void IQMParser::setQubits(QuantumBackend *backend)
         fidelity_map[{q2, q1}] = fidelity;
     }
 
+    std::cout << "t1_max: " << t1_max << "\n";
+    std::cout << "t2_max: " << t2_max << "\n";
+    std::cout << "q1_fidelity_max: " << fidelity_max << "\n";
+    std::cout << "readout_max: " << readout_max << "\n";
+
     for ( auto i = 0; i < backend->GetNumberofQubits(); i++)
     {
         Qubit* q = new Qubit(backend, i);
@@ -91,7 +101,7 @@ void IQMParser::setQubits(QuantumBackend *backend)
         }
         
         q->SetCouplingMapping(cmp, coupling_map[i].size());
-        q->CalculateWeight();
+        q->CalculateWeight(t1_max, t2_max, fidelity_max, readout_max);
     }
 
     return;
