@@ -50,5 +50,3 @@ if (QDMI)
       qinfo
       )
 endif()
-find_package(nlohmann_json REQUIRED)
-target_link_libraries(iqm-test PRIVATE nlohmann_json::nlohmann_json)
