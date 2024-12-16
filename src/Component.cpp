@@ -371,6 +371,11 @@ void Component::AddDataPath(DataPath* p, int orientation)
         dp_incoming.push_back(p);
 }
 
+void Component::AddRelation(Relation * r, int relation_type)
+{
+    relations.push_back(r);
+}
+
 DataPath* Component::GetDataPathByType(int dp_type, int orientation)
 {
     if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
@@ -741,9 +746,9 @@ QuantumBackend::QuantumBackend(int _id, string _name):Component(_id, _name, SYS_
 
 QuantumBackend::QuantumBackend(Component * _parent, int _id, string _name):Component(_parent, _id, _name, SYS_SAGE_COMPONENT_QUANTUM_BACKEND){}
 
-void QuantumBackend::SetNumberofQubits(int _num_qubits) { num_qubits = _num_qubits; }
+void QuantumBackend::SetNumQubits(int _num_qubits) { num_qubits = _num_qubits; }
 
-int QuantumBackend::GetNumberofQubits() const { return num_qubits; }
+int QuantumBackend::GetNumQubits() const { return num_qubits; }
 
 void QuantumBackend::addGate(QuantumGate *_gate)
 {

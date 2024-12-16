@@ -240,3 +240,27 @@ void QuantumGate::Print()
 void QuantumGate::DeleteRelation()
 {
 }
+
+CouplingMap::CouplingMap() {}
+CouplingMap::CouplingMap(Qubit* q1, Qubit* q2)
+{
+    addComponent(q1, SYS_SAGE_RELATION_COUPLING_MAP);
+    addComponent(q2, SYS_SAGE_RELATION_COUPLING_MAP);
+}
+void CouplingMap::SetFidelity(double _fidelity){fidelity = _fidelity;}
+double CouplingMap::GetFidelity(){return fidelity;}
+
+int Relation::addComponent(Component* c, int relation_type)
+{
+    components.push_back(c);
+    c->AddRelation(this, relation_type);
+}
+int Relation::GetRelationType(){return SYS_SAGE_RELATION_COUPLING_MAP;}
+
+// void Relation::Print()
+// {
+// }
+
+// void Relation::DeleteRelation()
+// {
+// }

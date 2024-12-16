@@ -594,6 +594,10 @@ protected:
     vector<DataPath*> dp_incoming; /**< Contains references to data paths that point to this component. @see DataPath */
     vector<DataPath*> dp_outgoing; /**< Contains references to data paths that point from this component. @see DataPath */
 
+public:
+    //TODO add relation type -->vector<pair<relation_type, relation>>
+    vector<Relation*> relations;
+    void AddRelation(Relation* r, int relation_type);
 private:
 };
 
@@ -1329,7 +1333,7 @@ public:
     * 
     * @param _num_qubits The number of qubits to set.
     */
-    void SetNumberofQubits(int _num_qubits);
+    void SetNumQubits(int _num_qubits);
 
 #ifdef QDMI
     /**
@@ -1351,7 +1355,7 @@ public:
     * 
     * @return The number of qubits.
     */
-    int GetNumberofQubits () const;
+    int GetNumQubits () const;
 
     /**
     * @brief Adds a quantum gate to the quantum backend.

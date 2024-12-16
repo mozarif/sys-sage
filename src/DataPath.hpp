@@ -40,6 +40,9 @@
 #define SYS_SAGE_QUANTUMGATE_TYPE_X 512          /**< X Gate */
 #define SYS_SAGE_QUANTUMGATE_TYPE_TOFFOLI 1024   /**< Toffoli Gate */
 #define SYS_SAGE_QUANTUMGATE_TYPE_UNKNOWN 2048   /**< Unknown Gate */
+
+
+#define SYS_SAGE_RELATION_COUPLING_MAP 1001
 class Component;
 class Qubit;
 
@@ -94,7 +97,7 @@ public:
      * 
      * This is a virtual destructor to ensure proper cleanup of derived classes.
      */
-    virtual ~Relation() = default;
+    ~Relation() = default;
 
     /**
      * @brief Pure virtual function to print the details of the relationship.
@@ -102,7 +105,7 @@ public:
      * Derived classes must implement this function to provide specific
      * printing behavior.
      */
-    virtual void Print() = 0;
+    void Print(){};//TODO
 
     /**
      * @brief Pure virtual function to delete the relationship.
@@ -110,7 +113,7 @@ public:
      * Derived classes must implement this function to provide specific
      * deletion behavior.
      */
-    virtual void DeleteRelation() = 0;
+    void DeleteRelation(){};//TODO
 
     /**
      * @brief The id of the relationship.
@@ -140,7 +143,8 @@ public:
      * the relationship.
      */
     std::vector<Component *> components;
-
+    int addComponent(Component* c, int relation_type);
+    int GetRelationType();
 };
 
 class DataPath;
@@ -277,7 +281,7 @@ public:
     */
     void DeleteDataPath();
 
-    void DeleteRelation() override;
+    void DeleteRelation();
     /**
     * A map for storing arbitrary pieces of information or data.
     * - The `key` denotes the name of the attribute.
@@ -489,14 +493,14 @@ public:
      * 
      * This method overrides the Print function in the Relation class to provide specific printing behavior for quantum gates.
      */
-    void Print() override;
+    void Print();
 
     /**
      * @brief Deletes the quantum gate relation.
      * 
      * This method overrides the DeleteRelation function in the Relation class to handle specific deletion behavior for quantum gates.
      */
-    void DeleteRelation() override;
+    void DeleteRelation();
 
 private:
 
@@ -545,5 +549,18 @@ private:
     std::map<std::string, double> additional_properties;
 };
 
+class CouplingMap : public Relation {
+public:
+    CouplingMap(Qubit* q1, Qubit*q2);
+    CouplingMap();
+
+    // void Print();
+    // void DeleteRelation();
+    
+    void SetFidelity(double _fidelity);
+    double GetFidelity();
+private:
+    double fidelity;
+};
 
 #endif // RELATION_HPP

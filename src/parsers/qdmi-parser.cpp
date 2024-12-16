@@ -151,7 +151,7 @@ extern "C" void QdmiParser::setQubits(QuantumBackend *backend, QDMI_Device dev)
         return;
     }
 
-    num_qubits = backend->GetNumberofQubits();
+    num_qubits = backend->GetNumQubits();
     
     for (int i = 0; i < num_qubits; i++)
     {
@@ -246,7 +246,7 @@ extern "C" Topology QdmiParser::createAllQcTopo()
 
 extern "C" void QdmiParser::createQcTopo(QuantumBackend *backend, QDMI_Device dev)
 {
-    backend->SetNumberofQubits(get_num_qubits(dev));
+    backend->SetNumQubits(get_num_qubits(dev));
     setQubits(backend, dev);
     setGateSets(backend, dev);
 }

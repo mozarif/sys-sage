@@ -13,11 +13,16 @@
 
 using json = nlohmann::json;
 
+int parseIQM(Component* parent, string dataSourcePath, int qcId);
+int parseIQM(QuantumBackend* parent, string dataSourcePath, int qcId);
+
 class IQMParser
 {
 public: 
 
-    IQMParser(std::ifstream& filepath);
+    IQMParser(QuantumBackend* _qc,std::string filepath);
+    json jsonData;
+    QuantumBackend * backend;
 
     /**
      * Creates a topology of a single quantum backend corresponding to the provided "QDMI_Device".
@@ -25,22 +30,23 @@ public:
      * @param dev - A QDMI_Device for which the topology needs to be created.
      * @see createQcTopo(Topology *topo)
      */
-    void CreateQcTopo(QuantumBackend *backend);
+    int CreateQcTopo();
+    int ParseDynamicData();
 
-    /**
-     * Creates a topology of a single quantum backend corresponding to the provided "QDMI_Device".
-     * @param device_index - Index of the device.
-     * @param device_name - Name of the device.
-     * @returns Object of type "QuantumBackend", storing the topology of a quantum backend.
-     * @see createQcTopo(QuantumBackend *backend, QDMI_Device dev)
-     */
-    QuantumBackend CreateQcTopo(int device_index, std::string device_name="");
+    // /**
+    //  * Creates a topology of a single quantum backend corresponding to the provided "QDMI_Device".
+    //  * @param device_index - Index of the device.
+    //  * @param device_name - Name of the device.
+    //  * @returns Object of type "QuantumBackend", storing the topology of a quantum backend.
+    //  * @see createQcTopo(QuantumBackend *backend, QDMI_Device dev)
+    //  */
+    // QuantumBackend CreateQcTopo(int device_index, std::string device_name="");
 
-    QuantumBackend CreateQcTopo();
-
+    // QuantumBackend CreateQcTopo();
+    
 private:
-    json _data;
-    void setQubits(QuantumBackend *backend);
+    
+    // void setQubits(QuantumBackend *backend);
 
 };
 
