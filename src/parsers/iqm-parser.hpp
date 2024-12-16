@@ -13,8 +13,8 @@
 
 using json = nlohmann::json;
 
-int parseIQM(Component* parent, string dataSourcePath, int qcId);
-int parseIQM(QuantumBackend* parent, string dataSourcePath, int qcId);
+int parseIQM(Component* parent, string dataSourcePath, int qcId, int tsForHistory = -1);
+int parseIQM(QuantumBackend* parent, string dataSourcePath, int qcId, int tsForHistory = -1, bool createTopo = true);
 
 class IQMParser
 {
@@ -31,7 +31,8 @@ public:
      * @see createQcTopo(Topology *topo)
      */
     int CreateQcTopo();
-    int ParseDynamicData();
+    int ParseDynamicData(int tsForHistory);
+    int CalculateAllWeights(int tsForHistory);
 
     // /**
     //  * Creates a topology of a single quantum backend corresponding to the provided "QDMI_Device".
@@ -45,7 +46,7 @@ public:
     // QuantumBackend CreateQcTopo();
     
 private:
-    
+    double t1_max, t2_max, q1_fidelity_max, readout_fidelity_max;
     // void setQubits(QuantumBackend *backend);
 
 };

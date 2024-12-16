@@ -1209,22 +1209,22 @@ public:
     */
     Qubit(Component * parent, int _id = 0, string _name = "Qubit");
 
-    struct NeighbouringQubit
-    {   
-        NeighbouringQubit (int qubit_index, double fidelity)
-        : _qubit_index (qubit_index), _fidelity (fidelity){}
+    // struct NeighbouringQubit
+    // {   
+    //     NeighbouringQubit (int qubit_index, double fidelity)
+    //     : _qubit_index (qubit_index), _fidelity (fidelity){}
         
-        int _qubit_index;
-        double _fidelity; // Two qubit fidelity
-    };
+    //     int _qubit_index;
+    //     double _fidelity; // Two qubit fidelity
+    // };
 
-    /**
-    * @brief Sets the coupling mapping for the qubit.
-    * 
-    * @param coupling_mapping A vector of integers representing the coupling mapping.
-    * @param size_coupling_mapping The size of the coupling mapping.
-    */
-    void SetCouplingMapping( const std::vector <NeighbouringQubit> &coupling_mapping, const int &size_coupling_mapping);
+    // /**
+    // * @brief Sets the coupling mapping for the qubit.
+    // * 
+    // * @param coupling_mapping A vector of integers representing the coupling mapping.
+    // * @param size_coupling_mapping The size of the coupling mapping.
+    // */
+    // void SetCouplingMapping( const std::vector <NeighbouringQubit> &coupling_mapping, const int &size_coupling_mapping);
 
     /**
     * @brief Sets the properties of the qubit.
@@ -1237,12 +1237,12 @@ public:
     */
     void SetProperties(double t1, double t2, double readout_fidelty, double q1_fidelity = 0, double readout_length = 0);
 
-    /**
-    * @brief Gets the coupling mapping of the qubit.
-    * 
-    * @return A constant reference to a vector of integers representing the coupling mapping.
-    */
-    const std::vector <NeighbouringQubit> &GetCouplingMapping() const;
+    // /**
+    // * @brief Gets the coupling mapping of the qubit.
+    // * 
+    // * @return A constant reference to a vector of integers representing the coupling mapping.
+    // */
+    // const std::vector <NeighbouringQubit> &GetCouplingMapping() const;
 
     /**
     * @brief Gets the T1 relaxation time of the qubit.
@@ -1287,7 +1287,7 @@ public:
 
     const double GetWeight() const;
 
-    void CalculateWeight(double t1_max, double t2_max, double q1_fidelity_max, double readout_fidelity_max);
+    void CalculateWeight(double t1_max, double t2_max, double q1_fidelity_max, double readout_fidelity_max, int tsForHistory = -1);
 
     /**
     * @brief Refreshes the properties of the qubit.
@@ -1297,16 +1297,16 @@ public:
     ~Qubit() override = default;
 
 private:
-    std::vector <NeighbouringQubit> _coupling_mapping;
-    int _size_coupling_mapping;
-    double _q1_fidelity;
-    double _t1;
-    double _t2;
-    double _readout_fidelity;
-    double _readout_length;
-    double _fequency;
-    double _qubit_weight;
-    std::string _calibration_time;
+    // std::vector <NeighbouringQubit> _coupling_mapping;
+    // int _size_coupling_mapping;
+    double q1_fidelity;
+    double t1;
+    double t2;
+    double readout_fidelity;
+    double readout_length;
+    double fequency;
+    // double qubit_weight;
+    std::string calibration_time;
 };
 
 

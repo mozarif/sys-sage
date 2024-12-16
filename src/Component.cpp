@@ -835,48 +835,68 @@ Qubit::Qubit(int _id, string _name):Component(_id, _name, SYS_SAGE_COMPONENT_QUB
 
 Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, SYS_SAGE_COMPONENT_QUBIT){}
 
-void Qubit::SetCouplingMapping( const std::vector <NeighbouringQubit> &coupling_mapping, const int &size_coupling_mapping)
+// void Qubit::SetCouplingMapping( const std::vector <NeighbouringQubit> &coupling_mapping, const int &size_coupling_mapping)
+// {
+//     _coupling_mapping = coupling_mapping;
+//     _size_coupling_mapping = coupling_mapping.size();
+// }
+
+
+
+// const std::vector <Qubit::NeighbouringQubit> & Qubit::GetCouplingMapping() const
+// {
+//     return _coupling_mapping;
+// }
+
+void Qubit::SetProperties(double _t1, double _t2, double _readout_fidelity, double _q1_fidelity, double _readout_length)
 {
-    _coupling_mapping = coupling_mapping;
-    _size_coupling_mapping = coupling_mapping.size();
+    t1 = _t1;
+    t2 = _t2;
+    readout_fidelity = _readout_fidelity;
+    q1_fidelity = _q1_fidelity;
+    readout_length = _readout_length;
+
 }
 
+const double Qubit::GetT1() const { return t1; }    
+const double Qubit::GetT2() const { return t2; }
+const double Qubit::GetReadoutFidelity() const { return readout_fidelity; }
+const double Qubit::Get1QFidelity() const { return q1_fidelity;}
+const double Qubit::GetReadoutLength() const { return readout_length; }
 
+// const double Qubit::GetWeight() const
+// {
+//     return _qubit_weight;
+// }
 
-const std::vector <Qubit::NeighbouringQubit> & Qubit::GetCouplingMapping() const
+//TODO this is a part of the sys-sage FoMaC, not sys-sage core
+void Qubit::CalculateWeight(double t1_max, double t2_max, double q1_fidelity_max, double readout_fidelity_max, int tsForHistory)
 {
-    return _coupling_mapping;
-}
+    if(!attrib.contains("qubit_weight"))
+        attrib["qubit_weight"] = new double();
 
-void Qubit::SetProperties(double t1, double t2, double readout_fidelity, double q1_fidelity, double readout_length)
-{
-    _t1 = t1;
-    _t2 = t2;
-    _readout_fidelity = readout_fidelity;
-    _q1_fidelity = q1_fidelity;
-    _readout_length = readout_length;
-
-}
-
-const double Qubit::GetT1() const { return _t1; }    
-const double Qubit::GetT2() const { return _t2; }
-const double Qubit::GetReadoutFidelity() const { return _readout_fidelity; }
-const double Qubit::Get1QFidelity() const { return _q1_fidelity;}
-const double Qubit::GetReadoutLength() const { return _readout_length; }
-
-const double Qubit::GetWeight() const
-{
-    return _qubit_weight;
-}
-
-void Qubit::CalculateWeight(double t1_max, double t2_max, double q1_fidelity_max, double readout_fidelity_max)
-{
-    _qubit_weight = (_t1/t1_max) + (_t2/t2_max) + (_q1_fidelity/q1_fidelity_max) + (_readout_fidelity/readout_fidelity_max) ;
+    double qw = (t1/t1_max) + (t2/t2_max) + (q1_fidelity/q1_fidelity_max) + (readout_fidelity/readout_fidelity_max) ;
 
     double sum = 0.0;
-    for (const auto neighbour :  _coupling_mapping)
+    int num_neighbours = 0;
+    for(Relation* r : relations)
     {
-        sum += neighbour._fidelity;
+        if(r->GetRelationType() == SYS_SAGE_RELATION_COUPLING_MAP)
+        {
+            sum += (static_cast<CouplingMap*>(r))->GetFidelity();
+            num_neighbours++;
+        }
     }
-    _qubit_weight += sum/_coupling_mapping.size();
+    qw += sum/num_neighbours;
+
+    *static_cast<double*>(attrib["qubit_weight"]) = qw;
+    if(tsForHistory > 0)
+    {
+        //check if weight_history exists; if not, create it -- vector of tuples <timestamp,weight>
+        if(! this->attrib.contains("weight_history"))
+            this->attrib["weight_history"] = reinterpret_cast<void*>(new std::vector<std::tuple<int,double>>());
+        auto rh = reinterpret_cast<std::vector<std::tuple<int,double>>*>(this->attrib["weight_history"]);
+        rh->emplace_back(tsForHistory, qw);
+    }
+
 }
