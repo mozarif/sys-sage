@@ -864,12 +864,14 @@ const double Qubit::GetWeight() const
     return _qubit_weight;
 }
 
-void Qubit::CalculateWeight()
+void Qubit::CalculateWeight(double t1_max, double t2_max, double q1_fidelity_max, double readout_fidelity_max)
 {
-    _qubit_weight = _t1 + _t2 + _q1_fidelity + _readout_fidelity;
+    _qubit_weight = (_t1/t1_max) + (_t2/t2_max) + (_q1_fidelity/q1_fidelity_max) + (_readout_fidelity/readout_fidelity_max) ;
 
+    double sum = 0.0;
     for (const auto neighbour :  _coupling_mapping)
     {
-        _qubit_weight += neighbour._fidelity;
+        sum += neighbour._fidelity;
     }
+    _qubit_weight += sum/_coupling_mapping.size();
 }

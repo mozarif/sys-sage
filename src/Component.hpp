@@ -1283,7 +1283,7 @@ public:
 
     const double GetWeight() const;
 
-    void CalculateWeight();
+    void CalculateWeight(double t1_max, double t2_max, double q1_fidelity_max, double readout_fidelity_max);
 
     /**
     * @brief Refreshes the properties of the qubit.

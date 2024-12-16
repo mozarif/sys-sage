@@ -13,6 +13,11 @@ int main()
     qc.PrintSubtree();
 
     int total_qubits = qc.CountAllSubcomponents();
+    std::vector <int> neighbour_count;
+    std::vector<double> weights; 
+
+    neighbour_count.resize(total_qubits);
+    weights.resize(total_qubits);
     for (int i = 0; i < total_qubits; i++)
     {
         Qubit* q = dynamic_cast<Qubit*>(qc.GetChild(i));
@@ -21,13 +26,32 @@ int main()
         //Qubit* q = dynamic_cast<Qubit*>(qc->GetChild(i));
         std::cout << "Qubit " << i << " has coupling map { ";
         auto coupling_map = q->GetCouplingMapping();
+        neighbour_count[i] = coupling_map.size();
         for (long unsigned j = 0; j < coupling_map.size(); j++)
         {
             std::cout << coupling_map[j]._qubit_index << " ";
         }
+        weights[i] = q->GetWeight();
         std::cout << "} and weight = " << q->GetWeight() << "\n";
-
     }
+
+    std::ofstream file("output.csv");
+    if (!file.is_open()) 
+    {
+        std::cerr << "Failed to open file for writing." << std::endl;
+        return 1;
+    }
+
+    file << std::fixed << std::setprecision(14);
+
+    // Write data to the CSV file
+    for (size_t i = 0; i < neighbour_count.size(); ++i) 
+    {
+        file << neighbour_count[i] << "," << weights[i] << "\n";
+    }
+
+    // Close the file
+    file.close();
 
     return 0;
 }
