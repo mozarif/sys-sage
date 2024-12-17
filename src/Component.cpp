@@ -870,33 +870,4 @@ const double Qubit::GetReadoutLength() const { return readout_length; }
 // }
 
 //TODO this is a part of the sys-sage FoMaC, not sys-sage core
-void Qubit::CalculateWeight(double t1_max, double t2_max, double q1_fidelity_max, double readout_fidelity_max, int tsForHistory)
-{
-    if(!attrib.contains("qubit_weight"))
-        attrib["qubit_weight"] = new double();
 
-    double qw = (t1/t1_max) + (t2/t2_max) + (q1_fidelity/q1_fidelity_max) + (readout_fidelity/readout_fidelity_max) ;
-
-    double sum = 0.0;
-    int num_neighbours = 0;
-    for(Relation* r : relations)
-    {
-        if(r->GetRelationType() == SYS_SAGE_RELATION_COUPLING_MAP)
-        {
-            sum += (static_cast<CouplingMap*>(r))->GetFidelity();
-            num_neighbours++;
-        }
-    }
-    qw += sum/num_neighbours;
-
-    *static_cast<double*>(attrib["qubit_weight"]) = qw;
-    if(tsForHistory > 0)
-    {
-        //check if weight_history exists; if not, create it -- vector of tuples <timestamp,weight>
-        if(! this->attrib.contains("weight_history"))
-            this->attrib["weight_history"] = reinterpret_cast<void*>(new std::vector<std::tuple<int,double>>());
-        auto rh = reinterpret_cast<std::vector<std::tuple<int,double>>*>(this->attrib["weight_history"]);
-        rh->emplace_back(tsForHistory, qw);
-    }
-
-}

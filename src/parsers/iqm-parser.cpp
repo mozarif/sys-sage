@@ -34,11 +34,6 @@ int parseIQM(QuantumBackend* qc, std::string dataSourcePath, int qcId, int tsFor
     
     //assumes that the qubits and coupling mappings are already in place
     ret = iqm.ParseDynamicData(tsForHistory);
-    if(ret != 0)
-        return ret;
-    
-    ret = iqm.CalculateAllWeights(tsForHistory);
-
     return ret;
 }
 
@@ -56,19 +51,6 @@ IQMParser::IQMParser(QuantumBackend* _qc,std::string filepath)
     jsonData = json::parse(file);
     std::cout << "   [sys-sage]...............Initiated "
                   << "IQM session\n";
-}
-
-int IQMParser::CalculateAllWeights(int tsForHistory)
-{
-    for(Component* c : *backend->GetChildren())
-    {
-        if(c->GetComponentType() == SYS_SAGE_COMPONENT_QUBIT)
-        {
-            Qubit* q = static_cast<Qubit*>(c);
-            q->CalculateWeight(t1_max, t2_max, q1_fidelity_max, readout_fidelity_max, tsForHistory);
-        }
-    }
-    return 0;
 }
 
 int IQMParser::ParseDynamicData(int tsForHistory)

@@ -1285,10 +1285,6 @@ public:
     */
     const double GetFrequency() const;
 
-    const double GetWeight() const;
-
-    void CalculateWeight(double t1_max, double t2_max, double q1_fidelity_max, double readout_fidelity_max, int tsForHistory = -1);
-
     /**
     * @brief Refreshes the properties of the qubit.
     */
