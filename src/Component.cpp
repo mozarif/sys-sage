@@ -716,12 +716,12 @@ Cache::Cache(int _id, int  _cache_level, long long _cache_size, int _associativi
 Cache::Cache(Component * parent, int _id, string _cache_type, long long _cache_size, int _associativity, int _cache_line_size): Component(parent, _id, "Cache", SYS_SAGE_COMPONENT_CACHE), cache_type(_cache_type), cache_size(_cache_size), cache_associativity_ways(_associativity), cache_line_size(_cache_line_size){}
 Cache::Cache(Component * parent, int _id, int _cache_level, long long _cache_size, int _associativity, int _cache_line_size): Cache(parent, _id, to_string(_cache_level), _cache_size, _associativity, -1){}
 
-Subdivision::Subdivision(Component * parent, int _id, string _name, int _componentType, int _subdivisionType): Component(parent, _id, _name, _componentType), type(_subdivisionType)
+Subdivision::Subdivision(Component * parent, int _id, string _name, int _componentType): Component(parent, _id, _name, _componentType)
 {
     //if(_componentType != SYS_SAGE_COMPONENT_SUBDIVISION && componentType != SYS_SAGE_COMPONENT_NUMA)
         //TODO solve this -- this should not happen
 }
-Subdivision::Subdivision(int _id, string _name, int _componentType, int _subdivisionType): Component(_id, _name, _componentType), type(_subdivisionType)
+Subdivision::Subdivision(int _id, string _name, int _componentType): Component(_id, _name, _componentType)
 {
     //if(_componentType != SYS_SAGE_COMPONENT_SUBDIVISION && componentType != SYS_SAGE_COMPONENT_NUMA)
         //TODO solve this -- this should not happen

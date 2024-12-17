@@ -1010,18 +1010,16 @@ public:
     @param _id = id, default 0
     @param _name = name, default "Subdivision"
     @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
-    @param _subdivisionType = type, default 0
     */
-    Subdivision(int _id = 0, string _name = "Subdivision", int _componentType = SYS_SAGE_COMPONENT_SUBDIVISION, int _subdivisionType = 0);
+    Subdivision(int _id = 0, string _name = "Subdivision", int _componentType = SYS_SAGE_COMPONENT_SUBDIVISION);
     /**
     Subdivision constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
     @param parent = the parent 
     @param _id = id, default 0
     @param _name = name, default "Subdivision"
     @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
-    @param _subdivisionType = type, default 0
     */
-    Subdivision(Component * parent, int _id = 0, string _name = "Subdivision", int _componentType = SYS_SAGE_COMPONENT_SUBDIVISION, int _subdivisionType = 0);
+    Subdivision(Component * parent, int _id = 0, string _name = "Subdivision", int _componentType = SYS_SAGE_COMPONENT_SUBDIVISION);
     /**
     * @private
     * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
