@@ -701,12 +701,12 @@ public:
      * @return is_volatile  
      * 
      */
-    bool IsVolatile();
+    bool GetIsVolatile();
     /**
      * Sets if the memory element is volatile
      * @param _is_volatile = update is_volatile
      */
-    void SetVolatile(bool _is_volatile);
+    void SetIsVolatile(bool _is_volatile);
     /**
     @private
     !!Should normally not be used!! Helper function of XML dump generation.

@@ -650,8 +650,8 @@ void Numa::SetSize(long long _size) { size = _size;}
 
 long long Memory::GetSize() {return size;}
 void Memory::SetSize(long long _size) {size = _size;}
-bool Memory::IsVolatile() {return is_volatile;}
-void Memory::SetVolatile(bool _is_volatile) {is_volatile = _is_volatile;}
+bool Memory::GetIsVolatile() {return is_volatile;}
+void Memory::SetIsVolatile(bool _is_volatile) {is_volatile = _is_volatile;}
 
 string Cache::GetCacheName(){return cache_type;}
 void Cache::SetCacheName(string _name) { cache_type = _name;}
