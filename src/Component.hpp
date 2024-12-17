@@ -2,6 +2,7 @@
 #define COMPONENT
 
 #include <iostream>
+#include <type_traits>
 #include <vector>
 #include <map>
 #include <set>
@@ -665,16 +666,20 @@ public:
     @param _id = 0
     @param _name = "Memory"
     @param componentType=>SYS_SAGE_COMPONENT_MEMORY
+    @param _size = size/capacity of the memory element, default -1
+    @param is_volatile = true if the memory is volatile, default false
     */
-    Memory();
+    Memory(long long _size = -1, bool is_volatile = false);
     /**
     Memory constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
     @param parent = the parent 
     @param _id = 0
     @param _name = name, default "Memory"
     @param componentType=>SYS_SAGE_COMPONENT_MEMORY
+    @param _size = size/capacity of the memory element, default -1
+    @param is_volatile = true if the memory is volatile, default false
     */
-    Memory(Component * parent, int id = 0, string _name = "Memory", long long _size = -1);
+    Memory(Component * parent, int id = 0, string _name = "Memory", long long _size = -1, bool is_volatile = false);
     /**
     * @private
     * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -691,6 +696,17 @@ public:
      * @param _size = size
     */
     void SetSize(long long _size);
+    /**
+     * Retrieves if the memory element is volatile
+     * @return is_volatile  
+     * 
+     */
+    bool GetIsVolatile();
+    /**
+     * Sets if the memory element is volatile
+     * @param _is_volatile = update is_volatile
+     */
+    void SetIsVolatile(bool _is_volatile);
     /**
     @private
     !!Should normally not be used!! Helper function of XML dump generation.
@@ -721,16 +737,18 @@ public:
     @param _id = 0
     @param _name = "Storage"
     @param componentType=>SYS_SAGE_COMPONENT_STORAGE
+    @param _size = size/capacity of the storage device, default -1
     */
-    Storage();
+    Storage(long long _size = -1);
     /**
     Storage constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
     @param parent = the parent 
     @param _id = 0
     @param _name = "Storage"
     @param componentType=>SYS_SAGE_COMPONENT_STORAGE
+    @param _size = size/capacity of the storage device, default -1
     */
-    Storage(Component * parent);
+    Storage(Component * parent, long long _size = -1);
     /**
     * @private
     * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -769,8 +787,10 @@ public:
     @param _name = name, default "Chip"
     @param _type = chip type, default SYS_SAGE_CHIP_TYPE_NONE. Defines which chip we are describing. The options are: SYS_SAGE_CHIP_TYPE_NONE (default/generic), SYS_SAGE_CHIP_TYPE_CPU, SYS_SAGE_CHIP_TYPE_CPU_SOCKET, SYS_SAGE_CHIP_TYPE_GPU.
     @param componentType=>SYS_SAGE_COMPONENT_CHIP
+    @param _vendor = name of the vendor, default ""
+    @param _model = model name, default ""
     */
-    Chip(int _id = 0, string _name = "Chip", int _type = SYS_SAGE_CHIP_TYPE_NONE);
+    Chip(int _id = 0, string _name = "Chip", int _type = SYS_SAGE_CHIP_TYPE_NONE, string _vendor = "", string _model = "");
     /**
     Chip constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
     @param parent = the parent 
@@ -778,8 +798,10 @@ public:
     @param _name = name, default "Chip"
     @param _type = chip type, default SYS_SAGE_CHIP_TYPE_NONE. Defines which chip we are describing. The options are: SYS_SAGE_CHIP_TYPE_NONE (default/generic), SYS_SAGE_CHIP_TYPE_CPU, SYS_SAGE_CHIP_TYPE_CPU_SOCKET, SYS_SAGE_CHIP_TYPE_GPU.
     @param componentType=>SYS_SAGE_COMPONENT_CHIP
+    @param _vendor = name of the vendor, default ""
+    @param _model = model name, default ""
     */
-    Chip(Component * parent, int _id = 0, string _name = "Chip", int _type = SYS_SAGE_CHIP_TYPE_NONE);
+    Chip(Component * parent, int _id = 0, string _name = "Chip", int _type = SYS_SAGE_CHIP_TYPE_NONE, string _vendor = "", string _model = "");
     /**
     * @private
     * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
