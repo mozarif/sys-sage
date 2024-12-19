@@ -3,12 +3,20 @@
 
 ///////////////////// FoMaC functionality /////////////////////
 ////// This is a use-case-specific functionality, which would be a part of the sys-sage FoMaC, not the core sys-sage. hence, it is here as a separate code
-void calculateQubitWeight(Qubit* q, int tsForHistory = -1)
+#define T_WEIGHT            0.1
+#define Q1_FID_WEIGHT       0.2
+#define READOUT_FID_WEIGHT  0.4
+#define TWO_Q_FID_WEIFHT    0.3
+
+void calculateQubitWeight(Qubit* q, int tsForHistory = -1, double T1_max = 1, double  T2_max = 1, double  q1_fidelity_max = 1, double readout_fidelity_max = 1, double two_q_fidelity_max = 1 )
 {
     if(!q->attrib.contains("qubit_weight"))
         q->attrib["qubit_weight"] = new double();
 
-    double qw = q->GetT1() + q->GetT2() + q->Get1QFidelity() + q->GetReadoutFidelity() ;
+    double min_t = q->GetT1() > q->GetT2()? q->GetT2(): q->GetT1();
+    double max_t_max = T1_max > T2_max ? T1_max : T2_max;
+
+    double q_weight = min_t/max_t_max + q->Get1QFidelity()/q1_fidelity_max + q->GetReadoutFidelity()/readout_fidelity_max ;
 
     double coupling_map_fidelity = 0.0;
     int num_neighbours = 0;
@@ -20,28 +28,33 @@ void calculateQubitWeight(Qubit* q, int tsForHistory = -1)
             num_neighbours++;
         }
     }
-    qw += coupling_map_fidelity/num_neighbours;
+    q_weight += (coupling_map_fidelity/two_q_fidelity_max)/num_neighbours;
 
-    *static_cast<double*>(q->attrib["qubit_weight"]) = qw;
+    *static_cast<double*>(q->attrib["qubit_weight"]) = q_weight;
     if(tsForHistory > 0)
     {
         //check if weight_history exists; if not, create it -- vector of tuples <timestamp,weight>
         if(! q->attrib.contains("weight_history"))
             q->attrib["weight_history"] = reinterpret_cast<void*>(new std::vector<std::tuple<int,double>>());
         auto rh = reinterpret_cast<std::vector<std::tuple<int,double>>*>(q->attrib["weight_history"]);
-        rh->emplace_back(tsForHistory, qw);
+        rh->emplace_back(tsForHistory, q_weight);
     }
 
 }
 
 int calculateAllWeights(QuantumBackend* backend, int tsForHistory = -1)
 {
+    double T1_max = *static_cast<double*>(backend->attrib["T1_max"]);
+    double T2_max = *static_cast<double*>(backend->attrib["T2_max"]);
+    double q1_fidelity_max = *static_cast<double*>(backend->attrib["q1_fidelity_max"]);
+    double readout_fidelity_max = *static_cast<double*>(backend->attrib["readout_fidelity_max"]);
+    double two_q_fidelity_max = *static_cast<double*>(backend->attrib["two_q_fidelity_max"]);
     for(Component* c : *backend->GetChildren())
     {
         if(c->GetComponentType() == SYS_SAGE_COMPONENT_QUBIT)
         {
             Qubit* q = static_cast<Qubit*>(c);
-            calculateQubitWeight(q, tsForHistory);
+            calculateQubitWeight(q, tsForHistory, T1_max, T2_max, q1_fidelity_max, readout_fidelity_max, two_q_fidelity_max );
         }
     }
     return 0;
@@ -66,7 +79,7 @@ string IQMFileNames[] = {"calibration_data_Q-Exa_20241014.json","calibration_dat
 int main()
 {
     std::cout << std::setprecision(15);
-    Node* n = new Node();    
+    QuantumBackend* b = new QuantumBackend();  
     string IQMPathPrefix = "/Users/stepan/phd/repos/q-sys-sage/tmp-qc-data/database/";
     string IQMPath;
     int IQMPathTs;
@@ -74,10 +87,9 @@ int main()
     IQMPath = IQMPathPrefix + "calibration_data_Q-Exa_20241013.json";
     IQMPathTs =  getTs(IQMPath);
     std::cout << "-- Parsing IQM output from file " << IQMPath << ", ts " << IQMPathTs << std::endl;
-    if(parseIQM((Component*)n, IQMPath, 0, IQMPathTs) != 0) { //adds topo to a next node
+    if(parseIQM(b, IQMPath, 0, IQMPathTs) != 0) { //adds topo to a next node
         return 1;
     }
-    QuantumBackend* b = static_cast<QuantumBackend*>(n->GetChild(0));
     calculateAllWeights(b,IQMPathTs);
 
 
@@ -91,11 +103,19 @@ int main()
         }
         calculateAllWeights(b,IQMPathTs);
     }
-
     cout << "-- End parseIQM" << endl;
 
+    // IQMPathPrefix = "/Users/stepan/phd/repos/q-sys-sage/tmp/";
+    // IQMPath = IQMPathPrefix + "test_data_qexa_16.json";
+    // // IQMPathTs =  getTs(IQMPath);
+    // std::cout << "-- Parsing IQM output from file " << IQMPath << std::endl;
+    // if(parseIQM(b, IQMPath, 0, -1) != 0) { //adds topo to a next node
+    //     return 1;
+    // }
+    // calculateAllWeights(b,IQMPathTs);
+
     cout << "---------------- Printing the configuration of IQM Backend----------------" << endl;
-    n->PrintSubtree();
+    b->PrintSubtree();
     
     for(Component * c : *b->GetChildren() )
     {
