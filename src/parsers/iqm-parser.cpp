@@ -5,11 +5,12 @@
 #include "iqm-parser.hpp"
 #include <algorithm>
 #include <sstream>
+#include <chrono>
 
 //using CouplingMap = std::unordered_map<int, std::vector<int>>;
 //using FidelityMap = std::map<std::pair<int, int>, double>; // For storing fidelities
 
-
+std::chrono::high_resolution_clock::time_point start1,start2,start3,end1,end2,end3;
 int parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForHistory)
 {
     if(parent == NULL){
@@ -22,24 +23,34 @@ int parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForH
 
 int parseIQM(QuantumBackend* qc, std::string dataSourcePath, int qcId, int tsForHistory, bool createTopo)
 {
+    start1 = std::chrono::high_resolution_clock::now();
     IQMParser iqm(qc,dataSourcePath);
     int ret;
     //only creates qubits & coupling mappings; no dynamic info
     if(createTopo)
     {
+        start2 = std::chrono::high_resolution_clock::now();
         ret = iqm.CreateQcTopo();
+        end2 = std::chrono::high_resolution_clock::now();
         if(ret != 0)
             return ret;
     }
     
     //assumes that the qubits and coupling mappings are already in place
+    start3 = std::chrono::high_resolution_clock::now();
     ret = iqm.ParseDynamicData(tsForHistory);
+    end3 = std::chrono::high_resolution_clock::now();
+    end1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<long long, std::nano> duration1 = end1 - start1;
+    std::chrono::duration<long long, std::nano> duration2 = end2 - start2;
+    std::chrono::duration<long long, std::nano> duration3 = end3 - start3;
+    std::cout << ";" << duration1.count() << ";" << duration2.count() << ";" << duration3.count();
     return ret;
 }
 
 //IQMParser::IQMParser(std::ifstream& filepath)
 IQMParser::IQMParser(QuantumBackend* _qc,std::string filepath)
-{ 
+{
     backend = _qc;
 
     std::ifstream file(filepath);
@@ -53,6 +64,7 @@ IQMParser::IQMParser(QuantumBackend* _qc,std::string filepath)
 
 int IQMParser::CreateQcTopo()
 {
+
     backend->SetName(jsonData["backend_name"]);
     int numQubits = jsonData["T1"].size();
 
@@ -76,8 +88,13 @@ int IQMParser::CreateQcTopo()
     for(auto [cm_str,fidelity] : two_q_fidelity)
     {
         auto [q1_id, q2_id] = parse_pair(cm_str);
-        Qubit* q1 = static_cast<Qubit*>(backend->GetChild(q1_id));
-        Qubit* q2 = static_cast<Qubit*>(backend->GetChild(q2_id));
+        std::vector<Component*>* qubits = backend->GetChildren();
+        Qubit* q1 = static_cast<Qubit*>((*qubits)[q1_id]);
+        if(q1->GetId() != q1_id)
+            q1 = static_cast<Qubit*>(backend->GetChild(q1_id));
+        Qubit* q2 = static_cast<Qubit*>((*qubits)[q2_id]);
+        if(q2->GetId() != q2_id)
+            q2 = static_cast<Qubit*>(backend->GetChild(q2_id));
         CouplingMap* cm = new CouplingMap(q1,q2);
     }
 
@@ -138,7 +155,11 @@ int IQMParser::ParseDynamicData(int tsForHistory)
 
     for(int i=0; i<backend->GetNumQubits(); i++)
     {
-        Qubit *q = dynamic_cast<Qubit*>(backend->GetChildById(i));
+        //Qubit *q = dynamic_cast<Qubit*>(backend->GetChildById(i));
+        Qubit* q = static_cast<Qubit*>((*backend->GetChildren())[i]);
+        if(q->GetId() != i)
+            q = static_cast<Qubit*>(backend->GetChild(i));
+        
         q->SetProperties(T1[i], T2[i], readout_fidelity[i], q1_fidelity[i]);
         if(tsForHistory > 0)
         {
@@ -154,8 +175,13 @@ int IQMParser::ParseDynamicData(int tsForHistory)
     for(auto [cm_str,fidelity_str] : two_q_fidelity)
     {
         auto [q1_id, q2_id] = parse_pair(cm_str);
-        Qubit* q1 = static_cast<Qubit*>(backend->GetChild(q1_id));
-        Qubit* q2 = static_cast<Qubit*>(backend->GetChild(q2_id));
+        std::vector<Component*>* qubits = backend->GetChildren();
+        Qubit* q1 = static_cast<Qubit*>((*qubits)[q1_id]);
+        if(q1->GetId() != q1_id)
+            q1 = static_cast<Qubit*>(backend->GetChild(q1_id));
+        Qubit* q2 = static_cast<Qubit*>((*qubits)[q2_id]);
+        if(q2->GetId() != q2_id)
+            q2 = static_cast<Qubit*>(backend->GetChild(q2_id));
         double fidelity = std::stod(fidelity_str);
         bool cm_found = false;
         for(Relation* r: q1->relations)

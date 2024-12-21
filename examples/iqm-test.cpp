@@ -1,5 +1,8 @@
 #include <iomanip>
 #include "sys-sage.hpp"
+#include <chrono>
+#include <queue>
+#include <algorithm>
 
 ///////////////////// FoMaC functionality /////////////////////
 ////// This is a use-case-specific functionality, which would be a part of the sys-sage FoMaC, not the core sys-sage. hence, it is here as a separate code
@@ -60,6 +63,31 @@ int calculateAllWeights(QuantumBackend* backend, int tsForHistory = -1)
     return 0;
 }
 
+vector<Qubit*> findTopNQubits(QuantumBackend* backend, int n)
+{
+    auto compare = [](Qubit* a, Qubit* b) { return *static_cast<double*>(a->attrib["qubit_weight"]) > *static_cast<double*>(b->attrib["qubit_weight"]) ;};
+    std::priority_queue<Qubit*, std::vector<Qubit*>, decltype(compare)> min_heap(compare);
+
+    for(Component* c : *backend->GetChildren())
+    {
+        Qubit* q = static_cast<Qubit*>(c);
+        
+        double qw = *static_cast<double*>(q->attrib["qubit_weight"]);
+        min_heap.push(q);
+        if (min_heap.size() > n) {
+            min_heap.pop(); // Remove the smallest weight to keep only the top n
+        }
+    }
+
+    std::vector<Qubit*> result;
+    while (!min_heap.empty()) {
+        result.push_back(min_heap.top());
+        min_heap.pop();
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
 ///////////////////////////////////////////////////////////////
 
 int getTs(std::string filename)
@@ -84,56 +112,69 @@ int main()
     string IQMPath;
     int IQMPathTs;
     
-    IQMPath = IQMPathPrefix + "calibration_data_Q-Exa_20241013.json";
-    IQMPathTs =  getTs(IQMPath);
-    std::cout << "-- Parsing IQM output from file " << IQMPath << ", ts " << IQMPathTs << std::endl;
-    if(parseIQM(b, IQMPath, 0, IQMPathTs) != 0) { //adds topo to a next node
-        return 1;
-    }
-    calculateAllWeights(b,IQMPathTs);
-
-
-    for(string file : IQMFileNames)
-    {
-        IQMPath = IQMPathPrefix + file;
-        IQMPathTs =  getTs(IQMPath);
-        std::cout << "-- Parsing IQM output from file " << IQMPath << ", ts " << IQMPathTs << std::endl;
-        if(parseIQM(b, IQMPath, 0, IQMPathTs, false) != 0) { //adds topo to a next node
-            return 1;
-        }
-        calculateAllWeights(b,IQMPathTs);
-    }
-    cout << "-- End parseIQM" << endl;
-
-    // IQMPathPrefix = "/Users/stepan/phd/repos/q-sys-sage/tmp/";
-    // IQMPath = IQMPathPrefix + "test_data_qexa_16.json";
-    // // IQMPathTs =  getTs(IQMPath);
-    // std::cout << "-- Parsing IQM output from file " << IQMPath << std::endl;
-    // if(parseIQM(b, IQMPath, 0, -1) != 0) { //adds topo to a next node
+    // IQMPath = IQMPathPrefix + "calibration_data_Q-Exa_20241013.json";
+    // IQMPathTs =  getTs(IQMPath);
+    // std::cout << "-- Parsing IQM output from file " << IQMPath << ", ts " << IQMPathTs << std::endl;
+    // if(parseIQM(b, IQMPath, 0, IQMPathTs) != 0) { //adds topo to a next node
     //     return 1;
     // }
     // calculateAllWeights(b,IQMPathTs);
 
-    cout << "---------------- Printing the configuration of IQM Backend----------------" << endl;
-    b->PrintSubtree();
-    
-    for(Component * c : *b->GetChildren() )
-    {
-        if(c->GetComponentType() == SYS_SAGE_COMPONENT_QUBIT)
-        {
-            Qubit* q = static_cast<Qubit*>(c);
-            std::cout << "Qubit " << q->GetId() << " has coupling map { ";
-            for(Relation* r : q->relations)
-            {
-                if(r->GetRelationType() == SYS_SAGE_RELATION_COUPLING_MAP)
-                {
-                    CouplingMap* cm = static_cast<CouplingMap*>(r); 
-                    std::cout << (cm->components[0] == q ? cm->components[1]->GetId() : cm->components[0]->GetId() )<< " ";
-                }      
-            }
-            std::cout << "} and weight = " << *static_cast<double*>(q->attrib["qubit_weight"]) << "\n";
-        }
+
+    // for(string file : IQMFileNames)
+    // {
+    //     IQMPath = IQMPathPrefix + file;
+    //     IQMPathTs =  getTs(IQMPath);
+    //     std::cout << "-- Parsing IQM output from file " << IQMPath << ", ts " << IQMPathTs << std::endl;
+    //     if(parseIQM(b, IQMPath, 0, IQMPathTs, false) != 0) { //adds topo to a next node
+    //         return 1;
+    //     }
+    //     calculateAllWeights(b,IQMPathTs);
+    // }
+    // cout << "-- End parseIQM" << endl;
+
+    int num_qubits = 25600;
+    IQMPathPrefix = "/Users/stepan/phd/repos/q-sys-sage/tmp/";
+    IQMPath = IQMPathPrefix + "test_data_qexa_" + std::to_string(num_qubits) + ".json";
+    // IQMPathTs =  getTs(IQMPath);
+    //std::cout << "-- Parsing IQM output from file " << IQMPath << std::endl;
+    std::cout << "num_qubits;" << num_qubits;
+    if(parseIQM(b, IQMPath, 0, -1, true) != 0) { //adds topo to a next node
+        return 1;
     }
+    auto start = std::chrono::high_resolution_clock::now();
+    calculateAllWeights(b);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<long long, std::nano> duration4 = end - start;
+
+    start = std::chrono::high_resolution_clock::now();
+    vector<Qubit*> res = findTopNQubits(b, 10);
+    end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<long long, std::nano> duration5 = end - start;
+
+    std::cout << ";" << duration4.count() << ";" << duration5.count() << std::endl;
+
+
+    // cout << "---------------- Printing the configuration of IQM Backend----------------" << endl;
+    // b->PrintSubtree();
+    
+    // for(Component * c : *b->GetChildren() )
+    // {
+    //     if(c->GetComponentType() == SYS_SAGE_COMPONENT_QUBIT)
+    //     {
+    //         Qubit* q = static_cast<Qubit*>(c);
+    //         std::cout << "Qubit " << q->GetId() << " has coupling map { ";
+    //         for(Relation* r : q->relations)
+    //         {
+    //             if(r->GetRelationType() == SYS_SAGE_RELATION_COUPLING_MAP)
+    //             {
+    //                 CouplingMap* cm = static_cast<CouplingMap*>(r); 
+    //                 std::cout << (cm->components[0] == q ? cm->components[1]->GetId() : cm->components[0]->GetId() )<< " ";
+    //             }      
+    //         }
+    //         std::cout << "} and weight = " << *static_cast<double*>(q->attrib["qubit_weight"]) << "\n";
+    //     }
+    // }
     
 
     std::ofstream file("output.csv");
