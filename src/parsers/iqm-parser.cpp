@@ -6,9 +6,8 @@
 #include <algorithm>
 #include <sstream>
 #include <chrono>
+// #define PERF_MEASUREMENTS
 
-//using CouplingMap = std::unordered_map<int, std::vector<int>>;
-//using FidelityMap = std::map<std::pair<int, int>, double>; // For storing fidelities
 
 std::chrono::high_resolution_clock::time_point start1,start2,start3,end1,end2,end3;
 int parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForHistory)
@@ -23,28 +22,38 @@ int parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForH
 
 int parseIQM(QuantumBackend* qc, std::string dataSourcePath, int qcId, int tsForHistory, bool createTopo)
 {
+#ifdef PERF_MEASUREMENTS
     start1 = std::chrono::high_resolution_clock::now();
+#endif
     IQMParser iqm(qc,dataSourcePath);
     int ret;
     //only creates qubits & coupling mappings; no dynamic info
     if(createTopo)
     {
+#ifdef PERF_MEASUREMENTS
         start2 = std::chrono::high_resolution_clock::now();
+#endif
         ret = iqm.CreateQcTopo();
+#ifdef PERF_MEASUREMENTS
         end2 = std::chrono::high_resolution_clock::now();
+#endif
         if(ret != 0)
             return ret;
     }
     
     //assumes that the qubits and coupling mappings are already in place
+#ifdef PERF_MEASUREMENTS
     start3 = std::chrono::high_resolution_clock::now();
+#endif
     ret = iqm.ParseDynamicData(tsForHistory);
+#ifdef PERF_MEASUREMENTS
     end3 = std::chrono::high_resolution_clock::now();
     end1 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<long long, std::nano> duration1 = end1 - start1;
     std::chrono::duration<long long, std::nano> duration2 = end2 - start2;
     std::chrono::duration<long long, std::nano> duration3 = end3 - start3;
     std::cout << ";" << duration1.count() << ";" << duration2.count() << ";" << duration3.count();
+#endif
     return ret;
 }
 

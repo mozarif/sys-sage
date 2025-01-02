@@ -4,6 +4,7 @@
 #include <queue>
 #include <algorithm>
 
+// #define PERF_MEASUREMENTS
 ///////////////////// FoMaC functionality /////////////////////
 ////// This is a use-case-specific functionality, which would be a part of the sys-sage FoMaC, not the core sys-sage. hence, it is here as a separate code
 #define T_WEIGHT            0.1
@@ -100,18 +101,39 @@ int getTs(std::string filename)
     return std::stoi(result);
 }
 
-//calibration_data_Q-Exa_20241013.json already included in the first step
-//string IQMFileNames[] = {"calibration_data_Q-Exa_20241014.json","calibration_data_Q-Exa_20241015.json","calibration_data_Q-Exa_20241016.json","calibration_data_Q-Exa_20241017.json"};
-string IQMFileNames[] = {"calibration_data_Q-Exa_20241014.json","calibration_data_Q-Exa_20241015.json","calibration_data_Q-Exa_20241016.json","calibration_data_Q-Exa_20241017.json","calibration_data_Q-Exa_20241018.json","calibration_data_Q-Exa_20241019.json","calibration_data_Q-Exa_20241020.json","calibration_data_Q-Exa_20241021.json","calibration_data_Q-Exa_20241022.json","calibration_data_Q-Exa_20241023.json","calibration_data_Q-Exa_20241024.json","calibration_data_Q-Exa_20241025.json","calibration_data_Q-Exa_20241026.json","calibration_data_Q-Exa_20241027.json","calibration_data_Q-Exa_20241028.json","calibration_data_Q-Exa_20241029.json","calibration_data_Q-Exa_20241030.json","calibration_data_Q-Exa_20241031.json","calibration_data_Q-Exa_20241101.json","calibration_data_Q-Exa_20241102.json","calibration_data_Q-Exa_20241103.json","calibration_data_Q-Exa_20241104.json","calibration_data_Q-Exa_20241105.json","calibration_data_Q-Exa_20241106.json","calibration_data_Q-Exa_20241107.json","calibration_data_Q-Exa_20241108.json","calibration_data_Q-Exa_20241109.json","calibration_data_Q-Exa_20241110.json","calibration_data_Q-Exa_20241111.json","calibration_data_Q-Exa_20241112.json","calibration_data_Q-Exa_20241113.json","calibration_data_Q-Exa_20241114.json","calibration_data_Q-Exa_20241115.json","calibration_data_Q-Exa_20241116.json","calibration_data_Q-Exa_20241117.json","calibration_data_Q-Exa_20241118.json","calibration_data_Q-Exa_20241119.json","calibration_data_Q-Exa_20241120.json","calibration_data_Q-Exa_20241121.json","calibration_data_Q-Exa_20241122.json","calibration_data_Q-Exa_20241123.json","calibration_data_Q-Exa_20241124.json","calibration_data_Q-Exa_20241125.json","calibration_data_Q-Exa_20241126.json","calibration_data_Q-Exa_20241127.json","calibration_data_Q-Exa_20241128.json","calibration_data_Q-Exa_20241129.json","calibration_data_Q-Exa_20241130.json","calibration_data_Q-Exa_20241201.json","calibration_data_Q-Exa_20241202.json","calibration_data_Q-Exa_20241203.json","calibration_data_Q-Exa_20241204.json","calibration_data_Q-Exa_20241205.json"};
 
-int main()
+int main(int argc, char *argv[])
 {
     std::cout << std::setprecision(15);
     QuantumBackend* b = new QuantumBackend();  
-    string IQMPathPrefix = "/Users/stepan/phd/repos/q-sys-sage/tmp-qc-data/database/";
+    // string IQMPathPrefix = "/Users/stepan/phd/repos/q-sys-sage/tmp-qc-data/database/";
     string IQMPath;
-    int IQMPathTs;
+
+    string bwPath;
+    if(argc < 2){
+        std::string path_prefix(argv[0]);
+        std::size_t found = path_prefix.find_last_of("/\\");
+        path_prefix=path_prefix.substr(0,found) + "/";
+        IQMPath = path_prefix + "example_data/test_data_iqm_16.json";
+    }
+    else if(argc == 2){
+        IQMPath = argv[1];
+    }
+    else{
+        std::cerr << "Wrong input params" << std::endl;
+        return 1;
+    }
+
+#ifndef PERF_MEASUREMENTS
+    std::cout << "-- Parsing IQM output from file " << IQMPath << std::endl;
+#else
+    std::cout << "num_qubits;" << num_qubits;
+#endif
+    if(parseIQM(b, IQMPath, 0, -1, true) != 0) { //adds topo to a next node
+        return 1;
+    }
     
+    // int IQMPathTs;
     // IQMPath = IQMPathPrefix + "calibration_data_Q-Exa_20241013.json";
     // IQMPathTs =  getTs(IQMPath);
     // std::cout << "-- Parsing IQM output from file " << IQMPath << ", ts " << IQMPathTs << std::endl;
@@ -120,6 +142,9 @@ int main()
     // }
     // calculateAllWeights(b,IQMPathTs);
 
+    // //calibration_data_Q-Exa_20241013.json already included in the first step
+    // //string IQMFileNames[] = {"calibration_data_Q-Exa_20241014.json","calibration_data_Q-Exa_20241015.json","calibration_data_Q-Exa_20241016.json","calibration_data_Q-Exa_20241017.json"};
+    // string IQMFileNames[] = {"calibration_data_Q-Exa_20241014.json","calibration_data_Q-Exa_20241015.json","calibration_data_Q-Exa_20241016.json","calibration_data_Q-Exa_20241017.json","calibration_data_Q-Exa_20241018.json","calibration_data_Q-Exa_20241019.json","calibration_data_Q-Exa_20241020.json","calibration_data_Q-Exa_20241021.json","calibration_data_Q-Exa_20241022.json","calibration_data_Q-Exa_20241023.json","calibration_data_Q-Exa_20241024.json","calibration_data_Q-Exa_20241025.json","calibration_data_Q-Exa_20241026.json","calibration_data_Q-Exa_20241027.json","calibration_data_Q-Exa_20241028.json","calibration_data_Q-Exa_20241029.json","calibration_data_Q-Exa_20241030.json","calibration_data_Q-Exa_20241031.json","calibration_data_Q-Exa_20241101.json","calibration_data_Q-Exa_20241102.json","calibration_data_Q-Exa_20241103.json","calibration_data_Q-Exa_20241104.json","calibration_data_Q-Exa_20241105.json","calibration_data_Q-Exa_20241106.json","calibration_data_Q-Exa_20241107.json","calibration_data_Q-Exa_20241108.json","calibration_data_Q-Exa_20241109.json","calibration_data_Q-Exa_20241110.json","calibration_data_Q-Exa_20241111.json","calibration_data_Q-Exa_20241112.json","calibration_data_Q-Exa_20241113.json","calibration_data_Q-Exa_20241114.json","calibration_data_Q-Exa_20241115.json","calibration_data_Q-Exa_20241116.json","calibration_data_Q-Exa_20241117.json","calibration_data_Q-Exa_20241118.json","calibration_data_Q-Exa_20241119.json","calibration_data_Q-Exa_20241120.json","calibration_data_Q-Exa_20241121.json","calibration_data_Q-Exa_20241122.json","calibration_data_Q-Exa_20241123.json","calibration_data_Q-Exa_20241124.json","calibration_data_Q-Exa_20241125.json","calibration_data_Q-Exa_20241126.json","calibration_data_Q-Exa_20241127.json","calibration_data_Q-Exa_20241128.json","calibration_data_Q-Exa_20241129.json","calibration_data_Q-Exa_20241130.json","calibration_data_Q-Exa_20241201.json","calibration_data_Q-Exa_20241202.json","calibration_data_Q-Exa_20241203.json","calibration_data_Q-Exa_20241204.json","calibration_data_Q-Exa_20241205.json"};
 
     // for(string file : IQMFileNames)
     // {
@@ -133,27 +158,26 @@ int main()
     // }
     // cout << "-- End parseIQM" << endl;
 
-    int num_qubits = 25600;
-    IQMPathPrefix = "/Users/stepan/phd/repos/q-sys-sage/tmp/";
-    IQMPath = IQMPathPrefix + "test_data_qexa_" + std::to_string(num_qubits) + ".json";
-    // IQMPathTs =  getTs(IQMPath);
-    //std::cout << "-- Parsing IQM output from file " << IQMPath << std::endl;
-    std::cout << "num_qubits;" << num_qubits;
-    if(parseIQM(b, IQMPath, 0, -1, true) != 0) { //adds topo to a next node
-        return 1;
-    }
+
+#ifdef PERF_MEASUREMENTS
     auto start = std::chrono::high_resolution_clock::now();
+#endif
     calculateAllWeights(b);
+#ifdef PERF_MEASUREMENTS
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<long long, std::nano> duration4 = end - start;
+#endif
 
+#ifdef PERF_MEASUREMENTS
     start = std::chrono::high_resolution_clock::now();
+#endif
     vector<Qubit*> res = findTopNQubits(b, 10);
+#ifdef PERF_MEASUREMENTS
     end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<long long, std::nano> duration5 = end - start;
 
     std::cout << ";" << duration4.count() << ";" << duration5.count() << std::endl;
-
+#endif
 
     // cout << "---------------- Printing the configuration of IQM Backend----------------" << endl;
     // b->PrintSubtree();
