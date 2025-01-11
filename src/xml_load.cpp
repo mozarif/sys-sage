@@ -93,9 +93,8 @@ int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
   // freq_history is a vector of tuples containing the timestamp and the
   // frequency
   if (!key.compare("freq_history")) {
-    std::vector<std::tuple<long long, double>> val;
-    xmlNodePtr attr = n->children;
-    for (xmlNodePtr cur = attr->children; cur != NULL; cur = cur->next) {
+    std::vector<std::tuple<long long, double>>* val = new std::vector<std::tuple<long long, double>>();
+    for (xmlNodePtr cur = n->children; cur != NULL; cur = cur->next) {
       // skip text nodes
       if (cur->type == XML_TEXT_NODE)
         continue;
@@ -108,10 +107,9 @@ int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
       long long ts_ll = std::strtoll((const char *)ts.c_str(), NULL, 10);
       double freq_d = std::stod(freq);
 
-      val.push_back(std::make_tuple(ts_ll, freq_d));
+      val->push_back(std::make_tuple(ts_ll, freq_d));
     }
-    void *value = (void *)&val;
-    c->attrib[key] = value;
+    c->attrib[key] = (void*) val;
     return 1;
   } else if (!key.compare("GPU_Clock_Rate")) {
     // GPU_Clock_Rate is a vector of tuples containing the frequency and the
