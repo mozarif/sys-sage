@@ -13,7 +13,7 @@ void usage(char* argv0)
 int main(int argc, char *argv[])
 {
     string xmlPath;
-    const char *cccPath;
+    std::string cccPath;
     if(argc == 3){
         xmlPath = argv[1];
         cccPath = argv[2];
@@ -40,8 +40,11 @@ int main(int argc, char *argv[])
     cout << "----------------                     ----------------" << endl;
     
     
-    auto cccparser = new CccbenchParser(cccPath);
-    cccparser->applyDataPaths(n);
+    // auto cccparser = new CccbenchParser(cccPath);
+    // cccparser->applyDataPaths(n);
+
+    parseCccbenchOutput(n, cccPath);
+
 
     auto allcores = new vector<Component *>();
     topo->GetAllSubcomponentsByType(allcores, SYS_SAGE_COMPONENT_CORE);    
