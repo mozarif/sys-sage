@@ -40,8 +40,6 @@ int main(int argc, char *argv[])
     cout << "----------------                     ----------------" << endl;
     
     
-    // auto cccparser = new CccbenchParser(cccPath);
-    // cccparser->applyDataPaths(n);
 
     parseCccbenchOutput(n, cccPath);
 
