@@ -1,22 +1,58 @@
 
-#include <string>
 #include "sys-sage.hpp"
+#include <map>
+#include <string>
 
 int main(int argc, char *argv[]) {
-    
-    //first argument is the xml file to import
-    string xmlPath = argv[1];
+  string xmlPath;
+  if (argc < 2) {
+    std::string path_prefix(argv[0]);
+    std::size_t found = path_prefix.find_last_of("/\\");
+    path_prefix = path_prefix.substr(0, found) + "/";
+    xmlPath = path_prefix + "example_data/skylake_hwloc.xml";
+  } else if (argc == 3) {
+    xmlPath = argv[1];
+  }
 
-    //import the topology from the xml file
-    Topology* topo = (Topology*) importFromXml(xmlPath);
+  // create root Topology and one node
+  Topology *topo = new Topology();
+  Node *n = new Node(topo, 1);
 
-    //print the subtree of the topology object
-    topo->PrintSubtree(2);
+  cout << "-- Parsing Hwloc output from file " << xmlPath << endl;
+  parseHwlocOutput(n, xmlPath);
 
-    //print all datapaths in the topology object
-    topo->PrintAllDataPathsInSubtree();
+  vector<Component *> c_orig = topo->GetComponentsInSubtree();
 
-    //export the topology to an xml file named "output.xml"
-    exportToXml(topo, "output.xml");
+  exportToXml(topo, "output.xml");
+
+  Topology *topo2 = (Topology *)importFromXml("output.xml");
+
+  for (auto c : c_orig) {
+    int type = c->GetComponentType();
+    int id = c->GetId();
+    Component *c2 = topo2->GetSubcomponentById(id, type);
+    if (c2 == NULL) {
+      cout << "Component with id " << id << " and type " << type
+           << " not found in imported topology" << endl;
+
+      topo->Delete(true);
+      topo2->Delete(true);
+
+      // Delete output.xml
+      std::remove("output.xml");
+      return 0;
+    }
+  }
+  cout << "Original topology:" << endl;
+  topo->PrintSubtree(2);
+  cout << "\nImported topology:" << endl;
+  topo2->PrintSubtree(2);
+  cout << "\nAll components found!" << endl;
+
+  topo->Delete(true);
+  topo2->Delete(true);
+
+  // Delete output.xml
+  std::remove("output.xml");
+  return 0;
 }
-    
