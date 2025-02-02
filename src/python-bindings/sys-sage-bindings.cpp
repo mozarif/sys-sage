@@ -1,6 +1,6 @@
 #include "defines.hpp"
 
-//#ifdef PYBIND
+// #ifdef PYBIND
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -14,7 +14,18 @@
 
 namespace py = pybind11;
 
-py::dict syncAttributes(std::map<std::string, void*> attributes) {
+auto NULL_CHECK = [](auto func) {
+    return [func](auto self, auto... args) {
+        py::object obj = py::cast(self);
+        if (obj) {
+            return (self->*func)(args...);
+        } else {
+            throw std::runtime_error("Null object");
+        }
+    };
+};
+
+py::dict syncAttributes(std::map<std::string, void*> &attributes, py::dict object_attributes) {
     py::dict dict;
     for (auto const& [key, value] : attributes) {
         if(!key.compare("CATcos") || !key.compare("CATL3mask")){
@@ -67,6 +78,33 @@ py::dict syncAttributes(std::map<std::string, void*> attributes) {
             dict[key.c_str()] = freq_dict;
         }
     }
+    for (auto const& [key, value] : object_attributes) {
+        //if value is int
+        py::type value_type = py::type::of(value);
+        if(value_type.is(py::type::of(py::int_()))){
+            attributes[py::cast<std::string>(key)] = (void*) new int (py::cast<int>(value));
+        }
+        // //if value is long
+        // else if(py::isinstance<py::long_(value)){
+        //     attributes[py::cast<std::string>(key)] = (void*) new long (py::cast<long>(value));
+        // }
+        // //if value is float
+        // else if(py::isinstance<py::float_(value)){
+        //     attributes[py::cast<std::string>(key)] = (void*) new float (py::cast<float>(value));
+        // }
+        // //if value is double
+        // else if(py::isinstance<py::double_(value)){
+        //     attributes[py::cast<std::string>(key)] = (void*) new double (py::cast<double>(value));
+        // }
+        // //if value is bool
+        // else if(py::isinstance<py::object>(value) && py::cast<bool>(value)){
+        //     attributes[py::cast<std::string>(key)] = (void*) new bool (py::cast<bool>(value));
+        // }
+        // //else cast to string
+        // else {
+        //     attributes[py::cast<std::string>(key)] = (void*) new std::string (py::cast<std::string>(value));
+        // }
+    }
     return dict;
 }
 
@@ -113,20 +151,23 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<Component*, int, string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("componentType") = 1)
         .def("syncAttrib",[](Component& self) {
             //TODO: Better use vector instead of dict 
-            py::dict dict = syncAttributes(self.attrib);
             py::object pyself = py::cast(&self);
+            py::dict dict = syncAttributes((self.attrib), pyself.attr("__dict__"));
             for(auto const& [key, value] : dict){
                 py::setattr(pyself, key, value);
             }
         })
-        .def("setHappiness", [](Component& self, int happiness) { py::setattr(py::cast(&self), "happiness", py::cast(happiness)); })
+        .def("testAttrib",[](Component& self) {
+            self.attrib["test_int"] = new int(1);
+            int* test = (int*) self.attrib["test_int"];
+            printf("%d\n", *test);
+        })
         // TODO: implement get and set attributes according to ipad sketches 
         //.def("__getattr__", [](Component& self, const std::string& name) {})
         // .def("__setattr__", [](Component& self, const std::string& name, py::object value) {})
         // .def("get_attrib", [](Component& self) {} 
         // .def("set_attrib", [](Component& self, const py::dict& dict) {})
-        .def("InsertChild", &Component::InsertChild, py::arg("child"), 
-            py::doc("Insert a child component as the last child of the component.\n\n :param child: a pointer to a Component (or any class instance that inherits from Component)."))
+        .def("InsertChild", &Component::InsertChild, py::arg("child"))
         //rename functions
         .def("InsertBetweenParentAndChild", &Component::InsertBetweenParentAndChild, "Insert a component between parent and child")
         .def("InsertBetweenParentAndChildren", &Component::InsertBetweenParentAndChildren, "Insert a component between parent and children")
@@ -177,7 +218,15 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("DeleteDataPath", &Component::DeleteDataPath,"Delete a data path from the component")
         .def("DeleteAllDataPaths", &Component::DeleteAllDataPaths,"Delete all the data paths from the component")
         .def("DeleteSubtree", &Component::DeleteSubtree,"Delete the subtree of the component")
+        .def("Nullcheck", [](Component& self){ return (&self == nullptr);})
         //.def("Delete", &Component::Delete,"Delete the component")
+        .def("Delete", [](Component& self, bool deleteSubtree) { 
+            py::object obj = py::cast(&self);
+            obj.release();
+            if (deleteSubtree){
+                obj.attr("DeleteSubtree")();
+            }
+            self.Delete(false); }, "Delete the component")
         .def_readwrite("attrib", &Component::attrib);
     py::class_<Topology, Component>(m, "Topology")
         .def(py::init<>());
@@ -190,13 +239,12 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<Component*,int, string, long long, bool>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Memory", py::arg("size")=-1, py::arg("isVolatile")=false)
         .def_property("size", &Memory::GetSize, &Memory::SetSize, "The size of the memory")
         .def_property("isVolatile", &Memory::GetIsVolatile, &Memory::SetIsVolatile, "Whether the memory is volatile or not");
-    ;
     py::class_<Storage, Component>(m, "Storage")
         .def(py::init<long long>(), py::arg("size")=-1)
         .def(py::init<Component*,long long>(), py::arg("parent"), py::arg("size")= -1)
         .def_property("size", &Storage::GetSize, &Storage::SetSize, "The size of the storage");
     py::class_<Chip, Component>(m, "Chip")
-        .def(py::init<int,string,int,string,string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "")
+        .def(py::init<int,string,int,string,string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
         .def(py::init<Component*,int,string,int,string,string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = 1, py::arg("vendor") = "", py::arg("model") = "")
         .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
         .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
@@ -253,4 +301,4 @@ PYBIND11_MODULE(sys_sage, m) {
 }
 
 
-//#endif
+// #endif

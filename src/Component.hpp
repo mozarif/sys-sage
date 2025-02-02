@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <set>
+//#include <pybind11/pybind11.h>
 
 #include "defines.hpp"
 #include "DataPath.hpp"
@@ -34,6 +35,7 @@
 
 
 using namespace std;
+//namespace py = pybind11;
 class DataPath;
 
 /**
@@ -460,7 +462,12 @@ public:
     @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
     */
     xmlNodePtr CreateXmlSubtree();
-    
+
+    /**
+     * @private
+     * 
+     */
+    //py::object __getattr__(const std::string& name);
     /**
     Deletes and de-allocates the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of the Components.
     @param dp - DataPath to Delete

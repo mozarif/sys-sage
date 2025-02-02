@@ -31,6 +31,8 @@ if(NVIDIA_MIG)
   link_libraries(CUDA::nvml)
 endif()
 
+
+
 if(DATA_SOURCES OR DS_HWLOC)
   find_package(HWLOC REQUIRED)
 endif()
