@@ -2,10 +2,12 @@
 
 // #ifdef PYBIND
 
+#include <exception>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/attr.h>
 #include <string>
+#include <tuple>
 #include "Component.hpp"
 #include "DataPath.hpp"
 #include "sys-sage.hpp"
@@ -14,16 +16,109 @@
 
 namespace py = pybind11;
 
-auto NULL_CHECK = [](auto func) {
-    return [func](auto self, auto... args) {
-        py::object obj = py::cast(self);
-        if (obj) {
-            return (self->*func)(args...);
-        } else {
-            throw std::runtime_error("Null object");
+std::vector<std::string> default_attribs = {"CATcos","CATL3mask","mig_size","Number_of_streaming_multiprocessors","Number_of_cores_in_GPU","Number_of_cores_per_SM","Bus_Width_bit","Clock_Frequency","latency","latency_min","latency_max","CUDA_compute_capability","mig_uuid","freq_history","GPU_Clock_Rate"};
+
+py::function print_attributes;
+
+int convert(std::map<std::string, void*> &attributes, py::object comp, py::function fcn, bool toString) {
+    py::dict object_attributes = comp.attr("__dict__");
+    for (auto const& [key, value] : object_attributes) {
+        std::string val_str = fcn(key, value).cast<std::string>();
+        attributes[py::cast<std::string>(key)] = static_cast<void*>(&val_str);
+    }
+    return 1;
+}
+
+int xmldumper(std::string key, void* value, std::string* ret_value_str) {
+    if(default_attribs.end() != std::find(default_attribs.begin(), default_attribs.end(), key))
+        return 0;
+    auto * ptr = static_cast<std::shared_ptr<py::object>*>(value);
+    py::object res = print_attributes(*ptr->get());
+    *ret_value_str = res.cast<std::string>();
+    return 1;
+}
+
+void set_attribute(Component &self, const std::string &key, py::object &value) {
+    if(default_attribs.end() != std::find(default_attribs.begin(), default_attribs.end(), key))
+        throw py::type_error("Attribute " + key + " is read-only");
+    auto obj = new std::shared_ptr<py::object>(std::make_shared<py::object>(value));
+    // free existing value first
+    auto val = self.attrib.find(key);
+    if (val != self.attrib.end()) {
+        delete static_cast<std::shared_ptr<py::object>*>(val->second);
+    }
+    self.attrib[key] = static_cast<void*>(obj);
+}
+
+py::object get_attribute(Component &self, const std::string &key) {
+    auto val = self.attrib.find(key);
+    if (val != self.attrib.end()) {
+        if(!key.compare("CATcos") || !key.compare("CATL3mask")){
+            uint64_t retval = *((uint64_t*)val->second); 
+            return py::cast(retval);
         }
-    };
-};
+        else if(!key.compare("mig_size") )
+        {
+            return py::cast(*(long long*)val->second);
+        }
+        //val->secondue: int
+        else if(!key.compare("Number_of_streaming_multiprocessors") || 
+        !key.compare("Number_of_cores_in_GPU") || 
+        !key.compare("Number_of_cores_per_SM")  || 
+        !key.compare("Bus_Width_bit") )
+        {
+            return py::cast(*(int*)val->second);
+        }
+        //value: double
+        else if(!key.compare("Clock_Frequency") )
+        {
+            return py::cast(*(double*)val->second);
+        }
+        //value: float
+        else if(!key.compare("latency") ||
+        !key.compare("latency_min") ||
+        !key.compare("latency_max") )
+        {
+            return py::cast(*(float*)val->second);
+        }   
+        //value: string
+        else if(!key.compare("CUDA_compute_capability") || 
+        !key.compare("mig_uuid") )
+        {
+            return py::cast(*(string*)val->second);
+        }
+        else if(!key.compare("freq_history") ){
+            std::vector<std::tuple<long long,double>>* value = (std::vector<std::tuple<long long,double>>*)(val->second);
+            py::dict freq_dict;
+             for(auto [ ts,freq ] : *value){
+                 freq_dict[py::cast(ts)] = py::cast(freq);
+             }
+             return freq_dict;
+        }
+        else if(!key.compare("GPU_Clock_Rate")){
+            auto [ freq, unit ] = *(std::tuple<double, std::string>*)val->second;
+            py::dict freq_dict;
+            freq_dict[py::str("freq")] = py::cast(freq);
+            freq_dict[py::str("unit")] = py::cast(unit);       
+            return freq_dict;
+        }else{
+            auto * ptr = static_cast<std::shared_ptr<py::object>*>(val->second);
+            return *ptr->get();
+        }
+    } else {
+        throw py::attribute_error("Attribute '" + key + "' not found"); 
+    }
+}
+
+void remove_attribute(Component &self, const std::string &key) {
+    auto val = self.attrib.find(key);
+    if (val != self.attrib.end()) {
+        delete static_cast<std::shared_ptr<py::object>*>(val->second);
+        self.attrib.erase(val);
+    } else {
+        throw py::attribute_error("Attribute " + key + " not found");
+    }
+}
 
 py::dict syncAttributes(std::map<std::string, void*> &attributes, py::dict object_attributes) {
     py::dict dict;
@@ -77,13 +172,23 @@ py::dict syncAttributes(std::map<std::string, void*> &attributes, py::dict objec
             freq_dict[py::str("unit")] = py::cast(unit);       
             dict[key.c_str()] = freq_dict;
         }
+        else{
+            //try to cast into py::object
+           py::object val = py::cast<py::object>(static_cast<PyObject*>(value));
+           val.dec_ref();
+           dict[key.c_str()] = val; 
+        }
     }
     for (auto const& [key, value] : object_attributes) {
+        value.inc_ref();
+        PyObject * obj = value.ptr();
+        attributes[py::cast<std::string>(key)] = static_cast<void*>(obj);
+        delete &attributes;
         //if value is int
-        py::type value_type = py::type::of(value);
-        if(value_type.is(py::type::of(py::int_()))){
-            attributes[py::cast<std::string>(key)] = (void*) new int (py::cast<int>(value));
-        }
+        // py::type value_type = py::type::of(value);
+        // if(value_type.is(py::type::of(py::int_()))){
+        //     attributes[py::cast<std::string>(key)] = (void*) new int (py::cast<int>(value));
+        // }
         // //if value is long
         // else if(py::isinstance<py::long_(value)){
         //     attributes[py::cast<std::string>(key)] = (void*) new long (py::cast<long>(value));
@@ -111,44 +216,47 @@ py::dict syncAttributes(std::map<std::string, void*> &attributes, py::dict objec
 
 PYBIND11_MODULE(sys_sage, m) {
 
-    m.attr("SYS_SAGE_COMPONENT_NONE") = SYS_SAGE_COMPONENT_NONE;
-    m.attr("SYS_SAGE_COMPONENT_THREAD") = SYS_SAGE_COMPONENT_THREAD;
-    m.attr("SYS_SAGE_COMPONENT_CORE") = SYS_SAGE_COMPONENT_CORE;
-    m.attr("SYS_SAGE_COMPONENT_CACHE") = SYS_SAGE_COMPONENT_CACHE;
-    m.attr("SYS_SAGE_COMPONENT_SUBDIVISION") = SYS_SAGE_COMPONENT_SUBDIVISION;
-    m.attr("SYS_SAGE_COMPONENT_NUMA") = SYS_SAGE_COMPONENT_NUMA;
-    m.attr("SYS_SAGE_COMPONENT_CHIP") = SYS_SAGE_COMPONENT_CHIP;
-    m.attr("SYS_SAGE_COMPONENT_MEMORY") = SYS_SAGE_COMPONENT_MEMORY;
-    m.attr("SYS_SAGE_COMPONENT_STORAGE") = SYS_SAGE_COMPONENT_STORAGE;
-    m.attr("SYS_SAGE_COMPONENT_NODE") = SYS_SAGE_COMPONENT_NODE;
-    m.attr("SYS_SAGE_COMPONENT_TOPOLOGY") = SYS_SAGE_COMPONENT_TOPOLOGY;
+        m.attr("COMPONENT_NONE") = SYS_SAGE_COMPONENT_NONE;
+        m.attr("COMPONENT_THREAD") = SYS_SAGE_COMPONENT_THREAD;
+        m.attr("COMPONENT_CORE") = SYS_SAGE_COMPONENT_CORE;
+        m.attr("COMPONENT_CACHE") = SYS_SAGE_COMPONENT_CACHE;
+        m.attr("COMPONENT_SUBDIVISION") = SYS_SAGE_COMPONENT_SUBDIVISION;
+        m.attr("COMPONENT_NUMA") = SYS_SAGE_COMPONENT_NUMA;
+        m.attr("COMPONENT_CHIP") = SYS_SAGE_COMPONENT_CHIP;
+        m.attr("COMPONENT_MEMORY") = SYS_SAGE_COMPONENT_MEMORY;
+        m.attr("COMPONENT_STORAGE") = SYS_SAGE_COMPONENT_STORAGE;
+        m.attr("COMPONENT_NODE") = SYS_SAGE_COMPONENT_NODE;
+        m.attr("COMPONENT_TOPOLOGY") = SYS_SAGE_COMPONENT_TOPOLOGY;
 
-    m.attr("SYS_SAGE_SUBDIVISION_TYPE_NONE") = SYS_SAGE_SUBDIVISION_TYPE_NONE;
-    m.attr("SYS_SAGE_SUBDIVISION_TYPE_GPU_SM") = SYS_SAGE_SUBDIVISION_TYPE_GPU_SM;
+        m.attr("SUBDIVISION_TYPE_NONE") = SYS_SAGE_SUBDIVISION_TYPE_NONE;
+        m.attr("SUBDIVISION_TYPE_GPU_SM") = SYS_SAGE_SUBDIVISION_TYPE_GPU_SM;
 
-    m.attr("SYS_SAGE_CHIP_TYPE_NONE") = SYS_SAGE_CHIP_TYPE_NONE;
-    m.attr("SYS_SAGE_CHIP_TYPE_CPU") = SYS_SAGE_CHIP_TYPE_CPU;
-    m.attr("SYS_SAGE_CHIP_TYPE_CPU_SOCKET") = SYS_SAGE_CHIP_TYPE_CPU_SOCKET;
-    m.attr("SYS_SAGE_CHIP_TYPE_GPU") = SYS_SAGE_CHIP_TYPE_GPU;
+        m.attr("CHIP_TYPE_NONE") = SYS_SAGE_CHIP_TYPE_NONE;
+        m.attr("CHIP_TYPE_CPU") = SYS_SAGE_CHIP_TYPE_CPU;
+        m.attr("CHIP_TYPE_CPU_SOCKET") = SYS_SAGE_CHIP_TYPE_CPU_SOCKET;
+        m.attr("CHIP_TYPE_GPU") = SYS_SAGE_CHIP_TYPE_GPU;
 
-    m.attr("SYS_SAGE_DATAPATH_NONE") = SYS_SAGE_DATAPATH_NONE;
-    m.attr("SYS_SAGE_DATAPATH_OUTGOING") = SYS_SAGE_DATAPATH_OUTGOING;
-    m.attr("SYS_SAGE_DATAPATH_INCOMING") = SYS_SAGE_DATAPATH_INCOMING;
-    m.attr("SYS_SAGE_DATAPATH_BIDIRECTIONAL") = SYS_SAGE_DATAPATH_BIDIRECTIONAL;
-    m.attr("SYS_SAGE_DATAPATH_ORIENTED") = SYS_SAGE_DATAPATH_ORIENTED;
-    m.attr("SYS_SAGE_DATAPATH_TYPE_NONE") = SYS_SAGE_DATAPATH_TYPE_NONE;
-    m.attr("SYS_SAGE_DATAPATH_TYPE_LOGICAL") = SYS_SAGE_DATAPATH_TYPE_LOGICAL;
-    m.attr("SYS_SAGE_DATAPATH_TYPE_PHYSICAL") = SYS_SAGE_DATAPATH_TYPE_PHYSICAL;
-    m.attr("SYS_SAGE_DATAPATH_TYPE_L3CAT") = SYS_SAGE_DATAPATH_TYPE_L3CAT;
-    m.attr("SYS_SAGE_DATAPATH_TYPE_MIG") = SYS_SAGE_DATAPATH_TYPE_MIG;
-    m.attr("SYS_SAGE_DATAPATH_TYPE_DATATRANSFER") = SYS_SAGE_DATAPATH_TYPE_DATATRANSFER;
-    m.attr("SYS_SAGE_DATAPATH_TYPE_C2C") = SYS_SAGE_DATAPATH_TYPE_C2C;
+        m.attr("DATAPATH_NONE") = SYS_SAGE_DATAPATH_NONE;
+        m.attr("DATAPATH_OUTGOING") = SYS_SAGE_DATAPATH_OUTGOING;
+        m.attr("DATAPATH_INCOMING") = SYS_SAGE_DATAPATH_INCOMING;
+        m.attr("DATAPATH_BIDIRECTIONAL") = SYS_SAGE_DATAPATH_BIDIRECTIONAL;
+        m.attr("DATAPATH_ORIENTED") = SYS_SAGE_DATAPATH_ORIENTED;
+        m.attr("DATAPATH_TYPE_NONE") = SYS_SAGE_DATAPATH_TYPE_NONE;
+        m.attr("DATAPATH_TYPE_LOGICAL") = SYS_SAGE_DATAPATH_TYPE_LOGICAL;
+        m.attr("DATAPATH_TYPE_PHYSICAL") = SYS_SAGE_DATAPATH_TYPE_PHYSICAL;
+        m.attr("DATAPATH_TYPE_L3CAT") = SYS_SAGE_DATAPATH_TYPE_L3CAT;
+        m.attr("DATAPATH_TYPE_MIG") = SYS_SAGE_DATAPATH_TYPE_MIG;
+        m.attr("DATAPATH_TYPE_DATATRANSFER") = SYS_SAGE_DATAPATH_TYPE_DATATRANSFER;
+        m.attr("DATAPATH_TYPE_C2C") = SYS_SAGE_DATAPATH_TYPE_C2C;
+
+        m.def("test_fcn_integration", [](py::function f, int x, int y) { return f(x, y); });
 
     //bind component class
-    py::class_<Component>(m, "Component", py::dynamic_attr(),"Generic Component")
+    py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
        
-        .def(py::init<int, string, int>(), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("componentType") = 1)
-        .def(py::init<Component*, int, string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("componentType") = 1)
+        //.def(py::init<int, string, int>(), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("componentType") = 1)
+        //.def(py::init<Component*, int, string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("componentType") = 1)
+        
         .def("syncAttrib",[](Component& self) {
             //TODO: Better use vector instead of dict 
             py::object pyself = py::cast(&self);
@@ -157,10 +265,14 @@ PYBIND11_MODULE(sys_sage, m) {
                 py::setattr(pyself, key, value);
             }
         })
-        .def("testAttrib",[](Component& self) {
-            self.attrib["test_int"] = new int(1);
-            int* test = (int*) self.attrib["test_int"];
-            printf("%d\n", *test);
+        .def("__setattr__", [](Component& self, const std::string& name, py::object value) {
+            set_attribute(self,name, value);
+        })
+        .def("__getattr__", [](Component& self, const std::string& name) {
+            return get_attribute(self,name);
+        })
+        .def("__delattr__", [](Component& self, const std::string& name) {
+            remove_attribute(self,name);
         })
         // TODO: implement get and set attributes according to ipad sketches 
         //.def("__getattr__", [](Component& self, const std::string& name) {})
@@ -218,65 +330,68 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("DeleteDataPath", &Component::DeleteDataPath,"Delete a data path from the component")
         .def("DeleteAllDataPaths", &Component::DeleteAllDataPaths,"Delete all the data paths from the component")
         .def("DeleteSubtree", &Component::DeleteSubtree,"Delete the subtree of the component")
-        .def("Nullcheck", [](Component& self){ return (&self == nullptr);})
-        //.def("Delete", &Component::Delete,"Delete the component")
-        .def("Delete", [](Component& self, bool deleteSubtree) { 
+        //.def("Nullcheck", [](Component& self){ return ( == nullptr);})
+        .def("Delete", &Component::Delete,"Delete the component")
+        .def("StoreAttributes",[](Component& self){
             py::object obj = py::cast(&self);
-            obj.release();
-            if (deleteSubtree){
-                obj.attr("DeleteSubtree")();
-            }
-            self.Delete(false); }, "Delete the component")
-        .def_readwrite("attrib", &Component::attrib);
-    py::class_<Topology, Component>(m, "Topology")
+            obj.inc_ref();
+        })
+        .def_readwrite("attrib", &Component::attrib)
+        .def("__bool__",[](Component& self){
+            py::object obj = py::cast(&self);
+            //if(obj.get() == nullptr) return false;
+            return true;
+        });
+    py::class_<Topology, std::unique_ptr<Topology, py::nodelete>,Component>(m, "Topology")
         .def(py::init<>());
-    py::class_<Node, Component>(m, "Node")
+    py::class_<Node, std::unique_ptr<Node, py::nodelete>, Component>(m, "Node")
         .def(py::init<int, string>(), py::arg("id") = 0, py::arg("name")= "Node")
         .def(py::init<Component*, int, string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Node")
         .def("RefreshCpuCoreFrequency", &Node::RefreshCpuCoreFrequency, py::arg("keep_history")=false,"Refresh the cpu core frequency");
-    py::class_<Memory, Component>(m, "Memory")
-        .def(py::init<long long, bool>(), py::arg("size") = -1, py::arg("isVolatile") = false)
-        .def(py::init<Component*,int, string, long long, bool>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Memory", py::arg("size")=-1, py::arg("isVolatile")=false)
-        .def_property("size", &Memory::GetSize, &Memory::SetSize, "The size of the memory")
-        .def_property("isVolatile", &Memory::GetIsVolatile, &Memory::SetIsVolatile, "Whether the memory is volatile or not");
-    py::class_<Storage, Component>(m, "Storage")
-        .def(py::init<long long>(), py::arg("size")=-1)
-        .def(py::init<Component*,long long>(), py::arg("parent"), py::arg("size")= -1)
-        .def_property("size", &Storage::GetSize, &Storage::SetSize, "The size of the storage");
-    py::class_<Chip, Component>(m, "Chip")
-        .def(py::init<int,string,int,string,string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
-        .def(py::init<Component*,int,string,int,string,string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = 1, py::arg("vendor") = "", py::arg("model") = "")
-        .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
-        .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
-        .def_property("chipType", &Chip::GetChipType, &Chip::SetChipType, "The type of the chip");
-    py::class_<Cache, Component>(m, "Cache")
-        .def(py::init<int,int,long long, int, int>(), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
-        .def(py::init<Component*,int,int,long long, int, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
-        .def(py::init<Component*, int, string, long long, int, int>(), py::arg("parent"), py::arg("id"), py::arg("cache_type"), py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
-        .def_property("cacheLevel", &Cache::GetCacheLevel, &Cache::SetCacheLevel, "The level of the cache")
-        .def_property("cacheName", &Cache::GetCacheName, &Cache::SetCacheName, "The name of the cache")
-        .def_property("cacheSize", &Cache::GetCacheSize, &Cache::SetCacheSize, "The size of the cache")
-        .def_property("cacheAssociativity", &Cache::GetCacheAssociativityWays, &Cache::SetCacheAssociativityWays, "The associativity of the cache")
-        .def_property("cacheLineSize", &Cache::GetCacheLineSize, &Cache::SetCacheLineSize, "The line size of the cache");
-    py::class_<Subdivision, Component>(m, "Subdivision")
-        .def(py::init<int,string, int>(), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
-        .def(py::init<Component*,int,string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
-        .def_property("subdivisionType", &Subdivision::GetSubdivisionType, &Subdivision::SetSubdivisionType, "The type of the subdivision");
-    py::class_<Numa, Subdivision>(m, "Numa")
-        .def(py::init<int, long long>(), py::arg("id") = 0, py::arg("size") = -1)
-        .def(py::init<Component*, int, long long>(), py::arg("parent"), py::arg("id") = 0, py::arg("size") = -1)
-        .def_property("size", &Numa::GetSize, &Numa::SetSize, "Size of the NUMA region");
-    py::class_<Core, Component>(m, "Core")
-        .def(py::init<int,string>(),py::arg("id") = 0, py::arg("name") = "Core")
-        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0 ,py::arg("name") = "Core")
-        .def("RefreshFreq", &Core::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
-        .def_property("freq", &Core::GetFreq, &Core::SetFreq, "Frequency of this core");
+    // py::class_<Memory, Component>(m, "Memory")
+    //     //.def(py::init<long long, bool>(), py::arg("size") = -1, py::arg("isVolatile") = false)
+    //     //.def(py::init<Component*,int, string, long long, bool>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Memory", py::arg("size")=-1, py::arg("isVolatile")=false)
+    //     .def_property("size", &Memory::GetSize, &Memory::SetSize, "The size of the memory")
+    //     .def_property("isVolatile", &Memory::GetIsVolatile, &Memory::SetIsVolatile, "Whether the memory is volatile or not");
+    // py::class_<Storage, Component>(m, "Storage")
+    //     //.def(py::init<long long>(), py::arg("size")=-1)
+    //     //.def(py::init<Component*,long long>(), py::arg("parent"), py::arg("size")= -1)
+    //     .def_property("size", &Storage::GetSize, &Storage::SetSize, "The size of the storage");
+    // py::class_<Chip, Component>(m, "Chip")
+    //     //.def(py::init<int,string,int,string,string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
+    //     //.def(py::init<Component*,int,string,int,string,string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = 1, py::arg("vendor") = "", py::arg("model") = "")
+    //     .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
+    //     .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
+    //     .def_property("chipType", &Chip::GetChipType, &Chip::SetChipType, "The type of the chip");
+    // py::class_<Cache, Component>(m, "Cache")
+    //     .def(py::init<int,int,long long, int, int>(), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
+    //     .def(py::init<Component*,int,int,long long, int, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
+    //     .def(py::init<Component*, int, string, long long, int, int>(), py::arg("parent"), py::arg("id"), py::arg("cache_type"), py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
+    //     .def_property("cacheLevel", &Cache::GetCacheLevel, &Cache::SetCacheLevel, "The level of the cache")
+    //     .def_property("cacheName", &Cache::GetCacheName, &Cache::SetCacheName, "The name of the cache")
+    //     .def_property("cacheSize", &Cache::GetCacheSize, &Cache::SetCacheSize, "The size of the cache")
+    //     .def_property("cacheAssociativity", &Cache::GetCacheAssociativityWays, &Cache::SetCacheAssociativityWays, "The associativity of the cache")
+    //     .def_property("cacheLineSize", &Cache::GetCacheLineSize, &Cache::SetCacheLineSize, "The line size of the cache");
+    // py::class_<Subdivision, Component>(m, "Subdivision")
+    //     .def(py::init<int,string, int>(), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
+    //     .def(py::init<Component*,int,string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
+    //     .def_property("subdivisionType", &Subdivision::GetSubdivisionType, &Subdivision::SetSubdivisionType, "The type of the subdivision");
+    // py::class_<Numa, Subdivision>(m, "Numa")
+    //     .def(py::init<int, long long>(), py::arg("id") = 0, py::arg("size") = -1)
+    //     .def(py::init<Component*, int, long long>(), py::arg("parent"), py::arg("id") = 0, py::arg("size") = -1)
+    //     .def_property("size", &Numa::GetSize, &Numa::SetSize, "Size of the NUMA region");
+    // py::class_<Core, Component>(m, "Core")
+    //     .def(py::init<int,string>(),py::arg("id") = 0, py::arg("name") = "Core")
+    //     .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0 ,py::arg("name") = "Core")
+    //     .def("RefreshFreq", &Core::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
+    //     .def_property("freq", &Core::GetFreq, &Core::SetFreq, "Frequency of this core");
         
-    py::class_<Thread, Component>(m,"Thread")
-        .def(py::init<int,string>(),py::arg("id") = 0,py::arg("name") = "Thread")
-        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread")
-        .def("RefreshFreq", &Thread::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
-        .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread");
+    // py::class_<Thread, Component>(m,"Thread")
+    //     .def(py::init<int,string>(),py::arg("id") = 0,py::arg("name") = "Thread")
+    //     .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread")
+    //     .def("RefreshFreq", &Thread::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
+    //     .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread");
+    //     .def(py::nodelete())
 
     py::class_<DataPath>(m,"DataPath")
         .def(py::init<Component*, Component*, int, int>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = 32)
@@ -298,6 +413,11 @@ PYBIND11_MODULE(sys_sage, m) {
     m.def("parseCccbenchOutput", &parseCccbenchOutput, "parseCccbenchOutput", py::arg("root"), py::arg("cccPath"));
 
     m.def("parseCapsNumaBenchmark", &parseCapsNumaBenchmark,  py::arg("root"), py::arg("benchmarkPath"), py::arg("delim") = ";");
+
+    m.def("exportToXml", [](Component& root, string xmlPath, py::function print_a) {
+        print_attributes = print_a;
+        exportToXml(&root, xmlPath,xmldumper);
+    },py::arg("root"), py::arg("xmlPath") = "out.xml", py::arg("print_a") = py::none());
 }
 
 

@@ -622,7 +622,6 @@ void Component::Delete(bool withSubtree)
     }
     // Delete the component itself
     delete this;
-    this->id = -1;
 }
 
 void Component::SetName(string _name){ name = _name; }
