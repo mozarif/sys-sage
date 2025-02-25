@@ -3,6 +3,7 @@
 // #ifdef PYBIND
 
 #include <exception>
+#include <libxml2/libxml/parser.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/attr.h>
@@ -19,6 +20,10 @@ namespace py = pybind11;
 std::vector<std::string> default_attribs = {"CATcos","CATL3mask","mig_size","Number_of_streaming_multiprocessors","Number_of_cores_in_GPU","Number_of_cores_per_SM","Bus_Width_bit","Clock_Frequency","latency","latency_min","latency_max","CUDA_compute_capability","mig_uuid","freq_history","GPU_Clock_Rate"};
 
 py::function print_attributes;
+py::function print_complex_attributes;
+
+py::function read_attributes;
+py::function read_complex_attributes;
 
 int convert(std::map<std::string, void*> &attributes, py::object comp, py::function fcn, bool toString) {
     py::dict object_attributes = comp.attr("__dict__");
@@ -33,9 +38,52 @@ int xmldumper(std::string key, void* value, std::string* ret_value_str) {
     if(default_attribs.end() != std::find(default_attribs.begin(), default_attribs.end(), key))
         return 0;
     auto * ptr = static_cast<std::shared_ptr<py::object>*>(value);
-    py::object res = print_attributes(*ptr->get());
+    py::object res = print_attributes( py::cast(key), *ptr->get());
+    //check if res is none
+    if(res.is_none())
+        return 0;
     *ret_value_str = res.cast<std::string>();
     return 1;
+}
+
+int xmldumper_complex(std::string key, void* value, xmlNodePtr node) {
+    if(default_attribs.end() != std::find(default_attribs.begin(), default_attribs.end(), key))
+        return 0;
+    auto * ptr = static_cast<std::shared_ptr<py::object>*>(value);
+    //idea: we expect fcn to return xml as a string and write it to node
+    py::object res = print_complex_attributes(py::cast(key), *ptr->get());
+    //check if res is none
+    if(res.is_none())
+        return 0;
+    xmlBufferPtr buffer = xmlBufferCreate();
+
+    //xmlDocPtr doc = xmlParseDoc(res.cast<const unsigned char*>());
+    return 0;
+}
+
+void* xmlloader(xmlNodePtr node) {
+    //idea: we expect fcn to return xml as a string and write it to node
+    xmlBufferPtr buffer = xmlBufferCreate();
+    xmlNodeDump(buffer, node->doc, node, 0, 1);
+    std::string xml_str((const char*)buffer->content, buffer->size);
+    xmlBufferFree(buffer);
+    //now pass to read_attributes
+    py::object value = read_attributes(py::cast(xml_str));
+    std::shared_ptr<py::object> *ptr = new std::shared_ptr<py::object>(std::make_shared<py::object>(value));
+    return static_cast<void*>(ptr);
+}
+
+int xmlloader_complex(xmlNodePtr node, Component *c) {
+    py::object comp = py::cast(c);
+    //idea: we expect fcn to return xml as a string and write it to node
+    xmlBufferPtr buffer = xmlBufferCreate();
+    // xmlNodeDump(buffer, node->doc, node, 0, 1);
+    // std::string xml_str((const char*)buffer->content, buffer->size);
+    // xmlBufferFree(buffer);
+    // //now pass to read_attributes
+    // py::object ret = read_complex_attributes(py::cast(xml_str), comp);
+    // return ret.cast<int>();
+    return 0;
 }
 
 void set_attribute(Component &self, const std::string &key, py::object &value) {
@@ -348,50 +396,49 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<int, string>(), py::arg("id") = 0, py::arg("name")= "Node")
         .def(py::init<Component*, int, string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Node")
         .def("RefreshCpuCoreFrequency", &Node::RefreshCpuCoreFrequency, py::arg("keep_history")=false,"Refresh the cpu core frequency");
-    // py::class_<Memory, Component>(m, "Memory")
-    //     //.def(py::init<long long, bool>(), py::arg("size") = -1, py::arg("isVolatile") = false)
-    //     //.def(py::init<Component*,int, string, long long, bool>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Memory", py::arg("size")=-1, py::arg("isVolatile")=false)
-    //     .def_property("size", &Memory::GetSize, &Memory::SetSize, "The size of the memory")
-    //     .def_property("isVolatile", &Memory::GetIsVolatile, &Memory::SetIsVolatile, "Whether the memory is volatile or not");
-    // py::class_<Storage, Component>(m, "Storage")
-    //     //.def(py::init<long long>(), py::arg("size")=-1)
-    //     //.def(py::init<Component*,long long>(), py::arg("parent"), py::arg("size")= -1)
-    //     .def_property("size", &Storage::GetSize, &Storage::SetSize, "The size of the storage");
-    // py::class_<Chip, Component>(m, "Chip")
-    //     //.def(py::init<int,string,int,string,string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
-    //     //.def(py::init<Component*,int,string,int,string,string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = 1, py::arg("vendor") = "", py::arg("model") = "")
-    //     .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
-    //     .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
-    //     .def_property("chipType", &Chip::GetChipType, &Chip::SetChipType, "The type of the chip");
-    // py::class_<Cache, Component>(m, "Cache")
-    //     .def(py::init<int,int,long long, int, int>(), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
-    //     .def(py::init<Component*,int,int,long long, int, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
-    //     .def(py::init<Component*, int, string, long long, int, int>(), py::arg("parent"), py::arg("id"), py::arg("cache_type"), py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
-    //     .def_property("cacheLevel", &Cache::GetCacheLevel, &Cache::SetCacheLevel, "The level of the cache")
-    //     .def_property("cacheName", &Cache::GetCacheName, &Cache::SetCacheName, "The name of the cache")
-    //     .def_property("cacheSize", &Cache::GetCacheSize, &Cache::SetCacheSize, "The size of the cache")
-    //     .def_property("cacheAssociativity", &Cache::GetCacheAssociativityWays, &Cache::SetCacheAssociativityWays, "The associativity of the cache")
-    //     .def_property("cacheLineSize", &Cache::GetCacheLineSize, &Cache::SetCacheLineSize, "The line size of the cache");
-    // py::class_<Subdivision, Component>(m, "Subdivision")
-    //     .def(py::init<int,string, int>(), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
-    //     .def(py::init<Component*,int,string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
-    //     .def_property("subdivisionType", &Subdivision::GetSubdivisionType, &Subdivision::SetSubdivisionType, "The type of the subdivision");
-    // py::class_<Numa, Subdivision>(m, "Numa")
-    //     .def(py::init<int, long long>(), py::arg("id") = 0, py::arg("size") = -1)
-    //     .def(py::init<Component*, int, long long>(), py::arg("parent"), py::arg("id") = 0, py::arg("size") = -1)
-    //     .def_property("size", &Numa::GetSize, &Numa::SetSize, "Size of the NUMA region");
-    // py::class_<Core, Component>(m, "Core")
-    //     .def(py::init<int,string>(),py::arg("id") = 0, py::arg("name") = "Core")
-    //     .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0 ,py::arg("name") = "Core")
-    //     .def("RefreshFreq", &Core::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
-    //     .def_property("freq", &Core::GetFreq, &Core::SetFreq, "Frequency of this core");
+    py::class_<Memory,std::unique_ptr<Memory, py::nodelete>, Component>(m, "Memory")
+        .def(py::init<long long, bool>(), py::arg("size") = -1, py::arg("isVolatile") = false)
+        .def(py::init<Component*,int, string, long long, bool>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Memory", py::arg("size")=-1, py::arg("isVolatile")=false)
+        .def_property("size", &Memory::GetSize, &Memory::SetSize, "The size of the memory")
+        .def_property("isVolatile", &Memory::GetIsVolatile, &Memory::SetIsVolatile, "Whether the memory is volatile or not");
+    py::class_<Storage, std::unique_ptr<Storage, py::nodelete>, Component>(m, "Storage")
+        .def(py::init<long long>(), py::arg("size")=-1)
+        .def(py::init<Component*,long long>(), py::arg("parent"), py::arg("size")= -1)
+        .def_property("size", &Storage::GetSize, &Storage::SetSize, "The size of the storage");
+    py::class_<Chip,std::unique_ptr<Chip, py::nodelete>, Component>(m, "Chip")
+        .def(py::init<int,string,int,string,string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
+        .def(py::init<Component*,int,string,int,string,string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = 1, py::arg("vendor") = "", py::arg("model") = "")
+        .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
+        .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
+        .def_property("chipType", &Chip::GetChipType, &Chip::SetChipType, "The type of the chip");
+    py::class_<Cache, std::unique_ptr<Cache, py::nodelete>, Component>(m, "Cache")
+        .def(py::init<int,int,long long, int, int>(), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
+        .def(py::init<Component*,int,int,long long, int, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
+        .def(py::init<Component*, int, string, long long, int, int>(), py::arg("parent"), py::arg("id"), py::arg("cache_type"), py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
+        .def_property("cacheLevel", &Cache::GetCacheLevel, &Cache::SetCacheLevel, "The level of the cache")
+        .def_property("cacheName", &Cache::GetCacheName, &Cache::SetCacheName, "The name of the cache")
+        .def_property("cacheSize", &Cache::GetCacheSize, &Cache::SetCacheSize, "The size of the cache")
+        .def_property("cacheAssociativity", &Cache::GetCacheAssociativityWays, &Cache::SetCacheAssociativityWays, "The associativity of the cache")
+        .def_property("cacheLineSize", &Cache::GetCacheLineSize, &Cache::SetCacheLineSize, "The line size of the cache");
+    py::class_<Subdivision, std::unique_ptr<Subdivision, py::nodelete>, Component>(m, "Subdivision")
+        .def(py::init<int,string, int>(), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
+        .def(py::init<Component*,int,string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
+        .def_property("subdivisionType", &Subdivision::GetSubdivisionType, &Subdivision::SetSubdivisionType, "The type of the subdivision");
+    py::class_<Numa,std::unique_ptr<Numa, py::nodelete>, Subdivision>(m, "Numa")
+        .def(py::init<int, long long>(), py::arg("id") = 0, py::arg("size") = -1)
+        .def(py::init<Component*, int, long long>(), py::arg("parent"), py::arg("id") = 0, py::arg("size") = -1)
+        .def_property("size", &Numa::GetSize, &Numa::SetSize, "Size of the NUMA region");
+    py::class_<Core, std::unique_ptr<Core, py::nodelete>, Component>(m, "Core")
+        .def(py::init<int,string>(),py::arg("id") = 0, py::arg("name") = "Core")
+        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0 ,py::arg("name") = "Core")
+        .def("RefreshFreq", &Core::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
+        .def_property("freq", &Core::GetFreq, &Core::SetFreq, "Frequency of this core");
         
-    // py::class_<Thread, Component>(m,"Thread")
-    //     .def(py::init<int,string>(),py::arg("id") = 0,py::arg("name") = "Thread")
-    //     .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread")
-    //     .def("RefreshFreq", &Thread::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
-    //     .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread");
-    //     .def(py::nodelete())
+    py::class_<Thread, std::unique_ptr<Thread, py::nodelete>,Component>(m,"Thread")
+        .def(py::init<int,string>(),py::arg("id") = 0,py::arg("name") = "Thread")
+        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread")
+        .def("RefreshFreq", &Thread::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
+        .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread");
 
     py::class_<DataPath>(m,"DataPath")
         .def(py::init<Component*, Component*, int, int>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = 32)
@@ -414,10 +461,17 @@ PYBIND11_MODULE(sys_sage, m) {
 
     m.def("parseCapsNumaBenchmark", &parseCapsNumaBenchmark,  py::arg("root"), py::arg("benchmarkPath"), py::arg("delim") = ";");
 
-    m.def("exportToXml", [](Component& root, string xmlPath, py::function print_a) {
-        print_attributes = print_a;
-        exportToXml(&root, xmlPath,xmldumper);
-    },py::arg("root"), py::arg("xmlPath") = "out.xml", py::arg("print_a") = py::none());
+    m.def("exportToXml", [](Component& root, string xmlPath, py::function print_att, py::function print_catt) {
+        print_attributes = print_att;
+        print_complex_attributes = print_catt;
+        exportToXml(&root, xmlPath,xmldumper,xmldumper_complex);
+    },py::arg("root"), py::arg("xmlPath") = "out.xml", py::arg("print_att") = py::none(), py::arg("print_catt") = py::none());
+    
+    m.def("importFromXml",[](string path, py::function search_custom_attrib_key_fcn = py::none(), py::function search_custom_complex_attrib_key_fcn = py::none()) {
+        read_attributes = search_custom_attrib_key_fcn;
+        read_complex_attributes = search_custom_complex_attrib_key_fcn;
+        return importFromXml(path,xmlloader,xmlloader_complex);
+    }, py::arg("path"), py::arg("search_custom_attrib_key_fcn") = py::none(), py::arg("search_custom_complex_attrib_key_fcn") = py::none());
 }
 
 
