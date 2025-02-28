@@ -2,6 +2,7 @@
 
 // #ifdef PYBIND
 
+#include <cstdio>
 #include <exception>
 #include <libxml2/libxml/parser.h>
 #include <pybind11/pybind11.h>
@@ -13,8 +14,6 @@
 #include "DataPath.hpp"
 #include "sys-sage.hpp"
 
-
-
 namespace py = pybind11;
 
 std::vector<std::string> default_attribs = {"CATcos","CATL3mask","mig_size","Number_of_streaming_multiprocessors","Number_of_cores_in_GPU","Number_of_cores_per_SM","Bus_Width_bit","Clock_Frequency","latency","latency_min","latency_max","CUDA_compute_capability","mig_uuid","freq_history","GPU_Clock_Rate"};
@@ -24,15 +23,6 @@ py::function print_complex_attributes;
 
 py::function read_attributes;
 py::function read_complex_attributes;
-
-int convert(std::map<std::string, void*> &attributes, py::object comp, py::function fcn, bool toString) {
-    py::dict object_attributes = comp.attr("__dict__");
-    for (auto const& [key, value] : object_attributes) {
-        std::string val_str = fcn(key, value).cast<std::string>();
-        attributes[py::cast<std::string>(key)] = static_cast<void*>(&val_str);
-    }
-    return 1;
-}
 
 int xmldumper(std::string key, void* value, std::string* ret_value_str) {
     if(default_attribs.end() != std::find(default_attribs.begin(), default_attribs.end(), key))
@@ -55,34 +45,50 @@ int xmldumper_complex(std::string key, void* value, xmlNodePtr node) {
     //check if res is none
     if(res.is_none())
         return 0;
-    xmlBufferPtr buffer = xmlBufferCreate();
-
-    //xmlDocPtr doc = xmlParseDoc(res.cast<const unsigned char*>());
+    //xmlBufferPtr buffer = xmlBufferCreate();
+    std::string xml_str = res.cast<std::string>();
+    xmlDocPtr doc = xmlParseDoc((const xmlChar*)xml_str.c_str());
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    xmlAddChild(node,root->children);
     return 0;
 }
 
 void* xmlloader(xmlNodePtr node) {
     //idea: we expect fcn to return xml as a string and write it to node
     xmlBufferPtr buffer = xmlBufferCreate();
-    xmlNodeDump(buffer, node->doc, node, 0, 1);
-    std::string xml_str((const char*)buffer->content, buffer->size);
-    xmlBufferFree(buffer);
-    //now pass to read_attributes
-    py::object value = read_attributes(py::cast(xml_str));
-    std::shared_ptr<py::object> *ptr = new std::shared_ptr<py::object>(std::make_shared<py::object>(value));
-    return static_cast<void*>(ptr);
+    try{
+        xmlNodeDump(buffer, node->doc, node, 0, 1);
+        std::string xml_str((const char*)xmlBufferContent(buffer));
+        xmlBufferFree(buffer);
+        py::object value = read_attributes(py::cast(xml_str));
+        //check for values content
+        if (value.is_none()) {
+            return NULL;
+        }
+        std::shared_ptr<py::object> *ptr = new std::shared_ptr<py::object>(std::make_shared<py::object>(value));
+        return static_cast<void*>(ptr);
+    }
+    catch(std::exception &e){
+        std::cout << e.what() << std::endl;
+        return NULL;
+    }
 }
 
 int xmlloader_complex(xmlNodePtr node, Component *c) {
-    py::object comp = py::cast(c);
-    //idea: we expect fcn to return xml as a string and write it to node
     xmlBufferPtr buffer = xmlBufferCreate();
-    // xmlNodeDump(buffer, node->doc, node, 0, 1);
-    // std::string xml_str((const char*)buffer->content, buffer->size);
-    // xmlBufferFree(buffer);
-    // //now pass to read_attributes
-    // py::object ret = read_complex_attributes(py::cast(xml_str), comp);
-    // return ret.cast<int>();
+    try{
+        xmlNodeDump(buffer, node->doc, node, 0, 1);
+        std::string xml_str((const char*)xmlBufferContent(buffer));
+        xmlBufferFree(buffer);
+        py::object comp = py::cast(c);
+        py::object value = read_complex_attributes(py::cast(xml_str),comp);
+        if (value.is_none())
+            return 0;
+        return 1;
+    }
+    catch(std::exception &e){
+        std::cout << e.what() << std::endl;
+    }
     return 0;
 }
 
@@ -467,11 +473,15 @@ PYBIND11_MODULE(sys_sage, m) {
         exportToXml(&root, xmlPath,xmldumper,xmldumper_complex);
     },py::arg("root"), py::arg("xmlPath") = "out.xml", py::arg("print_att") = py::none(), py::arg("print_catt") = py::none());
     
-    m.def("importFromXml",[](string path, py::function search_custom_attrib_key_fcn = py::none(), py::function search_custom_complex_attrib_key_fcn = py::none()) {
+    m.def("importFromXml",[](string path, py::function search_custom_attrib_key_fcn, py::function search_custom_complex_attrib_key_fcn) {
         read_attributes = search_custom_attrib_key_fcn;
         read_complex_attributes = search_custom_complex_attrib_key_fcn;
         return importFromXml(path,xmlloader,xmlloader_complex);
     }, py::arg("path"), py::arg("search_custom_attrib_key_fcn") = py::none(), py::arg("search_custom_complex_attrib_key_fcn") = py::none());
+
+    m.def("importFromXml",[](string path) {
+        return importFromXml(path);
+    }, py::arg("path"));
 }
 
 
