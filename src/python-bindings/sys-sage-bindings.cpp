@@ -147,6 +147,7 @@ py::object get_attribute(Component &self, const std::string &key) {
             py::dict freq_dict;
              for(auto [ ts,freq ] : *value){
                  freq_dict[py::cast(ts)] = py::cast(freq);
+                printf("ts:%lld freq:%f\n",ts,freq);
              }
              return freq_dict;
         }
@@ -309,8 +310,6 @@ PYBIND11_MODULE(sys_sage, m) {
     //bind component class
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
        
-        //.def(py::init<int, string, int>(), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("componentType") = 1)
-        //.def(py::init<Component*, int, string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("componentType") = 1)
         
         .def("syncAttrib",[](Component& self) {
             //TODO: Better use vector instead of dict 
@@ -329,11 +328,6 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("__delattr__", [](Component& self, const std::string& name) {
             remove_attribute(self,name);
         })
-        // TODO: implement get and set attributes according to ipad sketches 
-        //.def("__getattr__", [](Component& self, const std::string& name) {})
-        // .def("__setattr__", [](Component& self, const std::string& name, py::object value) {})
-        // .def("get_attrib", [](Component& self) {} 
-        // .def("set_attrib", [](Component& self, const py::dict& dict) {})
         .def("InsertChild", &Component::InsertChild, py::arg("child"))
         //rename functions
         .def("InsertBetweenParentAndChild", &Component::InsertBetweenParentAndChild, "Insert a component between parent and child")
@@ -447,7 +441,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("RefreshFreq", &Thread::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
         .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread");
 
-    py::class_<DataPath>(m,"DataPath")
+    py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>>(m,"DataPath",py::dynamic_attr())
         .def(py::init<Component*, Component*, int, int>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = 32)
         .def(py::init<Component*, Component*, int, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
         .def(py::init<Component*, Component*, int, int, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))
