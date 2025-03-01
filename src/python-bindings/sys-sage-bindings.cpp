@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <exception>
 #include <libxml2/libxml/parser.h>
+#include <optional>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/attr.h>
@@ -467,16 +468,20 @@ PYBIND11_MODULE(sys_sage, m) {
 
     m.def("parseCapsNumaBenchmark", &parseCapsNumaBenchmark,  py::arg("root"), py::arg("benchmarkPath"), py::arg("delim") = ";");
 
-    m.def("exportToXml", [](Component& root, string xmlPath, py::function print_att, py::function print_catt) {
-        print_attributes = print_att;
-        print_complex_attributes = print_catt;
-        exportToXml(&root, xmlPath,xmldumper,xmldumper_complex);
+    m.def("exportToXml", [](Component& root, string xmlPath, std::optional<py::function> print_att = std::nullopt, std::optional<py::function> print_catt = std::nullopt) {
+        if(print_att)
+            print_attributes = *print_att;
+        if(print_catt)
+            print_complex_attributes = *print_catt;
+        exportToXml(&root, xmlPath,print_att ? xmldumper : nullptr,print_catt ? xmldumper_complex : nullptr);
     },py::arg("root"), py::arg("xmlPath") = "out.xml", py::arg("print_att") = py::none(), py::arg("print_catt") = py::none());
     
-    m.def("importFromXml",[](string path, py::function search_custom_attrib_key_fcn, py::function search_custom_complex_attrib_key_fcn) {
-        read_attributes = search_custom_attrib_key_fcn;
-        read_complex_attributes = search_custom_complex_attrib_key_fcn;
-        return importFromXml(path,xmlloader,xmlloader_complex);
+    m.def("importFromXml",[](string path, std::optional<py::function> search_custom_attrib_key_fcn = std::nullopt, std::optional<py::function> search_custom_complex_attrib_key_fcn = std::nullopt) {
+        if(search_custom_attrib_key_fcn)
+            read_attributes = *search_custom_attrib_key_fcn;
+        if(search_custom_complex_attrib_key_fcn)
+            read_complex_attributes = *search_custom_complex_attrib_key_fcn;
+        return importFromXml(path,search_custom_attrib_key_fcn ? xmlloader : nullptr, search_custom_complex_attrib_key_fcn ? xmlloader_complex : nullptr );
     }, py::arg("path"), py::arg("search_custom_attrib_key_fcn") = py::none(), py::arg("search_custom_complex_attrib_key_fcn") = py::none());
 
     m.def("importFromXml",[](string path) {
