@@ -176,99 +176,6 @@ void remove_attribute(Component &self, const std::string &key) {
     }
 }
 
-py::dict syncAttributes(std::map<std::string, void*> &attributes, py::dict object_attributes) {
-    py::dict dict;
-    for (auto const& [key, value] : attributes) {
-        if(!key.compare("CATcos") || !key.compare("CATL3mask")){
-            uint64_t retval = *((uint64_t*)value); 
-            dict[key.c_str()] = py::cast(retval);
-        }
-        else if(!key.compare("mig_size") )
-        {
-            dict[key.c_str()] = py::cast(*(long long*)value);
-        }
-        //value: int
-        else if(!key.compare("Number_of_streaming_multiprocessors") || 
-        !key.compare("Number_of_cores_in_GPU") || 
-        !key.compare("Number_of_cores_per_SM")  || 
-        !key.compare("Bus_Width_bit") )
-        {
-            dict[key.c_str()] = py::cast(*(int*)value);
-        }
-        //value: double
-        else if(!key.compare("Clock_Frequency") )
-        {
-            dict[key.c_str()] = py::cast(*(double*)value);
-        }
-        //value: float
-        else if(!key.compare("latency") ||
-        !key.compare("latency_min") ||
-        !key.compare("latency_max") )
-        {
-            dict[key.c_str()] = py::cast(*(float*)value);
-        }   
-        //value: string
-        else if(!key.compare("CUDA_compute_capability") || 
-        !key.compare("mig_uuid") )
-        {
-            dict[key.c_str()] = py::cast(*(string*)value);
-        }
-        else if(!key.compare("freq_history") ){
-            std::vector<std::tuple<long long,double>>* val = (std::vector<std::tuple<long long,double>>*)value;
-            py::dict freq_dict;
-             for(auto [ ts,freq ] : *val){
-                 freq_dict[py::cast(ts)] = py::cast(freq);
-             }
-             dict[key.c_str()] = freq_dict;
-        }
-        else if(!key.compare("GPU_Clock_Rate")){
-            auto [ freq, unit ] = *(std::tuple<double, std::string>*)value;
-            py::dict freq_dict;
-            freq_dict[py::str("freq")] = py::cast(freq);
-            freq_dict[py::str("unit")] = py::cast(unit);       
-            dict[key.c_str()] = freq_dict;
-        }
-        else{
-            //try to cast into py::object
-           py::object val = py::cast<py::object>(static_cast<PyObject*>(value));
-           val.dec_ref();
-           dict[key.c_str()] = val; 
-        }
-    }
-    for (auto const& [key, value] : object_attributes) {
-        value.inc_ref();
-        PyObject * obj = value.ptr();
-        attributes[py::cast<std::string>(key)] = static_cast<void*>(obj);
-        delete &attributes;
-        //if value is int
-        // py::type value_type = py::type::of(value);
-        // if(value_type.is(py::type::of(py::int_()))){
-        //     attributes[py::cast<std::string>(key)] = (void*) new int (py::cast<int>(value));
-        // }
-        // //if value is long
-        // else if(py::isinstance<py::long_(value)){
-        //     attributes[py::cast<std::string>(key)] = (void*) new long (py::cast<long>(value));
-        // }
-        // //if value is float
-        // else if(py::isinstance<py::float_(value)){
-        //     attributes[py::cast<std::string>(key)] = (void*) new float (py::cast<float>(value));
-        // }
-        // //if value is double
-        // else if(py::isinstance<py::double_(value)){
-        //     attributes[py::cast<std::string>(key)] = (void*) new double (py::cast<double>(value));
-        // }
-        // //if value is bool
-        // else if(py::isinstance<py::object>(value) && py::cast<bool>(value)){
-        //     attributes[py::cast<std::string>(key)] = (void*) new bool (py::cast<bool>(value));
-        // }
-        // //else cast to string
-        // else {
-        //     attributes[py::cast<std::string>(key)] = (void*) new std::string (py::cast<std::string>(value));
-        // }
-    }
-    return dict;
-}
-
 
 PYBIND11_MODULE(sys_sage, m) {
 
@@ -305,20 +212,9 @@ PYBIND11_MODULE(sys_sage, m) {
         m.attr("DATAPATH_TYPE_DATATRANSFER") = SYS_SAGE_DATAPATH_TYPE_DATATRANSFER;
         m.attr("DATAPATH_TYPE_C2C") = SYS_SAGE_DATAPATH_TYPE_C2C;
 
-        m.def("test_fcn_integration", [](py::function f, int x, int y) { return f(x, y); });
-
     //bind component class
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
        
-        
-        .def("syncAttrib",[](Component& self) {
-            //TODO: Better use vector instead of dict 
-            py::object pyself = py::cast(&self);
-            py::dict dict = syncAttributes((self.attrib), pyself.attr("__dict__"));
-            for(auto const& [key, value] : dict){
-                py::setattr(pyself, key, value);
-            }
-        })
         .def("__setattr__", [](Component& self, const std::string& name, py::object value) {
             set_attribute(self,name, value);
         })
@@ -329,17 +225,13 @@ PYBIND11_MODULE(sys_sage, m) {
             remove_attribute(self,name);
         })
         .def("InsertChild", &Component::InsertChild, py::arg("child"))
-        //rename functions
         .def("InsertBetweenParentAndChild", &Component::InsertBetweenParentAndChild, "Insert a component between parent and child")
         .def("InsertBetweenParentAndChildren", &Component::InsertBetweenParentAndChildren, "Insert a component between parent and children")
         .def("RemoveChild", &Component::RemoveChild, "Remove a child component")
-        //.def("SetParent", &Component::SetParent, "Set the parent of the component")
         .def_property("parent", &Component::GetParent, &Component::SetParent, "The parent of the component")
         .def("PrintSubtree", (void (Component::*)()) &Component::PrintSubtree, "Print the subtree of the component")
         .def("PrintSubtree", (void (Component::*)(int)) &Component::PrintSubtree, "Print the subtree of the component with a maximum depth of <level>")
         .def("PrintAllDataPathsInSubtree", &Component::PrintAllDataPathsInSubtree, "Print the datapath subtree of the component")
-        //.def("GetName", &Component::GetName, "The name of the component")
-        //.def("SetName", &Component::SetName, "Set the name of the component")
         .def_property("name", &Component::GetName, &Component::SetName, "The name of the component")
         .def("GetId", &Component::GetId, "The id of the component")
         .def_property_readonly("id", &Component::GetId, "The id of the component")
@@ -380,16 +272,11 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("DeleteAllDataPaths", &Component::DeleteAllDataPaths,"Delete all the data paths from the component")
         .def("DeleteSubtree", &Component::DeleteSubtree,"Delete the subtree of the component")
         //.def("Nullcheck", [](Component& self){ return ( == nullptr);})
-        .def("Delete", &Component::Delete,"Delete the component")
-        .def("StoreAttributes",[](Component& self){
-            py::object obj = py::cast(&self);
-            obj.inc_ref();
-        })
+        .def("Delete", &Component::Delete,py::arg("withSubtree") = true,"Delete the component")
         .def_readwrite("attrib", &Component::attrib)
         .def("__bool__",[](Component& self){
-            py::object obj = py::cast(&self);
-            //if(obj.get() == nullptr) return false;
-            return true;
+            std::vector<Component*>* children = self.GetChildren();
+            return !children->empty();
         });
     py::class_<Topology, std::unique_ptr<Topology, py::nodelete>,Component>(m, "Topology")
         .def(py::init<>());
