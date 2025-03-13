@@ -1,6 +1,23 @@
 #include "Component.hpp"
 
 #include <algorithm>
+#include <csignal>
+
+Component::~Component() { 
+    DeleteAllDataPaths();
+    if(GetParent() != NULL)
+        GetParent()->RemoveChild(this);
+    else{
+        while(children.size() > 0)
+        {
+            RemoveChild(children[0]);
+            children[0]->SetParent(NULL);
+        }
+    }
+    for(auto& pair : this->attrib){
+        //TODO: delete attribs somehow
+    }
+ }
 
 void Component::PrintSubtree() { PrintSubtree(0); }
 void Component::PrintSubtree(int level)
@@ -585,8 +602,9 @@ void Component::DeleteSubtree()
 {
     while(children.size() > 0)
     {       
-        children[0]->Delete(true); // Recursively free children
-    }    
+        children[0]->DeleteSubtree(); // Recursively free children
+    }
+    delete this;
     return;
 }
 void Component::Delete(bool withSubtree)
@@ -622,7 +640,6 @@ void Component::Delete(bool withSubtree)
     }
     // Delete the component itself
     delete this;
-    this->id = -1;
 }
 
 void Component::SetName(string _name){ name = _name; }
