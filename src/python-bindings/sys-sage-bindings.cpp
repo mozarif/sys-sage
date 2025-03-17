@@ -26,6 +26,7 @@ py::function read_attributes;
 py::function read_complex_attributes;
 
 int xmldumper(std::string key, void* value, std::string* ret_value_str) {
+    //
     if(default_attribs.end() != std::find(default_attribs.begin(), default_attribs.end(), key))
         return 0;
     auto * ptr = static_cast<std::shared_ptr<py::object>*>(value);
@@ -93,6 +94,7 @@ int xmlloader_complex(xmlNodePtr node, Component *c) {
     return 0;
 }
 
+//
 void set_attribute(Component &self, const std::string &key, py::object &value) {
     if(default_attribs.end() != std::find(default_attribs.begin(), default_attribs.end(), key))
         throw py::type_error("Attribute " + key + " is read-only");
@@ -214,7 +216,8 @@ PYBIND11_MODULE(sys_sage, m) {
 
     //bind component class
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
-       
+        .def(py::init<int, string, int>(), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
+        .def(py::init<Component *, int, string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
         .def("__setattr__", [](Component& self, const std::string& name, py::object value) {
             set_attribute(self,name, value);
         })
@@ -224,60 +227,61 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("__delattr__", [](Component& self, const std::string& name) {
             remove_attribute(self,name);
         })
-        .def("InsertChild", &Component::InsertChild, py::arg("child"))
-        .def("InsertBetweenParentAndChild", &Component::InsertBetweenParentAndChild, "Insert a component between parent and child")
-        .def("InsertBetweenParentAndChildren", &Component::InsertBetweenParentAndChildren, "Insert a component between parent and children")
-        .def("RemoveChild", &Component::RemoveChild, "Remove a child component")
+        .def("InsertChild", &Component::InsertChild, py::arg("child"), "Insert a child component")
+        .def("InsertBetweenParentAndChild", &Component::InsertBetweenParentAndChild, py::arg("parent"), py::arg("child"), py::arg("alreadyParentsChild"),"Insert a component between parent and child")
+        .def("InsertBetweenParentAndChildren", &Component::InsertBetweenParentAndChildren, py::arg("parent"), py::arg("children"), py::arg("alreadyParentsChildren"), "Insert a component between parent and children")
+        .def("RemoveChild", &Component::RemoveChild, py::arg("child"),"Remove a child component")
         .def_property("parent", &Component::GetParent, &Component::SetParent, "The parent of the component")
-        .def("PrintSubtree", (void (Component::*)()) &Component::PrintSubtree, "Print the subtree of the component")
+        .def("PrintSubtree", (void (Component::*)()) &Component::PrintSubtree, "Print the subtree of the component up to level 0")
         .def("PrintSubtree", (void (Component::*)(int)) &Component::PrintSubtree, "Print the subtree of the component with a maximum depth of <level>")
         .def("PrintAllDataPathsInSubtree", &Component::PrintAllDataPathsInSubtree, "Print the datapath subtree of the component")
         .def_property("name", &Component::GetName, &Component::SetName, "The name of the component")
-        .def("GetId", &Component::GetId, "The id of the component")
         .def_property_readonly("id", &Component::GetId, "The id of the component")
-        //.def("GetComponentType", &Component::GetComponentType, "The type of the component")
         .def_property_readonly("type", &Component::GetComponentType, "The type of the component")
         .def("GetComponentTypeStr", &Component::GetComponentTypeStr, "The type of the component as string")
         .def("GetChildren", &Component::GetChildren, "The children of the component")
-        //.def("GetParent", &Component::GetParent, "The parent of the component")
-        .def("GetChild", &Component::GetChild, "Like get_child_by_id()")
-        .def("GetChildById", &Component::GetChildById, "Get the first child component by id")
-        .def("GetChildByType", &Component::GetChildByType, "Get the first child component by type")
-        .def("GetAllChildrenByType", (void (Component::*)(vector<Component*> *, int)) &Component::GetAllChildrenByType, "Get all child components by type")
-        .def("GetAllChildrenByType", (vector<Component*> (Component::*)(int))(&Component::GetAllChildrenByType), "Get all child components by type")
+        .def("GetChild", &Component::GetChild, py::arg("id"), "Like get_child_by_id()")
+        .def("GetChildById", &Component::GetChildById, py::arg("id"), "Get the first child component by id")
+        .def("GetChildByType", &Component::GetChildByType, py::arg("type"), "Get the first child component by type")
+        .def("GetAllChildrenByType", (void (Component::*)(vector<Component*> *, int)) &Component::GetAllChildrenByType, py::arg("children"), py::arg("type"), "Get all child components by type")
+        .def("GetAllChildrenByType", (vector<Component*> (Component::*)(int))(&Component::GetAllChildrenByType), py::arg("type"), "Get all child components by type")
         .def("GetSubcomponentById", &Component::GetSubcomponentById, "Get the first sub component by id")
-        .def("GetAllSubcomponentsByType", (void (Component::*)(vector<Component*> *, int))(&Component::GetAllSubcomponentsByType), "Get the first sub component by type")
-        .def("GetAllSubcomponentsByType", (vector<Component*> (Component::*)(int))(&Component::GetAllSubcomponentsByType), "Get all sub components by type")
+        .def("GetAllSubcomponentsByType", (void (Component::*)(vector<Component*> *, int))(&Component::GetAllSubcomponentsByType), py::arg("subcomponents"), py::arg("type"), "Get the first sub component by type")
+        .def("GetAllSubcomponentsByType", (vector<Component*> (Component::*)(int))(&Component::GetAllSubcomponentsByType),py::arg("type") ,"Get all sub components by type")
         .def("CountAllSubcomponents", &Component::CountAllSubcomponents, "Count all sub components")
-        .def("CountAllSubcomponentsByType", &Component::CountAllSubcomponentsByType, "Count sub components by type")
-        .def("CountChildrenByType", &Component::CountAllChildrenByType, "Count children by type")
-        .def("GetAncestorByType", &Component::GetAncestorByType, "Get the first ancestor component by type")
+        .def("CountAllSubcomponentsByType", &Component::CountAllSubcomponentsByType, py::arg("type"),"Count sub components by type")
+        .def("CountChildrenByType", &Component::CountAllChildrenByType,py::arg("type"),"Count children by type")
+        .def("GetAncestorByType", &Component::GetAncestorByType, py::arg("type"),"Get the first ancestor component by type")
         .def("GetSubtreeDepth", &Component::GetSubtreeDepth, "Get the depth of the subtree")
-        .def("GetNthAncestor", &Component::GetNthAncestor, "Get the nth ancestors of the component")
-        .def("GetNthDescendents", (void (Component::*)(vector<Component*> *, int))&Component::GetNthDescendents,"Get all the nth descendents of the component")
-        .def("GetNthDescendents", (vector<Component*> (Component::*)(int))&Component::GetNthDescendents,"Get all the nth descendents of the component")
-        .def("GetSubcomponentsByType", (void (Component::*)(vector<Component*> *, int))&Component::GetSubcomponentsByType,"Get all the sub components of the component by type")
-        .def("GetSubcomponentsByType", (vector<Component*> (Component::*)(int))&Component::GetSubcomponentsByType,"Get all the sub components of the component by type")
-        .def("GetComponentsInSubtree", (void (Component::*)(vector<Component*> *))&Component::GetComponentsInSubtree,"Get all the components in the subtree of the component")
+        .def("GetNthAncestor", &Component::GetNthAncestor, py::arg("n"),"Get the nth ancestor of the component")
+        .def("GetNthDescendents", (void (Component::*)(vector<Component*> *, int))&Component::GetNthDescendents,py::arg("descendents"), py::arg("n"),"Get all the nth descendents of the component")
+        .def("GetNthDescendents", (vector<Component*> (Component::*)(int))&Component::GetNthDescendents,py::arg("n"),"Get all the nth descendents of the component")
+        .def("GetSubcomponentsByType", (void (Component::*)(vector<Component*> *, int))&Component::GetSubcomponentsByType,py::arg("subcomponents"), py::arg("type"),"Get all the sub components of the component by type")
+        .def("GetSubcomponentsByType", (vector<Component*> (Component::*)(int))&Component::GetSubcomponentsByType,py::arg("type"),"Get all the sub components of the component by type")
+        .def("GetComponentsInSubtree", (void (Component::*)(vector<Component*> *))&Component::GetComponentsInSubtree,py::arg("components"),"Get all the components in the subtree of the component")
         .def("GetComponentsInSubtree", (vector<Component*> (Component::*)())&Component::GetComponentsInSubtree,"Get all the components in the subtree of the component")
-        .def("GetDataPaths", &Component::GetDataPaths,"Get all the data paths associated with the component")
-        .def("AddDataPath", &Component::AddDataPath,"Add a data path to the component")
-        .def("GetDataPathByType", &Component::GetDataPathByType,"Get the first data path associated with the component by type")
-        .def("GetAllDataPathsByType", (void (Component::*)(vector<DataPath*> *, int, int)) &Component::GetAllDataPathsByType,"Get all the data paths associated with the component by type")
-        .def("GetAllDataPathsByType", (vector<DataPath*> (Component::*)(int, int)) &Component::GetAllDataPathsByType,"Get all the data paths associated with the component by type")
+        .def("GetSubcomponentById", &Component::GetSubcomponentById, py::arg("id"),py::arg("type"),"Get the first sub component by id and type")
+        .def("GetDataPaths", &Component::GetDataPaths,py::arg("orientation"),"Get all the data paths associated with the component")
+        .def("AddDataPath", &Component::AddDataPath,py::arg("datapath"), py::arg("orientation"),"Add a data path to the component")
+        .def("GetDataPathByType", &Component::GetDataPathByType, py::arg("type"), py::arg("orientation"),"Get the first data path associated with the component by type")
+        .def("GetAllDataPathsByType", (void (Component::*)(vector<DataPath*> *, int, int))&Component::GetAllDataPathsByType, py::arg("datapaths"), py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
+        .def("GetAllDataPathsByType", (vector<DataPath*> (Component::*)(int, int)) &Component::GetAllDataPathsByType,py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
         .def("CheckComponentTreeConsistency", &Component::CheckComponentTreeConsistency,"Check if the component tree is consistent")
-        .def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*)) (&Component::GetTopologySize),"Get the size of the topology")
-        .def("GetDepth", &Component::GetDepth,"Get the depth of the component")
-        .def("DeleteDataPath", &Component::DeleteDataPath,"Delete a data path from the component")
+        .def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),"Get the size of the topology")
+        .def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*, std::set<DataPath*>*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),py::arg("datapaths_counted"),"Get the size of the topology")
+        .def("GetDepth", &Component::GetDepth,py::arg("refresh"),"Get the depth of the component, if refresh is true it will update the depth")
+        .def("DeleteDataPath", &Component::DeleteDataPath, py::arg("datapath"),"Delete a data path from the component")
         .def("DeleteAllDataPaths", &Component::DeleteAllDataPaths,"Delete all the data paths from the component")
         .def("DeleteSubtree", &Component::DeleteSubtree,"Delete the subtree of the component")
-        //.def("Nullcheck", [](Component& self){ return ( == nullptr);})
         .def("Delete", &Component::Delete,py::arg("withSubtree") = true,"Delete the component")
-        .def_readwrite("attrib", &Component::attrib)
         .def("__bool__",[](Component& self){
             std::vector<Component*>* children = self.GetChildren();
             return !children->empty();
-        });
+        })
+        .def("__repr__", [](Component& self) {
+            //TODO: add more info
+            return "<Component: " + self.GetName() + ">";
+            });
     py::class_<Topology, std::unique_ptr<Topology, py::nodelete>,Component>(m, "Topology")
         .def(py::init<>());
     py::class_<Node, std::unique_ptr<Node, py::nodelete>, Component>(m, "Node")
@@ -321,13 +325,11 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0 ,py::arg("name") = "Core")
         .def("RefreshFreq", &Core::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
         .def_property("freq", &Core::GetFreq, &Core::SetFreq, "Frequency of this core");
-        
     py::class_<Thread, std::unique_ptr<Thread, py::nodelete>,Component>(m,"Thread")
         .def(py::init<int,string>(),py::arg("id") = 0,py::arg("name") = "Thread")
         .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread")
         .def("RefreshFreq", &Thread::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
         .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread");
-
     py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>>(m,"DataPath",py::dynamic_attr())
         .def(py::init<Component*, Component*, int, int>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = 32)
         .def(py::init<Component*, Component*, int, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
@@ -364,10 +366,6 @@ PYBIND11_MODULE(sys_sage, m) {
             read_complex_attributes = *search_custom_complex_attrib_key_fcn;
         return importFromXml(path,search_custom_attrib_key_fcn ? xmlloader : nullptr, search_custom_complex_attrib_key_fcn ? xmlloader_complex : nullptr );
     }, py::arg("path"), py::arg("search_custom_attrib_key_fcn") = py::none(), py::arg("search_custom_complex_attrib_key_fcn") = py::none());
-
-    m.def("importFromXml",[](string path) {
-        return importFromXml(path);
-    }, py::arg("path"));
 }
 
 
