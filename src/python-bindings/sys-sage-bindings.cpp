@@ -94,22 +94,95 @@ int xmlloader_complex(xmlNodePtr node, Component *c) {
     return 0;
 }
 
-//
+//TODO: Add dynamic allocation for values
+//TODO: Delete values only after success
 void set_attribute(Component &self, const std::string &key, py::object &value) {
-    if(default_attribs.end() != std::find(default_attribs.begin(), default_attribs.end(), key))
-        throw py::type_error("Attribute " + key + " is read-only");
-    auto obj = new std::shared_ptr<py::object>(std::make_shared<py::object>(value));
-    // free existing value first
+    std::cout << "set attribute: " << key << " = " << value << std::endl;
+
     auto val = self.attrib.find(key);
     if (val != self.attrib.end()) {
-        delete static_cast<std::shared_ptr<py::object>*>(val->second);
+        if(!key.compare("CATcos") || !key.compare("CATL3mask")){
+            delete static_cast<uint64_t*>(val->second);
+        }
+        else if(!key.compare("mig_size") )
+        {
+            delete static_cast<long long*>(val->second);
+        }
+        //val->secondue: int
+        else if(!key.compare("Number_of_streaming_multiprocessors") || 
+        !key.compare("Number_of_cores_in_GPU") || 
+        !key.compare("Number_of_cores_per_SM")  || 
+        !key.compare("Bus_Width_bit") )
+        {
+            delete static_cast<int*>(val->second);
+        }
+        //value: double
+        else if(!key.compare("Clock_Frequency") )
+        {
+            delete static_cast<double*>(val->second);
+        }
+        //value: float
+        else if(!key.compare("latency") ||
+        !key.compare("latency_min") ||
+        !key.compare("latency_max") )
+        {
+            delete static_cast<float*>(val->second);
+        }   
+        //value: string
+        else if(!key.compare("CUDA_compute_capability") || 
+        !key.compare("mig_uuid") )
+        {
+            delete static_cast<std::string*>(val->second);
+        }
+        else if(!key.compare("freq_history") ){
+            delete static_cast<std::vector<std::tuple<long long,double>>*>(val->second);
+        }
+        else if(!key.compare("GPU_Clock_Rate")){
+            delete static_cast<std::tuple<double, std::string>*>(val->second);
+        }else{
+            delete static_cast<std::shared_ptr<py::object>*>(val->second);
+        }
     }
-    self.attrib[key] = static_cast<void*>(obj);
+    if (!key.compare("CATcos") || !key.compare("CATL3mask")) {
+        self.attrib[key] = static_cast<void*>(new uint64_t(py::cast<uint64_t>(value)));
+    } else if (!key.compare("mig_size")) {
+        self.attrib[key] = static_cast<void*>(new long long(py::cast<long long>(value)));
+    } else if (!key.compare("Number_of_streaming_multiprocessors") || 
+               !key.compare("Number_of_cores_in_GPU") || 
+               !key.compare("Number_of_cores_per_SM") || 
+               !key.compare("Bus_Width_bit")) {
+        self.attrib[key] = static_cast<void*>(new int(py::cast<int>(value)));
+    } else if (!key.compare("Clock_Frequency")) {
+        self.attrib[key] = static_cast<void*>(new double(py::cast<double>(value)));
+    } else if (!key.compare("latency") ||
+               !key.compare("latency_min") ||
+               !key.compare("latency_max")) {
+        self.attrib[key] = static_cast<void*>(new float(py::cast<float>(value)));
+    } else if (!key.compare("CUDA_compute_capability") || 
+               !key.compare("mig_uuid")) {
+        self.attrib[key] = static_cast<void*>(new std::string(py::cast<std::string>(value)));
+    } else if (!key.compare("freq_history")) {
+        self.attrib[key] = static_cast<void*>(new std::vector<std::tuple<long long, double>>(
+            py::cast<std::vector<std::tuple<long long, double>>>(value)));
+    } else if (!key.compare("GPU_Clock_Rate")) {
+        std::cout << "Setting attribute: " << key << std::endl;
+        py::object freq = value["freq"];
+        py::str unit = value["unit"];
+        //double * f = new double(py::cast<double>(freq));
+        //std::string * u = new std::string(py::cast<std::string>(unit));
+        self.attrib[key] = static_cast<void*>(new std::tuple<double, std::string>(py::cast<double>(freq), py::cast<std::string>(unit)));
+    } else {
+        self.attrib[key] = static_cast<void*>(new std::shared_ptr<py::object>(
+            std::make_shared<py::object>(value)));
+    }
+std::cout << "Number of attributes: " << self.attrib.size() << std::endl;
+
 }
 
 py::object get_attribute(Component &self, const std::string &key) {
     auto val = self.attrib.find(key);
     if (val != self.attrib.end()) {
+        std::cout << "Getting attribute: " << key << std::endl;
         if(!key.compare("CATcos") || !key.compare("CATL3mask")){
             uint64_t retval = *((uint64_t*)val->second); 
             return py::cast(retval);
@@ -154,11 +227,12 @@ py::object get_attribute(Component &self, const std::string &key) {
              return freq_dict;
         }
         else if(!key.compare("GPU_Clock_Rate")){
-            auto [ freq, unit ] = *(std::tuple<double, std::string>*)val->second;
+            auto value = static_cast<std::tuple<double, std::string>*>(val->second);
+            auto [ freq, unit ] = *value;
             py::dict freq_dict;
             freq_dict[py::str("freq")] = py::cast(freq);
-            freq_dict[py::str("unit")] = py::cast(unit);       
-            return freq_dict;
+            freq_dict[py::str("unit")] = py::cast(unit);  
+            return freq_dict;     
         }else{
             auto * ptr = static_cast<std::shared_ptr<py::object>*>(val->second);
             return *ptr->get();
@@ -167,6 +241,14 @@ py::object get_attribute(Component &self, const std::string &key) {
         throw py::attribute_error("Attribute '" + key + "' not found"); 
     }
 }
+py::object get_attribute(Component &self, int pos){
+    if(pos >= self.attrib.size())
+        throw py::index_error("Index out of bounds");
+    auto it = self.attrib.begin();
+    std::advance(it, pos);
+    return get_attribute(self, it->first);
+}
+
 
 void remove_attribute(Component &self, const std::string &key) {
     auto val = self.attrib.find(key);
@@ -218,13 +300,16 @@ PYBIND11_MODULE(sys_sage, m) {
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
         .def(py::init<int, string, int>(), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
         .def(py::init<Component *, int, string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
-        .def("__setattr__", [](Component& self, const std::string& name, py::object value) {
+        .def("__setitem__", [](Component& self, const std::string& name, py::object value) {
             set_attribute(self,name, value);
         })
-        .def("__getattr__", [](Component& self, const std::string& name) {
+        .def("__getitem__", [](Component& self, const std::string& name) {
             return get_attribute(self,name);
         })
-        .def("__delattr__", [](Component& self, const std::string& name) {
+        .def("__getitem__", [](Component& self, int pos) {
+            return get_attribute(self,pos);
+        })
+        .def("__delitem__", [](Component& self, const std::string& name) {
             remove_attribute(self,name);
         })
         .def("InsertChild", &Component::InsertChild, py::arg("child"), "Insert a child component")
@@ -232,6 +317,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("InsertBetweenParentAndChildren", &Component::InsertBetweenParentAndChildren, py::arg("parent"), py::arg("children"), py::arg("alreadyParentsChildren"), "Insert a component between parent and children")
         .def("RemoveChild", &Component::RemoveChild, py::arg("child"),"Remove a child component")
         .def_property("parent", &Component::GetParent, &Component::SetParent, "The parent of the component")
+        .def("SetParent", &Component::SetParent, py::arg("parent"), "Set the parent of the component")
         .def("PrintSubtree", (void (Component::*)()) &Component::PrintSubtree, "Print the subtree of the component up to level 0")
         .def("PrintSubtree", (void (Component::*)(int)) &Component::PrintSubtree, "Print the subtree of the component with a maximum depth of <level>")
         .def("PrintAllDataPathsInSubtree", &Component::PrintAllDataPathsInSubtree, "Print the datapath subtree of the component")
@@ -243,6 +329,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetChild", &Component::GetChild, py::arg("id"), "Like get_child_by_id()")
         .def("GetChildById", &Component::GetChildById, py::arg("id"), "Get the first child component by id")
         .def("GetChildByType", &Component::GetChildByType, py::arg("type"), "Get the first child component by type")
+        //vector<Component*> as input doesnt work
         .def("GetAllChildrenByType", (void (Component::*)(vector<Component*> *, int)) &Component::GetAllChildrenByType, py::arg("children"), py::arg("type"), "Get all child components by type")
         .def("GetAllChildrenByType", (vector<Component*> (Component::*)(int))(&Component::GetAllChildrenByType), py::arg("type"), "Get all child components by type")
         .def("GetSubcomponentById", &Component::GetSubcomponentById, "Get the first sub component by id")
