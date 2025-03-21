@@ -40,7 +40,6 @@ set(HEADERS
 # add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
 if(PYBIND)
-
     find_package(Python 3.13 COMPONENTS Interpreter Development REQUIRED)
     link_directories(${PYTHON_LIBRARY_DIRS})
     include_directories(${PYTHON_INCLUDE_DIRS})
@@ -58,6 +57,8 @@ if(PYBIND)
         TARGETS syssage
         LIBRARY DESTINATION ${PYTHON_SITE} 
     )
+    message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
+
 else()
 
     add_library(sys-sage SHARED ${SOURCES} ${HEADERS})

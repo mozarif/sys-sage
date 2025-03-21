@@ -40,7 +40,8 @@ void* search_default_attrib_key(xmlNodePtr n) {
     value = getStringFromProp(n, "value");
   }
   else {
-    return 0;
+    // TODO: fix this
+    return nullptr;
   }
   // Handle attributes with uint64_t values
   if (!key.compare("CATcos") || !key.compare("CATL3mask")) {
@@ -92,6 +93,7 @@ int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
   }
   // freq_history is a vector of tuples containing the timestamp and the
   // frequency
+  // TODO dynamically allocate everything
   if (!key.compare("freq_history")) {
     std::vector<std::tuple<long long, double>>* val = new std::vector<std::tuple<long long, double>>();
     for (xmlNodePtr cur = n->children; cur != NULL; cur = cur->next) {

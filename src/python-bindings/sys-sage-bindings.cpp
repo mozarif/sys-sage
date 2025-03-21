@@ -100,80 +100,69 @@ void set_attribute(Component &self, const std::string &key, py::object &value) {
     std::cout << "set attribute: " << key << " = " << value << std::endl;
 
     auto val = self.attrib.find(key);
-    if (val != self.attrib.end()) {
-        if(!key.compare("CATcos") || !key.compare("CATL3mask")){
-            delete static_cast<uint64_t*>(val->second);
-        }
-        else if(!key.compare("mig_size") )
-        {
-            delete static_cast<long long*>(val->second);
-        }
-        //val->secondue: int
-        else if(!key.compare("Number_of_streaming_multiprocessors") || 
-        !key.compare("Number_of_cores_in_GPU") || 
-        !key.compare("Number_of_cores_per_SM")  || 
-        !key.compare("Bus_Width_bit") )
-        {
-            delete static_cast<int*>(val->second);
-        }
-        //value: double
-        else if(!key.compare("Clock_Frequency") )
-        {
-            delete static_cast<double*>(val->second);
-        }
-        //value: float
-        else if(!key.compare("latency") ||
-        !key.compare("latency_min") ||
-        !key.compare("latency_max") )
-        {
-            delete static_cast<float*>(val->second);
-        }   
-        //value: string
-        else if(!key.compare("CUDA_compute_capability") || 
-        !key.compare("mig_uuid") )
-        {
-            delete static_cast<std::string*>(val->second);
-        }
-        else if(!key.compare("freq_history") ){
-            delete static_cast<std::vector<std::tuple<long long,double>>*>(val->second);
-        }
-        else if(!key.compare("GPU_Clock_Rate")){
-            delete static_cast<std::tuple<double, std::string>*>(val->second);
-        }else{
-            delete static_cast<std::shared_ptr<py::object>*>(val->second);
-        }
-    }
+    
     if (!key.compare("CATcos") || !key.compare("CATL3mask")) {
-        self.attrib[key] = static_cast<void*>(new uint64_t(py::cast<uint64_t>(value)));
+        void * newval = static_cast<void*>(new uint64_t(py::cast<uint64_t>(value)));
+        if(val != self.attrib.end())
+            delete static_cast<uint64_t*>(val->second);
+        self.attrib[key] = newval;
     } else if (!key.compare("mig_size")) {
-        self.attrib[key] = static_cast<void*>(new long long(py::cast<long long>(value)));
+        void* new_val = static_cast<void*>(new long long(py::cast<long long>(value)));
+        if(val != self.attrib.end())
+            delete static_cast<long long*>(val->second);
+        self.attrib[key] = new_val;
     } else if (!key.compare("Number_of_streaming_multiprocessors") || 
                !key.compare("Number_of_cores_in_GPU") || 
                !key.compare("Number_of_cores_per_SM") || 
                !key.compare("Bus_Width_bit")) {
-        self.attrib[key] = static_cast<void*>(new int(py::cast<int>(value)));
+        void* new_val = static_cast<void*>(new int(py::cast<int>(value)));
+        if(val != self.attrib.end())
+            delete static_cast<int*>(val->second);
+        self.attrib[key] = new_val;
     } else if (!key.compare("Clock_Frequency")) {
-        self.attrib[key] = static_cast<void*>(new double(py::cast<double>(value)));
+        void * new_val = static_cast<void*>(new double(py::cast<double>(value)));
+        if(val != self.attrib.end())
+            delete static_cast<double*>(val->second);
+        self.attrib[key] = new_val;
     } else if (!key.compare("latency") ||
                !key.compare("latency_min") ||
                !key.compare("latency_max")) {
-        self.attrib[key] = static_cast<void*>(new float(py::cast<float>(value)));
+        void * new_val = static_cast<void*>(new float(py::cast<float>(value)));
+        if(val != self.attrib.end())
+            delete static_cast<float*>(val->second);
+        self.attrib[key] = new_val;
     } else if (!key.compare("CUDA_compute_capability") || 
                !key.compare("mig_uuid")) {
-        self.attrib[key] = static_cast<void*>(new std::string(py::cast<std::string>(value)));
+        void * new_val= static_cast<void*>(new std::string(py::cast<std::string>(value)));
+        if(val != self.attrib.end())
+            delete static_cast<std::string*>(val->second);
+        self.attrib[key] = new_val;
     } else if (!key.compare("freq_history")) {
-        self.attrib[key] = static_cast<void*>(new std::vector<std::tuple<long long, double>>(
-            py::cast<std::vector<std::tuple<long long, double>>>(value)));
+        auto fh = new std::vector<std::tuple<long long, double>>;
+        py::dict fh_dict = py::cast<py::dict>(value);
+        for (auto [key, value] : fh_dict) {
+            fh->push_back(std::make_tuple(py::cast<long long>(key), py::cast<double>(value)));
+        }
+        void * new_val = static_cast<void*>(fh);
+        if(val != self.attrib.end())
+            delete static_cast<std::vector<std::tuple<long long, double>>*>(val->second);
+        self.attrib[key] = new_val;
     } else if (!key.compare("GPU_Clock_Rate")) {
         std::cout << "Setting attribute: " << key << std::endl;
         py::object freq = value["freq"];
         py::str unit = value["unit"];
         //double * f = new double(py::cast<double>(freq));
         //std::string * u = new std::string(py::cast<std::string>(unit));
-        self.attrib[key] = static_cast<void*>(new std::tuple<double, std::string>(py::cast<double>(freq), py::cast<std::string>(unit)));
+        void * new_val = static_cast<void*>(new std::tuple<double, std::string>(py::cast<double>(freq), py::cast<std::string>(unit)));
+        if(val != self.attrib.end())
+            delete static_cast<std::tuple<double, std::string>*>(val->second);
+        self.attrib[key] = new_val;
     } else {
-        self.attrib[key] = static_cast<void*>(new std::shared_ptr<py::object>(
+        void * new_val = static_cast<void*>(new std::shared_ptr<py::object>(
             std::make_shared<py::object>(value)));
+        if (val != self.attrib.end())
+            delete static_cast<std::shared_ptr<py::object>*>(val->second);
+        self.attrib[key] = new_val;
     }
 std::cout << "Number of attributes: " << self.attrib.size() << std::endl;
 
@@ -222,7 +211,7 @@ py::object get_attribute(Component &self, const std::string &key) {
             py::dict freq_dict;
              for(auto [ ts,freq ] : *value){
                  freq_dict[py::cast(ts)] = py::cast(freq);
-                printf("ts:%lld freq:%f\n",ts,freq);
+                 //printf("ts:%lld freq:%f\n",ts,freq);
              }
              return freq_dict;
         }
