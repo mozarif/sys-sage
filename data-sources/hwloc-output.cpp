@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 {
     bool to_stdout = false;
     string filename;
-    if (argc < 2 || strcmp(argv[1], "-") == 0 ) {
+    if (argc < 2 || std::strcmp(argv[1], "-") == 0 ) {
         to_stdout = true;
     }
     else {
