@@ -52,7 +52,7 @@ int xmldumper_complex(std::string key, void* value, xmlNodePtr node) {
     xmlDocPtr doc = xmlParseDoc((const xmlChar*)xml_str.c_str());
     xmlNodePtr root = xmlDocGetRootElement(doc);
     xmlAddChild(node,root->children);
-    return 0;
+    return 1;
 }
 
 void* xmlloader(xmlNodePtr node) {

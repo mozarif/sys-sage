@@ -22,6 +22,7 @@ std::function<int(xmlNodePtr, Component *)>
     search_custom_complex_attrib_key_fcn = NULL;
 
 // Create map of addresses to Components created
+// this is used to create the Datapaths
 std::map<string, Component *> addr_to_component;
 
 //Helper-Function to retrieve string from xml-node
@@ -40,8 +41,7 @@ void* search_default_attrib_key(xmlNodePtr n) {
     value = getStringFromProp(n, "value");
   }
   else {
-    // TODO: fix this
-    return nullptr;
+    return NULL;
   }
   // Handle attributes with uint64_t values
   if (!key.compare("CATcos") || !key.compare("CATL3mask")) {
@@ -93,7 +93,6 @@ int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
   }
   // freq_history is a vector of tuples containing the timestamp and the
   // frequency
-  // TODO dynamically allocate everything
   if (!key.compare("freq_history")) {
     std::vector<std::tuple<long long, double>>* val = new std::vector<std::tuple<long long, double>>();
     for (xmlNodePtr cur = n->children; cur != NULL; cur = cur->next) {
@@ -116,18 +115,17 @@ int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
   } else if (!key.compare("GPU_Clock_Rate")) {
     // GPU_Clock_Rate is a vector of tuples containing the frequency and the
     // unit
-    std::vector<std::tuple<double, std::string>> val;
-
     xmlNodePtr attr = n->children;
-    xmlNodePtr cur = attr->children;
+    if(attr->type == XML_TEXT_NODE)
+      attr = attr->next;
 
-    string unit = getStringFromProp(cur, "unit");
-    string freq = getStringFromProp(cur, "frequency");
+    string unit = getStringFromProp(attr, "unit");
+    string freq = getStringFromProp(attr, "frequency");
 
     double freq_d = std::stod(freq);
 
-    val.push_back(std::make_tuple(freq_d, unit));
-    void *value = (void *)&val;
+    auto val = new std::tuple<double, std::string>(freq_d, unit); 
+    void *value = (void *)val;
     c->attrib[key] = value;
 
     return 1;
@@ -163,7 +161,7 @@ int collect_attrib(xmlNodePtr n, Component *c) {
   if (attrib_value == NULL && ret == 0)
     return search_default_complex_attrib_key(n, c);
 
-  return 1;
+  return 0;
 }
 
 // Create ComponentSubtree from xmlNodes
