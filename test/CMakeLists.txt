@@ -2,7 +2,7 @@ include_directories(../src) # The include path is not set in the sys-sage target
 include_directories(../external_interfaces)
 
 add_subdirectory(ut)
-add_executable(test test.cpp topology.cpp datapath.cpp hwloc.cpp mt4g.cpp caps-numa-benchmark.cpp proc_cpuinfo.cpp export.cpp)
+add_executable(test test.cpp topology.cpp datapath.cpp hwloc.cpp mt4g.cpp caps-numa-benchmark.cpp proc_cpuinfo.cpp export.cpp import.cpp)
 target_link_libraries(test PRIVATE ut sys-sage)
 target_compile_definitions(test PRIVATE SYS_SAGE_TEST_RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
 
