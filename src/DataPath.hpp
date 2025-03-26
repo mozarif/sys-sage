@@ -89,11 +89,6 @@ public:
     DataPath(Component* _source, Component* _target, int _oriented, int _type, double _bw, double _latency);
 
     /**
-    Destructor. Automatically removes DataPath from the source and target Components.
-    */
-    virtual ~DataPath();
-
-    /**
     @returns Pointer to the source Component
     */
     Component* GetSource();

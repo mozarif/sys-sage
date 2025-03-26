@@ -3,21 +3,21 @@
 #include <algorithm>
 #include <csignal>
 
-Component::~Component() { 
-    DeleteAllDataPaths();
-    if(GetParent() != NULL)
-        GetParent()->RemoveChild(this);
-    else{
-        while(children.size() > 0)
-        {
-            RemoveChild(children[0]);
-            children[0]->SetParent(NULL);
-        }
-    }
-    for(auto& pair : this->attrib){
-        //TODO: delete attribs somehow
-    }
- }
+// Component::~Component() { 
+//     DeleteAllDataPaths();
+//     if(GetParent() != NULL)
+//         GetParent()->RemoveChild(this);
+//     else{
+//         while(children.size() > 0)
+//         {
+//             RemoveChild(children[0]);
+//             children[0]->SetParent(NULL);
+//         }
+//     }
+//     for(auto& pair : this->attrib){
+//         //TODO: delete attribs somehow
+//     }
+//  }
 
 void Component::PrintSubtree() { PrintSubtree(0); }
 void Component::PrintSubtree(int level)
@@ -559,8 +559,8 @@ int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dat
         subtreeSize += (*it)->GetTopologySize(out_component_size, out_dataPathSize, counted_dataPaths);
     }
 
-    if(counted_dataPaths != NULL)
-        delete counted_dataPaths;
+    // if(counted_dataPaths != NULL)
+    //     delete counted_dataPaths;
     return component_size + dataPathSize + subtreeSize;
 }
 
@@ -602,9 +602,8 @@ void Component::DeleteSubtree()
 {
     while(children.size() > 0)
     {       
-        children[0]->DeleteSubtree(); // Recursively free children
+        children[0]->Delete(true); // Recursively free children
     }
-    delete this;
     return;
 }
 void Component::Delete(bool withSubtree)

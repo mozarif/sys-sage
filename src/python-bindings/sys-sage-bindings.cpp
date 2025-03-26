@@ -1,6 +1,6 @@
 #include "defines.hpp"
 
-// #ifdef PYBIND
+#ifdef PYBIND
 
 #include <cstdio>
 #include <exception>
@@ -445,4 +445,4 @@ PYBIND11_MODULE(sys_sage, m) {
 }
 
 
-// #endif
+#endif
