@@ -97,7 +97,7 @@ int xmlloader_complex(xmlNodePtr node, Component *c) {
 //TODO: Add dynamic allocation for values
 //TODO: Delete values only after success
 void set_attribute(Component &self, const std::string &key, py::object &value) {
-    std::cout << "set attribute: " << key << " = " << value << std::endl;
+    //std::cout << "set attribute: " << key << " = " << value << std::endl;
 
     auto val = self.attrib.find(key);
     
@@ -164,14 +164,12 @@ void set_attribute(Component &self, const std::string &key, py::object &value) {
             delete static_cast<std::shared_ptr<py::object>*>(val->second);
         self.attrib[key] = new_val;
     }
-std::cout << "Number of attributes: " << self.attrib.size() << std::endl;
 
 }
 
 py::object get_attribute(Component &self, const std::string &key) {
     auto val = self.attrib.find(key);
     if (val != self.attrib.end()) {
-        std::cout << "Getting attribute: " << key << std::endl;
         if(!key.compare("CATcos") || !key.compare("CATL3mask")){
             uint64_t retval = *((uint64_t*)val->second); 
             return py::cast(retval);
@@ -361,10 +359,18 @@ PYBIND11_MODULE(sys_sage, m) {
     py::class_<Topology, std::unique_ptr<Topology, py::nodelete>,Component>(m, "Topology")
         .def(py::init<>());
     py::class_<Node, std::unique_ptr<Node, py::nodelete>, Component>(m, "Node")
+        #ifdef INTEL_PQOS
+        .def("UpdateL3CATCoreCOS", &Node::UpdateL3CATCoreCOS, py::arg("core"), py::arg("cos"))
+        #endif
+        #ifdef PROC_CPUINFO
+        .def("RefreshCpuCoreFrequency", &Node::RefreshCpuCoreFrequency, py::arg("keep_history")=false,"Refresh the cpu core frequency")
+        #endif
         .def(py::init<int, string>(), py::arg("id") = 0, py::arg("name")= "Node")
-        .def(py::init<Component*, int, string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Node")
-        .def("RefreshCpuCoreFrequency", &Node::RefreshCpuCoreFrequency, py::arg("keep_history")=false,"Refresh the cpu core frequency");
+        .def(py::init<Component*, int, string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Node");
     py::class_<Memory,std::unique_ptr<Memory, py::nodelete>, Component>(m, "Memory")
+        #ifdef NVIDIA_MIG
+        .def("GetMIGSize", &Memory::GetMIGSize, py::arg("uuid"))
+        #endif
         .def(py::init<long long, bool>(), py::arg("size") = -1, py::arg("isVolatile") = false)
         .def(py::init<Component*,int, string, long long, bool>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Memory", py::arg("size")=-1, py::arg("isVolatile")=false)
         .def_property("size", &Memory::GetSize, &Memory::SetSize, "The size of the memory")
@@ -374,12 +380,23 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<Component*,long long>(), py::arg("parent"), py::arg("size")= -1)
         .def_property("size", &Storage::GetSize, &Storage::SetSize, "The size of the storage");
     py::class_<Chip,std::unique_ptr<Chip, py::nodelete>, Component>(m, "Chip")
+        #ifdef NVIDIA_MIG
+        .def("GetMIGNumCores", &Chip::GetMIGNumCores, py::arg("uuid"))
+        .def("GetMIGNumSMs", &Chip::GetMIGNumSMs, py::arg("uuid"))
+        .def("UpdateMIGSettings", &Chip::UpdateMIGSettings, py::arg("uuid"))
+        #endif
         .def(py::init<int,string,int,string,string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
         .def(py::init<Component*,int,string,int,string,string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = 1, py::arg("vendor") = "", py::arg("model") = "")
         .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
         .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
         .def_property("chipType", &Chip::GetChipType, &Chip::SetChipType, "The type of the chip");
     py::class_<Cache, std::unique_ptr<Cache, py::nodelete>, Component>(m, "Cache")
+        #ifdef INTEL_PQOS
+        //.def("GetM")
+        #endif
+        #ifdef NVIDIA_MIG
+        .def("GetMIGSize", &Cache::GetMIGSize, py::arg("uuid"))
+        #endif
         .def(py::init<int,int,long long, int, int>(), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
         .def(py::init<Component*,int,int,long long, int, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
         .def(py::init<Component*, int, string, long long, int, int>(), py::arg("parent"), py::arg("id"), py::arg("cache_type"), py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
@@ -397,15 +414,25 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<Component*, int, long long>(), py::arg("parent"), py::arg("id") = 0, py::arg("size") = -1)
         .def_property("size", &Numa::GetSize, &Numa::SetSize, "Size of the NUMA region");
     py::class_<Core, std::unique_ptr<Core, py::nodelete>, Component>(m, "Core")
-        .def(py::init<int,string>(),py::arg("id") = 0, py::arg("name") = "Core")
-        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0 ,py::arg("name") = "Core")
+        
+        #ifdef PROC_CPUINFO
         .def("RefreshFreq", &Core::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
-        .def_property("freq", &Core::GetFreq, &Core::SetFreq, "Frequency of this core");
+        .def_property("freq", &Core::GetFreq, &Core::SetFreq, "Frequency of this core")
+        #endif
+        .def(py::init<int,string>(),py::arg("id") = 0, py::arg("name") = "Core")
+        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0 ,py::arg("name") = "Core");
+
     py::class_<Thread, std::unique_ptr<Thread, py::nodelete>,Component>(m,"Thread")
-        .def(py::init<int,string>(),py::arg("id") = 0,py::arg("name") = "Thread")
-        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread")
+        #ifdef INTEL_PQOS
+        .def("GetCATAwareL3Size", &Thread::GetCATAwareL3Size, "Get L3 size of this thread")
+        #endif
+        #ifdef PROC_CPUINFO
         .def("RefreshFreq", &Thread::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
-        .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread");
+        .def("GetCATAwareL3Size", &Thread::GetCATAwareL3Size, "Get L3 size of this thread")
+        .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread")
+        #endif
+        .def(py::init<int,string>(),py::arg("id") = 0,py::arg("name") = "Thread")
+        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread");
     py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>>(m,"DataPath",py::dynamic_attr())
         .def(py::init<Component*, Component*, int, int>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = 32)
         .def(py::init<Component*, Component*, int, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
