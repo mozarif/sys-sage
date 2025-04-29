@@ -22,12 +22,15 @@ if __name__ == "__main__":
     def search_simple(k, v):
         if "benchmark" in k:
             return str(v)+" success"
+        return None
     def search_complex(k, v):
-        return "<sys-sage><Attribute key=\"" + str(k) + "\" value=\"" + str(v) + "\"/></sys-sage>"
+        if "complex" in k:
+            return "<sys-sage><Attribute key=\"" + str(k) + "\" value=\"" + str(v) + "\"/></sys-sage>"
+        return None
     
     n["benchmark"] = 1000
     n["complex"] = 1000
-    time_export = timeit.timeit(lambda: syge.exportToXml(t, "test.xml", search_simple, search_complex), number=100)
+    time_export = timeit.timeit(lambda: syge.exportToXml(t, "test.xml", None, None), number=100)
     print("time export to xml: ", time_export*10000000)
     
     #time import sys_sage respresentation

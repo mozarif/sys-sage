@@ -391,9 +391,6 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
         .def_property("chipType", &Chip::GetChipType, &Chip::SetChipType, "The type of the chip");
     py::class_<Cache, std::unique_ptr<Cache, py::nodelete>, Component>(m, "Cache")
-        #ifdef INTEL_PQOS
-        //.def("GetM")
-        #endif
         #ifdef NVIDIA_MIG
         .def("GetMIGSize", &Cache::GetMIGSize, py::arg("uuid"))
         #endif
