@@ -20,13 +20,10 @@ void calculateQubitWeight(Qubit* q, int tsForHistory = -1, double T1_max = 1, do
 
     double coupling_map_fidelity = 0.0;
     int num_neighbours = 0;
-    for(Relation* r : q->relations)
+    for(Relation* r : *q->GetAllRelationsByType(sys_sage::RelationType::CouplingMap))
     {
-        if(r->GetRelationType() == SYS_SAGE_RELATION_COUPLING_MAP)
-        {
-            coupling_map_fidelity += (static_cast<CouplingMap*>(r))->GetFidelity();
-            num_neighbours++;
-        }
+        coupling_map_fidelity += (static_cast<CouplingMap*>(r))->GetFidelity();
+        num_neighbours++;
     }
     q_weight += (coupling_map_fidelity/two_q_fidelity_max)/num_neighbours;
 
@@ -114,6 +111,8 @@ int main()
     // }
     // calculateAllWeights(b,IQMPathTs);
 
+    //SVTODO make building examples optional
+
     cout << "---------------- Printing the configuration of IQM Backend----------------" << endl;
     b->PrintSubtree();
     
@@ -123,13 +122,10 @@ int main()
         {
             Qubit* q = static_cast<Qubit*>(c);
             std::cout << "Qubit " << q->GetId() << " has coupling map { ";
-            for(Relation* r : q->relations)
+            for(Relation* r : *q->GetAllRelationsByType(sys_sage::RelationType::CouplingMap))
             {
-                if(r->GetRelationType() == SYS_SAGE_RELATION_COUPLING_MAP)
-                {
-                    CouplingMap* cm = static_cast<CouplingMap*>(r); 
-                    std::cout << (cm->components[0] == q ? cm->components[1]->GetId() : cm->components[0]->GetId() )<< " ";
-                }      
+                CouplingMap* cm = static_cast<CouplingMap*>(r); 
+                std::cout << (cm->GetComponent(0) == q ? cm->GetComponent(1)->GetId() : cm->GetComponent(0)->GetId() )<< " ";
             }
             std::cout << "} and weight = " << *static_cast<double*>(q->attrib["qubit_weight"]) << "\n";
         }
@@ -150,7 +146,7 @@ int main()
         {
             auto rh = reinterpret_cast<std::vector<std::tuple<int,double>>*>(c->attrib["weight_history"]);
             for(auto entry: *rh)
-                file << std::get<0>(entry) << "," << c->GetId() << "," << c->relations.size() << "," << std::get<1>(entry) << "\n";
+                file << std::get<0>(entry) << "," << c->GetId() << "," << c->GetAllRelationsByType(sys_sage::RelationType::CouplingMap)->size() << "," << std::get<1>(entry) << "\n";
         }
     }
     

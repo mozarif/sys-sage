@@ -42,8 +42,8 @@
 #define SYS_SAGE_CHIP_TYPE_CPU 2 /**< Chip type used for a CPU. */
 #define SYS_SAGE_CHIP_TYPE_CPU_SOCKET 4 /**< Chip type used for one CPU socket. */
 #define SYS_SAGE_CHIP_TYPE_GPU 8 /**< Chip type used for a GPU.*/
-
-using namespace std;
+//SVTODO move defines to namespaces (sys_sagee)
+using namespace std; //SVTODO remove this
 class Relation;
 class DataPath;
 class QuantumGate;
@@ -136,10 +136,16 @@ public:
     */
     void PrintSubtree(int level);
     /**
+     * OBSOLETE. Use PrintAllRelationsInSubtree instead. This function will be removed in the future.
+     * 
     Prints to stdout basic information about all DataPaths that go either from or to the components in the subtree.
     \n For each component, all outgoing and incoming DataPaths are printed, i.e. a DataPath may be printed twice.
     */
+    [[deprecated("Use PrintAllRelationsInSubtree instead. This function will be removed in the future.")]]
     void PrintAllDataPathsInSubtree();
+    //SVDOCTODO
+    //SVDOCTODO similar doc to PrintAllDataPathsInSubtree
+    void PrintAllRelationsInSubtree(sys_sage::RelationType::type RelationType = sys_sage::RelationType::Any);
     /**
     Returns name of the component.
     @return name
@@ -380,23 +386,48 @@ public:
     */
     vector<Component*> GetComponentsInSubtree();
 
-    /**
-    Returns the DataPaths of this component according to their orientation.
-    @param orientation - either SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING
-    @return Pointer to std::vector<DataPath *> with the result (dp_outgoing on SYS_SAGE_DATAPATH_OUTGOING, or dp_incoming on SYS_SAGE_DATAPATH_INCOMING, otherwise NULL)
-    @see dp_incoming
-    @see dp_outgoing
-    */
-    vector<DataPath*>* GetDataPaths(int orientation);
+    //SVTODO rename to GetRelations; GetRelations will become ?????
+    //SVTODO how to deal with former int orientation, now bool ordered? -> if checked for position, return any of not ordered
+    //SVDOCTODO
+    //SVDOCTODO mention GetRelations as an alternative
+    //SVDOCTODO this one just returns a pointer to the internal structure -- the object already exists and is managed (deleted) by sys-sage
+    vector<Relation*>* GetAllRelationsByType(sys_sage::RelationType::type relationType);
+    //SVDOCTODO 
+    //SVDOCTODO is this a good name?
+    //SVDOCTODO mention GetAllRelationsByType as an alternative
+    //SVDOCTODO this method creates a new vector and fills it with data; returns a new vector
+    vector<Relation*> GetRelations(sys_sage::RelationType::type relationType = sys_sage::RelationType::Any, int thisComponentPosition = -1);
+
+    // SVDOCTODO was removed -> use GetAllDataPathsByType insteas with dataType::Any
+    // //SVDOCTODO update 
+    // //SVDOCTODO changed to return vector<DataPath*> instead of vector<DataPath*>* 
+    // //SVTODO change datatypes, such as int orientation, to something (ssOrientation?) more specific with typedef?
+    // /**     
+    // Returns the DataPaths of this component according to their orientation.
+    // @param orientation - either SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING
+    // @return Pointer to std::vector<DataPath *> with the result (dp_outgoing on SYS_SAGE_DATAPATH_OUTGOING, or dp_incoming on SYS_SAGE_DATAPATH_INCOMING, otherwise NULL)
+    // @see dp_incoming
+    // @see dp_outgoing
+    // */
+    // vector<DataPath*> GetDataPaths(int orientation = sys_sage::DataPathOrientation::Any);
     /**
     @private
-    !!Normally should not be called; Use NewDataPath() instead!!
-    Stores (pushes back) a DataPath pointer to the list(std::vector) of DataPaths of this component. According to the orientation param, the proper list is chosen.
-    @param p - the pointer to store
-    @param orientation - orientation of the DataPath. Either SYS_SAGE_DATAPATH_OUTGOING (lands in dp_outgoing) or SYS_SAGE_DATAPATH_INCOMING (lands in dp_incoming)
-    @see NewDataPath()
+    Only called by Relation's int Relation::AddComponent(Component* c), Relation::UpdateComponent
     */
-    void AddDataPath(DataPath* p, int orientation);
+    void _AddRelation(int32_t relationType, Relation* r);
+
+    // //SVTODO make sure this is deleted from everywhere
+    // /**
+    // @private
+    // !!Normally should not be called; Use NewDataPath() instead!!
+    // Stores (pushes back) a DataPath pointer to the list(std::vector) of DataPaths of this component. According to the orientation param, the proper list is chosen.
+    // @param p - the pointer to store
+    // @param orientation - orientation of the DataPath. Either SYS_SAGE_DATAPATH_OUTGOING (lands in dp_outgoing) or SYS_SAGE_DATAPATH_INCOMING (lands in dp_incoming)
+    // @see NewDataPath()
+    // */
+    // void AddDataPath(DataPath* p, int orientation);
+    
+    //SVTODO restructure to use relations[datapaths] + make sure that the namespace is used
     /**
     Retrieves a DataPath * from the list of this component's data paths with matching type and orientation.
     \n The first match is returned -- first SYS_SAGE_DATAPATH_OUTGOING are searched, then SYS_SAGE_DATAPATH_INCOMING.
@@ -404,7 +435,10 @@ public:
     @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
     @return DataPath pointer to the found data path; NULL if nothing found.
     */
-    DataPath* GetDataPathByType(int dp_type, int orientation);
+    DataPath* GetDataPathByType(sys_sage::DataPathType::type dp_type, sys_sage::DataPathOrientation::type orientation = sys_sage::DataPathOrientation::Any);
+    
+    //SVTODO rename to GetAllDataPaths
+    //SVDOCTODO new parameters
     /**
     Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
     Results are returned in vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
@@ -414,8 +448,10 @@ public:
         \n An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
         \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
     */
-    void GetAllDataPathsByType(vector<DataPath*>* outDpArr, int dp_type, int orientation);
+    void GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::DataPathType::type dp_type = sys_sage::DataPathType::Any, sys_sage::DataPathOrientation::type orientation = sys_sage::DataPathOrientation::Any);
 
+    //SVTODO rename to GetAllDataPaths
+    //SVDOCTODO new parameters
     /**
     Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
     Results are returned in a vector<DataPath*>*, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
@@ -423,7 +459,7 @@ public:
     @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
     @return A std::vector<DataPath*> with the results.
     */
-    vector<DataPath*> GetAllDataPathsByType(int dp_type, int orientation);
+    vector<DataPath*> GetAllDataPathsByType(sys_sage::DataPathType::type dp_type = sys_sage::DataPathType::Any, sys_sage::DataPathOrientation::type orientation = sys_sage::DataPathOrientation::Any);
 
     /**
     @brief Checks the consistency of the component tree starting from this component.
@@ -454,7 +490,7 @@ public:
     @return The total size in bytes
     @see GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize);
     */
-    int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths);
+    int _GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths);
 
     /**
      * Retrieves the depth (level) of a component in the topology.
@@ -472,15 +508,22 @@ public:
     */
     xmlNodePtr CreateXmlSubtree();
     
+    //SVDOCTODO
+    void DeleteRelation(Relation * r);
     /**
+     * [[deprecated("Use void DeleteRelation(Relation * r) instead.")]]
     Deletes and de-allocates the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of the Components.
     @param dp - DataPath to Delete
     */
+    [[deprecated("DeleteDataPath is deprecated. Use void DeleteRelation(Relation * r) instead.")]]
     void DeleteDataPath(DataPath * dp);
 
+    void DeleteAllRelations(sys_sage::RelationType::type relationType = sys_sage::RelationType::Any);
     /**
-    Deletes all DataPaths of this component.
+     * [[deprecated("Use void DeleteAllRelations(int32_t relationType = sys_sage::RelationType::Any) instead.")]]
+     * Deletes all DataPaths of this component.
     */
+    [[deprecated("DeleteAllDataPaths is deprecated. Use void DeleteAllRelations(int32_t relationType = sys_sage::RelationType::Any) instead.")]]
     void DeleteAllDataPaths();
     /**
     Deletes the whole subtree (all the children) of the component.
@@ -591,14 +634,13 @@ protected:
     const int componentType;
     vector<Component*> children; /**< Contains the list (std::vector) of pointers to children of the component in the component tree. */
     Component* parent { nullptr }; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be NULL.*/
-    vector<DataPath*> dp_incoming; /**< Contains references to data paths that point to this component. @see DataPath */
-    vector<DataPath*> dp_outgoing; /**< Contains references to data paths that point from this component. @see DataPath */
-
-public:
-    //TODO add relation type -->vector<pair<relation_type, relation>>
-    vector<Relation*> relations;
-    void AddRelation(Relation* r, int relation_type);
-private:
+    
+    
+    // vector<DataPath*> dp_incoming; /**< Contains references to data paths that point to this component. @see DataPath */
+    // vector<DataPath*> dp_outgoing; /**< Contains references to data paths that point from this component. @see DataPath */
+    
+    //SVDOCTODO
+    std::array<vector<Relation*>*, sys_sage::RelationType::_num_relation_types>* relations = nullptr;
 };
 
 /**
@@ -1443,5 +1485,3 @@ public:
 };
 
 #endif
-
-

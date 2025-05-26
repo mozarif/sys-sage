@@ -39,24 +39,13 @@ set(HEADERS
 add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
 # For Quantum Systems
-
 if(QDMI)
-# Find QDMI package
-    find_package(backends REQUIRED)
-
-# Find QInfo package
-    find_package(qinfo REQUIRED)
-
     target_link_libraries(sys-sage PUBLIC
       backend_ibm
       qdmi
       qinfo
-      nlohmann_json::nlohmann_json
       )
 endif()
-
-# Find nlohmann_json package
-find_package(nlohmann_json REQUIRED)
 
 target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
 

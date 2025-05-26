@@ -21,26 +21,54 @@ void Component::PrintSubtree(int level)
 }
 void Component::PrintAllDataPathsInSubtree()
 {
+    PrintAllRelationsInSubtree(sys_sage::RelationType::DataPath);
+    // vector<Component*> subtreeList;
+    // GetComponentsInSubtree(&subtreeList);
+    // for(Component * c : subtreeList)
+    // {   
+    //     vector<DataPath*>* dp_in = c->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
+    //     vector<DataPath*>* dp_out = c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
+    //     if(dp_in->size() > 0 || dp_out->size() > 0 )
+    //     {
+    //         cout << "DataPaths regarding Component (" << c->GetComponentTypeStr() << ") id " << c->GetId() << endl;
+    //         for(DataPath * dp : *dp_out)
+    //         {
+    //             cout << "    ";
+    //             dp->Print();
+    //         }
+    //         for(DataPath * dp : *dp_in)
+    //         {
+    //             cout << "    ";
+    //             dp->Print();
+    //         }
+    //     }
+    // }
+}
+void Component::PrintAllRelationsInSubtree(sys_sage::RelationType::type relationType)
+{
+    using namespace sys_sage;
     vector<Component*> subtreeList;
     GetComponentsInSubtree(&subtreeList);
     for(Component * c : subtreeList)
     {   
-        vector<DataPath*>* dp_in = c->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
-        vector<DataPath*>* dp_out = c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
-        if(dp_in->size() > 0 || dp_out->size() > 0 )
+        for(RelationType::type rt : RelationType::RelationTypeList)
         {
-            cout << "DataPaths regarding Component (" << c->GetComponentTypeStr() << ") id " << c->GetId() << endl;
-            for(DataPath * dp : *dp_out)
+            if (relationType == rt || relationType == RelationType::Any)
             {
-                cout << "    ";
-                dp->Print();
-            }
-            for(DataPath * dp : *dp_in)
-            {
-                cout << "    ";
-                dp->Print();
+                vector<Relation*>* c_relations = c->GetAllRelationsByType(rt);
+                if(c_relations != NULL && c_relations->size() > 0)
+                {
+                    std::cout << RelationType::to_string(rt) << "s regarding Component (" << c->GetComponentTypeStr() << ") id " << c->GetId() << std::endl;
+                    for(Relation * r : *c_relations )
+                    {
+                        cout << "    ";
+                        r->Print();
+                    }
+                }
             }
         }
+
+
     }
 }
 
@@ -363,68 +391,140 @@ Component* Component::GetAncestorByType(int _componentType)
     return NULL;
 }
 
-void Component::AddDataPath(DataPath* p, int orientation)
+// void Component::AddDataPath(DataPath* p, int orientation)
+// {
+//     if(orientation == SYS_SAGE_DATAPATH_OUTGOING)
+//         dp_outgoing.push_back(p);
+//     if(orientation == SYS_SAGE_DATAPATH_INCOMING)
+//         dp_incoming.push_back(p);
+// }
+
+void Component::_AddRelation(int32_t relationType, Relation* r)
 {
-    if(orientation == SYS_SAGE_DATAPATH_OUTGOING)
-        dp_outgoing.push_back(p);
-    else if(orientation == SYS_SAGE_DATAPATH_INCOMING)
-        dp_incoming.push_back(p);
+    std::cout << "_AddRelation r=" << r << " Component id " << id << ", relations=" << relations << ", relationType=" << relationType << std::endl;
+    if(!relations)
+        relations = new std::array<std::vector<Relation*>*, sys_sage::RelationType::_num_relation_types>();
+    if(!(*relations)[relationType])
+        (*relations)[relationType] = new std::vector<Relation*>();
+    
+    std::cout << "    r=" << r << " (*relations)[relationType]=" << (*relations)[relationType] << ", relations=" << relations << std::endl;
+    (*relations)[relationType]->push_back(r);
 }
 
-void Component::AddRelation(Relation * r, int relation_type)
+DataPath* Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sys_sage::DataPathOrientation::type orientation)
 {
-    relations.push_back(r);
-}
-
-DataPath* Component::GetDataPathByType(int dp_type, int orientation)
-{
-    if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
-        for(DataPath* dp : dp_outgoing){
-            if(dp->GetDataPathType() == dp_type)
-                return dp;
-        }
-    }
-    if(orientation & SYS_SAGE_DATAPATH_INCOMING){
-        for(DataPath* dp : dp_incoming){
+    using namespace sys_sage;
+    for(Relation* r: *(*relations)[RelationType::DataPath])
+    {
+        //either unordered -> check; or orientation is any -> check; or orientation is incoming & DP is incoming or the same outgoing
+        if(!r->IsOrdered() || 
+            orientation == DataPathOrientation::Any || 
+            (orientation == DataPathOrientation::Outgoing && r->GetComponent(0) == this) ||  
+            (orientation == DataPathOrientation::Incoming && r->GetComponent(1) == this))
+        {
+            DataPath* dp = reinterpret_cast<DataPath*>(r);
             if(dp->GetDataPathType() == dp_type)
                 return dp;
         }
     }
     return NULL;
 }
-void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, int dp_type, int orientation)
+
+vector<Relation*>* Component::GetAllRelationsByType(sys_sage::RelationType::type relationType)
 {
-    if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
-        for(DataPath* dp : dp_outgoing){
-            if(dp->GetDataPathType() == dp_type)
+    if(relationType >=0 && relationType < sys_sage::RelationType::_num_relation_types)
+    {
+        if(relations == NULL){
+            std::cout << "relations == NULL" << std::endl;
+            return NULL;
+        }
+        else
+            std::cout << "else    (relations == NULL)" << std::endl;
+        return (*relations)[relationType];
+    }
+    std::cout << "ERROR" << std::endl;
+    //TODO report the error
+    return NULL;  
+}
+
+vector<Relation*> Component::GetRelations(sys_sage::RelationType::type relationType, int thisComponentPosition)
+{
+    using namespace sys_sage;
+    vector<Relation*> out_vector;
+    for(int curr_rt : RelationType::RelationTypeList)
+    {
+        if(relationType == RelationType::Any || relationType == curr_rt)
+        {
+            for(Relation* r : *(*relations)[curr_rt])
+            {
+                if(!r->IsOrdered() || (r->IsOrdered() && r->GetComponent(thisComponentPosition) == this))
+                {
+                    out_vector.push_back(r);
+                }
+            }
+        }
+    }
+    return out_vector;
+}
+
+void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::DataPathType::type dp_type, sys_sage::DataPathOrientation::type orientation)
+{
+    using namespace sys_sage;
+
+    for(Relation* r: *(*relations)[RelationType::DataPath])
+    {
+        //either unordered -> check; or orientation is any -> check; or orientation is incoming & DP is incoming or the same outgoing
+        if(!r->IsOrdered() || 
+            orientation == DataPathOrientation::Any || 
+            (orientation == DataPathOrientation::Outgoing && r->GetComponent(0) == this) ||
+            (orientation == DataPathOrientation::Incoming && r->GetComponent(1) == this))
+        {
+            DataPath* dp = reinterpret_cast<DataPath*>(r);
+            if(dp_type == DataPathType::Any || dp->GetDataPathType() == dp_type)
                 outDpArr->push_back(dp);
         }
     }
-    if(orientation & SYS_SAGE_DATAPATH_INCOMING){
-        for(DataPath* dp : dp_incoming){
-            if(dp->GetDataPathType() == dp_type)
-                outDpArr->push_back(dp);
-        }
-    }
+    // if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
+    //     for(DataPath* dp : dp_outgoing){
+    //         if(dp->GetDataPathType() == dp_type)
+    //             outDpArr->push_back(dp);
+    //     }
+    // }
+    // if(orientation & SYS_SAGE_DATAPATH_INCOMING){
+    //     for(DataPath* dp : dp_incoming){
+    //         if(dp->GetDataPathType() == dp_type)
+    //             outDpArr->push_back(dp);
+    //     }
+    // }
     return;
 }
 
-vector<DataPath*> Component::GetAllDataPathsByType(int dp_type, int orientation)
+vector<DataPath*> Component::GetAllDataPathsByType(sys_sage::DataPathType::type dp_type, sys_sage::DataPathOrientation::type orientation)
 {
     vector<DataPath*> outDpArr;
     GetAllDataPathsByType(&outDpArr, dp_type, orientation);
     return outDpArr;
 }
 
-vector<DataPath*>* Component::GetDataPaths(int orientation)
-{
-    if(orientation == SYS_SAGE_DATAPATH_INCOMING)
-        return &dp_incoming;
-    else if(orientation == SYS_SAGE_DATAPATH_OUTGOING)
-        return &dp_outgoing;
-    else //TODO
-        return NULL;
-}
+// vector<DataPath*> Component::GetDataPaths(int orientation)
+// {
+
+//     if(orientation == sys_sage::DataPathOrientation::Any)
+//         return GetRelations(sys_sage::RelationType::DataPath, -1);
+//     else if(orientation == sys_sage::DataPathOrientation::Outgoing)
+//         return GetRelations(sys_sage::RelationType::DataPath, 0);
+//     else if(orientation == sys_sage::DataPathOrientation::Incoming)
+//         return GetRelations(sys_sage::RelationType::DataPath, 1);
+//     else
+//         return NULL; //TODO should not happen; add some error message?
+    
+//     // if(orientation == SYS_SAGE_DATAPATH_INCOMING)
+//     //     return &dp_incoming;
+//     // else if(orientation == SYS_SAGE_DATAPATH_OUTGOING)
+//     //     return &dp_outgoing;
+//     // else //TODO
+//     //     return NULL;
+// }
 
 string Component::GetComponentTypeStr()
 {
@@ -478,83 +578,85 @@ int Component::CheckComponentTreeConsistency()
 
 int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize)
 {
-    return GetTopologySize(out_component_size, out_dataPathSize, NULL);
+    return _GetTopologySize(out_component_size, out_dataPathSize, NULL);
 }
 
-int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths)
+int Component::_GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths)
 {
-    if(counted_dataPaths == NULL)
-        counted_dataPaths = new std::set<DataPath*>();
+    return 0;
+    //SVTODO
+    // if(counted_dataPaths == NULL)
+    //     counted_dataPaths = new std::set<DataPath*>();
 
-    int component_size = 0;
-    switch(componentType)
-    {
-        case SYS_SAGE_COMPONENT_NONE:
-        break;
-        case SYS_SAGE_COMPONENT_THREAD:
-            component_size += sizeof(Thread);
-        break;
-        case SYS_SAGE_COMPONENT_CORE:
-            component_size += sizeof(Core);
-        break;
-        case SYS_SAGE_COMPONENT_CACHE:
-            component_size += sizeof(Cache);
-        break;
-        case SYS_SAGE_COMPONENT_SUBDIVISION:
-            component_size += sizeof(Subdivision);
-        break;
-        case SYS_SAGE_COMPONENT_NUMA:
-            component_size += sizeof(Numa);
-        break;
-        case SYS_SAGE_COMPONENT_CHIP:
-            component_size += sizeof(Chip);
-        break;
-        case SYS_SAGE_COMPONENT_MEMORY:
-            component_size += sizeof(Memory);
-        break;
-        case SYS_SAGE_COMPONENT_STORAGE:
-            component_size += sizeof(Storage);
-        break;
-        case SYS_SAGE_COMPONENT_NODE:
-            component_size += sizeof(Node);
-        break;
-        case SYS_SAGE_COMPONENT_TOPOLOGY:
-            component_size += sizeof(Topology);
-        break;
-    }
-    component_size += attrib.size()*(sizeof(string)+sizeof(void*)); //TODO improve
-    component_size += children.size()*sizeof(Component*);
-    (*out_component_size) += component_size;
+    // int component_size = 0;
+    // switch(componentType)
+    // {
+    //     case SYS_SAGE_COMPONENT_NONE:
+    //     break;
+    //     case SYS_SAGE_COMPONENT_THREAD:
+    //         component_size += sizeof(Thread);
+    //     break;
+    //     case SYS_SAGE_COMPONENT_CORE:
+    //         component_size += sizeof(Core);
+    //     break;
+    //     case SYS_SAGE_COMPONENT_CACHE:
+    //         component_size += sizeof(Cache);
+    //     break;
+    //     case SYS_SAGE_COMPONENT_SUBDIVISION:
+    //         component_size += sizeof(Subdivision);
+    //     break;
+    //     case SYS_SAGE_COMPONENT_NUMA:
+    //         component_size += sizeof(Numa);
+    //     break;
+    //     case SYS_SAGE_COMPONENT_CHIP:
+    //         component_size += sizeof(Chip);
+    //     break;
+    //     case SYS_SAGE_COMPONENT_MEMORY:
+    //         component_size += sizeof(Memory);
+    //     break;
+    //     case SYS_SAGE_COMPONENT_STORAGE:
+    //         component_size += sizeof(Storage);
+    //     break;
+    //     case SYS_SAGE_COMPONENT_NODE:
+    //         component_size += sizeof(Node);
+    //     break;
+    //     case SYS_SAGE_COMPONENT_TOPOLOGY:
+    //         component_size += sizeof(Topology);
+    //     break;
+    // }
+    // component_size += attrib.size()*(sizeof(string)+sizeof(void*)); //TODO improve
+    // component_size += children.size()*sizeof(Component*);
+    // (*out_component_size) += component_size;
 
-    int dataPathSize = 0;
-    dataPathSize += dp_incoming.size() * sizeof(DataPath*);
-    dataPathSize += dp_outgoing.size() * sizeof(DataPath*);
-    for(auto it = std::begin(dp_incoming); it != std::end(dp_incoming); ++it) {
-        if(!counted_dataPaths->count((DataPath*)(*it))) {
-            //cout << "new datapath " << (DataPath*)(*it) << endl;
-            dataPathSize += sizeof(DataPath);
-            dataPathSize += (*it)->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
-            counted_dataPaths->insert((DataPath*)(*it));
-        }
-    }
-    for(auto it = std::begin(dp_outgoing); it != std::end(dp_outgoing); ++it) {
-        if(!counted_dataPaths->count((DataPath*)(*it))){
-            //cout << "new datapath " << (DataPath*)(*it) << endl;
-            dataPathSize += sizeof(DataPath);
-            dataPathSize += (*it)->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
-            counted_dataPaths->insert((DataPath*)(*it));
-        }
-    }
-    (*out_dataPathSize) += dataPathSize;
+    // int dataPathSize = 0;
+    // dataPathSize += dp_incoming.size() * sizeof(DataPath*);
+    // dataPathSize += dp_outgoing.size() * sizeof(DataPath*);
+    // for(auto it = std::begin(dp_incoming); it != std::end(dp_incoming); ++it) {
+    //     if(!counted_dataPaths->count((DataPath*)(*it))) {
+    //         //cout << "new datapath " << (DataPath*)(*it) << endl;
+    //         dataPathSize += sizeof(DataPath);
+    //         dataPathSize += (*it)->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
+    //         counted_dataPaths->insert((DataPath*)(*it));
+    //     }
+    // }
+    // for(auto it = std::begin(dp_outgoing); it != std::end(dp_outgoing); ++it) {
+    //     if(!counted_dataPaths->count((DataPath*)(*it))){
+    //         //cout << "new datapath " << (DataPath*)(*it) << endl;
+    //         dataPathSize += sizeof(DataPath);
+    //         dataPathSize += (*it)->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
+    //         counted_dataPaths->insert((DataPath*)(*it));
+    //     }
+    // }
+    // (*out_dataPathSize) += dataPathSize;
 
-    int subtreeSize = 0;
-    for(auto it = std::begin(children); it != std::end(children); ++it) {
-        subtreeSize += (*it)->GetTopologySize(out_component_size, out_dataPathSize, counted_dataPaths);
-    }
+    // int subtreeSize = 0;
+    // for(auto it = std::begin(children); it != std::end(children); ++it) {
+    //     subtreeSize += (*it)->GetTopologySize(out_component_size, out_dataPathSize, counted_dataPaths);
+    // }
 
-    if(counted_dataPaths != NULL)
-        delete counted_dataPaths;
-    return component_size + dataPathSize + subtreeSize;
+    // if(counted_dataPaths != NULL)
+    //     delete counted_dataPaths;
+    // return component_size + dataPathSize + subtreeSize;
 }
 
 int Component::GetDepth(bool refresh)
@@ -573,23 +675,57 @@ int Component::GetDepth(bool refresh)
     return depth;
 }
 
+void Component::DeleteRelation(Relation * r)
+{
+    using namespace sys_sage;
+    int32_t rt = r->GetType();
+    if(rt == RelationType::Relation)
+        r->Delete();
+    else if(rt == RelationType::DataPath){
+        DataPath* dp = reinterpret_cast<DataPath*>(r);
+        dp->Delete();
+    } else if(rt == RelationType::QuantumGate){
+        QuantumGate* qg = reinterpret_cast<QuantumGate*>(r);
+        qg->Delete();
+    } else if(rt == RelationType::CouplingMap){
+        CouplingMap* cm = reinterpret_cast<CouplingMap*>(r);
+        cm->Delete();
+    } else{ //this should never happen
+        std::cout << "ERROR void Component::DeleteRelation(Relation * r)" << std::endl;
+        exit(1);
+    }    
+}
+
+void Component::DeleteAllRelations(sys_sage::RelationType::type relationType)
+{
+    for(sys_sage::RelationType::type rt : sys_sage::RelationType::RelationTypeList)
+    {
+        for(Relation* r: *(*relations)[rt])
+        {
+            DeleteRelation(r);
+        }
+    }
+}
+
 void Component::DeleteDataPath(DataPath * dp)
 {
-    dp->DeleteDataPath();
+    DeleteRelation(dp);
+    // dp->DeleteDataPath();
 }
 
 void Component::DeleteAllDataPaths()
 {
-    while(!dp_outgoing.empty())
-    {
-        DataPath * dp = dp_outgoing.back();
-        dp->DeleteDataPath();
-    }
-    while(!dp_incoming.empty())
-    {
-        DataPath * dp = dp_incoming.back();
-        dp->DeleteDataPath();
-    }
+    DeleteAllRelations(sys_sage::RelationType::DataPath);
+    // while(!dp_outgoing.empty())
+    // {
+    //     DataPath * dp = dp_outgoing.back();
+    //     dp->DeleteDataPath();
+    // }
+    // while(!dp_incoming.empty())
+    // {
+    //     DataPath * dp = dp_incoming.back();
+    //     dp->DeleteDataPath();
+    // }
 }
 void Component::DeleteSubtree()
 {

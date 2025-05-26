@@ -70,11 +70,12 @@ int main(int argc, char *argv[])
 
     //get num caps-benchmark DataPaths
     int caps_dataPaths = 0;
-    vector<DataPath*>* capsDataPaths;
+    vector<DataPath*> capsDataPaths;
     for(Component* gpu_c: hwlocComponentList)
     {
-        capsDataPaths = gpu_c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
-        caps_dataPaths += capsDataPaths->size();
+        capsDataPaths = gpu_c->GetAllDataPathsByType(sys_sage::DataPathType::Any, sys_sage::DataPathOrientation::Outgoing);
+        // capsDataPaths = gpu_c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
+        caps_dataPaths += capsDataPaths.size();
     }
 
     //get size of hwloc representation + caps-benchmark DataPaths
@@ -88,12 +89,14 @@ int main(int argc, char *argv[])
     unsigned int max_bw = 0;
     Component* max_bw_component = NULL;
     t_start = high_resolution_clock::now();
-    vector<DataPath*>* dp = numa->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
-    for(auto it = std::begin(*dp); it != std::end(*dp); ++it) {
-        if( (*it)->GetBandwidth() > max_bw ){
-            max_bw = (*it)->GetBandwidth();
-            max_bw_component = (*it)->GetTarget();
-        }
+    vector<DataPath*> dp_vec = numa->GetAllDataPathsByType(sys_sage::DataPathType::Any, sys_sage::DataPathOrientation::Outgoing);
+    // vector<DataPath*>* dp = numa->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
+    for(DataPath* dp : dp_vec)
+    {
+        if( dp->GetBandwidth() > max_bw ){
+            max_bw = dp->GetBandwidth();
+            max_bw_component = dp->GetTarget();
+        }        
     }
     t_end = high_resolution_clock::now();
     uint64_t time_getNumaMaxBw = t_end.time_since_epoch().count()-t_start.time_since_epoch().count()-timer_overhead;
@@ -125,11 +128,12 @@ int main(int argc, char *argv[])
 
     //get num mt4g DataPaths
     int mt4g_dataPaths = 0;
-    vector<DataPath*>* componentDataPaths;
+    vector<DataPath*> componentDataPaths;
     for(Component* gpu_c: mt4gComponentList)
     {
-        componentDataPaths = gpu_c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
-        mt4g_dataPaths += componentDataPaths->size();
+        componentDataPaths = gpu_c->GetAllDataPathsByType(sys_sage::DataPathType::Any, sys_sage::DataPathOrientation::Outgoing);
+        // componentDataPaths = gpu_c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
+        mt4g_dataPaths += componentDataPaths.size();
     }
 
     /////////////////print results

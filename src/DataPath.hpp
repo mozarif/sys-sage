@@ -6,7 +6,7 @@
 #include <string>
 
 #include "defines.hpp"
-#include "Component.hpp"
+// #include "Component.hpp"
 
 //Component pointing to a DataPath 
 #define SYS_SAGE_DATAPATH_NONE 1 /**< Reserved for development purposes. */
@@ -43,12 +43,83 @@
 
 
 #define SYS_SAGE_RELATION_COUPLING_MAP 1001
+
+///////////////////////////////////////////////////
+namespace sys_sage {
+    namespace RelationType{
+        using type = int32_t;
+
+        constexpr type Any = -1;
+        constexpr type Relation = 0;
+        constexpr type DataPath = 1;
+        constexpr type QuantumGate = 2;
+        constexpr type CouplingMap = 3;
+        constexpr type _num_relation_types = 4;
+
+        constexpr type RelationTypeList [_num_relation_types] = {
+            Relation, 
+            DataPath, 
+            QuantumGate, 
+            CouplingMap
+        };
+
+        //SVTODO this should remain private???
+        static const std::unordered_map<type, const char*> names = {
+            {Any, "Any"},
+            {Relation, "Relation"},
+            {DataPath, "DataPath"},
+            {QuantumGate, "QuantumGate"},
+            {CouplingMap, "CouplingMap"}
+        };
+
+        inline const char* to_string(type rt) {
+            auto it = names.find(rt);
+            if (it != names.end()) return it->second;
+            return "Unknown";
+        }
+    }
+
+    namespace DataPathType{
+        using type = int32_t;
+
+        constexpr type Any = 1;
+        constexpr type None = 0;
+        constexpr type Logical = 1;
+        constexpr type Physical = 2;
+        constexpr type Datatransfer = 3;
+        constexpr type L3CAT = 4;
+        constexpr type MIG = 5;
+        constexpr type C2C = 6;
+    }
+    namespace DataPathOrientation{
+        using type = int32_t;
+
+        constexpr type Any = 1;
+        constexpr type Outgoing = 2;
+        constexpr type Incoming = 3;
+    }
+    namespace QuantumGateType{
+        using type = int32_t;
+
+        constexpr type Unknown = 0;
+        constexpr type Id = 1;
+        constexpr type Rx = 2;
+        constexpr type Rz = 3;
+        constexpr type Cnot = 4;
+        constexpr type Sx = 5;
+        constexpr type Toffoli = 6;
+    }
+
+} //namespace sys_sage 
+
+
+//SVTODO make all non-public (non-API) methods with _prefix
 class Component;
 class Qubit;
 
 /**
  * @class Relation
- * @brief Represents a generic relationship or connectivity between two components.
+ * @brief Represents a generic relationship or connectivity between an arbitrary number of components.
  *
  * This class defines a generic relationship with methods to set and get
  * the type, id, and name of the relationship. It also provides pure virtual
@@ -56,98 +127,85 @@ class Qubit;
  */
 class Relation {
 public:
-    /**
-     * @brief Sets the type of the relationship.
-     * @param _type The type of the relationship to set.
-     */
-    void SetType(int _type);
-
-    /**
-     * @brief Gets the type of the relationship.
-     * @return The current type of the relationship.
-     */
-    int GetType();
-
+    Relation(std::initializer_list<Component*> components, bool _ordered = true);
     /**
      * @brief Sets the id of the relationship.
      * @param _id The id of the relationship to set.
      */
     void SetId(int _id);
-
     /**
      * @brief Gets the id of the relationship.
      * @return The current id of the relationship.
      */
     int GetId();
-
     /**
-     * @brief Sets the name of the relationship.
-     * @param _name The name of the relationship to set.
+     * @brief Gets the type of the relationship.
+     * @return The current type of the relationship.
      */
-    void SetName(std::string _name);
+    int GetType();
+    //SVDOCTODO
+    bool IsOrdered();
+    //SVDOCTODO
+    bool ContainsComponent(Component* c);
 
-    /**
-     * @brief Gets the name of the relationship.
-     * @return The current name of the relationship.
-     */
-    std::string GetName();
+    Component* GetComponent(int index);
 
-    /**
-     * @brief Destructor for the Relation class.
-     * 
-     * This is a virtual destructor to ensure proper cleanup of derived classes.
-     */
-    ~Relation() = default;
-
+    //SVDOCTODO
     /**
      * @brief Pure virtual function to print the details of the relationship.
      * 
      * Derived classes must implement this function to provide specific
      * printing behavior.
      */
-    void Print(){};//TODO
+    virtual void Print();
+    //SVDOCTODO
+    void AddComponent(Component* c);
+    //SVDOCTODO
+    void UpdateComponent(int index, Component * _new_component);
+    //SVDOCTODO
+    //SVDOCTODO mention that it only replaces first entry of _old_component found (using std::find)
+    void UpdateComponent(Component* _old_component, Component * _new_component);
 
+    //SVDOCTODO
     /**
      * @brief Pure virtual function to delete the relationship.
      * 
      * Derived classes must implement this function to provide specific
      * deletion behavior.
      */
-    void DeleteRelation(){};//TODO
+    virtual void Delete();//TODO
+    /**
+     * @brief Destructor for the Relation class.
+     * 
+     * This is a virtual destructor to ensure proper cleanup of derived classes.
+     */
+    ~Relation() = default;
+protected:
+    Relation(int _relation_type);
 
+    bool ordered;
     /**
      * @brief The id of the relationship.
      * 
      * This member variable stores the unique identifier for the relationship.
      */
     int id;
-
     /**
      * @brief The type of the relationship.
      * 
      * This member variable stores the type or category of the relationship.
      */
     int type;
-
-    /**
-     * @brief The name of the relationship.
-     * 
-     * This member variable stores the name or description of the relationship.
-     */
-    std::string name;
-
     /**
      * @brief A vector of components associated with the relationship.
      * 
      * This member variable holds pointers to components that are part of
      * the relationship.
      */
-    std::vector<Component *> components;
-    int addComponent(Component* c, int relation_type);
-    int GetRelationType();
+    std::vector<Component*> components;
 
-
-        /**
+public:
+    /**
     * A map for storing arbitrary pieces of information or data.
     * - The `key` denotes the name of the attribute.
     * - The `value` points to the data, stored as a `void*`.
@@ -222,28 +280,6 @@ public:
     std::map<std::string, void*> attrib;
 };
 
-class DataPath;
-/**
- @private
-Obsolete; use DataPath() constructors directly instead
-@see DataPath()
-*/
-[[deprecated("Use DataPath() constructors directly instead.")]]
-DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type = SYS_SAGE_DATAPATH_TYPE_NONE);
-/**
- * @private
-Obsolete; use DataPath() constructors directly instead
-@see DataPath()
-*/
-[[deprecated("Use DataPath() constructors directly instead.")]]
-DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, double _bw, double _latency);
-/**
- * @private
-Obsolete; use DataPath() constructors directly instead
-@see DataPath()
-*/
-[[deprecated("Use DataPath() constructors directly instead.")]]
-DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type, double _bw, double _latency);
 
 /**
 Class DataPath represents Data Paths in the topology -- Data Paths represent an arbitrary relation (or data movement) between two Components from the Component Tree.
@@ -254,6 +290,7 @@ Class DataPath represents Data Paths in the topology -- Data Paths represent an 
 class DataPath : public Relation {
 
 public:
+    //SVDOCTODO
     /**
     DataPath constructor.
     @param _source - pointer to the source Component. (If _oriented == SYS_SAGE_DATAPATH_BIDIRECTIONAL, there is no difference between _source and _target)
@@ -263,6 +300,7 @@ public:
         \n Predefined types: SYS_SAGE_DATAPATH_TYPE_NONE, SYS_SAGE_DATAPATH_TYPE_LOGICAL, SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_TYPE_L3CAT. Each user can define an arbitrary type as an integer value > 1024
     */
     DataPath(Component* _source, Component* _target, int _oriented, int _type = SYS_SAGE_DATAPATH_TYPE_NONE);
+    //SVDOCTODO
     /**
     DataPath constructor. DataPath type is set to SYS_SAGE_DATAPATH_TYPE_NONE.
     @param _source - pointer to the source Component. (If _oriented == SYS_SAGE_DATAPATH_BIDIRECTIONAL, there is no difference between _source and _target)
@@ -272,6 +310,7 @@ public:
     @param _latency - Data load latency from the source(provides the data) to the target(requests the data)
     */
     DataPath(Component* _source, Component* _target, int _oriented, double _bw, double _latency);
+    //SVDOCTODO
     /**
     DataPath constructor.
     @param _source - pointer to the source Component. (If _oriented == SYS_SAGE_DATAPATH_BIDIRECTIONAL, there is no difference between _source and _target)
@@ -336,6 +375,7 @@ public:
     @see type
     */
     int GetDataPathType();
+    //SVDOCTODO mention ordered instead of orientation
     /**
      * Retrieves the orientation of the datapath (SYS_SAGE_DATAPATH_ORIENTED or SYS_SAGE_DATAPATH_BIDIRECTIONAL)
      * @returns orientation 
@@ -347,23 +387,21 @@ public:
     /**
     Prints basic information about the Data Path to stdout. Prints componentType and Id of the source and target Components, the bandwidth, load latency, and the attributes; for each attribute, the name and value are printed, however the value is only retyped to uint64_t (therefore will print nonsensical values for other data types).
     */
-    void Print();
+    void Print() override;
 
+    //SVDOCTODO update doc
     /**
     Deletes and de-allocates the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of source and target Components.
     @see dp_incoming
     @see dp_outgoing
     */
-    void DeleteDataPath();
-
-    void DeleteRelation();
-
+    void Delete() override;
 
 private:
-    Component * source; /**< source component of the datapath */
-    Component * target; /**< taget component of the datapath */
+    // Component * source; /**< source component of the datapath */
+    // Component * target; /**< taget component of the datapath */
 
-    int oriented; /**< orientation of the datapath (SYS_SAGE_DATAPATH_ORIENTED or SYS_SAGE_DATAPATH_BIDIRECTIONAL) */
+    // int oriented; /**< orientation of the datapath (SYS_SAGE_DATAPATH_ORIENTED or SYS_SAGE_DATAPATH_BIDIRECTIONAL) */
     int dp_type; /**< type of the datapath */
 
     double bw; /**< Bandwidth from the source(provides the data) to the target(requests the data) */
@@ -447,13 +485,13 @@ public:
      * 
      * Sets the specific type for quantum gates.
      */
-    void SetType();
+    void SetQuantumGateType();
 
     /**
      * @brief Gets the type of the quantum gate.
      * @return The type identifier for the quantum gate.
      */
-    int GetType();
+    sys_sage::QuantumGateType::type GetQuantumGateType();
 
     /**
      * @brief Gets the fidelity of the quantum gate.
@@ -473,11 +511,11 @@ public:
      */
     void SetId(int _id);
 
-    /**
-     * @brief Gets the id of the quantum gate.
-     * @return The id of the quantum gate.
-     */
-    int GetId();
+    // /**
+    //  * @brief Gets the id of the quantum gate.
+    //  * @return The id of the quantum gate.
+    //  */
+    // int GetId();
 
     /**
      * @brief Gets the unitary matrix of the quantum gate.
@@ -486,8 +524,14 @@ public:
     std::string GetUnitary() const;
 
     /**
-     * @brief Gets the name of the quantum gate.
-     * @return The name of the quantum gate.
+     * @brief Sets the name of the relationship.
+     * @param _name The name of the relationship to set.
+     */
+    void SetName(std::string _name);
+
+    /**
+     * @brief Gets the name of the relationship.
+     * @return The current name of the relationship.
      */
     std::string GetName();
 
@@ -496,14 +540,14 @@ public:
      * 
      * This method overrides the Print function in the Relation class to provide specific printing behavior for quantum gates.
      */
-    void Print();
+    void Print() override;
 
-    /**
-     * @brief Deletes the quantum gate relation.
-     * 
-     * This method overrides the DeleteRelation function in the Relation class to handle specific deletion behavior for quantum gates.
-     */
-    void DeleteRelation();
+    // /**
+    //  * @brief Deletes the quantum gate relation.
+    //  * 
+    //  * This method overrides the DeleteRelation function in the Relation class to handle specific deletion behavior for quantum gates.
+    //  */
+    // void DeleteRelation();
 
 private:
 
@@ -513,17 +557,25 @@ private:
     size_t gate_size;
 
     /**
-     * @brief List of the qubits involved in a quantum gate. 
+     * @brief The name of the relationship.
      * 
-     * This vector of qubit pointers stores the list of the qubits involved in the gate.
+     * This member variable stores the name or description of the relationship.
      */
-    std::vector<Qubit*> qubits;
+    std::string name;
+
+    // /**
+    //  * @brief List of the qubits involved in a quantum gate. 
+    //  * 
+    //  * This vector of qubit pointers stores the list of the qubits involved in the gate.
+    //  */
+    // std::vector<Qubit*> qubits;
 
     /**
      * @brief The length of the quantum gate operation in terms of time or depth.
      */
     int gate_length;
 
+    sys_sage::QuantumGateType::type gate_type;
     /**
      * @brief The fidelity of the quantum gate, indicating its accuracy or performance.
      */
@@ -536,32 +588,33 @@ private:
      */
     std::string unitary;
 
-    /**
-     * @brief The coupling map for the quantum gate.
-     * 
-     * This 2D vector of qubit pointers represents the coupling map, defining how qubits interact within the gate.
-     */
-    std::vector<std::vector<Qubit*>> coupling_mapping;
+    // /**
+    //  * @brief The coupling map for the quantum gate.
+    //  * 
+    //  * This 2D vector of qubit pointers represents the coupling map, defining how qubits interact within the gate.
+    //  */
+    // std::vector<std::vector<Qubit*>> coupling_mapping;
 
 
-    /**
-     * @brief Additional properties of the quantum gate.
-     * 
-     * This map allows storing additional key-value pairs representing various other properties related to the quantum gate.
-     */
-    std::map<std::string, double> additional_properties;
+    // /**
+    //  * @brief Additional properties of the quantum gate.
+    //  * 
+    //  * This map allows storing additional key-value pairs representing various other properties related to the quantum gate.
+    //  */
+    // std::map<std::string, double> additional_properties;
 };
 
 class CouplingMap : public Relation {
 public:
     CouplingMap(Qubit* q1, Qubit*q2);
-    CouplingMap();
+    // CouplingMap();
 
     // void Print();
     // void DeleteRelation();
     
     void SetFidelity(double _fidelity);
     double GetFidelity();
+    void Delete() override;
 private:
     double fidelity;
 };

@@ -249,10 +249,10 @@ int exportToXml(Component* root, string path, std::function<int(string,void*,str
     std::cout << "Number of components to export: " << components.size() << std::endl;
     for(Component* cPtr : components)
     {
-        vector<DataPath*>* dpList = cPtr->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
+        vector<DataPath*> dpList = cPtr->GetAllDataPathsByType();
         vector<DataPath*> printed_dp;
 
-        for(DataPath* dpPtr : *dpList)
+        for(DataPath* dpPtr : dpList)
         {
             //check if previously processed
             if (std::find(printed_dp.begin(), printed_dp.end(), dpPtr) == printed_dp.end())

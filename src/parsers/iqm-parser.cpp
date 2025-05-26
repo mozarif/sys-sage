@@ -158,29 +158,27 @@ int IQMParser::ParseDynamicData(int tsForHistory)
         Qubit* q2 = static_cast<Qubit*>(backend->GetChild(q2_id));
         double fidelity = std::stod(fidelity_str);
         bool cm_found = false;
-        for(Relation* r: q1->relations)
-        {
-            if(r->GetRelationType() == SYS_SAGE_RELATION_COUPLING_MAP)
-            {
-                if(r->components[0] == q2 || r->components[1] == q2)
-                {
-                    CouplingMap* cm = static_cast<CouplingMap*>(r);
-                    cm_found = true;
-                    cm->SetFidelity(fidelity);
-                    if(fidelity > max)
-                        max = fidelity;
-                            
-                    if(tsForHistory > 0)
-                    {
-                        //check if readout_history exists; if not, create it -- vector of tuples <timestamp,fidelity>
-                        if(! cm->attrib.contains("readout_history"))
-                            cm->attrib["readout_history"] = reinterpret_cast<void*>(new std::vector<std::tuple<int,double>>());
-                        auto rh = reinterpret_cast<std::vector<std::tuple<int,double>>*>(cm->attrib["readout_history"]);
-                        rh->emplace_back(tsForHistory, fidelity);
-                    }
 
-                    break;
+        for(Relation* r_cm : *(q1->GetAllRelationsByType(sys_sage::RelationType::CouplingMap)))
+        {
+            if(r_cm->ContainsComponent(q2))
+            {
+                CouplingMap* cm = reinterpret_cast<CouplingMap*>(r_cm);
+                cm_found = true;
+                cm->SetFidelity(fidelity);
+                if(fidelity > max)
+                    max = fidelity;
+                        
+                if(tsForHistory > 0)
+                {
+                    //check if readout_history exists; if not, create it -- vector of tuples <timestamp,fidelity>
+                    if(! cm->attrib.contains("readout_history"))
+                        cm->attrib["readout_history"] = reinterpret_cast<void*>(new std::vector<std::tuple<int,double>>());
+                    auto rh = reinterpret_cast<std::vector<std::tuple<int,double>>*>(cm->attrib["readout_history"]);
+                    rh->emplace_back(tsForHistory, fidelity);
                 }
+
+                break;
             }
         }
         if(!cm_found)
