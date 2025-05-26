@@ -19,12 +19,12 @@ add_executable(sys-sage-benchmarking sys-sage-benchmarking.cpp)
 add_executable(use_custom_parser custom_parser_musa/use_custom_parser.cpp custom_parser_musa/musa_parser.cpp custom_parser_musa/musa_parser.hpp)
 add_executable(cccbenchplushwloc cccbenchplushwloc.cpp)
 add_executable(iqm-test iqm-test.cpp)
-
+add_executable(xml_import xml_import.cpp)
 if (QDMI)
     add_executable(qdmi-test qdmi-test.cpp)
 endif()
 
-install(TARGETS basic_usage mt4g-parser custom_attributes larger_topo sys-sage-benchmarking use_custom_parser cccbenchplushwloc iqm-test DESTINATION bin/examples)
+install(TARGETS basic_usage mt4g-parser custom_attributes larger_topo sys-sage-benchmarking use_custom_parser cccbenchplushwloc xml_import iqm-test DESTINATION bin/examples)
 install(DIRECTORY example_data DESTINATION bin/examples)
 
 if(INTEL_PQOS)

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <tuple>
 #include <string>
+#include <algorithm>
 
 int parseMt4gTopo(Node* parent, string dataSourcePath, int gpuId, string delim)
 {

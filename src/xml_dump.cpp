@@ -249,13 +249,14 @@ int exportToXml(Component* root, string path, std::function<int(string,void*,str
     std::cout << "Number of components to export: " << components.size() << std::endl;
     for(Component* cPtr : components)
     {
-        vector<DataPath*> dpList = cPtr->GetAllDataPathsByType();
+        //SVTODO 
+        vector<DataPath*> dpList = cPtr->GetAllDataPathsByType(sys_sage::DataPathType::Any);
         vector<DataPath*> printed_dp;
 
         for(DataPath* dpPtr : dpList)
         {
             //check if previously processed
-            if (std::find(printed_dp.begin(), printed_dp.end(), dpPtr) == printed_dp.end())
+            if (printed_dp.find(dpPtr) == printed_dp.end())
             {
                 xmlNodePtr dp_n = xmlNewNode(NULL, BAD_CAST "datapath");
                 std::ostringstream src_addr;
@@ -272,7 +273,7 @@ int exportToXml(Component* root, string path, std::function<int(string,void*,str
 
                 print_attrib(dpPtr->attrib, dp_n);
 
-                printed_dp.push_back(dpPtr);
+                printed_dp.insert(dpPtr);
             }
         }
     }
