@@ -113,11 +113,11 @@ int main(int argc, char *argv[])
     string benchmark_info="measured with no load on 07.07.";
     Numa* n2 = (Numa*)n->GetSubcomponentById(2, SYS_SAGE_COMPONENT_NUMA);
     if(n2 != NULL){
-        DataPath * dp = reinterpret_cast<DataPath*>((*n2->GetAllRelationsByType(sys_sage::RelationType::DataPath))[0]);
+        DataPath * dp = reinterpret_cast<DataPath*>(n2->GetRelations(sys_sage::RelationType::DataPath)[0]);
         // DataPath * dp = (*(n2->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)))[0];
         if(dp != NULL)
             dp->attrib["info"]=(void*)&benchmark_info;
-        dp = reinterpret_cast<DataPath*>((*n2->GetAllRelationsByType(sys_sage::RelationType::DataPath))[2]);
+        dp = reinterpret_cast<DataPath*>(n2->GetRelations(sys_sage::RelationType::DataPath)[2]);
         // dp = (*(n2->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)))[2];
         if(dp != NULL)
             dp->attrib["info"]=(void*)&benchmark_info;

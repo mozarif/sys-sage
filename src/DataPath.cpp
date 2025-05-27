@@ -35,6 +35,9 @@ Component* Relation::GetComponent(int index)
     }
 }
 
+const std::vector<Component*>& Relation::GetComponents() const { return components; }
+
+
 
 void Relation::AddComponent(Component* c)
 {
@@ -70,11 +73,15 @@ void Relation::Delete()
 {
     for(Component* c : components)
     {
-        std::vector<Relation*>* component_relation_vector = c->GetAllRelationsByType(type);
-        component_relation_vector->erase(std::remove(component_relation_vector->begin(), component_relation_vector->end(), this), component_relation_vector->end());
+        //SVTODO is this okay with const return value?
+        std::cout << "Relation::Delete 1  " << this << std::endl;
+        std::vector<Relation*>& component_relation_vector = c->_GetRelations(type);
+        // std::vector<Relation*> component_relation_vector = 
+        std::cout << "Relation::Delete 2  component_relation_vector.size()= " << component_relation_vector.size()<< std::endl;
+        component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
+        std::cout << "Relation::Delete 3  component_relation_vector.size()= " << component_relation_vector.size()<< std::endl;
     }
     delete this;
-    
 }
 int Relation::GetType(){ return type;}
 
@@ -109,8 +116,9 @@ void Relation::UpdateComponent(int index, Component * _new_component)
     {
         //SVTODO print error and exit/return and do nothing?
     }
-    std::vector<Relation*>* component_relation_vector = components[index]->GetAllRelationsByType(type);
-    component_relation_vector->erase(std::remove(component_relation_vector->begin(), component_relation_vector->end(), this), component_relation_vector->end());
+    //SVTODO is this okay with const return value?
+    std::vector<Relation*> component_relation_vector = components[index]->GetRelations(type);
+    component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
 
     _new_component->_AddRelation(type, this);
     components[index] = _new_component;
@@ -181,14 +189,15 @@ void DataPath::UpdateTarget(Component * _new_target)
 
 }
 
-DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type): DataPath(_source, _target, _oriented, _type, -1, -1) {}
-DataPath::DataPath(Component* _source, Component* _target, int _oriented, double _bw, double _latency): DataPath(_source, _target, _oriented, SYS_SAGE_DATAPATH_TYPE_NONE, _bw, _latency) {}
-DataPath::DataPath(Component* _source, Component* _target, int _oriented, int _type, double _bw, double _latency): bw(_bw), latency(_latency), Relation(sys_sage::RelationType::DataPath)
+DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathType::type _dp_type): DataPath(_source, _target, _oriented, _dp_type, -1, -1) {}
+DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, double _bw, double _latency): DataPath(_source, _target, _oriented, sys_sage::DataPathType::None, _bw, _latency) {}
+DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathType::type _dp_type, double _bw, double _latency): dp_type(_dp_type), bw(_bw), latency(_latency), Relation(sys_sage::RelationType::DataPath)
 {
-    if(_oriented == SYS_SAGE_DATAPATH_ORIENTED)
-        ordered = true;
-    else
+    if(_oriented == sys_sage::DataPathOrientation::NotOriented)
         ordered = false;
+    else
+        ordered = true;
+    
     
     AddComponent(_source);
     AddComponent(_target);

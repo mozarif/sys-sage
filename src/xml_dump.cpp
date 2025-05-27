@@ -4,8 +4,8 @@
 #include "xml_dump.hpp"
 #include <libxml/parser.h>
 
-std::function<int(string,void*,string*)> search_custom_attrib_key_fcn = NULL;
-std::function<int(string,void*,xmlNodePtr)> search_custom_complex_attrib_key_fcn = NULL;
+std::function<int(string,void*,string*)> store_custom_attrib_fcn = NULL;
+std::function<int(string,void*,xmlNodePtr)> store_custom_complex_attrib_fcn = NULL;
 
 //methods for printing out default attributes, i.e. those 
 //for a specific key, return the value as a string to be printed in the xml
@@ -101,8 +101,8 @@ int print_attrib(map<string,void*> attrib, xmlNodePtr n)
     string attrib_value;
     for (auto const& [key, val] : attrib){
         int ret = 0;
-        if(search_custom_attrib_key_fcn != NULL)
-            ret=search_custom_attrib_key_fcn(key,val,&attrib_value);
+        if(store_custom_attrib_fcn != NULL)
+            ret=store_custom_attrib_fcn(key,val,&attrib_value);
         if(ret==0)
             ret = search_default_attrib_key(key,val,&attrib_value);
 
@@ -115,8 +115,8 @@ int print_attrib(map<string,void*> attrib, xmlNodePtr n)
             continue;
         }
 
-        if(ret == 0 && search_custom_complex_attrib_key_fcn != NULL) //try looking in search_custom_complex_attrib_key
-            ret=search_custom_complex_attrib_key_fcn(key,val,n);
+        if(ret == 0 && store_custom_complex_attrib_fcn != NULL) //try looking in search_custom_complex_attrib_key
+            ret=store_custom_complex_attrib_fcn(key,val,n);
         if(ret==0)
             ret = search_default_complex_attrib_key(key,val,n);
     }
@@ -225,10 +225,15 @@ xmlNodePtr Component::CreateXmlSubtree()
     return n;
 }
 
-int exportToXml(Component* root, string path, std::function<int(string,void*,string*)> _search_custom_attrib_key_fcn, std::function<int(string,void*,xmlNodePtr)> _search_custom_complex_attrib_key_fcn)
+int exportToXml(
+    Component* root, 
+    string path, 
+    std::function<int(string,void*,string*)> _store_custom_attrib_fcn, 
+    std::function<int(string,void*,xmlNodePtr)> _store_custom_complex_attrib_fcn)
 {
-    search_custom_attrib_key_fcn=_search_custom_attrib_key_fcn;
-    search_custom_complex_attrib_key_fcn=_search_custom_complex_attrib_key_fcn;
+    using namespace sys_sage;
+    store_custom_attrib_fcn=_store_custom_attrib_fcn;
+    store_custom_complex_attrib_fcn=_store_custom_complex_attrib_fcn;
 
     xmlDocPtr doc = xmlNewDoc(BAD_CAST "1.0");
 
@@ -236,47 +241,61 @@ int exportToXml(Component* root, string path, std::function<int(string,void*,str
     xmlDocSetRootElement(doc, sys_sage_root);
     xmlNodePtr components_root = xmlNewNode(NULL, BAD_CAST "components");
     xmlAddChild(sys_sage_root, components_root);
-    xmlNodePtr data_paths_root = xmlNewNode(NULL, BAD_CAST "data-paths");
-    xmlAddChild(sys_sage_root, data_paths_root);
+    xmlNodePtr relations_root = xmlNewNode(NULL, BAD_CAST "relations");
+    xmlAddChild(sys_sage_root, relations_root);
 
+    std::cout << "printing components" << std::endl;
     //build a tree for Components
     xmlNodePtr n = root->CreateXmlSubtree();
     xmlAddChild(components_root, n);
 
-    //scan all Components for their DataPaths
+    std::cout << "printing relations" << std::endl;
+    //scan all Components for their relations
     vector<Component*> components;
     root->GetComponentsInSubtree(&components);
     std::cout << "Number of components to export: " << components.size() << std::endl;
     for(Component* cPtr : components)
     {
-        //SVTODO 
-        vector<DataPath*> dpList = cPtr->GetAllDataPathsByType(sys_sage::DataPathType::Any);
-        vector<DataPath*> printed_dp;
-
-        for(DataPath* dpPtr : dpList)
+        //iterate over different relation types and process them separately
+        for(RelationType::type rt : RelationType::RelationTypeList)
         {
-            //check if previously processed
-            if (printed_dp.find(dpPtr) == printed_dp.end())
+            vector<Relation*> rList = cPtr->GetRelations(rt);
+
+            for(Relation* r: rList)
             {
-                xmlNodePtr dp_n = xmlNewNode(NULL, BAD_CAST "datapath");
-                std::ostringstream src_addr;
-                src_addr << dpPtr->GetSource();
-                std::ostringstream target_addr;
-                target_addr << dpPtr->GetTarget();
-                xmlNewProp(dp_n, (const unsigned char *)"source", (const unsigned char *)(src_addr.str().c_str()));
-                xmlNewProp(dp_n, (const unsigned char *)"target", (const unsigned char *)(target_addr.str().c_str()));
-                xmlNewProp(dp_n, (const unsigned char *)"oriented", (const unsigned char *)(std::to_string(dpPtr->GetOrientation())).c_str());
-                xmlNewProp(dp_n, (const unsigned char *)"dp_type", (const unsigned char *)(std::to_string(dpPtr->GetDataPathType())).c_str());
-                xmlNewProp(dp_n, (const unsigned char *)"bw", (const unsigned char *)(std::to_string(dpPtr->GetBandwidth())).c_str());
-                xmlNewProp(dp_n, (const unsigned char *)"latency", (const unsigned char *)(std::to_string(dpPtr->GetLatency())).c_str());
-                xmlAddChild(data_paths_root, dp_n);
+                //print only if this component has index 0 => print each Relation once only
+                if(r->GetComponent(0) == cPtr)
+                {
+                    RelationType::type relationType = r->GetType();
+                    xmlNodePtr r_n = xmlNewNode(NULL, BAD_CAST RelationType::to_string(relationType));
 
-                print_attrib(dpPtr->attrib, dp_n);
+                    int c_idx = 0;
+                    for(Component* rc : r->GetComponents())
+                    {
+                        std::ostringstream c_addr;
+                        c_addr << rc;
+                        const std::string xmlprop_name = "component" + std::to_string(c_idx);
+                        xmlNewProp(r_n, (const unsigned char *)xmlprop_name.c_str(), (const unsigned char *)(c_addr.str().c_str()));
+                        c_idx++;
+                    }
 
-                printed_dp.insert(dpPtr);
-            }
+                    xmlNewProp(r_n, (const unsigned char *)"ordered", (const unsigned char *)(std::to_string(r->IsOrdered())).c_str());
+
+                    if(rt == RelationType::DataPath)
+                    {
+                        xmlNewProp(r_n, (const unsigned char *)"DataPathType", (const unsigned char *)(std::to_string(reinterpret_cast<DataPath*>(r)->GetDataPathType())).c_str());
+                        xmlNewProp(r_n, (const unsigned char *)"bw", (const unsigned char *)(std::to_string(reinterpret_cast<DataPath*>(r)->GetBandwidth())).c_str());
+                        xmlNewProp(r_n, (const unsigned char *)"latency", (const unsigned char *)(std::to_string(reinterpret_cast<DataPath*>(r)->GetLatency())).c_str());
+                    }
+                    xmlAddChild(relations_root, r_n);
+
+                    print_attrib(r->attrib, r_n);
+                }
+            }  
         }
     }
+
+    std::cout << "finishing" << std::endl;
 
     xmlSaveFormatFileEnc(path=="" ? "-" : path.c_str(), doc, "UTF-8", 1);
 

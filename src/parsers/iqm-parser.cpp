@@ -159,7 +159,7 @@ int IQMParser::ParseDynamicData(int tsForHistory)
         double fidelity = std::stod(fidelity_str);
         bool cm_found = false;
 
-        for(Relation* r_cm : *(q1->GetAllRelationsByType(sys_sage::RelationType::CouplingMap)))
+        for(Relation* r_cm : q1->GetRelations(sys_sage::RelationType::CouplingMap))
         {
             if(r_cm->ContainsComponent(q2))
             {

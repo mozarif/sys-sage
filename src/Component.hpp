@@ -2,7 +2,6 @@
 #define COMPONENT
 
 #include <iostream>
-#include <type_traits>
 #include <vector>
 #include <map>
 #include <set>
@@ -387,17 +386,20 @@ public:
     */
     vector<Component*> GetComponentsInSubtree();
 
-    //SVTODO rename to GetRelations; GetRelations will become ?????
+    //SVTODO rename to GetRelations
     //SVTODO how to deal with former int orientation, now bool ordered? -> if checked for position, return any of not ordered
     //SVDOCTODO
-    //SVDOCTODO mention GetRelations as an alternative
+    //SVDOCTODO mention FindAllRelationsBy as an alternative
     //SVDOCTODO this one just returns a pointer to the internal structure -- the object already exists and is managed (deleted) by sys-sage
-    vector<Relation*>* GetAllRelationsByType(sys_sage::RelationType::type relationType);
+    const vector<Relation*>& GetRelations(sys_sage::RelationType::type relationType) const;
+    //SVDOCTODO 
+    //SVDOCTODO is private, should not be called
+    vector<Relation*>& _GetRelations(sys_sage::RelationType::type relationType);
     //SVDOCTODO 
     //SVDOCTODO is this a good name?
-    //SVDOCTODO mention GetAllRelationsByType as an alternative
+    //SVDOCTODO mention GetRelations as an alternative
     //SVDOCTODO this method creates a new vector and fills it with data; returns a new vector
-    vector<Relation*> GetRelations(sys_sage::RelationType::type relationType = sys_sage::RelationType::Any, int thisComponentPosition = -1);
+    vector<Relation*> FindAllRelationsBy(sys_sage::RelationType::type relationType = sys_sage::RelationType::Any, int thisComponentPosition = -1);
 
     // SVDOCTODO was removed -> use GetAllDataPathsByType insteas with dataType::Any
     // //SVDOCTODO update 
@@ -436,7 +438,7 @@ public:
     @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
     @return DataPath pointer to the found data path; NULL if nothing found.
     */
-    DataPath* GetDataPathByType(sys_sage::DataPathType::type dp_type, sys_sage::DataPathOrientation::type orientation = sys_sage::DataPathOrientation::Any);
+    DataPath* GetDataPathByType(sys_sage::DataPathType::type dp_type, sys_sage::DataPathDirection::type direction = sys_sage::DataPathDirection::Any);
     
     //SVTODO rename to GetAllDataPaths
     //SVDOCTODO new parameters
@@ -449,7 +451,7 @@ public:
         \n An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
         \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
     */
-    void GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::DataPathType::type dp_type = sys_sage::DataPathType::Any, sys_sage::DataPathOrientation::type orientation = sys_sage::DataPathOrientation::Any);
+    void GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::DataPathType::type dp_type = sys_sage::DataPathType::Any, sys_sage::DataPathDirection::type direction = sys_sage::DataPathDirection::Any);
 
     //SVTODO rename to GetAllDataPaths
     //SVDOCTODO new parameters
@@ -460,7 +462,7 @@ public:
     @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
     @return A std::vector<DataPath*> with the results.
     */
-    vector<DataPath*> GetAllDataPathsByType(sys_sage::DataPathType::type dp_type = sys_sage::DataPathType::Any, sys_sage::DataPathOrientation::type orientation = sys_sage::DataPathOrientation::Any);
+    vector<DataPath*> GetAllDataPathsByType(sys_sage::DataPathType::type dp_type = sys_sage::DataPathType::Any, sys_sage::DataPathDirection::type direction = sys_sage::DataPathDirection::Any);
 
     /**
     @brief Checks the consistency of the component tree starting from this component.

@@ -425,7 +425,7 @@ int Mt4gParser::parseMemory(string header_name, string memory_name)
             for(Component* sm: memory_children)
                 for(Component * c : *(sm->GetChildren()))
                     if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
-                        new DataPath(mem, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency); 
+                        new DataPath(mem, c, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Logical, 0, latency); 
     }
     else if(header_name == "SHARED_MEMORY") //very similar to parseCaches
     {   //shared memory is shared on an SM level
@@ -458,7 +458,7 @@ int Mt4gParser::parseMemory(string header_name, string memory_name)
                 {
                     vector<Component*> threads = parent->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD);
                     for(Component* t: threads)
-                        new DataPath(mem, t, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                        new DataPath(mem, t, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Logical, 0, latency);
                 }
             }
         }
@@ -665,7 +665,7 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
         {
             vector<Component*> threads = parent->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD);
             for(Component* t: threads)
-                new DataPath(cache, t, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                new DataPath(cache, t, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Logical, 0, latency);
         }
     }
     else if(shared_on == 1) //shared on SM
@@ -726,7 +726,7 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
                             }
 
                             if(latency != -1)
-                                new DataPath(cache, thread, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL, 0, latency);
+                                new DataPath(cache, thread, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Logical, 0, latency);
                         }
                     }
                     

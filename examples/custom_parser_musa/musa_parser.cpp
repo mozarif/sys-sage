@@ -112,11 +112,11 @@ int MusaParser::ParseData() {
             threadId ++;
 
             if(memory_found){
-                new DataPath(mem, thread, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_DATATRANSFER, main_mem_bw, main_mem_lat);
+                new DataPath(mem, thread, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Datatransfer, main_mem_bw, main_mem_lat);
             }
-            new DataPath(l1cache, thread, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_DATATRANSFER, 0, l1_lat);
-            new DataPath(l2cache, thread, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_DATATRANSFER, 0, l2_lat);
-            new DataPath(l3cache, thread, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_DATATRANSFER, 0, l3_lat);
+            new DataPath(l1cache, thread, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Datatransfer, 0, l1_lat);
+            new DataPath(l2cache, thread, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Datatransfer, 0, l2_lat);
+            new DataPath(l3cache, thread, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Datatransfer, 0, l3_lat);
 		}
 	}
 

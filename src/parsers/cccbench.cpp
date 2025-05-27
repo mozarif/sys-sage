@@ -105,8 +105,8 @@ void CccbenchParser::applyDataPaths(Component *root)
             auto mean = new float(sum / xtoylatv.size());
             auto max = new float(*max_element(xtoylatv.begin(), xtoylatv.end()));
             auto min = new float(*min_element(xtoylatv.begin(), xtoylatv.end()));
-            auto dtp = new DataPath(xcore, ycore, SYS_SAGE_DATAPATH_ORIENTED,
-                                   SYS_SAGE_DATAPATH_TYPE_C2C, 0, *mean);
+            auto dtp = new DataPath(xcore, ycore, sys_sage::DataPathOrientation::Oriented,
+                                   sys_sage::DataPathType::C2C, 0, *mean);
             dtp->attrib.insert(std::pair<string, void *>("latency_max", (void *)max));
             dtp->attrib.insert(std::pair<string, void *>("latency_min", (void *)min));
             dtp->attrib.insert(std::pair<string, void *>("latency", (void *)mean));

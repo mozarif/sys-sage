@@ -55,11 +55,11 @@ void Component::PrintAllRelationsInSubtree(sys_sage::RelationType::type relation
         {
             if (relationType == rt || relationType == RelationType::Any)
             {
-                vector<Relation*>* c_relations = c->GetAllRelationsByType(rt);
-                if(c_relations != NULL && c_relations->size() > 0)
+                vector<Relation*> c_relations = c->GetRelations(rt);
+                if(c_relations.size() > 0)
                 {
                     std::cout << RelationType::to_string(rt) << "s regarding Component (" << c->GetComponentTypeStr() << ") id " << c->GetId() << std::endl;
-                    for(Relation * r : *c_relations )
+                    for(Relation * r : c_relations )
                     {
                         cout << "    ";
                         r->Print();
@@ -411,16 +411,16 @@ void Component::_AddRelation(int32_t relationType, Relation* r)
     (*relations)[relationType]->push_back(r);
 }
 
-DataPath* Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sys_sage::DataPathOrientation::type orientation)
+DataPath* Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sys_sage::DataPathDirection::type direction)
 {
     using namespace sys_sage;
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
         //either unordered -> check; or orientation is any -> check; or orientation is incoming & DP is incoming or the same outgoing
         if(!r->IsOrdered() || 
-            orientation == DataPathOrientation::Any || 
-            (orientation == DataPathOrientation::Outgoing && r->GetComponent(0) == this) ||  
-            (orientation == DataPathOrientation::Incoming && r->GetComponent(1) == this))
+            direction == DataPathDirection::Any || 
+            (direction == DataPathDirection::Outgoing && r->GetComponent(0) == this) ||  
+            (direction == DataPathDirection::Incoming && r->GetComponent(1) == this))
         {
             DataPath* dp = reinterpret_cast<DataPath*>(r);
             if(dp->GetDataPathType() == dp_type)
@@ -430,24 +430,50 @@ DataPath* Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sy
     return NULL;
 }
 
-vector<Relation*>* Component::GetAllRelationsByType(sys_sage::RelationType::type relationType)
+vector<Relation*>& Component::_GetRelations(sys_sage::RelationType::type relationType)
 {
-    if(relationType >=0 && relationType < sys_sage::RelationType::_num_relation_types)
+    if (relations &&
+        relationType >= 0 && 
+        relationType < sys_sage::RelationType::_num_relation_types &&
+        (*relations)[relationType]) 
     {
-        if(relations == NULL){
-            std::cout << "relations == NULL" << std::endl;
-            return NULL;
-        }
-        else
-            std::cout << "else    (relations == NULL)" << std::endl;
-        return (*relations)[relationType];
+        return *(*relations)[relationType];
     }
-    std::cout << "ERROR" << std::endl;
-    //TODO report the error
-    return NULL;  
-}
 
-vector<Relation*> Component::GetRelations(sys_sage::RelationType::type relationType, int thisComponentPosition)
+    std::vector<Relation*> empty;
+    return empty;
+}
+const vector<Relation*>& Component::GetRelations(sys_sage::RelationType::type relationType) const
+{
+    if (relations &&
+        relationType >= 0 && 
+        relationType < sys_sage::RelationType::_num_relation_types &&
+        (*relations)[relationType]) 
+    {
+        return *(*relations)[relationType];
+    }
+
+    static const std::vector<Relation*> empty;
+    return empty;
+}
+// vector<Relation*>* Component::GetAllRelationsByType(sys_sage::RelationType::type relationType)
+// {
+//     if(relationType >=0 && relationType < sys_sage::RelationType::_num_relation_types)
+//     {
+//         if(relations == NULL){
+//             std::cout << "relations == NULL" << std::endl;
+//             return NULL;
+//         }
+//         else
+//             std::cout << "else    (relations == NULL)" << std::endl;
+//         return (*relations)[relationType];
+//     }
+//     std::cout << "ERROR" << std::endl;
+//     //TODO report the error
+//     return NULL;  
+// }
+
+vector<Relation*> Component::FindAllRelationsBy(sys_sage::RelationType::type relationType, int thisComponentPosition)
 {
     using namespace sys_sage;
     vector<Relation*> out_vector;
@@ -467,7 +493,7 @@ vector<Relation*> Component::GetRelations(sys_sage::RelationType::type relationT
     return out_vector;
 }
 
-void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::DataPathType::type dp_type, sys_sage::DataPathOrientation::type orientation)
+void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::DataPathType::type dp_type, sys_sage::DataPathDirection::type direction)
 {
     using namespace sys_sage;
 
@@ -475,9 +501,9 @@ void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::Dat
     {
         //either unordered -> check; or orientation is any -> check; or orientation is incoming & DP is incoming or the same outgoing
         if(!r->IsOrdered() || 
-            orientation == DataPathOrientation::Any || 
-            (orientation == DataPathOrientation::Outgoing && r->GetComponent(0) == this) ||
-            (orientation == DataPathOrientation::Incoming && r->GetComponent(1) == this))
+            direction == DataPathDirection::Any || 
+            (direction == DataPathDirection::Outgoing && r->GetComponent(0) == this) ||
+            (direction == DataPathDirection::Incoming && r->GetComponent(1) == this))
         {
             DataPath* dp = reinterpret_cast<DataPath*>(r);
             if(dp_type == DataPathType::Any || dp->GetDataPathType() == dp_type)
@@ -499,10 +525,10 @@ void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::Dat
     return;
 }
 
-vector<DataPath*> Component::GetAllDataPathsByType(sys_sage::DataPathType::type dp_type, sys_sage::DataPathOrientation::type orientation)
+vector<DataPath*> Component::GetAllDataPathsByType(sys_sage::DataPathType::type dp_type, sys_sage::DataPathDirection::type direction)
 {
     vector<DataPath*> outDpArr;
-    GetAllDataPathsByType(&outDpArr, dp_type, orientation);
+    GetAllDataPathsByType(&outDpArr, dp_type, direction);
     return outDpArr;
 }
 
@@ -682,6 +708,7 @@ void Component::DeleteRelation(Relation * r)
     if(rt == RelationType::Relation)
         r->Delete();
     else if(rt == RelationType::DataPath){
+        std::cout << "DeleteRelation RelationType::DataPath" << std::endl;
         DataPath* dp = reinterpret_cast<DataPath*>(r);
         dp->Delete();
     } else if(rt == RelationType::QuantumGate){
@@ -700,9 +727,24 @@ void Component::DeleteAllRelations(sys_sage::RelationType::type relationType)
 {
     for(sys_sage::RelationType::type rt : sys_sage::RelationType::RelationTypeList)
     {
-        for(Relation* r: *(*relations)[rt])
+        if(relationType == sys_sage::RelationType::Any || relationType == rt)
         {
-            DeleteRelation(r);
+            while(true)
+            {
+                vector<Relation*> vec_r = GetRelations(rt);
+                if(vec_r.size() > 0)
+                {
+                    std::cout << "DeleteRelation, vec_r.size()=" << vec_r.size() << std::endl;
+                    if(vec_r[0] == nullptr) {
+                        std::cerr << "vec_r[0] is null!" << std::endl;
+                    } else {
+                        vec_r[0]->Print();
+                    }
+                    DeleteRelation(vec_r[0]);
+                }
+                else
+                    break;
+            }
         }
     }
 }
@@ -737,13 +779,18 @@ void Component::DeleteSubtree()
 }
 void Component::Delete(bool withSubtree)
 {
+    std::cout << "DeleteSubtree" << std::endl;
+
     // Delete subtree and all data paths
     if (withSubtree)
     {
         DeleteSubtree();
     }
-    DeleteAllDataPaths();
+    std::cout << "DeleteAllRelations" << std::endl;
+
+    DeleteAllRelations();
     
+    std::cout << "delete this" << std::endl;
     //Free all the children
     if(GetParent()!= NULL) 
     {
