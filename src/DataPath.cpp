@@ -73,13 +73,8 @@ void Relation::Delete()
 {
     for(Component* c : components)
     {
-        //SVTODO is this okay with const return value?
-        std::cout << "Relation::Delete 1  " << this << std::endl;
         std::vector<Relation*>& component_relation_vector = c->_GetRelations(type);
-        // std::vector<Relation*> component_relation_vector = 
-        std::cout << "Relation::Delete 2  component_relation_vector.size()= " << component_relation_vector.size()<< std::endl;
         component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
-        std::cout << "Relation::Delete 3  component_relation_vector.size()= " << component_relation_vector.size()<< std::endl;
     }
     delete this;
 }

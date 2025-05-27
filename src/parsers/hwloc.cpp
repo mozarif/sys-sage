@@ -51,7 +51,7 @@ Component* createChildC(string type, xmlNode* node)
     {
         s = xmlGetPropStr(node, "os_index");
         int id = stoi(s.empty()?"0":s);
-        c = (Component*)new Chip(id, "socket", SYS_SAGE_CHIP_TYPE_CPU_SOCKET);
+        c = (Component*)new Chip(id, "socket", sys_sage::ChipType::CpuSocket);
     }
     else if(!type.compare("Cache") || !type.compare("L3Cache") || !type.compare("L2Cache") || !type.compare("L1Cache"))
     {
@@ -110,12 +110,12 @@ int xmlProcessChildren(Component* c, xmlNode* parent, int level)
                     string name = xmlGetPropStr(child, "name");
                     if(!name.compare("CPUVendor")){
                         string value = xmlGetPropStr(child, "value");
-                        if(c->GetComponentType() == SYS_SAGE_COMPONENT_CHIP)
+                        if(c->GetComponentType() == sys_sage::ComponentType::Chip)
                             ((Chip*)c)->SetVendor(value);
                     }
                     else if(!name.compare("CPUModel")){
                         string value = xmlGetPropStr(child, "value");
-                        if(c->GetComponentType() == SYS_SAGE_COMPONENT_CHIP)
+                        if(c->GetComponentType() == sys_sage::ComponentType::Chip)
                             ((Chip*)c)->SetModel(value);
                     }
                 }
@@ -142,22 +142,22 @@ int xmlProcessChildren(Component* c, xmlNode* parent, int level)
                             childC = createChildC(type, child);
 
                             bool inserted_as_sibling = false;
-                            if(childC->GetComponentType() == SYS_SAGE_COMPONENT_CACHE)
+                            if(childC->GetComponentType() == sys_sage::ComponentType::Cache)
                             {//make a cache a child of NUMA, if it is a sibling
                                 vector<Component*>* siblings = c->GetChildren();
                                 for(Component* sibling : *siblings){
-                                    if(sibling->GetComponentType() == SYS_SAGE_COMPONENT_NUMA) {
+                                    if(sibling->GetComponentType() == sys_sage::ComponentType::Numa) {
                                         sibling->InsertChild(childC);
                                         inserted_as_sibling = true;
                                         break;
                                     }
                                 }
                             }
-                            else if(childC->GetComponentType() == SYS_SAGE_COMPONENT_NUMA)
+                            else if(childC->GetComponentType() == sys_sage::ComponentType::Numa)
                             {//make a (already inserted)cache a child of NUMA, if it is a sibling
                                 vector<Component*>* siblings = c->GetChildren();
                                 for(Component* sibling: *siblings){
-                                    if(sibling->GetComponentType() == SYS_SAGE_COMPONENT_CACHE) {
+                                    if(sibling->GetComponentType() == sys_sage::ComponentType::Cache) {
                                         c->RemoveChild(sibling);
                                         c->InsertChild(childC);
                                         childC->InsertChild(childC);
@@ -197,7 +197,7 @@ int removeUnknownCompoents(Component* c){
     for(Component* child : children_copy)
     {
         ret += removeUnknownCompoents(child);
-        if(child->GetComponentType() == SYS_SAGE_COMPONENT_NONE)
+        if(child->GetComponentType() == sys_sage::ComponentType::None)
         {
             vector<Component*>* grandchildren = child->GetChildren();
             int num_grandchildren = grandchildren->size();

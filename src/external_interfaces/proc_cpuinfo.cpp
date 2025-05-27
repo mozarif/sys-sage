@@ -69,7 +69,7 @@ int readCpuinfoFreq(std::vector<Thread*> threads, bool keep_history = false)
             {
                 double freq = stod(line.substr(pos + 1));
                 //find a core as a parent of this thread ID
-                Core* c = (Core*)threads[current_thread_pos]->FindParentByType(SYS_SAGE_COMPONENT_CORE);
+                Core* c = (Core*)threads[current_thread_pos]->FindParentByType(sys_sage::ComponentType::Core);
                 if(c != NULL)
                 {
                     ((Core*)c)->SetFreq(freq);
@@ -101,19 +101,19 @@ int readCpuinfoFreq(std::vector<Thread*> threads, bool keep_history = false)
 
 int Node::RefreshCpuCoreFrequency(bool keep_history)
 {
-    vector<Component*> sockets = this->GetAllChildrenByType(SYS_SAGE_COMPONENT_CHIP);
+    vector<Component*> sockets = this->GetAllChildrenByType(sys_sage::ComponentType::Chip);
     vector<Thread*> cpu_hw_threads, hw_threads_to_refresh;
     for(Component * socket : sockets)
     {
-        if(((Chip*)socket)->GetChipType() == SYS_SAGE_CHIP_TYPE_CPU_SOCKET || ((Chip*)socket)->GetChipType() == SYS_SAGE_CHIP_TYPE_CPU)
-            socket->FindAllSubcomponentsByType((vector<Component*>*)&cpu_hw_threads, SYS_SAGE_COMPONENT_THREAD);
+        if(((Chip*)socket)->GetChipType() == sys_sage::ChipType::CpuSocket || ((Chip*)socket)->GetChipType() == sys_sage::ChipType::Cpu)
+            socket->FindAllSubcomponentsByType((vector<Component*>*)&cpu_hw_threads, sys_sage::ComponentType::Thread);
     }
 
     //remove duplicate threads of the same core (hyperthreading -- 2 threads on the same core have the same freq)
     std::set<Core*> included_cores;
     //cout << "Will check threads (cores): ";
     for(Thread* t : cpu_hw_threads){
-        Core* c = (Core*)t->FindParentByType(SYS_SAGE_COMPONENT_CORE);
+        Core* c = (Core*)t->FindParentByType(sys_sage::ComponentType::Core);
         if(included_cores.find(c) == included_cores.end())
         {
             included_cores.insert(c);
@@ -129,7 +129,7 @@ int Node::RefreshCpuCoreFrequency(bool keep_history)
 int Core::RefreshFreq(bool keep_history)
 {
     vector<Thread*> cpu_hw_threads;
-    Thread* hw_thread = (Thread*)this->GetChildByType(SYS_SAGE_COMPONENT_THREAD);
+    Thread* hw_thread = (Thread*)this->GetChildByType(sys_sage::ComponentType::Thread);
     if(hw_thread != NULL)
         cpu_hw_threads.push_back(hw_thread);
     return readCpuinfoFreq(cpu_hw_threads, keep_history);
@@ -146,7 +146,7 @@ double Core::GetFreq() {return freq;}
 void Core::SetFreq(double _freq) {freq = _freq;}
 double Thread::GetFreq()
 {
-    Core * c = (Core*)this->FindParentByType(SYS_SAGE_COMPONENT_CORE);
+    Core * c = (Core*)this->FindParentByType(sys_sage::ComponentType::Core);
     if(c == NULL)
         return -1;
     return c->GetFreq();

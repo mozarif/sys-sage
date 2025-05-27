@@ -101,17 +101,17 @@ int main(int argc, char *argv[])
     n->attrib["unknown_will_not_be_printed"]=(void*)&xmlPath;
 
     My_core_attributes c1_attrib(38.222, 2000000000);
-    Core* c1 = (Core*)n->GetSubcomponentById(1, SYS_SAGE_COMPONENT_CORE);
+    Core* c1 = (Core*)n->GetSubcomponentById(1, sys_sage::ComponentType::Core);
     if(c1 != NULL)
         c1->attrib["my_core_info"]=(void*)&c1_attrib;
 
     My_core_attributes c4_attrib(44.1, 1500000000);
-    Core* c4 = (Core*)n->GetSubcomponentById(4, SYS_SAGE_COMPONENT_CORE);
+    Core* c4 = (Core*)n->GetSubcomponentById(4, sys_sage::ComponentType::Core);
     if(c4 != NULL)
         c4->attrib["my_core_info"]=(void*)&c4_attrib;
 
     string benchmark_info="measured with no load on 07.07.";
-    Numa* n2 = (Numa*)n->GetSubcomponentById(2, SYS_SAGE_COMPONENT_NUMA);
+    Numa* n2 = (Numa*)n->GetSubcomponentById(2, sys_sage::ComponentType::Numa);
     if(n2 != NULL){
         DataPath * dp = reinterpret_cast<DataPath*>(n2->GetRelations(sys_sage::RelationType::DataPath)[0]);
         // DataPath * dp = (*(n2->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)))[0];

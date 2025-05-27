@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     exportToXml(topo, output_name);
 
     vector<Component*> memories;
-    gpu->FindAllSubcomponentsByType(&memories, SYS_SAGE_COMPONENT_MEMORY);
+    gpu->FindAllSubcomponentsByType(&memories, sys_sage::ComponentType::Memory);
     for(Component* m: memories){
         cout << "Memory with id " << ((Memory*)m)->GetId() << ": MIG size " << ((Memory*)m)->GetMIGSize() << " (total size " << ((Memory*)m)->GetSize() << ")" << endl;
     }

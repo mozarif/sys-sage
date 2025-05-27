@@ -48,7 +48,7 @@ int calculateAllWeights(QuantumBackend* backend, int tsForHistory = -1)
     double two_q_fidelity_max = *static_cast<double*>(backend->attrib["two_q_fidelity_max"]);
     for(Component* c : *backend->GetChildren())
     {
-        if(c->GetComponentType() == SYS_SAGE_COMPONENT_QUBIT)
+        if(c->GetComponentType() == sys_sage::ComponentType::Qubit)
         {
             Qubit* q = static_cast<Qubit*>(c);
             calculateQubitWeight(q, tsForHistory, T1_max, T2_max, q1_fidelity_max, readout_fidelity_max, two_q_fidelity_max );
@@ -118,7 +118,7 @@ int main()
     
     for(Component * c : *b->GetChildren() )
     {
-        if(c->GetComponentType() == SYS_SAGE_COMPONENT_QUBIT)
+        if(c->GetComponentType() == sys_sage::ComponentType::Qubit)
         {
             Qubit* q = static_cast<Qubit*>(c);
             std::cout << "Qubit " << q->GetId() << " has coupling map { ";

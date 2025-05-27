@@ -115,13 +115,13 @@ int Node::UpdateL3CATCoreCOS(){
     }
 
     vector<Chip*> sockets;
-    GetSubcomponentsByType((vector<Component*>*)&sockets, SYS_SAGE_COMPONENT_CHIP);
+    GetSubcomponentsByType((vector<Component*>*)&sockets, sys_sage::ComponentType::Chip);
     for(auto it = std::begin(sockets); it != std::end(sockets); ++it)
     {
         Chip* socket = *it;
         //std::cout << "socket " << socket->GetComponentTypeStr() << " id " << socket->GetId() << std::endl;
         vector<Thread*> threads;
-        socket->GetSubcomponentsByType((vector<Component*>*)&threads, SYS_SAGE_COMPONENT_THREAD);
+        socket->GetSubcomponentsByType((vector<Component*>*)&threads, sys_sage::ComponentType::Thread);
         for(auto it_threads = std::begin(threads); it_threads != std::end(threads); ++it_threads)
         {
             Thread* thread = *it_threads;
@@ -144,10 +144,10 @@ int Node::UpdateL3CATCoreCOS(){
             while(c->GetParent() != NULL){
                 //go up until L3 found
                 c = c->GetParent();
-                if(c->GetComponentType() == SYS_SAGE_COMPONENT_CACHE && ((Cache*)c)->GetCacheLevel() == 3)
+                if(c->GetComponentType() == sys_sage::ComponentType::Cache && ((Cache*)c)->GetCacheLevel() == 3)
                     break;
             };
-            if(c==NULL || c->GetComponentType() != SYS_SAGE_COMPONENT_CACHE){
+            if(c==NULL || c->GetComponentType() != sys_sage::ComponentType::Cache){
                 cerr << "L3 cache not found" << endl; continue;
             }
 
@@ -189,7 +189,7 @@ long long Thread::GetCATAwareL3Size()
     while(c->GetParent() != NULL){
         //go up until L3 found
         c = c->GetParent();
-        if(c->GetComponentType() == SYS_SAGE_COMPONENT_CACHE && ((Cache*)c)->GetCacheLevel() == 3)
+        if(c->GetComponentType() == sys_sage::ComponentType::Cache && ((Cache*)c)->GetCacheLevel() == 3)
             return ((Cache*)c)->GetCacheSize();
     };
     return -1;

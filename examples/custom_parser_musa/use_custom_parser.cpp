@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     //create root Topology and one socket (Chip)
     Topology* topo = new Topology();
     Node* n = new Node(topo,0);
-    Chip * socket = new Chip(/*parent*/ n, /*id*/ 0, /*name*/ "MUSA CPU", /*chip type*/ SYS_SAGE_CHIP_TYPE_CPU_SOCKET);
+    Chip * socket = new Chip(/*parent*/ n, /*id*/ 0, /*name*/ "MUSA CPU", /*chip type*/ sys_sage::ChipType::CpuSocket);
 
     cout << "-- Parsing MUSA custom data source from file " << musaPath << endl;
 	if(parseMusa(socket, musaPath) != 0) {
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     cout << "-- End parseMusa" << endl;
-    cout << "Total num HW threads: " << topo->CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) << endl;
+    cout << "Total num HW threads: " << topo->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread) << endl;
 
     cout << "---------------- Printing the whole tree ----------------" << endl;
     topo->PrintSubtree(2);

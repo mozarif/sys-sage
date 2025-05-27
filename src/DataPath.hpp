@@ -150,6 +150,9 @@ public:
      * @return The current type of the relationship.
      */
     int GetType();
+    //SVTODO
+    //SVDOCTODO
+    std::string GetTypeStr();
     //SVDOCTODO
     bool IsOrdered();
     //SVDOCTODO

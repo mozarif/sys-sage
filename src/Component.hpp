@@ -16,32 +16,96 @@
 // #include <qdmi_internal.h>
 
 
-#define SYS_SAGE_COMPONENT_NONE 1 /**< class Component (do not use normally)*/
-#define SYS_SAGE_COMPONENT_THREAD 2 /**< class Thread */
-#define SYS_SAGE_COMPONENT_CORE 4 /**< class Core */
-#define SYS_SAGE_COMPONENT_CACHE 8 /**< class Cache */
-#define SYS_SAGE_COMPONENT_SUBDIVISION 16 /**< class Subdivision */
-#define SYS_SAGE_COMPONENT_NUMA 32 /**< class Numa */
-#define SYS_SAGE_COMPONENT_CHIP 64 /**< class Chip */
-#define SYS_SAGE_COMPONENT_MEMORY 128 /**< class Memory */
-#define SYS_SAGE_COMPONENT_STORAGE 256 /**< class Storage */
-#define SYS_SAGE_COMPONENT_NODE 512 /**< class Node */
-#define SYS_SAGE_COMPONENT_TOPOLOGY 1024 /**< class Topology */
+// #define SYS_SAGE_COMPONENT_NONE 1 /**< class Component (do not use normally)*/
+// #define SYS_SAGE_COMPONENT_THREAD 2 /**< class Thread */
+// #define SYS_SAGE_COMPONENT_CORE 4 /**< class Core */
+// #define SYS_SAGE_COMPONENT_CACHE 8 /**< class Cache */
+// #define SYS_SAGE_COMPONENT_SUBDIVISION 16 /**< class Subdivision */
+// #define SYS_SAGE_COMPONENT_NUMA 32 /**< class Numa */
+// #define SYS_SAGE_COMPONENT_CHIP 64 /**< class Chip */
+// #define SYS_SAGE_COMPONENT_MEMORY 128 /**< class Memory */
+// #define SYS_SAGE_COMPONENT_STORAGE 256 /**< class Storage */
+// #define SYS_SAGE_COMPONENT_NODE 512 /**< class Node */
+// #define SYS_SAGE_COMPONENT_TOPOLOGY 1024 /**< class Topology */
 
-/* To-do: Add defines for different quantum backends
-* For e.g.: SYS_SAGE_COMPONENT_NEUTRAL_ATOMS, SYS_SAGE_COMPONENT_SUPERCONDUCTING, etc.
+// /* To-do: Add defines for different quantum backends
+// * For e.g.: SYS_SAGE_COMPONENT_NEUTRAL_ATOMS, SYS_SAGE_COMPONENT_SUPERCONDUCTING, etc.
 
-*/
-#define SYS_SAGE_COMPONENT_QUANTUM_BACKEND 2048 /**< class QuantumBackend */
-#define SYS_SAGE_COMPONENT_QUBIT 4096 /**< class Qubit */
+// */
+// #define SYS_SAGE_COMPONENT_QUANTUM_BACKEND 2048 /**< class QuantumBackend */
+// #define SYS_SAGE_COMPONENT_QUBIT 4096 /**< class Qubit */
 
-#define SYS_SAGE_SUBDIVISION_TYPE_NONE 1 /**< Generic Subdivision type. */
-#define SYS_SAGE_SUBDIVISION_TYPE_GPU_SM 2 /**< Subdivision type for GPU SMs */
+// #define SYS_SAGE_SUBDIVISION_TYPE_NONE 1 /**< Generic Subdivision type. */
+// #define SYS_SAGE_SUBDIVISION_TYPE_GPU_SM 2 /**< Subdivision type for GPU SMs */
 
-#define SYS_SAGE_CHIP_TYPE_NONE 1 /**< Generic Chip type. */
-#define SYS_SAGE_CHIP_TYPE_CPU 2 /**< Chip type used for a CPU. */
-#define SYS_SAGE_CHIP_TYPE_CPU_SOCKET 4 /**< Chip type used for one CPU socket. */
-#define SYS_SAGE_CHIP_TYPE_GPU 8 /**< Chip type used for a GPU.*/
+// #define SYS_SAGE_CHIP_TYPE_NONE 1 /**< Generic Chip type. */
+// #define SYS_SAGE_CHIP_TYPE_CPU 2 /**< Chip type used for a CPU. */
+// #define SYS_SAGE_CHIP_TYPE_CPU_SOCKET 4 /**< Chip type used for one CPU socket. */
+// #define SYS_SAGE_CHIP_TYPE_GPU 8 /**< Chip type used for a GPU.*/
+
+
+//SVTODO make a protected component constructor; all constructors point to it
+///////////////////////////////////////////////////
+namespace sys_sage {
+    namespace ComponentType{
+        using type = int32_t;
+
+        constexpr type None = 1; /**< class Component (do not use normally)*/
+        constexpr type Thread = 2; /**< class Thread */
+        constexpr type Core = 3; /**< class Core */
+        constexpr type Cache = 4; /**< class Cache */
+        constexpr type Subdivision = 5; /**< class Subdivision */
+        constexpr type Numa = 6; /**< class Numa */
+        constexpr type Chip = 7; /**< class Chip */
+        constexpr type Memory = 8; /**< class Memory */
+        constexpr type Storage = 9; /**< class Storage */
+        constexpr type Node = 10; /**< class Node */
+        constexpr type QuantumBackend = 11; /**< class QuantumBackend */
+        constexpr type Qubit = 12; /**< class Qubit */
+        constexpr type Topology = 13; /**< class Topology */
+
+        //SVTODO this should remain private???
+        static const std::unordered_map<type, const char*> names = {
+            {None, "GenericComponent"},
+            {Thread, "HW_Thread"},
+            {Core, "Core"},
+            {Cache, "Cache"},
+            {Subdivision, "Subdivision"},
+            {Numa, "NUMA"},
+            {Chip, "Chip"},
+            {Memory, "Memory"},
+            {Storage, "Storage"},
+            {Node, "Node"},
+            {QuantumBackend, "QuantumBackend"},
+            {Qubit, "Qubit"},
+            {Topology, "Topology"}
+        };
+
+        inline const char* ToString(type rt) {
+            auto it = names.find(rt);
+            if (it != names.end()) return it->second;
+            return "Unknown";
+        }
+    }
+
+    namespace SubdivisionType {
+        using type = int32_t;
+
+        constexpr type None = 1; /**< Generic Subdivision type. */
+        constexpr type GpuSM = 2; /**< Subdivision type for GPU SMs */
+    }
+
+    namespace ChipType {
+        using type = int32_t;
+
+        constexpr type None = 1; /**< Generic Chip type. */
+        constexpr type Cpu = 2; /**< Chip type used for a CPU. */
+        constexpr type CpuSocket = 3; /**< Chip type used for one CPU socket. */
+        constexpr type Gpu = 4; /**< Chip type used for a GPU.*/
+    }
+
+} //namespace sys_sage 
+
 //SVTODO move defines to namespaces (sys_sagee)
 using namespace std; //SVTODO remove this
 class Relation;
@@ -57,17 +121,19 @@ public:
     Generic Component constructor (no automatic insertion in the Component Tree). Usually one of the derived subclasses for different Component Types will be created. Sets:
     @param _id = id, default 0
     @param _name = name, default "unknown"
-    @param _componentType = componentType, default SYS_SAGE_COMPONENT_NONE
+    @param _componentType = componentType, default sys_sage::ComponentType::None
     */
-    Component(int _id = 0, string _name = "unknown", int _componentType = SYS_SAGE_COMPONENT_NONE);
+    //SVDOCTODO
+    Component(int _id = 0, string _name = "unknown");
     /**
     Generic Component constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Usually one of the derived subclasses for different Component Types will be created. Sets:
     @param parent = the parent 
     @param _id = id, default 0
     @param _name = name, default "unknown"
-    @param _componentType = componentType, default SYS_SAGE_COMPONENT_NONE
+    @param _componentType = componentType, default sys_sage::ComponentType::None
     */
-    Component(Component * parent, int _id = 0, string _name = "unknown", int _componentType = SYS_SAGE_COMPONENT_NONE);
+    //SVDOCTODO
+    Component(Component * parent, int _id = 0, string _name = "unknown");
     /**
     * @private
     * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -180,7 +246,8 @@ public:
     @returns componentType
     @see componentType
     */
-    int GetComponentType();
+    //SVDOCTODO
+    sys_sage::ComponentType::type GetComponentType();
     /**
     Returns component type in human-readable string.
     \n SYS_SAGE_COMPONENT_NONE -> "None"
@@ -197,6 +264,7 @@ public:
     @returns string component type
     @see componentType
     */
+    //SVDOCTODO
     string GetComponentTypeStr();
     /**
     Returns a pointer to std::vector containing all children of the component (empty vector if no children) .
@@ -313,14 +381,14 @@ public:
     @private 
     OBSOLETE. Use GetAncestorByType instead. This function will be removed in the future.
     */
-   [[deprecated("Use GetAncestorByType instead. This function will be removed in the future.")]]
+    [[deprecated("Use GetAncestorByType instead. This function will be removed in the future.")]]
     Component* FindParentByType(int _componentType);
 
     /**
     OBSOLETE. Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.
     Returns the number of Components of type SYS_SAGE_COMPONENT_THREAD in the subtree.
     */
-   [[deprecated("Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.")]]
+    [[deprecated("Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.")]]
     int GetNumThreads();
     
     /**
@@ -391,9 +459,11 @@ public:
     //SVDOCTODO
     //SVDOCTODO mention FindAllRelationsBy as an alternative
     //SVDOCTODO this one just returns a pointer to the internal structure -- the object already exists and is managed (deleted) by sys-sage
+    //SVDOCTODO mention that std::vector<Relation*>& x = _GetRelations(type); returns a reference (to manipulate with the object) and std::vector<Relation*> x = _GetRelations(type); returns a copy
     const vector<Relation*>& GetRelations(sys_sage::RelationType::type relationType) const;
     //SVDOCTODO 
     //SVDOCTODO is private, should not be called
+    //SVDOCTODO mention that std::vector<Relation*>& x = _GetRelations(type); returns a reference (to manipulate with the object) and std::vector<Relation*> x = _GetRelations(type); returns a copy
     vector<Relation*>& _GetRelations(sys_sage::RelationType::type relationType);
     //SVDOCTODO 
     //SVDOCTODO is this a good name?
@@ -614,6 +684,23 @@ public:
     std::map<std::string, void*> attrib;
     
 protected:
+    /**
+    Generic Component constructor (no automatic insertion in the Component Tree). Usually one of the derived subclasses for different Component Types will be created. Sets:
+    @param _id = id, default 0
+    @param _name = name, default "unknown"
+    @param _componentType = componentType, default sys_sage::ComponentType::None
+    */
+    //SVDOCTODO
+    Component(int _id, string _name, sys_sage::ComponentType::type _componentType);
+    /**
+    Generic Component constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Usually one of the derived subclasses for different Component Types will be created. Sets:
+    @param parent = the parent 
+    @param _id = id, default 0
+    @param _name = name, default "unknown"
+    @param _componentType = componentType, default sys_sage::ComponentType::None
+    */
+    //SVDOCTODO
+    Component(Component * parent, int _id, string _name, sys_sage::ComponentType::type _componentType);
 
     int id; /**< Numeric ID of the component. There is no requirement for uniqueness of the ID, however it is advised to have unique IDs at least in the realm of parent's children. Some tree search functions, which take the id as a search parameter search for first match, so the user is responsible to manage uniqueness in the realm of the search subtree (or should be aware of the consequences of not doing so). Component's ID is set by the constructor, and is retrieved via int GetId(); */
     int depth; /**< Depth (level) of the Component in the Component Tree */
@@ -677,7 +764,7 @@ public:
     Node constructor (no automatic insertion in the Component Tree). Sets:
     @param _id = id, default 0
     @param _name = name, default "Node"
-    @param componentType=>SYS_SAGE_COMPONENT_NODE
+    @param componentType=>sys_sage::ComponentType::Node
     */
     Node(int _id = 0, string _name = "Node");
     /**
@@ -685,7 +772,7 @@ public:
     @param parent = the parent 
     @param _id = id, default 0
     @param _name = name, default "Node"
-    @param componentType=>SYS_SAGE_COMPONENT_NODE
+    @param componentType=>sys_sage::ComponentType::Node
     */
     Node(Component * parent, int _id = 0, string _name = "Node");
     /**
@@ -845,23 +932,23 @@ public:
     Chip constructor (no automatic insertion in the Component Tree). Sets:
     @param _id = id, default 0
     @param _name = name, default "Chip"
-    @param _type = chip type, default SYS_SAGE_CHIP_TYPE_NONE. Defines which chip we are describing. The options are: SYS_SAGE_CHIP_TYPE_NONE (default/generic), SYS_SAGE_CHIP_TYPE_CPU, SYS_SAGE_CHIP_TYPE_CPU_SOCKET, SYS_SAGE_CHIP_TYPE_GPU.
+    @param _type = chip type, default sys_sage::ChipType::None. Defines which chip we are describing. The options are: sys_sage::ChipType::None (default/generic), sys_sage::ChipType::Cpu, sys_sage::ChipType::CpuSocket, sys_sage::ChipType::Gpu.
     @param componentType=>SYS_SAGE_COMPONENT_CHIP
     @param _vendor = name of the vendor, default ""
     @param _model = model name, default ""
     */
-    Chip(int _id = 0, string _name = "Chip", int _type = SYS_SAGE_CHIP_TYPE_NONE, string _vendor = "", string _model = "");
+    Chip(int _id = 0, string _name = "Chip", sys_sage::ChipType::type _type = sys_sage::ChipType::None, string _vendor = "", string _model = "");
     /**
     Chip constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
     @param parent = the parent 
     @param _id = id, default 0
     @param _name = name, default "Chip"
-    @param _type = chip type, default SYS_SAGE_CHIP_TYPE_NONE. Defines which chip we are describing. The options are: SYS_SAGE_CHIP_TYPE_NONE (default/generic), SYS_SAGE_CHIP_TYPE_CPU, SYS_SAGE_CHIP_TYPE_CPU_SOCKET, SYS_SAGE_CHIP_TYPE_GPU.
+    @param _type = chip type, default sys_sage::ChipType::None. Defines which chip we are describing. The options are: sys_sage::ChipType::None (default/generic), sys_sage::ChipType::Cpu, sys_sage::ChipType::CpuSocket, sys_sage::ChipType::Gpu.
     @param componentType=>SYS_SAGE_COMPONENT_CHIP
     @param _vendor = name of the vendor, default ""
     @param _model = model name, default ""
     */
-    Chip(Component * parent, int _id = 0, string _name = "Chip", int _type = SYS_SAGE_CHIP_TYPE_NONE, string _vendor = "", string _model = "");
+    Chip(Component * parent, int _id = 0, string _name = "Chip", sys_sage::ChipType::type _type = sys_sage::ChipType::None, string _vendor = "", string _model = "");
     /**
     * @private
     * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -1071,7 +1158,7 @@ public:
     @param _name = name, default "Subdivision"
     @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
     */
-    Subdivision(int _id = 0, string _name = "Subdivision", int _componentType = SYS_SAGE_COMPONENT_SUBDIVISION);
+    Subdivision(int _id = 0, string _name = "Subdivision");
     /**
     Subdivision constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
     @param parent = the parent 
@@ -1079,7 +1166,8 @@ public:
     @param _name = name, default "Subdivision"
     @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
     */
-    Subdivision(Component * parent, int _id = 0, string _name = "Subdivision", int _componentType = SYS_SAGE_COMPONENT_SUBDIVISION);
+    //SVDOCTODO check all the API documentation. where there is SYS_SAGE_COMPONENT_xxx, replace it by matching sys_sage::ComponentType::xxx
+    Subdivision(Component * parent, int _id = 0, string _name = "Subdivision");
     /**
     * @private
     * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -1102,12 +1190,30 @@ public:
     */
     xmlNodePtr CreateXmlSubtree();
 protected:
+    /**
+    Subdivision constructor (no automatic insertion in the Component Tree). Sets:
+    @param _id = id, default 0
+    @param _name = name, default "Subdivision"
+    @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
+    */
+    //SVDOCTODO
+    Subdivision(int _id, string _name, sys_sage::ComponentType::type _componentType);
+    /**
+    Subdivision constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
+    @param parent = the parent 
+    @param _id = id, default 0
+    @param _name = name, default "Subdivision"
+    @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
+    */
+    //SVDOCTODO
+    Subdivision(Component * parent, int _id, string _name, sys_sage::ComponentType::type _componentType);
+
     int type; /**< Type of the subdivision. Each user can have his own numbering, i.e. the type is there to identify different types of subdivisions as the user defines it.*/
 };
 
 /**
 Class Numa - represents a NUMA region on a chip.
-\n This class is a child of Component class, therefore inherits its attributes and methods.
+\n This class is a child of Subdivision (which is a child of Component) class, therefore inherits its attributes and methods.
 */
 class Numa : public Subdivision {
 public:

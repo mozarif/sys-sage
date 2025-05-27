@@ -16,7 +16,7 @@ int parseMt4gTopo(Node* parent, string dataSourcePath, int gpuId, string delim)
         std::cerr << "parseMt4gTopo: parent is null" << std::endl;
         return 1;
     }
-    Chip * gpu = new Chip(parent, gpuId, "GPU", SYS_SAGE_CHIP_TYPE_GPU);
+    Chip * gpu = new Chip(parent, gpuId, "GPU", sys_sage::ChipType::Gpu);
 
     return parseMt4gTopo(gpu, dataSourcePath, delim);
 }
@@ -27,7 +27,7 @@ int parseMt4gTopo(Component* parent, string dataSourcePath, int gpuId, string de
         std::cerr << "parseMt4gTopo: parent is null" << std::endl;
         return 1;
     }
-    Chip * gpu = new Chip(parent, gpuId, "GPU", SYS_SAGE_CHIP_TYPE_GPU);
+    Chip * gpu = new Chip(parent, gpuId, "GPU", sys_sage::ChipType::Gpu);
 
     return parseMt4gTopo(gpu, dataSourcePath, delim);
 }
@@ -262,7 +262,7 @@ int Mt4gParser::parseCOMPUTE_RESOURCE_INFORMATION()
     {
         //cout << "adding SM " << i << std::endl;
         Subdivision * sm = new Subdivision(root, i, "SM (Streaming Multiprocessor)");
-        sm->SetSubdivisionType(SYS_SAGE_SUBDIVISION_TYPE_GPU_SM);
+        sm->SetSubdivisionType(sys_sage::SubdivisionType::GpuSM);
         for(int j = 0; j<(*(int*)root->attrib["Number_of_cores_per_SM"]); j++)
         {
             new Thread(sm, j, "GPU Core");
@@ -413,7 +413,7 @@ int Mt4gParser::parseMemory(string header_name, string memory_name)
         //make SMs as main memory's children and insert DP with latency
         vector<Component*> memory_children;
         for(Component* sm : *(root->GetChildren()))
-            if(sm->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+            if(sm->GetComponentType() == sys_sage::ComponentType::Subdivision && ((Subdivision*)sm)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)
                 memory_children.push_back(sm);
 
         if((ret = mem->InsertBetweenParentAndChildren(root, memory_children, true)) != 0)
@@ -424,7 +424,7 @@ int Mt4gParser::parseMemory(string header_name, string memory_name)
         if(latency != -1)
             for(Component* sm: memory_children)
                 for(Component * c : *(sm->GetChildren()))
-                    if(c->GetComponentType() == SYS_SAGE_COMPONENT_THREAD)
+                    if(c->GetComponentType() == sys_sage::ComponentType::Thread)
                         new DataPath(mem, c, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Logical, 0, latency); 
     }
     else if(header_name == "SHARED_MEMORY") //very similar to parseCaches
@@ -435,14 +435,14 @@ int Mt4gParser::parseMemory(string header_name, string memory_name)
         }
 
         vector<Component*> parents;
-        root->GetAllSubcomponentsByType(&parents, SYS_SAGE_COMPONENT_SUBDIVISION);
+        root->GetAllSubcomponentsByType(&parents, sys_sage::ComponentType::Subdivision);
         for(Component * parent : parents)
         {
-            if(((Subdivision*)parent)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+            if(((Subdivision*)parent)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)
             {
                 if(!L2_shared_on_gpu)
                 {
-                    vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
+                    vector<Component*> caches = parent->GetAllChildrenByType(sys_sage::ComponentType::Cache);
                     for(Component * cache: caches){
                         if(((Cache*)cache)->GetCacheName() == "L2"){
                             parent = cache;
@@ -456,7 +456,7 @@ int Mt4gParser::parseMemory(string header_name, string memory_name)
                 //insert DP with latency
                 if(latency != -1)
                 {
-                    vector<Component*> threads = parent->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD);
+                    vector<Component*> threads = parent->GetAllSubcomponentsByType(sys_sage::ComponentType::Thread);
                     for(Component* t: threads)
                         new DataPath(mem, t, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Logical, 0, latency);
                 }
@@ -633,13 +633,13 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
     Component* parent = root;
     if(shared_on == 0)
     { //shared on GPU level, place under main memory or L2(if no L2 available)
-        Component * mem = root->GetChildByType(SYS_SAGE_COMPONENT_MEMORY);
+        Component * mem = root->GetChildByType(sys_sage::ComponentType::Memory);
         if(mem != NULL)
         {
             parent = mem;
             if(cache_type != "L2")
             {
-                Component * l2 = mem->GetChildByType(SYS_SAGE_COMPONENT_CACHE);
+                Component * l2 = mem->GetChildByType(sys_sage::ComponentType::Cache);
                 if(((Cache*)l2)->GetCacheName() == "L2")
                     parent = l2;
             }
@@ -652,7 +652,7 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
 
         vector<Component*> sms;
         for(Component* sm : *(parent->GetChildren()))
-            if(sm->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+            if(sm->GetComponentType() == sys_sage::ComponentType::Subdivision && ((Subdivision*)sm)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)
                 sms.push_back(sm);
         
         if((ret = cache->InsertBetweenParentAndChildren(parent, sms, true)) != 0)
@@ -663,23 +663,23 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
         //insert DP with latency
         if(latency != -1)
         {
-            vector<Component*> threads = parent->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD);
+            vector<Component*> threads = parent->GetAllSubcomponentsByType(sys_sage::ComponentType::Thread);
             for(Component* t: threads)
                 new DataPath(cache, t, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Logical, 0, latency);
         }
     }
     else if(shared_on == 1) //shared on SM
     {
-        vector<Component*> sms = root->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_SUBDIVISION);
+        vector<Component*> sms = root->GetAllSubcomponentsByType(sys_sage::ComponentType::Subdivision);
         for(Component * sm : sms)
         {
-            if(((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+            if(((Subdivision*)sm)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)
             {
                 Component* parent = sm;
                 //if L2 is not shared on GPU, it will be the parent
                 if(cache_type != "L2" && !L2_shared_on_gpu)
                 {
-                    vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
+                    vector<Component*> caches = parent->GetAllChildrenByType(sys_sage::ComponentType::Cache);
                     for(Component * cache: caches){
                         if(((Cache*)cache)->GetCacheName() == "L2"){
                             parent = cache;
@@ -690,7 +690,7 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
                 //constant L1 is child of constant L1.5
                 if(cache_type == "Constant_L1")
                 {
-                    vector<Component*> caches = parent->GetAllChildrenByType(SYS_SAGE_COMPONENT_CACHE);
+                    vector<Component*> caches = parent->GetAllChildrenByType(sys_sage::ComponentType::Cache);
                     for(Component * cache: caches){
                         if(((Cache*)cache)->GetCacheName() == "Constant_L1.5"){
                             parent = cache;
@@ -699,7 +699,7 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
                     }
                 }
 
-                vector<Component*> threads = sm->GetAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD);
+                vector<Component*> threads = sm->GetAllSubcomponentsByType(sys_sage::ComponentType::Thread);
                 for(int i=0; i<caches_per_sm; i++)
                 {
                     Cache * cache = new Cache(parent, i, cache_type);

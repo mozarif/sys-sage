@@ -175,6 +175,7 @@ xmlNodePtr Numa::CreateXmlSubtree()
 }
 xmlNodePtr Component::CreateXmlSubtree()
 {
+    using namespace sys_sage;
     xmlNodePtr n = xmlNewNode(NULL, (const unsigned char *)GetComponentTypeStr().c_str());
     xmlNewProp(n, (const unsigned char *)"id", (const unsigned char *)(std::to_string(id)).c_str());
     xmlNewProp(n, (const unsigned char *)"name", (const unsigned char *)name.c_str());
@@ -190,29 +191,29 @@ xmlNodePtr Component::CreateXmlSubtree()
     {
         xmlNodePtr child;
         switch (c->GetComponentType()) {
-            case SYS_SAGE_COMPONENT_CACHE:
+            case ComponentType::Cache:
                 child = ((Cache*)c)->CreateXmlSubtree();
                 break;
-            case SYS_SAGE_COMPONENT_SUBDIVISION:
+            case ComponentType::Subdivision:
                 child = ((Subdivision*)c)->CreateXmlSubtree();
                 break;
-            case SYS_SAGE_COMPONENT_NUMA:
+            case ComponentType::Numa:
                 child = ((Numa*)c)->CreateXmlSubtree();
                 break;
-            case SYS_SAGE_COMPONENT_CHIP:
+            case ComponentType::Chip:
                 child = ((Chip*)c)->CreateXmlSubtree();
                 break;
-            case SYS_SAGE_COMPONENT_MEMORY:
+            case ComponentType::Memory:
                 child = ((Memory*)c)->CreateXmlSubtree();
                 break;
-            case SYS_SAGE_COMPONENT_STORAGE:
+            case ComponentType::Storage:
                 child = ((Storage*)c)->CreateXmlSubtree();
                 break;
-            case SYS_SAGE_COMPONENT_NONE:
-            case SYS_SAGE_COMPONENT_THREAD:
-            case SYS_SAGE_COMPONENT_CORE:
-            case SYS_SAGE_COMPONENT_NODE:
-            case SYS_SAGE_COMPONENT_TOPOLOGY:
+            case ComponentType::None:
+            case ComponentType::Thread:
+            case ComponentType::Core:
+            case ComponentType::Node:
+            case ComponentType::Topology:
             default:
                 child = c->CreateXmlSubtree();
                 break;
@@ -244,12 +245,10 @@ int exportToXml(
     xmlNodePtr relations_root = xmlNewNode(NULL, BAD_CAST "relations");
     xmlAddChild(sys_sage_root, relations_root);
 
-    std::cout << "printing components" << std::endl;
     //build a tree for Components
     xmlNodePtr n = root->CreateXmlSubtree();
     xmlAddChild(components_root, n);
 
-    std::cout << "printing relations" << std::endl;
     //scan all Components for their relations
     vector<Component*> components;
     root->GetComponentsInSubtree(&components);
@@ -294,8 +293,6 @@ int exportToXml(
             }  
         }
     }
-
-    std::cout << "finishing" << std::endl;
 
     xmlSaveFormatFileEnc(path=="" ? "-" : path.c_str(), doc, "UTF-8", 1);
 
