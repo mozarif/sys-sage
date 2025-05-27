@@ -265,8 +265,7 @@ int exportToXml(
                 //print only if this component has index 0 => print each Relation once only
                 if(r->GetComponent(0) == cPtr)
                 {
-                    RelationType::type relationType = r->GetType();
-                    xmlNodePtr r_n = xmlNewNode(NULL, BAD_CAST RelationType::to_string(relationType));
+                    xmlNodePtr r_n = xmlNewNode(NULL, BAD_CAST r->GetTypeStr().c_str());
 
                     int c_idx = 0;
                     for(Component* rc : r->GetComponents())

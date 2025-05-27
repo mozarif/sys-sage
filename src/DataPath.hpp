@@ -72,7 +72,7 @@ namespace sys_sage {
             {CouplingMap, "CouplingMap"}
         };
 
-        inline const char* to_string(type rt) {
+        inline const char* ToString(type rt) {
             auto it = names.find(rt);
             if (it != names.end()) return it->second;
             return "Unknown";
@@ -83,38 +83,38 @@ namespace sys_sage {
         using type = int32_t;
 
         constexpr type Any = 1;
-        constexpr type None = 0;
-        constexpr type Logical = 1;
-        constexpr type Physical = 2;
-        constexpr type Datatransfer = 3;
-        constexpr type L3CAT = 4;
-        constexpr type MIG = 5;
-        constexpr type C2C = 6;
+        constexpr type None = 0; /**< Generic type of DataPath */
+        constexpr type Logical = 1; /**< DataPath describes a logical connection/relation of two Components. */
+        constexpr type Physical = 2; /**< DataPath describes a physical/hardware connection/relation of two Components. */
+        constexpr type Datatransfer = 3; /**< DataPath type describing data transfer attributes. */
+        constexpr type L3CAT = 4; /**< DataPath type describing Cache partitioning settings. */
+        constexpr type MIG = 5; /**< DataPath type describing GPU partitioning settings. */
+        constexpr type C2C = 6; /**< DataPath type describing cache-to-cache latencies (cccbench data source). */
     }
     namespace DataPathDirection{
         using type = int32_t;
 
         constexpr type Any = 1;
-        constexpr type Outgoing = 2;
-        constexpr type Incoming = 3;
+        constexpr type Outgoing = 2; /**< This Component is the source DataPath. */
+        constexpr type Incoming = 3; /**< This Component is the target DataPath. */
     }
 
     namespace DataPathOrientation{
         using type = int32_t;
 
-        constexpr type Oriented = 1;
-        constexpr type NotOriented = 2;
+        constexpr type Oriented = 1; /**< DataPath is directed from the source to the target. */
+        constexpr type NotOriented = 2; /**< DataPath has no direction. */
     }
     namespace QuantumGateType{
         using type = int32_t;
 
-        constexpr type Unknown = 0;
-        constexpr type Id = 1;
-        constexpr type Rx = 2;
-        constexpr type Rz = 3;
-        constexpr type Cnot = 4;
-        constexpr type Sx = 5;
-        constexpr type Toffoli = 6;
+        constexpr type Unknown = 0; /**< Unknown Gate */
+        constexpr type Id = 1; /**< Identity Gate */
+        constexpr type X = 2; /**< X (Not) Gate */
+        constexpr type Rz = 3; /**< RZ Gate */
+        constexpr type Cnot = 4; /**< CNOT Gate */
+        constexpr type Sx = 5; /**< SX Gate */
+        constexpr type Toffoli = 6; /**< Toffoli Gate */
     }
 
 } //namespace sys_sage 

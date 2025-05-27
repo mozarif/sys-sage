@@ -48,7 +48,7 @@ void Relation::AddComponent(Component* c)
 void Relation::Print()
 {
     using namespace sys_sage;
-    cout << RelationType::to_string(type) << "(" << (ordered?"ordered":"unordered") << ") -- Components:  ";
+    cout << GetTypeStr() << "(" << (ordered?"ordered":"unordered") << ") -- Components:  ";
     for(Component* c : components)
     {
         cout << "(" << c->GetComponentTypeStr() << ") id " << c->GetId() << ", ";
@@ -79,7 +79,11 @@ void Relation::Delete()
     delete this;
 }
 int Relation::GetType(){ return type;}
-
+std::string Relation::GetTypeStr()
+{
+    std::string ret(sys_sage::RelationType::ToString(type));
+    return ret;
+}
 
 // DataPath* NewDataPath(Component* _source, Component* _target, int _oriented, int _type){
 //     DataPath *dp = new DataPath(_source, _target, _oriented, _type, -1, -1);
@@ -111,8 +115,7 @@ void Relation::UpdateComponent(int index, Component * _new_component)
     {
         //SVTODO print error and exit/return and do nothing?
     }
-    //SVTODO is this okay with const return value?
-    std::vector<Relation*> component_relation_vector = components[index]->GetRelations(type);
+    std::vector<Relation*>& component_relation_vector = components[index]->_GetRelations(type);
     component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
 
     _new_component->_AddRelation(type, this);
@@ -290,7 +293,7 @@ void QuantumGate::SetQuantumGateType()
         if(name == "id") gate_type = QuantumGateType::Id;
         else if(name == "rz") gate_type = QuantumGateType::Rz;
         else if(name == "sx") gate_type = QuantumGateType::Sx;
-        else if(name == "x") gate_type = QuantumGateType::Rx;
+        else if(name == "x") gate_type = QuantumGateType::X;
         else gate_type = QuantumGateType::Unknown;
     }
     else if(gate_size == 2)
