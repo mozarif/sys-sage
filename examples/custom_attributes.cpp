@@ -2,6 +2,8 @@
 #include <functional>
 
 using namespace sys_sage;
+using std::cout;
+using std::endl;
 
 class My_core_attributes {
 public:
@@ -12,11 +14,11 @@ public:
 
 // define your own XML output function, where you define how your custom attribs will get printed.
 // key is the attrib key, value is the void* to the value, and ret_value_str is an output parameter where you save the output string to put to the XML.
-int print_my_attribs(string key, void* value, string* ret_value_str)
+int print_my_attribs(std::string key, void* value, std::string* ret_value_str)
 {
     if(!key.compare("codename") || !key.compare("info"))
     {
-        *ret_value_str=*(string*)value;
+        *ret_value_str=*(std::string*)value;
         return 1;
     }
     else if(!key.compare("rack_no"))
@@ -28,7 +30,7 @@ int print_my_attribs(string key, void* value, string* ret_value_str)
     return 0;
 }
 
-int print_my_custom_attribs(string key, void* value, xmlNodePtr n)
+int print_my_custom_attribs(std::string key, void* value, xmlNodePtr n)
 {
     if(!key.compare("my_core_info"))
     {
@@ -58,8 +60,8 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string xmlPath;
-    string bwPath;
+    std::string xmlPath;
+    std::string bwPath;
     if(argc < 2){
         std::string path_prefix(argv[0]);
         std::size_t found = path_prefix.find_last_of("/\\");
@@ -95,7 +97,7 @@ int main(int argc, char *argv[])
     cout << "-- End parseCapsNumaBenchmark" << endl;
 
     //let's add a few custom attributes
-    string codename = "marsupial";
+    std::string codename = "marsupial";
     int r = 15;
     n->attrib["codename"]=(void*)&codename;
     n->attrib["rack_no"]=(void*)&r;
@@ -111,7 +113,7 @@ int main(int argc, char *argv[])
     if(c4 != NULL)
         c4->attrib["my_core_info"]=(void*)&c4_attrib;
 
-    string benchmark_info="measured with no load on 07.07.";
+    std::string benchmark_info="measured with no load on 07.07.";
     Numa* n2 = (Numa*)n->GetSubcomponentById(2, sys_sage::ComponentType::Numa);
     if(n2 != NULL){
         DataPath * dp = reinterpret_cast<DataPath*>(n2->GetRelations(sys_sage::RelationType::DataPath)[0]);
@@ -125,7 +127,7 @@ int main(int argc, char *argv[])
     }
 
     //export to xml
-    string output_name = "sys-sage_custom_attributes.xml";
+    std::string output_name = "sys-sage_custom_attributes.xml";
     cout << "-- Export all information to xml " << output_name << endl;
     exportToXml(topo, output_name, print_my_attribs, print_my_custom_attribs);
 

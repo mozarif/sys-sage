@@ -4,12 +4,12 @@
 #include "xml_dump.hpp"
 #include <libxml/parser.h>
 
-std::function<int(string,void*,string*)> store_custom_attrib_fcn = NULL;
-std::function<int(string,void*,xmlNodePtr)> store_custom_complex_attrib_fcn = NULL;
+std::function<int(std::string,void*,std::string*)> store_custom_attrib_fcn = NULL;
+std::function<int(std::string,void*,xmlNodePtr)> store_custom_complex_attrib_fcn = NULL;
 
 //methods for printing out default attributes, i.e. those 
 //for a specific key, return the value as a string to be printed in the xml
-int sys_sage::search_default_attrib_key(string key, void* value, string* ret_value_str)
+int sys_sage::search_default_attrib_key(std::string key, void* value, std::string* ret_value_str)
 {
     //value: uint64_t 
     if(!key.compare("CATcos") || 
@@ -51,14 +51,14 @@ int sys_sage::search_default_attrib_key(string key, void* value, string* ret_val
     else if(!key.compare("CUDA_compute_capability") || 
     !key.compare("mig_uuid") )
     {
-        *ret_value_str=*(string*)value;
+        *ret_value_str=*(std::string*)value;
         return 1;
     }
 
     return 0;
 }
 
-int search_default_complex_attrib_key(string key, void* value, xmlNodePtr n)
+int search_default_complex_attrib_key(std::string key, void* value, xmlNodePtr n)
 {
     //value: std::vector<std::tuple<long long,double>>*
     if(!key.compare("freq_history"))
@@ -96,9 +96,9 @@ int search_default_complex_attrib_key(string key, void* value, xmlNodePtr n)
     return 0;
 }
 
-int sys_sage::print_attrib(map<string,void*> attrib, xmlNodePtr n)
+int sys_sage::print_attrib(std::map<std::string,void*> attrib, xmlNodePtr n)
 {
-    string attrib_value;
+    std::string attrib_value;
     for (auto const& [key, val] : attrib){
         int ret = 0;
         if(store_custom_attrib_fcn != NULL)
@@ -228,9 +228,9 @@ xmlNodePtr sys_sage::Component::CreateXmlSubtree()
 
 int sys_sage::exportToXml(
     Component* root, 
-    string path, 
-    std::function<int(string,void*,string*)> _store_custom_attrib_fcn, 
-    std::function<int(string,void*,xmlNodePtr)> _store_custom_complex_attrib_fcn)
+    std::string path, 
+    std::function<int(std::string,void*,std::string*)> _store_custom_attrib_fcn, 
+    std::function<int(std::string,void*,xmlNodePtr)> _store_custom_complex_attrib_fcn)
 {
     using namespace sys_sage;
     store_custom_attrib_fcn=_store_custom_attrib_fcn;
@@ -250,7 +250,7 @@ int sys_sage::exportToXml(
     xmlAddChild(components_root, n);
 
     //scan all Components for their relations
-    vector<Component*> components;
+    std::vector<Component*> components;
     root->GetComponentsInSubtree(&components);
     std::cout << "Number of components to export: " << components.size() << std::endl;
     for(Component* cPtr : components)
@@ -258,7 +258,7 @@ int sys_sage::exportToXml(
         //iterate over different relation types and process them separately
         for(RelationType::type rt : RelationType::RelationTypeList)
         {
-            vector<Relation*> rList = cPtr->GetRelations(rt);
+            std::vector<Relation*> rList = cPtr->GetRelations(rt);
 
             for(Relation* r: rList)
             {

@@ -16,6 +16,8 @@
 // #include <qdmi_internal.h>
 
 
+
+
 // #define SYS_SAGE_COMPONENT_NONE 1 /**< class Component (do not use normally)*/
 // #define SYS_SAGE_COMPONENT_THREAD 2 /**< class Thread */
 // #define SYS_SAGE_COMPONENT_CORE 4 /**< class Core */
@@ -45,8 +47,6 @@
 
 
 ///////////////////////////////////////////////////
-
-using namespace std; //SVTODO remove this
 
 namespace sys_sage { //forward declaration
     class Relation;
@@ -130,7 +130,7 @@ namespace sys_sage {
         @param _componentType = componentType, default sys_sage::ComponentType::None
         */
         //SVDOCTODO
-        Component(int _id = 0, string _name = "unknown");
+        Component(int _id = 0, std::string _name = "unknown");
         /**
         Generic Component constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Usually one of the derived subclasses for different Component Types will be created. Sets:
         @param parent = the parent 
@@ -139,7 +139,7 @@ namespace sys_sage {
         @param _componentType = componentType, default sys_sage::ComponentType::None
         */
         //SVDOCTODO
-        Component(Component * parent, int _id = 0, string _name = "unknown");
+        Component(Component * parent, int _id = 0, std::string _name = "unknown");
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -180,7 +180,7 @@ namespace sys_sage {
          *        \n 2 on corrupt component tree (parent is a parent of child but child is NOT in children list of parent); 
          *        \n 3 on corrupt component tree (parent is NOT a parent of child but child is in children list of parent)
         */
-        int InsertBetweenParentAndChildren(Component* parent, vector<Component*> children, bool alreadyParentsChild);
+        int InsertBetweenParentAndChildren(Component* parent, std::vector<Component*> children, bool alreadyParentsChild);
         
         /**
         Removes the passed component from the list of children, without completely deleting (and deallocating) the child itself
@@ -217,19 +217,19 @@ namespace sys_sage {
         void PrintAllDataPathsInSubtree();
         //SVDOCTODO
         //SVDOCTODO similar doc to PrintAllDataPathsInSubtree
-        void PrintAllRelationsInSubtree(sys_sage::RelationType::type RelationType = sys_sage::RelationType::Any);
+        void PrintAllRelationsInSubtree(RelationType::type RelationType = RelationType::Any);
         /**
         Returns name of the component.
         @return name
         @see name
         */
-        string GetName();
+        std::string GetName();
         /**
         Sets name of the component.
         @param _name - name of the component
         @see name
         */
-        void SetName(string _name);
+        void SetName(std::string _name);
         /**
         Returns id of the component.
         @return id
@@ -271,12 +271,12 @@ namespace sys_sage {
         @see componentType
         */
         //SVDOCTODO
-        string GetComponentTypeStr();
+        std::string GetComponentTypeStr();
         /**
         Returns a pointer to std::vector containing all children of the component (empty vector if no children) .
-        @returns vector<Component *> * with children
+        @returns std::vector<Component *> * with children
         */
-        vector<Component*>* GetChildren();
+        std::vector<Component*>* GetChildren();
         /**
         Returns Component pointer to parent (or NULL if this component is the root)
         */
@@ -307,7 +307,7 @@ namespace sys_sage {
          * @param _componentType - Required type of components
          * @returns A vector of all the children matching the _componentType
         */
-        vector<Component*> GetAllChildrenByType(int _componentType);
+        std::vector<Component*> GetAllChildrenByType(int _componentType);
 
         /**
          * Searches for all the children matching the given component type.
@@ -317,7 +317,7 @@ namespace sys_sage {
             \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
         */
-        void GetAllChildrenByType(vector <Component *> *_outArray, int _componentType);
+        void GetAllChildrenByType(std::vector<Component *> *_outArray, int _componentType);
         /**
         OBSOLETE. Use GetSubcomponentById instead. This function will be removed in the future.
         */
@@ -328,7 +328,7 @@ namespace sys_sage {
         OBSOLETE. Use GetAllSubcomponentsByType instead. This function will be removed in the future.
         */
     [[deprecated("Use GetAllSubcomponentsByType instead. This function will be removed in the future.")]]
-        void FindAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
+        void FindAllSubcomponentsByType(std::vector<Component*>* outArray, int _componentType);
         /**
         Searches the subtree to find a component with a matching id and componentType, i.e. looks for a certain component with a matching ID. The search is a DFS. The search starts with the calling component.
         \n Returns first occurence that matches these criteria.
@@ -343,10 +343,10 @@ namespace sys_sage {
          * 
          * @param _componentType - Required type of components
          * @param outArray - output parameter (vector with results)
-            \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
+            \n An input is pointer to a std::std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
         */
-        void GetAllSubcomponentsByType(vector<Component*>* outArray, int _componentType);
+        void GetAllSubcomponentsByType(std::vector<Component*>* outArray, int _componentType);
         
         /**
          * Searches for all the subcomponents (children, their children and so on) matching the given component type.
@@ -354,7 +354,7 @@ namespace sys_sage {
          * @param _componentType - Required type of components.
          * @returns A vector of all the subcomponents matching the _componentType.
         */
-        vector<Component*> GetAllSubcomponentsByType(int _componentType);
+        std::vector<Component*> GetAllSubcomponentsByType(int _componentType);
         
         /**
         Counts number of subcomponents (children, their children and so on).
@@ -420,15 +420,15 @@ namespace sys_sage {
             \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
         */
-        void GetNthDescendents(vector<Component*>* outArray, int depth);
+        void GetNthDescendents(std::vector<Component*>* outArray, int depth);
 
         /**
         Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. The tree is traversed in order as the children are stored in the std::vector.
         \n E.g. if depth=1, only children of the current are retrieved; if depth=2, only children of the children are retrieved..
         @param depth - how many levels down the tree should be looked
-        @return A std::vector<Component*> with the results.
+        @return A std::std::vector<Component*> with the results.
         */
-        vector<Component*> GetNthDescendents(int depth);
+        std::vector<Component*> GetNthDescendents(int depth);
 
         /**
         Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. The tree is traversed DFS in order as the children are stored in each std::vector children.
@@ -437,14 +437,14 @@ namespace sys_sage {
             \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
         */
-        void GetSubcomponentsByType(vector<Component*>* outArray, int componentType);
+        void GetSubcomponentsByType(std::vector<Component*>* outArray, int componentType);
 
         /**
         Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. The tree is traversed DFS in order as the children are stored in the std::vector.
         @param componentType - componentType
         @return A std::vector<Component*> with the results.
         */
-        vector<Component*> GetSubcomponentsByType(int _componentType);
+        std::vector<Component*> GetSubcomponentsByType(int _componentType);
         
         /** 
         Retrieves a std::vector of Component pointers, which form the subtree (current node and all the subcomponents) of this.
@@ -452,13 +452,13 @@ namespace sys_sage {
             \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
         */
-        void GetComponentsInSubtree(vector<Component*>* outArray);
+        void GetComponentsInSubtree(std::vector<Component*>* outArray);
 
         /**  
         Retrieves a std::vector of Component pointers, which form the subtree (current node and all the subcomponents) of this.
         @return A std::vector<Component*> with the results.
         */
-        vector<Component*> GetComponentsInSubtree();
+        std::vector<Component*> GetComponentsInSubtree();
 
         //SVTODO rename to GetRelations
         //SVTODO how to deal with former int orientation, now bool ordered? -> if checked for position, return any of not ordered
@@ -466,16 +466,16 @@ namespace sys_sage {
         //SVDOCTODO mention FindAllRelationsBy as an alternative
         //SVDOCTODO this one just returns a pointer to the internal structure -- the object already exists and is managed (deleted) by sys-sage
         //SVDOCTODO mention that std::vector<Relation*>& x = _GetRelations(type); returns a reference (to manipulate with the object) and std::vector<Relation*> x = _GetRelations(type); returns a copy
-        const vector<Relation*>& GetRelations(sys_sage::RelationType::type relationType) const;
+        const std::vector<Relation*>& GetRelations(RelationType::type relationType) const;
         //SVDOCTODO 
         //SVDOCTODO is private, should not be called
         //SVDOCTODO mention that std::vector<Relation*>& x = _GetRelations(type); returns a reference (to manipulate with the object) and std::vector<Relation*> x = _GetRelations(type); returns a copy
-        vector<Relation*>& _GetRelations(sys_sage::RelationType::type relationType);
+        std::vector<Relation*>& _GetRelations(RelationType::type relationType);
         //SVDOCTODO 
         //SVDOCTODO is this a good name?
         //SVDOCTODO mention GetRelations as an alternative
         //SVDOCTODO this method creates a new vector and fills it with data; returns a new vector
-        vector<Relation*> FindAllRelationsBy(sys_sage::RelationType::type relationType = sys_sage::RelationType::Any, int thisComponentPosition = -1);
+        std::vector<Relation*> FindAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1);
 
         // SVDOCTODO was removed -> use GetAllDataPathsByType insteas with dataType::Any
         // //SVDOCTODO update 
@@ -514,31 +514,31 @@ namespace sys_sage {
         @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
         @return DataPath pointer to the found data path; NULL if nothing found.
         */
-        DataPath* GetDataPathByType(sys_sage::DataPathType::type dp_type, sys_sage::DataPathDirection::type direction = sys_sage::DataPathDirection::Any);
+        DataPath* GetDataPathByType(DataPathType::type dp_type, DataPathDirection::type direction = DataPathDirection::Any);
         
         //SVTODO rename to GetAllDataPaths
         //SVDOCTODO new parameters
         /**
         Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
-        Results are returned in vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
+        Results are returned in std::vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
         @param type - DataPath type (type) to search for.
         @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
         @param outDpArr - output parameter (vector with results)
             \n An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
         */
-        void GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::DataPathType::type dp_type = sys_sage::DataPathType::Any, sys_sage::DataPathDirection::type direction = sys_sage::DataPathDirection::Any);
+        void GetAllDataPathsByType(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any);
 
         //SVTODO rename to GetAllDataPaths
         //SVDOCTODO new parameters
         /**
         Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
-        Results are returned in a vector<DataPath*>*, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
+        Results are returned in a std::vector<DataPath*>*, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
         @param dp_type - DataPath type (dp_type) to search for.
         @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
         @return A std::vector<DataPath*> with the results.
         */
-        vector<DataPath*> GetAllDataPathsByType(sys_sage::DataPathType::type dp_type = sys_sage::DataPathType::Any, sys_sage::DataPathDirection::type direction = sys_sage::DataPathDirection::Any);
+        std::vector<DataPath*> GetAllDataPathsByType(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any);
 
         /**
         @brief Checks the consistency of the component tree starting from this component.
@@ -597,7 +597,7 @@ namespace sys_sage {
         [[deprecated("DeleteDataPath is deprecated. Use void DeleteRelation(Relation * r) instead.")]]
         void DeleteDataPath(DataPath * dp);
 
-        void DeleteAllRelations(sys_sage::RelationType::type relationType = sys_sage::RelationType::Any);
+        void DeleteAllRelations(RelationType::type relationType = RelationType::Any);
         /**
          * [[deprecated("Use void DeleteAllRelations(int32_t relationType = sys_sage::RelationType::Any) instead.")]]
          * Deletes all DataPaths of this component.
@@ -697,7 +697,7 @@ namespace sys_sage {
         @param _componentType = componentType, default sys_sage::ComponentType::None
         */
         //SVDOCTODO
-        Component(int _id, string _name, sys_sage::ComponentType::type _componentType);
+        Component(int _id, std::string _name, ComponentType::type _componentType);
         /**
         Generic Component constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Usually one of the derived subclasses for different Component Types will be created. Sets:
         @param parent = the parent 
@@ -706,11 +706,11 @@ namespace sys_sage {
         @param _componentType = componentType, default sys_sage::ComponentType::None
         */
         //SVDOCTODO
-        Component(Component * parent, int _id, string _name, sys_sage::ComponentType::type _componentType);
+        Component(Component * parent, int _id, std::string _name, ComponentType::type _componentType);
 
         int id; /**< Numeric ID of the component. There is no requirement for uniqueness of the ID, however it is advised to have unique IDs at least in the realm of parent's children. Some tree search functions, which take the id as a search parameter search for first match, so the user is responsible to manage uniqueness in the realm of the search subtree (or should be aware of the consequences of not doing so). Component's ID is set by the constructor, and is retrieved via int GetId(); */
         int depth; /**< Depth (level) of the Component in the Component Tree */
-        string name; /**< Name of the component (as a string). */
+        std::string name; /**< Name of the component (as a std::string). */
         int count{-1}; /**< Can be used to represent multiple Components with the same properties. By default, it represents only 1 component, and is set to -1. */
         /**
         Component type of the component. The component type denotes of which class the instance is (Often the components are stored as Component*, even though they are a member of one of the child classes)
@@ -728,7 +728,7 @@ namespace sys_sage {
         \n SYS_SAGE_COMPONENT_TOPOLOGY -> class Topology
         */
         const int componentType;
-        vector<Component*> children; /**< Contains the list (std::vector) of pointers to children of the component in the component tree. */
+        std::vector<Component*> children; /**< Contains the list (std::vector) of pointers to children of the component in the component tree. */
         Component* parent { nullptr }; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be NULL.*/
         
         
@@ -736,7 +736,7 @@ namespace sys_sage {
         // vector<DataPath*> dp_outgoing; /**< Contains references to data paths that point from this component. @see DataPath */
         
         //SVDOCTODO
-        std::array<vector<Relation*>*, sys_sage::RelationType::_num_relation_types>* relations = nullptr;
+        std::array<std::vector<Relation*>*, RelationType::_num_relation_types>* relations = nullptr;
     };
 
     /**
@@ -772,7 +772,7 @@ namespace sys_sage {
         @param _name = name, default "Node"
         @param componentType=>sys_sage::ComponentType::Node
         */
-        Node(int _id = 0, string _name = "Node");
+        Node(int _id = 0, std::string _name = "Node");
         /**
         Node constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -780,7 +780,7 @@ namespace sys_sage {
         @param _name = name, default "Node"
         @param componentType=>sys_sage::ComponentType::Node
         */
-        Node(Component * parent, int _id = 0, string _name = "Node");
+        Node(Component * parent, int _id = 0, std::string _name = "Node");
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -832,7 +832,7 @@ namespace sys_sage {
         @param _size = size/capacity of the memory element, default -1
         @param is_volatile = true if the memory is volatile, default false
         */
-        Memory(Component * parent, int id = 0, string _name = "Memory", long long _size = -1, bool is_volatile = false);
+        Memory(Component * parent, int id = 0, std::string _name = "Memory", long long _size = -1, bool is_volatile = false);
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -875,7 +875,7 @@ namespace sys_sage {
         /**
          * Gets the MIG size of the memory element.
          */
-        long long GetMIGSize(string uuid = "");
+        long long GetMIGSize(std::string uuid = "");
     #endif
     };
 
@@ -943,7 +943,7 @@ namespace sys_sage {
         @param _vendor = name of the vendor, default ""
         @param _model = model name, default ""
         */
-        Chip(int _id = 0, string _name = "Chip", sys_sage::ChipType::type _type = sys_sage::ChipType::None, string _vendor = "", string _model = "");
+        Chip(int _id = 0, std::string _name = "Chip", ChipType::type _type = ChipType::None, std::string _vendor = "", std::string _model = "");
         /**
         Chip constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -954,7 +954,7 @@ namespace sys_sage {
         @param _vendor = name of the vendor, default ""
         @param _model = model name, default ""
         */
-        Chip(Component * parent, int _id = 0, string _name = "Chip", sys_sage::ChipType::type _type = sys_sage::ChipType::None, string _vendor = "", string _model = "");
+        Chip(Component * parent, int _id = 0, std::string _name = "Chip", ChipType::type _type = ChipType::None, std::string _vendor = "", std::string _model = "");
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -964,26 +964,26 @@ namespace sys_sage {
         Sets the vendor of the chip.
         @param _vendor - The name of the vendor to set.
         */
-        void SetVendor(string _vendor);
+        void SetVendor(std::string _vendor);
         /**
         Gets the vendor of the chip.
         @return The name of the vendor.
         @see vendor
         */
-        string GetVendor();
+        std::string GetVendor();
         
         /**
         Sets the model of the chip.
         @param _model - The model name to set.
         */
-        void SetModel(string _model);
+        void SetModel(std::string _model);
         
         /**
         Gets the model of the chip.
         @return The model name.
         @see model
         */
-        string GetModel();
+        std::string GetModel();
         
         /**
         Sets the type of the chip.
@@ -1005,8 +1005,8 @@ namespace sys_sage {
         */
         xmlNodePtr CreateXmlSubtree();
     private:
-        string vendor; /**< Vendor of the chip */
-        string model; /**< Model of the chip */
+        std::string vendor; /**< Vendor of the chip */
+        std::string model; /**< Model of the chip */
         int type; /**< Type of the chip, e.g., CPU, GPU */
     #ifdef NVIDIA_MIG
     public:
@@ -1015,21 +1015,21 @@ namespace sys_sage {
         @param uuid - The UUID of the chip, default is an empty string.
         @return Status of the update operation.
         */
-        int UpdateMIGSettings(string uuid = "");
+        int UpdateMIGSettings(std::string uuid = "");
 
         /**
         Gets the number of SMs for the MIG.
         @param uuid - The UUID of the chip, default is an empty string.
         @return The number of SMs.
         */
-        int GetMIGNumSMs(string uuid = "");
+        int GetMIGNumSMs(std::string uuid = "");
 
         /**
         Gets the number of cores for the MIG.
         @param uuid - The UUID of the chip, default is an empty string.
         @return The number of cores.
         */
-        int GetMIGNumCores(string uuid = "");
+        int GetMIGNumCores(std::string uuid = "");
     #endif
     };
 
@@ -1059,7 +1059,7 @@ namespace sys_sage {
         @param _cache_line_size - size of a cache line (Bytes), default -1
         @param componentType=>SYS_SAGE_COMPONENT_CACHE
         */
-        Cache(Component * parent, int _id, string _cache_type, long long _cache_size = 0, int _associativity = -1, int _cache_line_size = -1);
+        Cache(Component * parent, int _id, std::string _cache_type, long long _cache_size = 0, int _associativity = -1, int _cache_line_size = -1);
         /**
         Cache constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -1093,13 +1093,13 @@ namespace sys_sage {
         @returns cache name 
         @see cache_name
         */
-        string GetCacheName();
+        std::string GetCacheName();
         
         /**
         Sets cache name of this cache (e.g. "L1", "texture")
         @param _cache_name - value for cache_type
         */
-        void SetCacheName(string _name);
+        void SetCacheName(std::string _name);
 
         /**
          * Retrieves size/capacity of the cache
@@ -1138,7 +1138,7 @@ namespace sys_sage {
         */
         xmlNodePtr CreateXmlSubtree();
     private:
-        string cache_type; /**< cache level or cache type */
+        std::string cache_type; /**< cache level or cache type */
         long long cache_size;  /**< size/capacity of the cache */
         int cache_associativity_ways; /**< number of cache associativity ways */
         int cache_line_size; /**< size of a cache line */
@@ -1148,7 +1148,7 @@ namespace sys_sage {
         /**
          * Gets the MIG size of the cache element.
          */
-        long long GetMIGSize(string uuid = "");
+        long long GetMIGSize(std::string uuid = "");
     #endif
     };
 
@@ -1164,7 +1164,7 @@ namespace sys_sage {
         @param _name = name, default "Subdivision"
         @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
         */
-        Subdivision(int _id = 0, string _name = "Subdivision");
+        Subdivision(int _id = 0, std::string _name = "Subdivision");
         /**
         Subdivision constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -1173,7 +1173,7 @@ namespace sys_sage {
         @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
         */
         //SVDOCTODO check all the API documentation. where there is SYS_SAGE_COMPONENT_xxx, replace it by matching sys_sage::ComponentType::xxx
-        Subdivision(Component * parent, int _id = 0, string _name = "Subdivision");
+        Subdivision(Component * parent, int _id = 0, std::string _name = "Subdivision");
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -1203,7 +1203,7 @@ namespace sys_sage {
         @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
         */
         //SVDOCTODO
-        Subdivision(int _id, string _name, sys_sage::ComponentType::type _componentType);
+        Subdivision(int _id, std::string _name, ComponentType::type _componentType);
         /**
         Subdivision constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -1212,7 +1212,7 @@ namespace sys_sage {
         @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
         */
         //SVDOCTODO
-        Subdivision(Component * parent, int _id, string _name, sys_sage::ComponentType::type _componentType);
+        Subdivision(Component * parent, int _id, std::string _name, ComponentType::type _componentType);
 
         int type; /**< Type of the subdivision. Each user can have his own numbering, i.e. the type is there to identify different types of subdivisions as the user defines it.*/
     };
@@ -1279,7 +1279,7 @@ namespace sys_sage {
         @param _name = name, default "Core"
         @param componentType=>SYS_SAGE_COMPONENT_CORE
         */
-        Core(int _id = 0, string _name = "Core");
+        Core(int _id = 0, std::string _name = "Core");
         /**
         Core constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -1287,7 +1287,7 @@ namespace sys_sage {
         @param _name = name, default "Core"
         @param componentType=>SYS_SAGE_COMPONENT_CORE
         */
-        Core(Component * parent, int _id = 0, string _name = "Core");
+        Core(Component * parent, int _id = 0, std::string _name = "Core");
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -1328,7 +1328,7 @@ namespace sys_sage {
         @param _name = name, default "Thread"
         @param componentType=>SYS_SAGE_COMPONENT_THREAD
         */
-        Thread(int _id = 0, string _name = "Thread");
+        Thread(int _id = 0, std::string _name = "Thread");
         /**
         Thread constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -1336,7 +1336,7 @@ namespace sys_sage {
         @param _name = name, default "Thread"
         @param componentType=>SYS_SAGE_COMPONENT_THREAD
         */    
-        Thread(Component * parent, int _id = 0, string _name = "Thread");
+        Thread(Component * parent, int _id = 0, std::string _name = "Thread");
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -1377,7 +1377,7 @@ namespace sys_sage {
         @param _name = name, default "Qubit"
         @param componentType=>SYS_SAGE_COMPONENT_QUBIT
         */
-        Qubit(int _id = 0, string _name = "Qubit");
+        Qubit(int _id = 0, std::string _name = "Qubit");
         /**
         Qubit constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -1385,7 +1385,7 @@ namespace sys_sage {
         @param _name = name, default "Qubit0"
         @param componentType=>SYS_SAGE_COMPONENT_QUBIT
         */
-        Qubit(Component * parent, int _id = 0, string _name = "Qubit");
+        Qubit(Component * parent, int _id = 0, std::string _name = "Qubit");
 
         // struct NeighbouringQubit
         // {   
@@ -1492,7 +1492,7 @@ namespace sys_sage {
         @param _name = name, default "QuantumBackend"
         @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
         */
-        QuantumBackend(int _id = 0, string _name = "QuantumBackend");
+        QuantumBackend(int _id = 0, std::string _name = "QuantumBackend");
         /**
         QuantumBackend constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -1500,7 +1500,7 @@ namespace sys_sage {
         @param _name = name, default "QuantumBackend"
         @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
         */
-        QuantumBackend(Component * parent, int _id = 0, string _name = "QuantumBackend");
+        QuantumBackend(Component * parent, int _id = 0, std::string _name = "QuantumBackend");
 
         /**
         * @brief Sets the number of qubits in the quantum backend.

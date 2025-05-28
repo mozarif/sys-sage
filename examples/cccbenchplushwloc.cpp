@@ -4,6 +4,9 @@
 #include "sys-sage.hpp"
 #include "parsers/cccbench.hpp"
 
+using std::cout;
+using std::endl;
+
 using namespace sys_sage;
 
 void usage(char* argv0)
@@ -14,7 +17,7 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string xmlPath;
+    std::string xmlPath;
     std::string cccPath;
     if(argc == 3){
         xmlPath = argv[1];
@@ -46,7 +49,7 @@ int main(int argc, char *argv[])
     parseCccbenchOutput(n, cccPath);
 
 
-    auto allcores = new vector<Component *>();
+    auto allcores = new std::vector<Component *>();
     topo->GetAllSubcomponentsByType(allcores, sys_sage::ComponentType::Core);    
     //auto allcores = topo->GetAllChildrenByType(SYS_SAGE_COMPONENT_CORE);
 

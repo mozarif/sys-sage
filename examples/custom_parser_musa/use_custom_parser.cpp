@@ -5,6 +5,9 @@
 
 using namespace sys_sage;
 
+using std::cout;
+using std::endl;
+
 void usage(char* argv0)
 {
     std::cerr << "usage: " << argv0 << " <musa system config file path>" << std::endl;
@@ -15,7 +18,7 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string musaPath;
+    std::string musaPath;
     if(argc < 2){
         std::string path_prefix(argv[0]);
         std::size_t found = path_prefix.find_last_of("/\\");
@@ -51,7 +54,7 @@ int main(int argc, char *argv[])
     topo->PrintAllDataPathsInSubtree();
     cout << "----------------                        ----------------" << endl;
 
-    string output_name = "custom_data_parser_musa_sample_output.xml";
+    std::string output_name = "custom_data_parser_musa_sample_output.xml";
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     exportToXml(topo, output_name);
 

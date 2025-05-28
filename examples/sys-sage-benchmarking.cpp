@@ -16,6 +16,8 @@ using namespace sys_sage;
 ////////////////////////////////////////////////////////////////////////
 using namespace std::chrono;
 
+using std::cout;
+using std::endl;
 
 //int hwloc_dump_xml(const char *filename);
 uint64_t get_timer_overhead(int repeats, int warmup);
@@ -27,15 +29,15 @@ int main(int argc, char *argv[])
     std::string path_prefix(argv[0]);
     std::size_t found = path_prefix.find_last_of("/\\");
     path_prefix=path_prefix.substr(0,found) + "/";
-    string xmlPath = path_prefix + "example_data/skylake_hwloc.xml";
-    string bwPath = path_prefix + "example_data/skylake_caps_numa_benchmark.csv";
-    string mt4gPath = path_prefix + "example_data/pascal_gpu_topo.csv";
+    std::string xmlPath = path_prefix + "example_data/skylake_hwloc.xml";
+    std::string bwPath = path_prefix + "example_data/skylake_caps_numa_benchmark.csv";
+    std::string mt4gPath = path_prefix + "example_data/pascal_gpu_topo.csv";
 
     high_resolution_clock::time_point t_start, t_end;
     uint64_t timer_overhead = get_timer_overhead(TIMER_REPEATS, TIMER_WARMUP);
 
     Topology* t = new Topology();
-    vector<Component*> hwlocComponentList, mt4gComponentList, allComponentList;
+    std::vector<Component*> hwlocComponentList, mt4gComponentList, allComponentList;
 
     //time create new component
     t_start = high_resolution_clock::now();
@@ -72,7 +74,7 @@ int main(int argc, char *argv[])
 
     //get num caps-benchmark DataPaths
     int caps_dataPaths = 0;
-    vector<DataPath*> capsDataPaths;
+    std::vector<DataPath*> capsDataPaths;
     for(Component* gpu_c: hwlocComponentList)
     {
         capsDataPaths = gpu_c->GetAllDataPathsByType(sys_sage::DataPathType::Any, sys_sage::DataPathDirection::Outgoing);
@@ -87,11 +89,11 @@ int main(int argc, char *argv[])
 
     //for NUMA 0 get NUMA with min BW
     Numa * numa = (Numa*)n->GetSubcomponentById(0, sys_sage::ComponentType::Numa);
-    if(numa==NULL){ cerr << "numa 0 not found in sys-sage" << endl; return 1;}
+    if(numa==NULL){ std::cerr << "numa 0 not found in sys-sage" << endl; return 1;}
     unsigned int max_bw = 0;
     Component* max_bw_component = NULL;
     t_start = high_resolution_clock::now();
-    vector<DataPath*> dp_vec = numa->GetAllDataPathsByType(sys_sage::DataPathType::Any, sys_sage::DataPathDirection::Outgoing);
+    std::vector<DataPath*> dp_vec = numa->GetAllDataPathsByType(sys_sage::DataPathType::Any, sys_sage::DataPathDirection::Outgoing);
     // vector<DataPath*>* dp = numa->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
     for(DataPath* dp : dp_vec)
     {
@@ -130,7 +132,7 @@ int main(int argc, char *argv[])
 
     //get num mt4g DataPaths
     int mt4g_dataPaths = 0;
-    vector<DataPath*> componentDataPaths;
+    std::vector<DataPath*> componentDataPaths;
     for(Component* gpu_c: mt4gComponentList)
     {
         componentDataPaths = gpu_c->GetAllDataPathsByType(sys_sage::DataPathType::Any, sys_sage::DataPathDirection::Outgoing);

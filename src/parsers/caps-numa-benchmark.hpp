@@ -6,7 +6,7 @@
 
 
 namespace sys_sage {
-    int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, string delim = ";");
+    int parseCapsNumaBenchmark(Component* rootComponent, std::string benchmarkPath, std::string delim = ";");
 
     class CSVReader
     {

@@ -7,6 +7,9 @@
 
 #include "Component.hpp"
 
+using std::cout;
+using std::endl;
+
 ////////////////// RELATION //////////////////
 sys_sage::Relation::Relation(int _relation_type): type(_relation_type) {}
 sys_sage::Relation::Relation(std::initializer_list<Component*> components, bool _ordered): ordered(_ordered), type(sys_sage::RelationType::Relation)

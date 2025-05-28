@@ -15,12 +15,12 @@ namespace sys_sage {
     * @param search_custom_attrib_key_fcn Function pointer for custom attribute key search.
     * @param search_custom_complex_attrib_key_fcn Function pointer for custom complex attribute key search.
     */
-   Component* importFromXml(string path, std::function<void*(xmlNodePtr)> search_custom_attrib_key_fcn = NULL, std::function<int(xmlNodePtr, Component*)> search_custom_complex_attrib_key_fcn = NULL);
+   Component* importFromXml(std::string path, std::function<void*(xmlNodePtr)> search_custom_attrib_key_fcn = NULL, std::function<int(xmlNodePtr, Component*)> search_custom_complex_attrib_key_fcn = NULL);
 
    //SVDOCTODO
    int CreateDataPaths(xmlNodePtr dpNode);
    //SVDOCTODO private
-   Component* CreateComponentSubtree(xmlNodePtr n, string type);
+   Component* CreateComponentSubtree(xmlNodePtr n, std::string type);
    /**
     * @private
     * For searching default attributes, i.e. those 

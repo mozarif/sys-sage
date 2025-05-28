@@ -5,6 +5,9 @@
 
 using namespace sys_sage;
 
+using std::cout;
+using std::endl;
+
 void usage(char* argv0)
 {
     std::cerr << "usage: " << argv0 << " <mt4g output path>" << std::endl;
@@ -15,7 +18,7 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string gpuTopoPath;
+    std::string gpuTopoPath;
     if(argc < 2){
         std::string path_prefix(argv[0]);
         std::size_t found = path_prefix.find_last_of("/\\");
@@ -42,7 +45,7 @@ int main(int argc, char *argv[])
 
     cout << "Total num GPU cores: " << topo->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread) << endl;
 
-    string output_name = "sys-sage_gpu_sample_output.xml";
+    std::string output_name = "sys-sage_gpu_sample_output.xml";
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     
     //topo->DeleteSubtree();

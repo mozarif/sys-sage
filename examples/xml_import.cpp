@@ -3,10 +3,13 @@
 #include <map>
 #include <string>
 
+using std::cout;
+using std::endl;
+
 using namespace sys_sage;
 
 int main(int argc, char *argv[]) {
-  string xmlPath;
+  std::string xmlPath;
   if (argc < 2) {
     std::string path_prefix(argv[0]);
     std::size_t found = path_prefix.find_last_of("/\\");
@@ -23,7 +26,7 @@ int main(int argc, char *argv[]) {
   cout << "-- Parsing Hwloc output from file " << xmlPath << endl;
   parseHwlocOutput(n, xmlPath);
 
-  vector<Component *> c_orig = topo->GetComponentsInSubtree();
+  std::vector<Component *> c_orig = topo->GetComponentsInSubtree();
 
   exportToXml(topo, "output.xml");
 
