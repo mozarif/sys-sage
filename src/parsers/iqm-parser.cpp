@@ -10,7 +10,7 @@
 //using FidelityMap = std::map<std::pair<int, int>, double>; // For storing fidelities
 
 
-int parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForHistory)
+int sys_sage::parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForHistory)
 {
     if(parent == NULL){
         std::cerr << "parseIQM: parent is null" << std::endl;
@@ -20,7 +20,7 @@ int parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForH
     return parseIQM(qc, dataSourcePath, qcId, tsForHistory, true);   
 }
 
-int parseIQM(QuantumBackend* qc, std::string dataSourcePath, int qcId, int tsForHistory, bool createTopo)
+int sys_sage::parseIQM(QuantumBackend* qc, std::string dataSourcePath, int qcId, int tsForHistory, bool createTopo)
 {
     IQMParser iqm(qc,dataSourcePath);
     int ret;
@@ -38,7 +38,7 @@ int parseIQM(QuantumBackend* qc, std::string dataSourcePath, int qcId, int tsFor
 }
 
 //IQMParser::IQMParser(std::ifstream& filepath)
-IQMParser::IQMParser(QuantumBackend* _qc,std::string filepath)
+sys_sage::IQMParser::IQMParser(QuantumBackend* _qc,std::string filepath)
 { 
     backend = _qc;
 
@@ -51,7 +51,7 @@ IQMParser::IQMParser(QuantumBackend* _qc,std::string filepath)
     jsonData = json::parse(file);
 }
 
-int IQMParser::CreateQcTopo()
+int sys_sage::IQMParser::CreateQcTopo()
 {
     backend->SetName(jsonData["backend_name"]);
     int numQubits = jsonData["T1"].size();
@@ -92,7 +92,7 @@ int IQMParser::CreateQcTopo()
 }
 
 
-int IQMParser::ParseDynamicData(int tsForHistory)
+int sys_sage::IQMParser::ParseDynamicData(int tsForHistory)
 {
     double max;
     std::vector<double> T1;

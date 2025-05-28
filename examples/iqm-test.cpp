@@ -1,6 +1,8 @@
 #include <iomanip>
 #include "sys-sage.hpp"
 
+using namespace sys_sage;
+
 ///////////////////// FoMaC functionality /////////////////////
 ////// This is a use-case-specific functionality, which would be a part of the sys-sage FoMaC, not the core sys-sage. hence, it is here as a separate code
 #define T_WEIGHT            0.1

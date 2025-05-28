@@ -3,6 +3,8 @@
 
 #include "sys-sage.hpp"
 
+using namespace sys_sage;
+
 void usage(char* argv0)
 {
     std::cerr << "usage: " << argv0 << " <hwloc xml path> <caps-numa-benchmark csv path>" << std::endl;

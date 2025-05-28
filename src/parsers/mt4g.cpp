@@ -10,7 +10,7 @@
 #include <string>
 #include <algorithm>
 
-int parseMt4gTopo(Node* parent, string dataSourcePath, int gpuId, string delim)
+int sys_sage::parseMt4gTopo(Node* parent, string dataSourcePath, int gpuId, string delim)
 {
     if(parent == NULL){
         std::cerr << "parseMt4gTopo: parent is null" << std::endl;
@@ -21,7 +21,7 @@ int parseMt4gTopo(Node* parent, string dataSourcePath, int gpuId, string delim)
     return parseMt4gTopo(gpu, dataSourcePath, delim);
 }
 
-int parseMt4gTopo(Component* parent, string dataSourcePath, int gpuId, string delim)
+int sys_sage::parseMt4gTopo(Component* parent, string dataSourcePath, int gpuId, string delim)
 {
     if(parent == NULL){
         std::cerr << "parseMt4gTopo: parent is null" << std::endl;
@@ -32,7 +32,7 @@ int parseMt4gTopo(Component* parent, string dataSourcePath, int gpuId, string de
     return parseMt4gTopo(gpu, dataSourcePath, delim);
 }
 
-int parseMt4gTopo(Chip* gpu, string dataSourcePath, string delim)
+int sys_sage::parseMt4gTopo(Chip* gpu, string dataSourcePath, string delim)
 {
     Mt4gParser gpuT(gpu, dataSourcePath, delim);
     int ret = gpuT.ParseBenchmarkData();
@@ -40,9 +40,9 @@ int parseMt4gTopo(Chip* gpu, string dataSourcePath, string delim)
 
 }
 
-Mt4gParser::Mt4gParser(Chip* gpu, string dataSourcePath, string delim) : dataSourcePath(dataSourcePath), delim(delim), root(gpu), latency_in_cycles(true), Memory_Clock_Frequency(-1), Memory_Bus_Width(-1) { }
+sys_sage::Mt4gParser::Mt4gParser(Chip* gpu, string dataSourcePath, string delim) : dataSourcePath(dataSourcePath), delim(delim), root(gpu), latency_in_cycles(true), Memory_Clock_Frequency(-1), Memory_Bus_Width(-1) { }
 
-int Mt4gParser::ReadBenchmarkFile()
+int sys_sage::Mt4gParser::ReadBenchmarkFile()
 {
     std::ifstream file(dataSourcePath);
     if (!file.good()){
@@ -76,7 +76,7 @@ int Mt4gParser::ReadBenchmarkFile()
     return 0;
 }
 
-int Mt4gParser::ParseBenchmarkData()
+int sys_sage::Mt4gParser::ParseBenchmarkData()
 {
     int ret = ReadBenchmarkFile();
     if(ret != 0)
@@ -196,7 +196,7 @@ int Mt4gParser::ParseBenchmarkData()
     return ret;
 }
 
-int Mt4gParser::parseGPU_INFORMATION()
+int sys_sage::Mt4gParser::parseGPU_INFORMATION()
 {
     vector<string> data = benchmarkData["GPU_INFORMATION"];
     data.erase(data.begin());
@@ -225,7 +225,7 @@ int Mt4gParser::parseGPU_INFORMATION()
     return 0;
 }
 
-int Mt4gParser::parseCOMPUTE_RESOURCE_INFORMATION()
+int sys_sage::Mt4gParser::parseCOMPUTE_RESOURCE_INFORMATION()
 {
     vector<string> data = benchmarkData["COMPUTE_RESOURCE_INFORMATION"];
     data.erase(data.begin());
@@ -271,12 +271,12 @@ int Mt4gParser::parseCOMPUTE_RESOURCE_INFORMATION()
     return 0;
 }
 
-int Mt4gParser::parseREGISTER_INFORMATION()
+int sys_sage::Mt4gParser::parseREGISTER_INFORMATION()
 {
     //TODO
     return 0;
 }
-int Mt4gParser::parseADDITIONAL_INFORMATION()
+int sys_sage::Mt4gParser::parseADDITIONAL_INFORMATION()
 {
     vector<string> data = benchmarkData["ADDITIONAL_INFORMATION"];
     data.erase(data.begin());
@@ -335,7 +335,7 @@ int Mt4gParser::parseADDITIONAL_INFORMATION()
     }
     return 0;
 }
-int Mt4gParser::parseMemory(string header_name, string memory_name)
+int sys_sage::Mt4gParser::parseMemory(string header_name, string memory_name)
 {
     vector<string> data = benchmarkData[header_name];
     data.erase(data.begin());
@@ -472,7 +472,7 @@ int Mt4gParser::parseMemory(string header_name, string memory_name)
     return 0;
 }
 
-int Mt4gParser::parseCaches(string header_name, string cache_type)
+int sys_sage::Mt4gParser::parseCaches(string header_name, string cache_type)
 {
     vector<string> data = benchmarkData[header_name];
     data.erase(data.begin());
@@ -737,19 +737,19 @@ int Mt4gParser::parseCaches(string header_name, string cache_type)
     return 0;
 }
 
-void trimRight( std::string& str, const std::string& trimChars)
+void sys_sage::trimRight( std::string& str, const std::string& trimChars)
 {
    std::string::size_type pos = str.find_last_not_of( trimChars );
    str.erase( pos + 1 );
 }
 
-void trimLeft( std::string& str, const std::string& trimChars)
+void sys_sage::trimLeft( std::string& str, const std::string& trimChars)
 {
    std::string::size_type pos = str.find_first_not_of( trimChars );
    str.erase( 0, pos );
 }
 
-void trim( std::string& str, const std::string& trimChars)
+void sys_sage::trim( std::string& str, const std::string& trimChars)
 {
    trimRight( str, trimChars );
    trimLeft( str, trimChars );

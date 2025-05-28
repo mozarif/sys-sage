@@ -5,9 +5,12 @@
 #include <fstream>
 #include <vector>
 
+//SVTODO remove this
 using namespace std;
 
-int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, string delim)
+
+
+int sys_sage::parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, string delim)
 {
     CSVReader reader(benchmarkPath, delim);
     vector<vector<string> > benchmarkData;
@@ -77,7 +80,7 @@ int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, strin
     return 0;
 }
 
-int CSVReader::getData(vector<vector<string> >* dataList)
+int sys_sage::CSVReader::getData(vector<vector<string> >* dataList)
 {
     std::ifstream file(benchmarkPath);
     if (!file.good())

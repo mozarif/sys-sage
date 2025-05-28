@@ -12,18 +12,21 @@
 
 using namespace std;
 
-#import <libxml/parser.h>
+//SVTODO fix xml load/dump functionality -- should work for Relations!
+//SVTODO refresh to make sure all attributes are parsed (especially QC stuff)
+
+#include <libxml/parser.h>
 
 // Function pointer for custom attribute key search
 std::function<void*(xmlNodePtr)> load_custom_attrib_fcn = NULL;
 
 // Function pointer for custom complex attribute key search
-std::function<int(xmlNodePtr, Component *)>
+std::function<int(xmlNodePtr, sys_sage::Component *)>
     load_custom_complex_attrib_fcn = NULL;
 
 // Create map of addresses to Components created
 // this is used to create the Datapaths
-std::map<string, Component *> addr_to_component;
+std::map<string, sys_sage::Component *> addr_to_component;
 
 //Helper-Function to retrieve string from xml-node
 std::string getStringFromProp(xmlNodePtr n, string prop) {
@@ -33,7 +36,7 @@ std::string getStringFromProp(xmlNodePtr n, string prop) {
 }
 
 // Extract attribute value from xml-node based on attribute name
-void* search_default_attrib_key(xmlNodePtr n) {
+void* sys_sage::search_default_attrib_key(xmlNodePtr n) {
   string key, value;
   //check if the node has a name-attribute
   if (xmlHasProp(n, (const xmlChar *)"name") && xmlHasProp(n, (const xmlChar *)"value")) {
@@ -83,7 +86,7 @@ void* search_default_attrib_key(xmlNodePtr n) {
 //
 // Complex attributes are attributes that have a value that is not a simple type
 // but a more complex structure like a vector
-int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
+int sys_sage::search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
   string key;
   if (xmlHasProp(n, (const xmlChar *)"name")) {
     key = getStringFromProp(n, "name");
@@ -140,7 +143,7 @@ int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
 // The attributes are added to the Component c.
 // If the custom functions are not null, they are called first. If they
 // can not handle the attribute, the default functions are used.
-int collect_attrib(xmlNodePtr n, Component *c) {
+int sys_sage::collect_attrib(xmlNodePtr n, Component *c) {
   void *attrib_value = NULL;
   // try custom attribute search function
   if (load_custom_attrib_fcn != NULL)
@@ -168,7 +171,7 @@ int collect_attrib(xmlNodePtr n, Component *c) {
 //
 // This function creates a ComponentSubtree from the xmlNode n by creating
 // a Component and then recursively calling itself for all children of n.
-Component *CreateComponentSubtree(xmlNodePtr n, string type) {
+sys_sage::Component* sys_sage::CreateComponentSubtree(xmlNodePtr n, string type) {
   Component *c = NULL;
 
   std::string name = getStringFromProp(n, "name");
@@ -285,7 +288,7 @@ Component *CreateComponentSubtree(xmlNodePtr n, string type) {
 
 // Create DataPath objects from xmlNode dpNode and add them to the
 // corresponding Components
-int CreateDataPaths(xmlNodePtr dpNode) {
+int sys_sage::CreateDataPaths(xmlNodePtr dpNode) {
 
   for (xmlNodePtr cur = dpNode->children; cur != NULL; cur = cur->next) {
 
@@ -309,7 +312,7 @@ int CreateDataPaths(xmlNodePtr dpNode) {
   return 1;
 }
 
-Component *importFromXml(
+sys_sage::Component* sys_sage::importFromXml(
     string path,
     std::function<void*(xmlNodePtr)> _load_custom_attrib_fcn,
     std::function<int(xmlNodePtr, Component *)> _load_custom_complex_attrib_fcn) 

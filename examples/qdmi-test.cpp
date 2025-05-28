@@ -7,6 +7,8 @@ export PROP_IBM=/home/diogenes/sys-sage/build/_deps/backends-src/tests/ibm_prob.
 */
 #ifdef QDMI
 
+using namespace sys_sage;
+
 #include <iostream>
 #include <string.h>
 #include <iomanip>

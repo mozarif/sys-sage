@@ -13,22 +13,24 @@
 
 using json = nlohmann::json;
 
-//user calls only these functions
-int parseIQM(Component* parent, string dataSourcePath, int qcId, int tsForHistory = -1);
-int parseIQM(QuantumBackend* parent, string dataSourcePath, int qcId, int tsForHistory = -1, bool createTopo = true);
+namespace sys_sage {
+    //user calls only these functions
+    int parseIQM(Component* parent, string dataSourcePath, int qcId, int tsForHistory = -1);
+    int parseIQM(QuantumBackend* parent, string dataSourcePath, int qcId, int tsForHistory = -1, bool createTopo = true);
 
-class IQMParser
-{
-public: 
+    class IQMParser
+    {
+    public: 
 
-    IQMParser(QuantumBackend* _qc,std::string filepath);
-    int CreateQcTopo();
-    int ParseDynamicData(int tsForHistory);
-private:
-    double t1_max, t2_max, q1_fidelity_max, readout_fidelity_max;
+        IQMParser(QuantumBackend* _qc,std::string filepath);
+        int CreateQcTopo();
+        int ParseDynamicData(int tsForHistory);
+    private:
+        double t1_max, t2_max, q1_fidelity_max, readout_fidelity_max;
 
-    json jsonData;
-    QuantumBackend * backend;
-};
+        json jsonData;
+        QuantumBackend * backend;
+    };
+} //namespace sys_sage
 
 #endif // IQM_PARSER_HPP

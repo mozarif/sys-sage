@@ -10,9 +10,10 @@
 #include <sstream>
 #include "cccbench.hpp"
 
+//SVTODO remove this?
 using namespace std;
 
-CccbenchParser::CccbenchParser(const char *csv_path)
+sys_sage::CccbenchParser::CccbenchParser(const char *csv_path)
     : c2cDatapoints((Vec2DArray<float> *)0)
 {
     fstream fs;
@@ -84,7 +85,7 @@ CccbenchParser::CccbenchParser(const char *csv_path)
     }
 }
 
-void CccbenchParser::applyDataPaths(Component *root)
+void sys_sage::CccbenchParser::applyDataPaths(Component *root)
 {
     auto corev = new vector<Component *>();
     root->GetAllSubcomponentsByType(corev, sys_sage::ComponentType::Core);
@@ -114,7 +115,7 @@ void CccbenchParser::applyDataPaths(Component *root)
     }
 }
 
-int parseCccbenchOutput(Node* n, std::string cccPath)
+int sys_sage::parseCccbenchOutput(Node* n, std::string cccPath)
 {
     const char *cstr_path = cccPath.c_str();
     auto cccparser = new CccbenchParser(cstr_path);

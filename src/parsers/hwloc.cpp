@@ -6,14 +6,14 @@
 
 using namespace std;
 
-vector<string> xmlRelevantNames
+vector<string> sys_sage::xmlRelevantNames
 {
     "topology",
     "object",
     "info"
 };
 
-vector<string> xmlRelevantObjectTypes
+vector<string> sys_sage::xmlRelevantObjectTypes
 {
     "Machine",
     "Package",
@@ -27,7 +27,7 @@ vector<string> xmlRelevantObjectTypes
     "Group"
 };
 
-string xmlGetPropStr(xmlNode* node, string key)
+string sys_sage::xmlGetPropStr(xmlNode* node, string key)
 {
     string val;
     xmlChar* valX = xmlGetProp(node, (xmlChar *)key.c_str());
@@ -39,7 +39,7 @@ string xmlGetPropStr(xmlNode* node, string key)
     return val;
 }
 
-Component* createChildC(string type, xmlNode* node)
+sys_sage::Component* sys_sage::createChildC(string type, xmlNode* node)
 {
     Component* c = NULL;
     string s;
@@ -95,7 +95,7 @@ Component* createChildC(string type, xmlNode* node)
     return c;
 }
 
-int xmlProcessChildren(Component* c, xmlNode* parent, int level)
+int sys_sage::xmlProcessChildren(Component* c, xmlNode* parent, int level)
 {
     for (xmlNode* child = parent->children; child; child = child->next)
     {
@@ -186,7 +186,7 @@ int xmlProcessChildren(Component* c, xmlNode* parent, int level)
     return 0;
 }
 
-int removeUnknownCompoents(Component* c){
+int sys_sage::removeUnknownCompoents(Component* c){
     vector<Component*>* children = c->GetChildren();
     vector<Component*> children_copy;
     for(Component* child : *children){
@@ -220,7 +220,7 @@ int removeUnknownCompoents(Component* c){
 }
 
 //parses a hwloc output and adds it to topology
-int parseHwlocOutput(Node* n, string xmlPath)
+int sys_sage::parseHwlocOutput(Node* n, string xmlPath)
 {
     xmlDoc *document = xmlReadFile(xmlPath.c_str(), NULL, 0);
     if (document == NULL) {

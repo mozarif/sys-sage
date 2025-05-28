@@ -9,7 +9,7 @@ std::function<int(string,void*,xmlNodePtr)> store_custom_complex_attrib_fcn = NU
 
 //methods for printing out default attributes, i.e. those 
 //for a specific key, return the value as a string to be printed in the xml
-int search_default_attrib_key(string key, void* value, string* ret_value_str)
+int sys_sage::search_default_attrib_key(string key, void* value, string* ret_value_str)
 {
     //value: uint64_t 
     if(!key.compare("CATcos") || 
@@ -96,7 +96,7 @@ int search_default_complex_attrib_key(string key, void* value, xmlNodePtr n)
     return 0;
 }
 
-int print_attrib(map<string,void*> attrib, xmlNodePtr n)
+int sys_sage::print_attrib(map<string,void*> attrib, xmlNodePtr n)
 {
     string attrib_value;
     for (auto const& [key, val] : attrib){
@@ -124,7 +124,7 @@ int print_attrib(map<string,void*> attrib, xmlNodePtr n)
     return 1;
 }
 
-xmlNodePtr Memory::CreateXmlSubtree()
+xmlNodePtr sys_sage::Memory::CreateXmlSubtree()
 {
     xmlNodePtr n = Component::CreateXmlSubtree();
     if(size > 0)
@@ -132,14 +132,14 @@ xmlNodePtr Memory::CreateXmlSubtree()
     xmlNewProp(n, (const unsigned char *)"is_volatile", (const unsigned char *)(std::to_string(is_volatile?1:0)).c_str());
     return n;
 }
-xmlNodePtr Storage::CreateXmlSubtree()
+xmlNodePtr sys_sage::Storage::CreateXmlSubtree()
 {
     xmlNodePtr n = Component::CreateXmlSubtree();
     if(size > 0)
         xmlNewProp(n, (const unsigned char *)"size", (const unsigned char *)(std::to_string(size)).c_str());
     return n;
 }
-xmlNodePtr Chip::CreateXmlSubtree()
+xmlNodePtr sys_sage::Chip::CreateXmlSubtree()
 {
     xmlNodePtr n = Component::CreateXmlSubtree();
     if(!vendor.empty())
@@ -148,7 +148,7 @@ xmlNodePtr Chip::CreateXmlSubtree()
         xmlNewProp(n, (const unsigned char *)"model", (const unsigned char *)(model.c_str()));
     return n;
 }
-xmlNodePtr Cache::CreateXmlSubtree()
+xmlNodePtr sys_sage::Cache::CreateXmlSubtree()
 {
     xmlNodePtr n = Component::CreateXmlSubtree();
     xmlNewProp(n, (const unsigned char *)"cache_level", (const unsigned char *)cache_type.c_str());
@@ -160,20 +160,20 @@ xmlNodePtr Cache::CreateXmlSubtree()
         xmlNewProp(n, (const unsigned char *)"cache_line_size", (const unsigned char *)(std::to_string(cache_line_size)).c_str());
     return n;
 }
-xmlNodePtr Subdivision::CreateXmlSubtree()
+xmlNodePtr sys_sage::Subdivision::CreateXmlSubtree()
 {
     xmlNodePtr n = Component::CreateXmlSubtree();
     xmlNewProp(n, (const unsigned char *)"subdivision_type", (const unsigned char *)(std::to_string(type)).c_str());
     return n;
 }
-xmlNodePtr Numa::CreateXmlSubtree()
+xmlNodePtr sys_sage::Numa::CreateXmlSubtree()
 {
     xmlNodePtr n = Component::CreateXmlSubtree();
     if(size > 0)
         xmlNewProp(n, (const unsigned char *)"size", (const unsigned char *)(std::to_string(size)).c_str());
     return n;
 }
-xmlNodePtr Component::CreateXmlSubtree()
+xmlNodePtr sys_sage::Component::CreateXmlSubtree()
 {
     using namespace sys_sage;
     xmlNodePtr n = xmlNewNode(NULL, (const unsigned char *)GetComponentTypeStr().c_str());
@@ -226,7 +226,7 @@ xmlNodePtr Component::CreateXmlSubtree()
     return n;
 }
 
-int exportToXml(
+int sys_sage::exportToXml(
     Component* root, 
     string path, 
     std::function<int(string,void*,string*)> _store_custom_attrib_fcn, 

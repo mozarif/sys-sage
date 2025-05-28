@@ -5,6 +5,7 @@
 
 #include "sys-sage.hpp"
 
+using namespace sys_sage;
 
 int main(int argc, char *argv[])
 {

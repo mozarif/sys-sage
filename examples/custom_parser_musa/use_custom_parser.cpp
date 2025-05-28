@@ -3,6 +3,7 @@
 #include "sys-sage.hpp"
 #include "musa_parser.hpp"
 
+using namespace sys_sage;
 
 void usage(char* argv0)
 {

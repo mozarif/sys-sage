@@ -1,6 +1,7 @@
 #include "sys-sage.hpp"
 #include <functional>
 
+using namespace sys_sage;
 
 class My_core_attributes {
 public:

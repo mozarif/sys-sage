@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 
+using namespace sys_sage;
+
 int main(int argc, char *argv[]) {
   string xmlPath;
   if (argc < 2) {

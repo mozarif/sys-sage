@@ -4,6 +4,8 @@
 #include "sys-sage.hpp"
 #include "parsers/cccbench.hpp"
 
+using namespace sys_sage;
+
 void usage(char* argv0)
 {
     std::cerr << "usage: " << argv0 << " <hwloc xml path> <cccbench csv path>" << std::endl;

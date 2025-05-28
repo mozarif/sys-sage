@@ -6,6 +6,8 @@
 
 #include "sys-sage.hpp"
 
+using namespace sys_sage;
+
 ////////////////////////////////////////////////////////////////////////
 //PARAMS TO SET
 #define TIMER_WARMUP 32

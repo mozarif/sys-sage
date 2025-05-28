@@ -8,6 +8,8 @@
 
 #include "musa_parser.hpp"
 
+using namespace sys_sage;
+
 int parseMusa(Chip* _socket, std::string datapath) {
 
 	MusaParser parse(_socket, datapath);

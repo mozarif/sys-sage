@@ -2,8 +2,8 @@
 
 #include <algorithm>
 
-void Component::PrintSubtree() { PrintSubtree(0); }
-void Component::PrintSubtree(int level)
+void sys_sage::Component::PrintSubtree() { PrintSubtree(0); }
+void sys_sage::Component::PrintSubtree(int level)
 {
     
     //cout << "---PrintSubtree---" << endl;
@@ -19,9 +19,9 @@ void Component::PrintSubtree(int level)
         child->PrintSubtree(level + 1);
     }
 }
-void Component::PrintAllDataPathsInSubtree()
+void sys_sage::Component::PrintAllDataPathsInSubtree()
 {
-    PrintAllRelationsInSubtree(sys_sage::RelationType::DataPath);
+    PrintAllRelationsInSubtree(RelationType::DataPath);
     // vector<Component*> subtreeList;
     // GetComponentsInSubtree(&subtreeList);
     // for(Component * c : subtreeList)
@@ -44,9 +44,8 @@ void Component::PrintAllDataPathsInSubtree()
     //     }
     // }
 }
-void Component::PrintAllRelationsInSubtree(sys_sage::RelationType::type relationType)
+void sys_sage::Component::PrintAllRelationsInSubtree(RelationType::type relationType)
 {
-    using namespace sys_sage;
     vector<Component*> subtreeList;
     GetComponentsInSubtree(&subtreeList);
     for(Component * c : subtreeList)
@@ -72,12 +71,12 @@ void Component::PrintAllRelationsInSubtree(sys_sage::RelationType::type relation
     }
 }
 
-void Component::InsertChild(Component * child)
+void sys_sage::Component::InsertChild(Component * child)
 {
     child->SetParent(this);
     children.push_back(child);
 }
-int Component::InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild)
+int sys_sage::Component::InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild)
 {
     //consistency check
     vector<Component*> * p_children = parent->GetChildren();
@@ -106,7 +105,7 @@ int Component::InsertBetweenParentAndChild(Component* parent, Component* child, 
 
     return 0;
 }
-int Component::InsertBetweenParentAndChildren(Component* parent, vector<Component*> children, bool alreadyParentsChild)
+int sys_sage::Component::InsertBetweenParentAndChildren(Component* parent, vector<Component*> children, bool alreadyParentsChild)
 {
     vector<Component*> * p_children = parent->GetChildren();
     for(Component* child: children) //first just check for consistency
@@ -139,19 +138,19 @@ int Component::InsertBetweenParentAndChildren(Component* parent, vector<Componen
     
     return 0;
 }
-int Component::RemoveChild(Component * child)
+int sys_sage::Component::RemoveChild(Component * child)
 {
     int orig_size = children.size();
     children.erase(std::remove(children.begin(), children.end(), child), children.end());
     return orig_size - children.size();
     //return std::erase(children, child); -- not supported in some compilers
 }
-Component* Component::GetChild(int _id)
+sys_sage::Component* sys_sage::Component::GetChild(int _id)
 {
     return GetChildById(_id);
 }
 
-Component* Component::GetChildById(int _id)
+sys_sage::Component* sys_sage::Component::GetChildById(int _id)
 {
     for(Component* child: children)
     {
@@ -160,7 +159,7 @@ Component* Component::GetChildById(int _id)
     }
     return NULL;
 }
-Component* Component::GetChildByType(int _componentType)
+sys_sage::Component* sys_sage::Component::GetChildByType(int _componentType)
 {
     for(Component* child: children)
     {
@@ -170,14 +169,14 @@ Component* Component::GetChildByType(int _componentType)
     return NULL;
 }
 
-vector<Component*> Component::GetAllChildrenByType(int _componentType)
+vector<sys_sage::Component*> sys_sage::Component::GetAllChildrenByType(int _componentType)
 {
     vector<Component*> ret;
     GetAllChildrenByType(&ret, _componentType);
     return ret;
 }
 
-void Component::GetAllChildrenByType(vector <Component *> *_outArray, int _componentType)
+void sys_sage::Component::GetAllChildrenByType(vector <Component *> *_outArray, int _componentType)
 {
     for(Component * child : children)
     {
@@ -187,7 +186,7 @@ void Component::GetAllChildrenByType(vector <Component *> *_outArray, int _compo
     return;
 }
 
-int Component::GetNumThreads()
+int sys_sage::Component::GetNumThreads()
 {
     if(componentType == sys_sage::ComponentType::Thread)
         return 1;
@@ -199,7 +198,7 @@ int Component::GetNumThreads()
     return numPu;
 }
 
-int Component::GetSubtreeDepth()
+int sys_sage::Component::GetSubtreeDepth()
 {
     if(children.empty()) //is leaf
         return 0;
@@ -213,7 +212,7 @@ int Component::GetSubtreeDepth()
     return maxDepth + 1;
 }
 
-Component* Component::GetNthAncestor(int n)
+sys_sage::Component* sys_sage::Component::GetNthAncestor(int n)
 {
     // For cases with incorrect inputs (0 and negative values)
     if (n < 0)
@@ -236,7 +235,7 @@ Component* Component::GetNthAncestor(int n)
         
 }
 
-void Component::GetNthDescendents(vector<Component*>* outArray, int depth)
+void sys_sage::Component::GetNthDescendents(vector<Component*>* outArray, int depth)
 {
     
     if(depth <= 0)
@@ -254,14 +253,14 @@ void Component::GetNthDescendents(vector<Component*>* outArray, int depth)
     return;
 }
 
-vector<Component*> Component::GetNthDescendents(int depth)
+vector<sys_sage::Component*> sys_sage::Component::GetNthDescendents(int depth)
 {
     vector<Component*> outArray;
     GetNthDescendents(&outArray, depth);
     return outArray;
 }
 
-void Component::GetSubcomponentsByType(vector<Component*>* outArray, int _componentType)
+void sys_sage::Component::GetSubcomponentsByType(vector<Component*>* outArray, int _componentType)
 {
     if(_componentType == componentType){
         outArray->push_back(this);
@@ -272,14 +271,14 @@ void Component::GetSubcomponentsByType(vector<Component*>* outArray, int _compon
     }
 }
 
-vector<Component*> Component::GetSubcomponentsByType(int _componentType)
+vector<sys_sage::Component*> sys_sage::Component::GetSubcomponentsByType(int _componentType)
 {
     vector<Component*> outArray;
     GetSubcomponentsByType(&outArray, _componentType);
     return outArray;
 }
 
-void Component::GetComponentsInSubtree(vector<Component*>* outArray)
+void sys_sage::Component::GetComponentsInSubtree(vector<Component*>* outArray)
 {
     outArray->push_back(this);
     for(Component * child : children)
@@ -289,18 +288,18 @@ void Component::GetComponentsInSubtree(vector<Component*>* outArray)
     return;
 }
 
-vector<Component*> Component::GetComponentsInSubtree()
+vector<sys_sage::Component*> sys_sage::Component::GetComponentsInSubtree()
 {
     vector<Component*> outArray;
     GetComponentsInSubtree(&outArray);
     return outArray;
 }
 
-Component* Component::FindSubcomponentById(int _id, int _componentType)
+sys_sage::Component* sys_sage::Component::FindSubcomponentById(int _id, int _componentType)
 {
     return GetSubcomponentById(_id, _componentType);
 }
-Component* Component::GetSubcomponentById(int _id, int _componentType)
+sys_sage::Component* sys_sage::Component::GetSubcomponentById(int _id, int _componentType)
 {
     if(componentType == _componentType && id == _id){
         return this;
@@ -316,17 +315,17 @@ Component* Component::GetSubcomponentById(int _id, int _componentType)
     return NULL;
 }
 
-void Component::FindAllSubcomponentsByType(vector<Component*>* outArray, int _componentType)
+void sys_sage::Component::FindAllSubcomponentsByType(vector<Component*>* outArray, int _componentType)
 {
     GetAllSubcomponentsByType(outArray, _componentType);
 }
-vector<Component*> Component::GetAllSubcomponentsByType(int _componentType)
+vector<sys_sage::Component*> sys_sage::Component::GetAllSubcomponentsByType(int _componentType)
 {
     vector<Component*> ret;
     GetAllSubcomponentsByType(&ret, _componentType);
     return ret;
 }
-void Component::GetAllSubcomponentsByType(vector<Component*>* outArray, int _componentType)
+void sys_sage::Component::GetAllSubcomponentsByType(vector<Component*>* outArray, int _componentType)
 {
     if(componentType == _componentType){
         outArray->push_back(this);
@@ -338,7 +337,7 @@ void Component::GetAllSubcomponentsByType(vector<Component*>* outArray, int _com
     return;
 }
 
-int Component::CountAllSubcomponents()
+int sys_sage::Component::CountAllSubcomponents()
 {
     int cnt = children.size();
     for(Component * child : children)
@@ -348,7 +347,7 @@ int Component::CountAllSubcomponents()
     return cnt;
 }
 
-int Component::CountAllSubcomponentsByType(int _componentType)
+int sys_sage::Component::CountAllSubcomponentsByType(int _componentType)
 {
     int cnt = 0;
     for(Component * child : children)
@@ -363,7 +362,7 @@ int Component::CountAllSubcomponentsByType(int _componentType)
     return cnt;
 }
 
-int Component::CountAllChildrenByType(int _componentType)
+int sys_sage::Component::CountAllChildrenByType(int _componentType)
 {
     int cnt = 0;
     for(Component * child : children)
@@ -375,12 +374,12 @@ int Component::CountAllChildrenByType(int _componentType)
     return cnt;
 }
 
-Component* Component::FindParentByType(int _componentType)
+sys_sage::Component* sys_sage::Component::FindParentByType(int _componentType)
 {
     return GetAncestorByType(_componentType);
 }
 
-Component* Component::GetAncestorByType(int _componentType)
+sys_sage::Component* sys_sage::Component::GetAncestorByType(int _componentType)
 {
     if(componentType == _componentType){
         return this;
@@ -391,7 +390,7 @@ Component* Component::GetAncestorByType(int _componentType)
     return NULL;
 }
 
-// void Component::AddDataPath(DataPath* p, int orientation)
+// void sys_sage::Component::AddDataPath(DataPath* p, int orientation)
 // {
 //     if(orientation == SYS_SAGE_DATAPATH_OUTGOING)
 //         dp_outgoing.push_back(p);
@@ -399,19 +398,18 @@ Component* Component::GetAncestorByType(int _componentType)
 //         dp_incoming.push_back(p);
 // }
 
-void Component::_AddRelation(int32_t relationType, Relation* r)
+void sys_sage::Component::_AddRelation(int32_t relationType, Relation* r)
 {
     if(!relations)
-        relations = new std::array<std::vector<Relation*>*, sys_sage::RelationType::_num_relation_types>();
+        relations = new std::array<std::vector<Relation*>*, RelationType::_num_relation_types>();
     if(!(*relations)[relationType])
         (*relations)[relationType] = new std::vector<Relation*>();
     
     (*relations)[relationType]->push_back(r);
 }
 
-DataPath* Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sys_sage::DataPathDirection::type direction)
+sys_sage::DataPath* sys_sage::Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sys_sage::DataPathDirection::type direction)
 {
-    using namespace sys_sage;
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
         //either unordered -> check; or orientation is any -> check; or orientation is incoming & DP is incoming or the same outgoing
@@ -428,11 +426,11 @@ DataPath* Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sy
     return NULL;
 }
 
-vector<Relation*>& Component::_GetRelations(sys_sage::RelationType::type relationType)
+vector<sys_sage::Relation*>& sys_sage::Component::_GetRelations(RelationType::type relationType)
 {
     if (relations &&
         relationType >= 0 && 
-        relationType < sys_sage::RelationType::_num_relation_types &&
+        relationType < RelationType::_num_relation_types &&
         (*relations)[relationType]) 
     {
         return *(*relations)[relationType];
@@ -441,11 +439,11 @@ vector<Relation*>& Component::_GetRelations(sys_sage::RelationType::type relatio
     std::vector<Relation*> empty;
     return empty;
 }
-const vector<Relation*>& Component::GetRelations(sys_sage::RelationType::type relationType) const
+const vector<sys_sage::Relation*>& sys_sage::Component::GetRelations(RelationType::type relationType) const
 {
     if (relations &&
         relationType >= 0 && 
-        relationType < sys_sage::RelationType::_num_relation_types &&
+        relationType < RelationType::_num_relation_types &&
         (*relations)[relationType]) 
     {
         return *(*relations)[relationType];
@@ -471,9 +469,8 @@ const vector<Relation*>& Component::GetRelations(sys_sage::RelationType::type re
 //     return NULL;  
 // }
 
-vector<Relation*> Component::FindAllRelationsBy(sys_sage::RelationType::type relationType, int thisComponentPosition)
+vector<sys_sage::Relation*> sys_sage::Component::FindAllRelationsBy(RelationType::type relationType, int thisComponentPosition)
 {
-    using namespace sys_sage;
     vector<Relation*> out_vector;
     for(int curr_rt : RelationType::RelationTypeList)
     {
@@ -491,10 +488,8 @@ vector<Relation*> Component::FindAllRelationsBy(sys_sage::RelationType::type rel
     return out_vector;
 }
 
-void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::DataPathType::type dp_type, sys_sage::DataPathDirection::type direction)
+void sys_sage::Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, DataPathType::type dp_type, DataPathDirection::type direction)
 {
-    using namespace sys_sage;
-
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
         //either unordered -> check; or orientation is any -> check; or orientation is incoming & DP is incoming or the same outgoing
@@ -523,14 +518,14 @@ void Component::GetAllDataPathsByType(vector<DataPath*>* outDpArr, sys_sage::Dat
     return;
 }
 
-vector<DataPath*> Component::GetAllDataPathsByType(sys_sage::DataPathType::type dp_type, sys_sage::DataPathDirection::type direction)
+vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPathsByType(DataPathType::type dp_type, DataPathDirection::type direction)
 {
     vector<DataPath*> outDpArr;
     GetAllDataPathsByType(&outDpArr, dp_type, direction);
     return outDpArr;
 }
 
-// vector<DataPath*> Component::GetDataPaths(int orientation)
+// vector<DataPath*> sys_sage::Component::GetDataPaths(int orientation)
 // {
 
 //     if(orientation == sys_sage::DataPathOrientation::Any)
@@ -551,13 +546,13 @@ vector<DataPath*> Component::GetAllDataPathsByType(sys_sage::DataPathType::type 
 // }
 
 
-string Component::GetComponentTypeStr()
+string sys_sage::Component::GetComponentTypeStr()
 {
-    std::string ret(sys_sage::ComponentType::ToString(componentType));
+    std::string ret(ComponentType::ToString(componentType));
     return ret;
 }
 
-// string Component::GetComponentTypeStr()
+// string sys_sage::Component::GetComponentTypeStr()
 // {
 //     switch(componentType)
 //     {
@@ -592,7 +587,7 @@ string Component::GetComponentTypeStr()
 //     return "";
 // }
 
-int Component::CheckComponentTreeConsistency()
+int sys_sage::Component::CheckComponentTreeConsistency()
 {
     int errors = 0;
     for(Component * child : children){
@@ -607,12 +602,12 @@ int Component::CheckComponentTreeConsistency()
     return errors;
 }
 
-int Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize)
+int sys_sage::Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize)
 {
     return _GetTopologySize(out_component_size, out_dataPathSize, NULL);
 }
 
-int Component::_GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths)
+int sys_sage::Component::_GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths)
 {
     return 0;
     //SVTODO
@@ -690,7 +685,7 @@ int Component::_GetTopologySize(unsigned * out_component_size, unsigned * out_da
     // return component_size + dataPathSize + subtreeSize;
 }
 
-int Component::GetDepth(bool refresh)
+int sys_sage::Component::GetDepth(bool refresh)
 {
     if(refresh)
     {
@@ -706,9 +701,8 @@ int Component::GetDepth(bool refresh)
     return depth;
 }
 
-void Component::DeleteRelation(Relation * r)
+void sys_sage::Component::DeleteRelation(Relation * r)
 {
-    using namespace sys_sage;
     int32_t rt = r->GetType();
     if(rt == RelationType::Relation)
         r->Delete();
@@ -722,16 +716,16 @@ void Component::DeleteRelation(Relation * r)
         CouplingMap* cm = reinterpret_cast<CouplingMap*>(r);
         cm->Delete();
     } else{ //this should never happen
-        std::cout << "ERROR void Component::DeleteRelation(Relation * r)" << std::endl;
+        std::cout << "ERROR void sys_sage::Component::DeleteRelation(Relation * r)" << std::endl;
         exit(1);
     }    
 }
 
-void Component::DeleteAllRelations(sys_sage::RelationType::type relationType)
+void sys_sage::Component::DeleteAllRelations(RelationType::type relationType)
 {
-    for(sys_sage::RelationType::type rt : sys_sage::RelationType::RelationTypeList)
+    for(RelationType::type rt : RelationType::RelationTypeList)
     {
-        if(relationType == sys_sage::RelationType::Any || relationType == rt)
+        if(relationType == RelationType::Any || relationType == rt)
         {
             while(true)
             {
@@ -747,15 +741,15 @@ void Component::DeleteAllRelations(sys_sage::RelationType::type relationType)
     }
 }
 
-void Component::DeleteDataPath(DataPath * dp)
+void sys_sage::Component::DeleteDataPath(DataPath * dp)
 {
     DeleteRelation(dp);
     // dp->DeleteDataPath();
 }
 
-void Component::DeleteAllDataPaths()
+void sys_sage::Component::DeleteAllDataPaths()
 {
-    DeleteAllRelations(sys_sage::RelationType::DataPath);
+    DeleteAllRelations(RelationType::DataPath);
     // while(!dp_outgoing.empty())
     // {
     //     DataPath * dp = dp_outgoing.back();
@@ -767,7 +761,7 @@ void Component::DeleteAllDataPaths()
     //     dp->DeleteDataPath();
     // }
 }
-void Component::DeleteSubtree()
+void sys_sage::Component::DeleteSubtree()
 {
     while(children.size() > 0)
     {       
@@ -775,7 +769,7 @@ void Component::DeleteSubtree()
     }    
     return;
 }
-void Component::Delete(bool withSubtree)
+void sys_sage::Component::Delete(bool withSubtree)
 {
     // Delete subtree and all data paths
     if (withSubtree)
@@ -811,39 +805,39 @@ void Component::Delete(bool withSubtree)
     delete this;
 }
 
-void Component::SetName(string _name){ name = _name; }
-Component* Component::GetParent(){return parent;}
-void Component::SetParent(Component* _parent){parent = _parent;}
-vector<Component*>* Component::GetChildren(){return &children;}
-sys_sage::ComponentType::type Component::GetComponentType(){return componentType;}
-string Component::GetName(){return name;}
-int Component::GetId(){return id;}
+void sys_sage::Component::SetName(string _name){ name = _name; }
+sys_sage::Component* sys_sage::Component::GetParent(){return parent;}
+void sys_sage::Component::SetParent(Component* _parent){parent = _parent;}
+vector<sys_sage::Component*>* sys_sage::Component::GetChildren(){return &children;}
+sys_sage::ComponentType::type sys_sage::Component::GetComponentType(){return componentType;}
+string sys_sage::Component::GetName(){return name;}
+int sys_sage::Component::GetId(){return id;}
 
-void Storage::SetSize(long long _size){size = _size;} 
-long long Storage::GetSize(){return size;}
+void sys_sage::Storage::SetSize(long long _size){size = _size;} 
+long long sys_sage::Storage::GetSize(){return size;}
 
-string Chip::GetVendor(){return vendor;}
-void Chip::SetVendor(string _vendor){vendor = _vendor;}
-string Chip::GetModel(){return model;}
-void Chip::SetModel(string _model){model = _model;}
-void Chip::SetChipType(int chipType){type = chipType;}
-int Chip::GetChipType(){return type;}
+string sys_sage::Chip::GetVendor(){return vendor;}
+void sys_sage::Chip::SetVendor(string _vendor){vendor = _vendor;}
+string sys_sage::Chip::GetModel(){return model;}
+void sys_sage::Chip::SetModel(string _model){model = _model;}
+void sys_sage::Chip::SetChipType(int chipType){type = chipType;}
+int sys_sage::Chip::GetChipType(){return type;}
 
-void Subdivision::SetSubdivisionType(int subdivisionType){type = subdivisionType;}
-int Subdivision::GetSubdivisionType(){return type;}
+void sys_sage::Subdivision::SetSubdivisionType(int subdivisionType){type = subdivisionType;}
+int sys_sage::Subdivision::GetSubdivisionType(){return type;}
 
-long long Numa::GetSize(){return size;}
-void Numa::SetSize(long long _size) { size = _size;}
+long long sys_sage::Numa::GetSize(){return size;}
+void sys_sage::Numa::SetSize(long long _size) { size = _size;}
 
-long long Memory::GetSize() {return size;}
-void Memory::SetSize(long long _size) {size = _size;}
-bool Memory::GetIsVolatile() {return is_volatile;}
-void Memory::SetIsVolatile(bool _is_volatile) {is_volatile = _is_volatile;}
+long long sys_sage::Memory::GetSize() {return size;}
+void sys_sage::Memory::SetSize(long long _size) {size = _size;}
+bool sys_sage::Memory::GetIsVolatile() {return is_volatile;}
+void sys_sage::Memory::SetIsVolatile(bool _is_volatile) {is_volatile = _is_volatile;}
 
-string Cache::GetCacheName(){return cache_type;}
-void Cache::SetCacheName(string _name) { cache_type = _name;}
+string sys_sage::Cache::GetCacheName(){return cache_type;}
+void sys_sage::Cache::SetCacheName(string _name) { cache_type = _name;}
 
-int Cache::GetCacheLevel(){
+int sys_sage::Cache::GetCacheLevel(){
 
     std::string extractedDigits = "";
     for (char c : cache_type) {
@@ -861,22 +855,22 @@ int Cache::GetCacheLevel(){
     
 }
 
-void Cache::SetCacheLevel(int _cache_level) { cache_type = to_string(_cache_level); }
-long long Cache::GetCacheSize(){return cache_size;}
-void Cache::SetCacheSize(long long _cache_size){cache_size = _cache_size;}
-int Cache::GetCacheLineSize(){return cache_line_size;}
-void Cache::SetCacheLineSize(int _cache_line_size){cache_line_size = _cache_line_size;}
-int Cache::GetCacheAssociativityWays(){return cache_associativity_ways;}
-void Cache::SetCacheAssociativityWays(int _associativity) { cache_associativity_ways = _associativity;}
+void sys_sage::Cache::SetCacheLevel(int _cache_level) { cache_type = to_string(_cache_level); }
+long long sys_sage::Cache::GetCacheSize(){return cache_size;}
+void sys_sage::Cache::SetCacheSize(long long _cache_size){cache_size = _cache_size;}
+int sys_sage::Cache::GetCacheLineSize(){return cache_line_size;}
+void sys_sage::Cache::SetCacheLineSize(int _cache_line_size){cache_line_size = _cache_line_size;}
+int sys_sage::Cache::GetCacheAssociativityWays(){return cache_associativity_ways;}
+void sys_sage::Cache::SetCacheAssociativityWays(int _associativity) { cache_associativity_ways = _associativity;}
 
 
 
-Component::Component(int _id, string _name, sys_sage::ComponentType::type _componentType) : id(_id), name(_name), componentType(_componentType)
+sys_sage::Component::Component(int _id, string _name, ComponentType::type _componentType) : id(_id), name(_name), componentType(_componentType)
 {
     count = -1;
     SetParent(NULL);
 }
-Component::Component(Component * parent, int _id, string _name, sys_sage::ComponentType::type _componentType) : id(_id), name(_name), componentType(_componentType)
+sys_sage::Component::Component(Component * parent, int _id, string _name, ComponentType::type _componentType) : id(_id), name(_name), componentType(_componentType)
 {
     count = -1;
     SetParent(parent);
@@ -884,59 +878,59 @@ Component::Component(Component * parent, int _id, string _name, sys_sage::Compon
         parent->InsertChild(this);
     }
 }
-Component::Component(int _id, string _name): Component(_id, _name, sys_sage::ComponentType::None) {}
-Component::Component(Component * parent, int _id, string _name): Component(parent, _id, _name, sys_sage::ComponentType::None) {}
+sys_sage::Component::Component(int _id, string _name): Component(_id, _name, sys_sage::ComponentType::None) {}
+sys_sage::Component::Component(Component * parent, int _id, string _name): Component(parent, _id, _name, sys_sage::ComponentType::None) {}
 
-Topology::Topology():Component(0, "sys-sage Topology", sys_sage::ComponentType::Topology){}
+sys_sage::Topology::Topology():Component(0, "sys-sage Topology", sys_sage::ComponentType::Topology){}
 
-Node::Node(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::Node){}
-Node::Node(Component * parent, int _id, string _name):Component(parent, _id, _name, sys_sage::ComponentType::Node){}
+sys_sage::Node::Node(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::Node){}
+sys_sage::Node::Node(Component * parent, int _id, string _name):Component(parent, _id, _name, sys_sage::ComponentType::Node){}
 
-Memory::Memory(long long _size, bool _is_volatile):Component(0, "Memory", sys_sage::ComponentType::Memory), size(_size), is_volatile(_is_volatile){}
+sys_sage::Memory::Memory(long long _size, bool _is_volatile):Component(0, "Memory", sys_sage::ComponentType::Memory), size(_size), is_volatile(_is_volatile){}
 //Memory::Memory(Component * parent, int _id, string _name, long long _size):Component(parent, _id, _name, SYS_SAGE_COMPONENT_MEMORY), size(_size){}
-Memory::Memory(Component * parent, int _id, string _name, long long _size, bool _is_volatile):Component(parent, _id, _name, sys_sage::ComponentType::Memory), size(_size), is_volatile(_is_volatile){}
+sys_sage::Memory::Memory(Component * parent, int _id, string _name, long long _size, bool _is_volatile):Component(parent, _id, _name, sys_sage::ComponentType::Memory), size(_size), is_volatile(_is_volatile){}
 
 
-Storage::Storage(long long _size):Component(0, "Storage", sys_sage::ComponentType::Storage), size(_size){}
-Storage::Storage(Component * parent, long long _size):Component(parent, 0, "Storage", sys_sage::ComponentType::Storage), size(_size){}
+sys_sage::Storage::Storage(long long _size):Component(0, "Storage", sys_sage::ComponentType::Storage), size(_size){}
+sys_sage::Storage::Storage(Component * parent, long long _size):Component(parent, 0, "Storage", sys_sage::ComponentType::Storage), size(_size){}
 
-Chip::Chip(int _id, string _name, int _type, string _vendor, string _model):Component(_id, _name, sys_sage::ComponentType::Chip), type(_type), vendor(_vendor), model(_model) {}
-Chip::Chip(Component * parent, int _id, string _name, int _type, string _vendor, string _model):Component(parent, _id, _name, sys_sage::ComponentType::Chip), type(_type), vendor(_vendor), model(_model){}
+sys_sage::Chip::Chip(int _id, string _name, int _type, string _vendor, string _model):Component(_id, _name, sys_sage::ComponentType::Chip), type(_type), vendor(_vendor), model(_model) {}
+sys_sage::Chip::Chip(Component * parent, int _id, string _name, int _type, string _vendor, string _model):Component(parent, _id, _name, sys_sage::ComponentType::Chip), type(_type), vendor(_vendor), model(_model){}
 
-Cache::Cache(int _id, int  _cache_level, long long _cache_size, int _associativity, int _cache_line_size): Component(_id, "Cache", sys_sage::ComponentType::Cache), cache_type(to_string(_cache_level)), cache_size(_cache_size), cache_associativity_ways(_associativity), cache_line_size(_cache_line_size){}
-Cache::Cache(Component * parent, int _id, string _cache_type, long long _cache_size, int _associativity, int _cache_line_size): Component(parent, _id, "Cache", sys_sage::ComponentType::Cache), cache_type(_cache_type), cache_size(_cache_size), cache_associativity_ways(_associativity), cache_line_size(_cache_line_size){}
-Cache::Cache(Component * parent, int _id, int _cache_level, long long _cache_size, int _associativity, int _cache_line_size): Cache(parent, _id, to_string(_cache_level), _cache_size, _associativity, -1){}
+sys_sage::Cache::Cache(int _id, int  _cache_level, long long _cache_size, int _associativity, int _cache_line_size): Component(_id, "Cache", sys_sage::ComponentType::Cache), cache_type(to_string(_cache_level)), cache_size(_cache_size), cache_associativity_ways(_associativity), cache_line_size(_cache_line_size){}
+sys_sage::Cache::Cache(Component * parent, int _id, string _cache_type, long long _cache_size, int _associativity, int _cache_line_size): Component(parent, _id, "Cache", sys_sage::ComponentType::Cache), cache_type(_cache_type), cache_size(_cache_size), cache_associativity_ways(_associativity), cache_line_size(_cache_line_size){}
+sys_sage::Cache::Cache(Component * parent, int _id, int _cache_level, long long _cache_size, int _associativity, int _cache_line_size): Cache(parent, _id, to_string(_cache_level), _cache_size, _associativity, -1){}
 
-Subdivision::Subdivision(int _id, string _name, sys_sage::ComponentType::type _componentType): Component(_id, _name, _componentType) { }
-Subdivision::Subdivision(Component * parent, int _id, string _name, sys_sage::ComponentType::type _componentType): Component(parent, _id, _name, _componentType) { }
-Subdivision::Subdivision(int _id, string _name): Component(_id, _name, sys_sage::ComponentType::Subdivision) { }
-Subdivision::Subdivision(Component * parent, int _id, string _name): Component(parent, _id, _name, sys_sage::ComponentType::Subdivision) { }
+sys_sage::Subdivision::Subdivision(int _id, string _name, sys_sage::ComponentType::type _componentType): Component(_id, _name, _componentType) { }
+sys_sage::Subdivision::Subdivision(Component * parent, int _id, string _name, sys_sage::ComponentType::type _componentType): Component(parent, _id, _name, _componentType) { }
+sys_sage::Subdivision::Subdivision(int _id, string _name): Component(_id, _name, sys_sage::ComponentType::Subdivision) { }
+sys_sage::Subdivision::Subdivision(Component * parent, int _id, string _name): Component(parent, _id, _name, sys_sage::ComponentType::Subdivision) { }
 
-Numa::Numa(int _id, long long _size):Subdivision(_id, "Numa", sys_sage::ComponentType::Numa), size(_size){}
-Numa::Numa(Component * parent, int _id, long long _size):Subdivision(parent, _id, "Numa", sys_sage::ComponentType::Numa), size(_size){}
+sys_sage::Numa::Numa(int _id, long long _size):Subdivision(_id, "Numa", sys_sage::ComponentType::Numa), size(_size){}
+sys_sage::Numa::Numa(Component * parent, int _id, long long _size):Subdivision(parent, _id, "Numa", sys_sage::ComponentType::Numa), size(_size){}
 
-Core::Core(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::Core){}
-Core::Core(Component * parent, int _id, string _name):Component(parent, _id, _name, sys_sage::ComponentType::Core){}
+sys_sage::Core::Core(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::Core){}
+sys_sage::Core::Core(Component * parent, int _id, string _name):Component(parent, _id, _name, sys_sage::ComponentType::Core){}
 
-Thread::Thread(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::Thread){}
-Thread::Thread(Component * parent, int _id, string _name):Component(parent, _id, _name, sys_sage::ComponentType::Thread){}
+sys_sage::Thread::Thread(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::Thread){}
+sys_sage::Thread::Thread(Component * parent, int _id, string _name):Component(parent, _id, _name, sys_sage::ComponentType::Thread){}
 
-QuantumBackend::QuantumBackend(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::QuantumBackend){}
-QuantumBackend::QuantumBackend(Component * _parent, int _id, string _name):Component(_parent, _id, _name, sys_sage::ComponentType::QuantumBackend){}
+sys_sage::QuantumBackend::QuantumBackend(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::QuantumBackend){}
+sys_sage::QuantumBackend::QuantumBackend(Component * _parent, int _id, string _name):Component(_parent, _id, _name, sys_sage::ComponentType::QuantumBackend){}
 
-Qubit::Qubit(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::Qubit){}
-Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, sys_sage::ComponentType::Qubit){}
+sys_sage::Qubit::Qubit(int _id, string _name):Component(_id, _name, sys_sage::ComponentType::Qubit){}
+sys_sage::Qubit::Qubit(Component * parent, int _id, string _name):Component(parent, _id, _name, sys_sage::ComponentType::Qubit){}
 
-void QuantumBackend::SetNumQubits(int _num_qubits) { num_qubits = _num_qubits; }
+void sys_sage::QuantumBackend::SetNumQubits(int _num_qubits) { num_qubits = _num_qubits; }
 
-int QuantumBackend::GetNumQubits() const { return num_qubits; }
+int sys_sage::QuantumBackend::GetNumQubits() const { return num_qubits; }
 
-void QuantumBackend::addGate(QuantumGate *_gate)
+void sys_sage::QuantumBackend::addGate(QuantumGate *_gate)
 {
     gate_types.push_back(_gate);
 }
 
-std::vector<QuantumGate*> QuantumBackend::GetGatesBySize(size_t _gate_size) const 
+std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::GetGatesBySize(size_t _gate_size) const 
 {
     std::vector<QuantumGate*> gates;
     gates.reserve(gate_types.size());
@@ -950,7 +944,7 @@ std::vector<QuantumGate*> QuantumBackend::GetGatesBySize(size_t _gate_size) cons
     return gates;
 }
 
-std::vector<QuantumGate*> QuantumBackend::GetGatesByType(size_t _gate_type) const 
+std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::GetGatesByType(size_t _gate_type) const 
 {
     std::vector<QuantumGate*> gates;
     gates.reserve(gate_types.size());
@@ -964,14 +958,14 @@ std::vector<QuantumGate*> QuantumBackend::GetGatesByType(size_t _gate_type) cons
     return gates;
 }
 
-std::vector<QuantumGate*> QuantumBackend::GetAllGateTypes() const 
+std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::GetAllGateTypes() const 
 {
     return gate_types;
 }
 
-int QuantumBackend::GetNumberofGates() const { return gate_types.size(); }
+int sys_sage::QuantumBackend::GetNumberofGates() const { return gate_types.size(); }
 
-std::vector<Qubit *> QuantumBackend::GetAllQubits()
+std::vector<sys_sage::Qubit *> sys_sage::QuantumBackend::GetAllQubits()
 {
     auto all_children = GetAllChildrenByType(sys_sage::ComponentType::Qubit);
     std::vector<Qubit *> qubits;
@@ -1003,12 +997,12 @@ std::vector<Qubit *> QuantumBackend::GetAllQubits()
 // }
 
 #ifdef QDMI
-void QuantumBackend::SetQDMIDevice(QDMI_Device dev)
+void sys_sage::QuantumBackend::SetQDMIDevice(QDMI_Device dev)
 {
     device = dev;
 }
 
-QDMI_Device QuantumBackend::GetQDMIDevice(){ return device; }
+QDMI_Device sys_sage::QuantumBackend::GetQDMIDevice(){ return device; }
 
 #endif
 
@@ -1027,7 +1021,7 @@ QDMI_Device QuantumBackend::GetQDMIDevice(){ return device; }
 //     return _coupling_mapping;
 // }
 
-void Qubit::SetProperties(double _t1, double _t2, double _readout_fidelity, double _q1_fidelity, double _readout_length)
+void sys_sage::Qubit::SetProperties(double _t1, double _t2, double _readout_fidelity, double _q1_fidelity, double _readout_length)
 {
     t1 = _t1;
     t2 = _t2;
@@ -1037,11 +1031,11 @@ void Qubit::SetProperties(double _t1, double _t2, double _readout_fidelity, doub
 
 }
 
-const double Qubit::GetT1() const { return t1; }    
-const double Qubit::GetT2() const { return t2; }
-const double Qubit::GetReadoutFidelity() const { return readout_fidelity; }
-const double Qubit::Get1QFidelity() const { return q1_fidelity;}
-const double Qubit::GetReadoutLength() const { return readout_length; }
+const double sys_sage::Qubit::GetT1() const { return t1; }    
+const double sys_sage::Qubit::GetT2() const { return t2; }
+const double sys_sage::Qubit::GetReadoutFidelity() const { return readout_fidelity; }
+const double sys_sage::Qubit::Get1QFidelity() const { return q1_fidelity;}
+const double sys_sage::Qubit::GetReadoutLength() const { return readout_length; }
 
 // const double Qubit::GetWeight() const
 // {
