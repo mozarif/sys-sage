@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     cout << "Total num HW threads: " << topo->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread) << endl;
 
     cout << "---------------- Printing the whole tree ----------------" << endl;
-    topo->PrintSubtree(2);
+    topo->PrintSubtree();
     cout << "----------------                     ----------------" << endl;
 
     cout << "---------------- Printing all DataPaths ----------------" << endl;

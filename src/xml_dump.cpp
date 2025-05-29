@@ -124,33 +124,33 @@ int sys_sage::print_attrib(std::map<std::string,void*> attrib, xmlNodePtr n)
     return 1;
 }
 
-xmlNodePtr sys_sage::Memory::CreateXmlSubtree()
+xmlNodePtr sys_sage::Memory::_CreateXmlSubtree()
 {
-    xmlNodePtr n = Component::CreateXmlSubtree();
+    xmlNodePtr n = Component::_CreateXmlSubtree();
     if(size > 0)
         xmlNewProp(n, (const unsigned char *)"size", (const unsigned char *)(std::to_string(size)).c_str());
     xmlNewProp(n, (const unsigned char *)"is_volatile", (const unsigned char *)(std::to_string(is_volatile?1:0)).c_str());
     return n;
 }
-xmlNodePtr sys_sage::Storage::CreateXmlSubtree()
+xmlNodePtr sys_sage::Storage::_CreateXmlSubtree()
 {
-    xmlNodePtr n = Component::CreateXmlSubtree();
+    xmlNodePtr n = Component::_CreateXmlSubtree();
     if(size > 0)
         xmlNewProp(n, (const unsigned char *)"size", (const unsigned char *)(std::to_string(size)).c_str());
     return n;
 }
-xmlNodePtr sys_sage::Chip::CreateXmlSubtree()
+xmlNodePtr sys_sage::Chip::_CreateXmlSubtree()
 {
-    xmlNodePtr n = Component::CreateXmlSubtree();
+    xmlNodePtr n = Component::_CreateXmlSubtree();
     if(!vendor.empty())
         xmlNewProp(n, (const unsigned char *)"vendor", (const unsigned char *)(vendor.c_str()));
     if(!model.empty())
         xmlNewProp(n, (const unsigned char *)"model", (const unsigned char *)(model.c_str()));
     return n;
 }
-xmlNodePtr sys_sage::Cache::CreateXmlSubtree()
+xmlNodePtr sys_sage::Cache::_CreateXmlSubtree()
 {
-    xmlNodePtr n = Component::CreateXmlSubtree();
+    xmlNodePtr n = Component::_CreateXmlSubtree();
     xmlNewProp(n, (const unsigned char *)"cache_level", (const unsigned char *)cache_type.c_str());
     if(cache_size >= 0)
         xmlNewProp(n, (const unsigned char *)"cache_size", (const unsigned char *)(std::to_string(cache_size)).c_str());
@@ -160,20 +160,20 @@ xmlNodePtr sys_sage::Cache::CreateXmlSubtree()
         xmlNewProp(n, (const unsigned char *)"cache_line_size", (const unsigned char *)(std::to_string(cache_line_size)).c_str());
     return n;
 }
-xmlNodePtr sys_sage::Subdivision::CreateXmlSubtree()
+xmlNodePtr sys_sage::Subdivision::_CreateXmlSubtree()
 {
-    xmlNodePtr n = Component::CreateXmlSubtree();
+    xmlNodePtr n = Component::_CreateXmlSubtree();
     xmlNewProp(n, (const unsigned char *)"subdivision_type", (const unsigned char *)(std::to_string(type)).c_str());
     return n;
 }
-xmlNodePtr sys_sage::Numa::CreateXmlSubtree()
+xmlNodePtr sys_sage::Numa::_CreateXmlSubtree()
 {
-    xmlNodePtr n = Component::CreateXmlSubtree();
+    xmlNodePtr n = Component::_CreateXmlSubtree();
     if(size > 0)
         xmlNewProp(n, (const unsigned char *)"size", (const unsigned char *)(std::to_string(size)).c_str());
     return n;
 }
-xmlNodePtr sys_sage::Component::CreateXmlSubtree()
+xmlNodePtr sys_sage::Component::_CreateXmlSubtree()
 {
     using namespace sys_sage;
     xmlNodePtr n = xmlNewNode(NULL, (const unsigned char *)GetComponentTypeStr().c_str());
@@ -192,22 +192,22 @@ xmlNodePtr sys_sage::Component::CreateXmlSubtree()
         xmlNodePtr child;
         switch (c->GetComponentType()) {
             case ComponentType::Cache:
-                child = ((Cache*)c)->CreateXmlSubtree();
+                child = ((Cache*)c)->_CreateXmlSubtree();
                 break;
             case ComponentType::Subdivision:
-                child = ((Subdivision*)c)->CreateXmlSubtree();
+                child = ((Subdivision*)c)->_CreateXmlSubtree();
                 break;
             case ComponentType::Numa:
-                child = ((Numa*)c)->CreateXmlSubtree();
+                child = ((Numa*)c)->_CreateXmlSubtree();
                 break;
             case ComponentType::Chip:
-                child = ((Chip*)c)->CreateXmlSubtree();
+                child = ((Chip*)c)->_CreateXmlSubtree();
                 break;
             case ComponentType::Memory:
-                child = ((Memory*)c)->CreateXmlSubtree();
+                child = ((Memory*)c)->_CreateXmlSubtree();
                 break;
             case ComponentType::Storage:
-                child = ((Storage*)c)->CreateXmlSubtree();
+                child = ((Storage*)c)->_CreateXmlSubtree();
                 break;
             case ComponentType::None:
             case ComponentType::Thread:
@@ -215,7 +215,7 @@ xmlNodePtr sys_sage::Component::CreateXmlSubtree()
             case ComponentType::Node:
             case ComponentType::Topology:
             default:
-                child = c->CreateXmlSubtree();
+                child = c->_CreateXmlSubtree();
                 break;
         };
 
@@ -246,7 +246,7 @@ int sys_sage::exportToXml(
     xmlAddChild(sys_sage_root, relations_root);
 
     //build a tree for Components
-    xmlNodePtr n = root->CreateXmlSubtree();
+    xmlNodePtr n = root->_CreateXmlSubtree();
     xmlAddChild(components_root, n);
 
     //scan all Components for their relations

@@ -7,10 +7,10 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-void sys_sage::Component::PrintSubtree() { PrintSubtree(0); }
-void sys_sage::Component::PrintSubtree(int level)
+void sys_sage::Component::PrintSubtree() const { _PrintSubtree(0); }
+void sys_sage::Component::_PrintSubtree(int level) const
 {
-    
+    //TODO maybe print more info based on component type? (override this function?)
     //cout << "---PrintSubtree---" << endl;
     for (int i = 0; i < level; ++i)
         std::cout << "  ";
@@ -21,7 +21,7 @@ void sys_sage::Component::PrintSubtree(int level)
     for(Component* child: children)
     {
         //cout << "size of children: " << child->children.size() << "\n";
-        child->PrintSubtree(level + 1);
+        child->_PrintSubtree(level + 1);
     }
 }
 void sys_sage::Component::PrintAllDataPathsInSubtree()
@@ -84,20 +84,20 @@ void sys_sage::Component::InsertChild(Component * child)
 int sys_sage::Component::InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild)
 {
     //consistency check
-    vector<Component*> * p_children = parent->GetChildren();
+    vector<Component*> p_children = parent->_GetChildren();
     if(child->GetParent() != parent){
-        if(std::find(p_children->begin(), p_children->end(), child) != p_children->end())
+        if(std::find(p_children.begin(), p_children.end(), child) != p_children.end())
             return 1; //child and parent are not child and parent in the component tree
         else
             return 2; //corrupt component tree -> bad thing
     }
     else{
-        if(std::find(p_children->begin(), p_children->end(), child) == p_children->end())
+        if(std::find(p_children.begin(), p_children.end(), child) == p_children.end())
             return 3; //corrupt component tree -> bad thing
     }
 
     //remove from grandparent's list; set new parent; insert child into the new component's list
-    p_children->erase(std::remove(p_children->begin(), p_children->end(), child), p_children->end());
+    p_children.erase(std::remove(p_children.begin(), p_children.end(), child), p_children.end());
     child->SetParent(this);
     this->InsertChild(child);
 
@@ -112,11 +112,11 @@ int sys_sage::Component::InsertBetweenParentAndChild(Component* parent, Componen
 }
 int sys_sage::Component::InsertBetweenParentAndChildren(Component* parent, std::vector<Component*> children, bool alreadyParentsChild)
 {
-    vector<Component*> * p_children = parent->GetChildren();
+    vector<Component*> p_children = parent->_GetChildren();
     for(Component* child: children) //first just check for consistency
     {
         bool isParent = (child->GetParent() == parent);      
-        if(std::find(p_children->begin(), p_children->end(), child) == p_children->end()){  //child not listed as parent's child
+        if(std::find(p_children.begin(), p_children.end(), child) == p_children.end()){  //child not listed as parent's child
             if(isParent)
                 return 2; //corrupt component tree -> bad thing
             else
@@ -129,7 +129,7 @@ int sys_sage::Component::InsertBetweenParentAndChildren(Component* parent, std::
     for(Component* child: children) //second time do the actual inserting
     {
         //remove from grandparent's list; set new parent; insert child into the new component's list
-        p_children->erase(std::remove(p_children->begin(), p_children->end(), child), p_children->end());
+        p_children.erase(std::remove(p_children.begin(), p_children.end(), child), p_children.end());
         child->SetParent(this);
         this->InsertChild(child);
     }
@@ -150,12 +150,12 @@ int sys_sage::Component::RemoveChild(Component * child)
     return orig_size - children.size();
     //return std::erase(children, child); -- not supported in some compilers
 }
-sys_sage::Component* sys_sage::Component::GetChild(int _id)
+sys_sage::Component* sys_sage::Component::GetChild(int _id) const
 {
     return GetChildById(_id);
 }
 
-sys_sage::Component* sys_sage::Component::GetChildById(int _id)
+sys_sage::Component* sys_sage::Component::GetChildById(int _id) const
 {
     for(Component* child: children)
     {
@@ -164,7 +164,7 @@ sys_sage::Component* sys_sage::Component::GetChildById(int _id)
     }
     return NULL;
 }
-sys_sage::Component* sys_sage::Component::GetChildByType(int _componentType)
+sys_sage::Component* sys_sage::Component::GetChildByType(int _componentType) const
 {
     for(Component* child: children)
     {
@@ -174,14 +174,14 @@ sys_sage::Component* sys_sage::Component::GetChildByType(int _componentType)
     return NULL;
 }
 
-std::vector<sys_sage::Component*> sys_sage::Component::GetAllChildrenByType(int _componentType)
+std::vector<sys_sage::Component*> sys_sage::Component::GetAllChildrenByType(int _componentType) const
 {
     vector<Component*> ret;
     GetAllChildrenByType(&ret, _componentType);
     return ret;
 }
 
-void sys_sage::Component::GetAllChildrenByType(std::vector <Component *> *_outArray, int _componentType)
+void sys_sage::Component::GetAllChildrenByType(std::vector <Component *> *_outArray, int _componentType) const
 {
     for(Component * child : children)
     {
@@ -191,19 +191,19 @@ void sys_sage::Component::GetAllChildrenByType(std::vector <Component *> *_outAr
     return;
 }
 
-int sys_sage::Component::GetNumThreads()
-{
-    if(componentType == sys_sage::ComponentType::Thread)
-        return 1;
-    int numPu = 0;
-    for(Component * child: children)
-    {
-        numPu += child->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread);
-    }
-    return numPu;
-}
+// int sys_sage::Component::GetNumThreads()
+// {
+//     if(componentType == sys_sage::ComponentType::Thread)
+//         return 1;
+//     int numPu = 0;
+//     for(Component * child: children)
+//     {
+//         numPu += child->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread);
+//     }
+//     return numPu;
+// }
 
-int sys_sage::Component::GetSubtreeDepth()
+int sys_sage::Component::GetSubtreeDepth() const
 {
     if(children.empty()) //is leaf
         return 0;
@@ -300,10 +300,6 @@ std::vector<sys_sage::Component*> sys_sage::Component::GetComponentsInSubtree()
     return outArray;
 }
 
-sys_sage::Component* sys_sage::Component::FindSubcomponentById(int _id, int _componentType)
-{
-    return GetSubcomponentById(_id, _componentType);
-}
 sys_sage::Component* sys_sage::Component::GetSubcomponentById(int _id, int _componentType)
 {
     if(componentType == _componentType && id == _id){
@@ -320,10 +316,6 @@ sys_sage::Component* sys_sage::Component::GetSubcomponentById(int _id, int _comp
     return NULL;
 }
 
-void sys_sage::Component::FindAllSubcomponentsByType(std::vector<Component*>* outArray, int _componentType)
-{
-    GetAllSubcomponentsByType(outArray, _componentType);
-}
 std::vector<sys_sage::Component*> sys_sage::Component::GetAllSubcomponentsByType(int _componentType)
 {
     vector<Component*> ret;
@@ -342,7 +334,7 @@ void sys_sage::Component::GetAllSubcomponentsByType(std::vector<Component*>* out
     return;
 }
 
-int sys_sage::Component::CountAllSubcomponents()
+int sys_sage::Component::CountAllSubcomponents() const
 {
     int cnt = children.size();
     for(Component * child : children)
@@ -352,7 +344,7 @@ int sys_sage::Component::CountAllSubcomponents()
     return cnt;
 }
 
-int sys_sage::Component::CountAllSubcomponentsByType(int _componentType)
+int sys_sage::Component::CountAllSubcomponentsByType(int _componentType) const
 {
     int cnt = 0;
     for(Component * child : children)
@@ -367,7 +359,7 @@ int sys_sage::Component::CountAllSubcomponentsByType(int _componentType)
     return cnt;
 }
 
-int sys_sage::Component::CountAllChildrenByType(int _componentType)
+int sys_sage::Component::CountAllChildrenByType(int _componentType) const
 {
     int cnt = 0;
     for(Component * child : children)
@@ -377,11 +369,6 @@ int sys_sage::Component::CountAllChildrenByType(int _componentType)
     }
 
     return cnt;
-}
-
-sys_sage::Component* sys_sage::Component::FindParentByType(int _componentType)
-{
-    return GetAncestorByType(_componentType);
 }
 
 sys_sage::Component* sys_sage::Component::GetAncestorByType(int _componentType)
@@ -413,7 +400,7 @@ void sys_sage::Component::_AddRelation(int32_t relationType, Relation* r)
     (*relations)[relationType]->push_back(r);
 }
 
-sys_sage::DataPath* sys_sage::Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sys_sage::DataPathDirection::type direction)
+sys_sage::DataPath* sys_sage::Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sys_sage::DataPathDirection::type direction) const
 {
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
@@ -431,7 +418,7 @@ sys_sage::DataPath* sys_sage::Component::GetDataPathByType(sys_sage::DataPathTyp
     return NULL;
 }
 
-std::vector<sys_sage::Relation*>& sys_sage::Component::_GetRelations(RelationType::type relationType)
+std::vector<sys_sage::Relation*>& sys_sage::Component::_GetRelations(RelationType::type relationType) const
 {
     if (relations &&
         relationType >= 0 && 
@@ -474,7 +461,7 @@ const std::vector<sys_sage::Relation*>& sys_sage::Component::GetRelations(Relati
 //     return NULL;  
 // }
 
-std::vector<sys_sage::Relation*> sys_sage::Component::FindAllRelationsBy(RelationType::type relationType, int thisComponentPosition)
+std::vector<sys_sage::Relation*> sys_sage::Component::GetAllRelationsBy(RelationType::type relationType, int thisComponentPosition) const
 {
     vector<Relation*> out_vector;
     for(int curr_rt : RelationType::RelationTypeList)
@@ -493,7 +480,7 @@ std::vector<sys_sage::Relation*> sys_sage::Component::FindAllRelationsBy(Relatio
     return out_vector;
 }
 
-void sys_sage::Component::GetAllDataPathsByType(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type, DataPathDirection::type direction)
+void sys_sage::Component::GetAllDataPathsByType(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type, DataPathDirection::type direction) const
 {
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
@@ -523,7 +510,7 @@ void sys_sage::Component::GetAllDataPathsByType(std::vector<DataPath*>* outDpArr
     return;
 }
 
-std::vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPathsByType(DataPathType::type dp_type, DataPathDirection::type direction)
+std::vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPathsByType(DataPathType::type dp_type, DataPathDirection::type direction) const
 {
     vector<DataPath*> outDpArr;
     GetAllDataPathsByType(&outDpArr, dp_type, direction);
@@ -551,7 +538,7 @@ std::vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPathsByType(Data
 // }
 
 
-std::string sys_sage::Component::GetComponentTypeStr()
+const std::string& sys_sage::Component::GetComponentTypeStr() const
 {
     std::string ret(ComponentType::ToString(componentType));
     return ret;
@@ -592,7 +579,7 @@ std::string sys_sage::Component::GetComponentTypeStr()
 //     return "";
 // }
 
-int sys_sage::Component::CheckComponentTreeConsistency()
+int sys_sage::Component::CheckComponentTreeConsistency() const
 {
     int errors = 0;
     for(Component * child : children){
@@ -607,12 +594,12 @@ int sys_sage::Component::CheckComponentTreeConsistency()
     return errors;
 }
 
-int sys_sage::Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize)
+int sys_sage::Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize) const
 {
     return _GetTopologySize(out_component_size, out_dataPathSize, NULL);
 }
 
-int sys_sage::Component::_GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths)
+int sys_sage::Component::_GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths) const
 {
     return 0;
     //SVTODO
@@ -766,7 +753,7 @@ void sys_sage::Component::DeleteAllDataPaths()
     //     dp->DeleteDataPath();
     // }
 }
-void sys_sage::Component::DeleteSubtree()
+void sys_sage::Component::DeleteSubtree() const
 {
     while(children.size() > 0)
     {       
@@ -810,39 +797,41 @@ void sys_sage::Component::Delete(bool withSubtree)
     delete this;
 }
 
+const std::string& sys_sage::Component::GetName() const {return name;}
 void sys_sage::Component::SetName(std::string _name){ name = _name; }
-sys_sage::Component* sys_sage::Component::GetParent(){return parent;}
+sys_sage::Component* sys_sage::Component::GetParent() const {return parent;}
 void sys_sage::Component::SetParent(Component* _parent){parent = _parent;}
-std::vector<sys_sage::Component*>* sys_sage::Component::GetChildren(){return &children;}
-sys_sage::ComponentType::type sys_sage::Component::GetComponentType(){return componentType;}
-std::string sys_sage::Component::GetName(){return name;}
-int sys_sage::Component::GetId(){return id;}
+const std::vector<sys_sage::Component*>& sys_sage::Component::GetChildren() const {return children;}
+std::vector<sys_sage::Component*>& sys_sage::Component::_GetChildren() {return children;}
+sys_sage::ComponentType::type sys_sage::Component::GetComponentType() const {return componentType;}
+
+int sys_sage::Component::GetId() const {return id;}
 
 void sys_sage::Storage::SetSize(long long _size){size = _size;} 
-long long sys_sage::Storage::GetSize(){return size;}
+long long sys_sage::Storage::GetSize() const{return size;}
 
-std::string sys_sage::Chip::GetVendor(){return vendor;}
+const std::string& sys_sage::Chip::GetVendor() const{return vendor;}
 void sys_sage::Chip::SetVendor(std::string _vendor){vendor = _vendor;}
-std::string sys_sage::Chip::GetModel(){return model;}
+const std::string& sys_sage::Chip::GetModel() const{return model;}
 void sys_sage::Chip::SetModel(std::string _model){model = _model;}
 void sys_sage::Chip::SetChipType(int chipType){type = chipType;}
-int sys_sage::Chip::GetChipType(){return type;}
+int sys_sage::Chip::GetChipType() const{return type;}
 
 void sys_sage::Subdivision::SetSubdivisionType(int subdivisionType){type = subdivisionType;}
-int sys_sage::Subdivision::GetSubdivisionType(){return type;}
+int sys_sage::Subdivision::GetSubdivisionType() const {return type;}
 
-long long sys_sage::Numa::GetSize(){return size;}
+long long sys_sage::Numa::GetSize() const{return size;}
 void sys_sage::Numa::SetSize(long long _size) { size = _size;}
 
-long long sys_sage::Memory::GetSize() {return size;}
+long long sys_sage::Memory::GetSize() const {return size;}
 void sys_sage::Memory::SetSize(long long _size) {size = _size;}
-bool sys_sage::Memory::GetIsVolatile() {return is_volatile;}
+bool sys_sage::Memory::GetIsVolatile() const {return is_volatile;}
 void sys_sage::Memory::SetIsVolatile(bool _is_volatile) {is_volatile = _is_volatile;}
 
-std::string sys_sage::Cache::GetCacheName(){return cache_type;}
+const std::string& sys_sage::Cache::GetCacheName() const{return cache_type;}
 void sys_sage::Cache::SetCacheName(std::string _name) { cache_type = _name;}
 
-int sys_sage::Cache::GetCacheLevel(){
+int sys_sage::Cache::GetCacheLevel() const{
 
     std::string extractedDigits = "";
     for (char c : cache_type) {
@@ -861,11 +850,11 @@ int sys_sage::Cache::GetCacheLevel(){
 }
 
 void sys_sage::Cache::SetCacheLevel(int _cache_level) { cache_type = std::to_string(_cache_level); }
-long long sys_sage::Cache::GetCacheSize(){return cache_size;}
+long long sys_sage::Cache::GetCacheSize() const {return cache_size;}
 void sys_sage::Cache::SetCacheSize(long long _cache_size){cache_size = _cache_size;}
-int sys_sage::Cache::GetCacheLineSize(){return cache_line_size;}
+int sys_sage::Cache::GetCacheLineSize() const{return cache_line_size;}
 void sys_sage::Cache::SetCacheLineSize(int _cache_line_size){cache_line_size = _cache_line_size;}
-int sys_sage::Cache::GetCacheAssociativityWays(){return cache_associativity_ways;}
+int sys_sage::Cache::GetCacheAssociativityWays() const {return cache_associativity_ways;}
 void sys_sage::Cache::SetCacheAssociativityWays(int _associativity) { cache_associativity_ways = _associativity;}
 
 
@@ -1036,11 +1025,11 @@ void sys_sage::Qubit::SetProperties(double _t1, double _t2, double _readout_fide
 
 }
 
-const double sys_sage::Qubit::GetT1() const { return t1; }    
-const double sys_sage::Qubit::GetT2() const { return t2; }
-const double sys_sage::Qubit::GetReadoutFidelity() const { return readout_fidelity; }
-const double sys_sage::Qubit::Get1QFidelity() const { return q1_fidelity;}
-const double sys_sage::Qubit::GetReadoutLength() const { return readout_length; }
+double sys_sage::Qubit::GetT1() const { return t1; }    
+double sys_sage::Qubit::GetT2() const { return t2; }
+double sys_sage::Qubit::GetReadoutFidelity() const { return readout_fidelity; }
+double sys_sage::Qubit::Get1QFidelity() const { return q1_fidelity;}
+double sys_sage::Qubit::GetReadoutLength() const { return readout_length; }
 
 // const double Qubit::GetWeight() const
 // {

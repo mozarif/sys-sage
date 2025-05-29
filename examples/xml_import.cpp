@@ -49,9 +49,9 @@ int main(int argc, char *argv[]) {
     }
   }
   cout << "Original topology:" << endl;
-  topo->PrintSubtree(2);
+  topo->PrintSubtree();
   cout << "\nImported topology:" << endl;
-  topo2->PrintSubtree(2);
+  topo2->PrintSubtree();
   cout << "\nAll components found!" << endl;
 
   topo->Delete(true);

@@ -140,6 +140,8 @@ namespace sys_sage {
         */
         //SVDOCTODO
         Component(Component * parent, int _id = 0, std::string _name = "unknown");
+        //SVTODO reevaluate the delete vs destructor
+        //SVDOCTODO update the doc accordingly to "reevaluate the delete vs destructor"
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -198,7 +200,7 @@ namespace sys_sage {
         Prints the whole subtree of this component (including the component itself) to stdout. The tree is printed in DFS order, so that the hierarchy can be easily seen. Each child is indented by "  ".
         For each component in the subtree, the following is printed: "<string component type> (name <name>) id <id> - children: <num children>
         */
-        void PrintSubtree();
+        void PrintSubtree() const;
 
         /**
         @private
@@ -206,7 +208,7 @@ namespace sys_sage {
         @param level - number of "  " to print out in front of the first component.
         @see PrintSubtree();
         */
-        void PrintSubtree(int level);
+        void _PrintSubtree(int level) const;
         /**
          * OBSOLETE. Use PrintAllRelationsInSubtree instead. This function will be removed in the future.
          * 
@@ -216,14 +218,14 @@ namespace sys_sage {
         [[deprecated("Use PrintAllRelationsInSubtree instead. This function will be removed in the future.")]]
         void PrintAllDataPathsInSubtree();
         //SVDOCTODO
-        //SVDOCTODO similar doc to PrintAllDataPathsInSubtree
+        //SVDOCTODO similar doc to PrintAllDataPathsInSubtree but not obsolete
         void PrintAllRelationsInSubtree(RelationType::type RelationType = RelationType::Any);
         /**
         Returns name of the component.
         @return name
         @see name
         */
-        std::string GetName();
+        const std::string& GetName() const;
         /**
         Sets name of the component.
         @param _name - name of the component
@@ -235,7 +237,7 @@ namespace sys_sage {
         @return id
         @see id
         */
-        int GetId();
+        int GetId() const;
         /**
         Returns component type of the component. The component type denotes of which class the instance is (Often the components are stored as Component*, even though they are a member of one of the child classes)
         \n SYS_SAGE_COMPONENT_NONE -> class Component
@@ -253,7 +255,7 @@ namespace sys_sage {
         @see componentType
         */
         //SVDOCTODO
-        sys_sage::ComponentType::type GetComponentType();
+        sys_sage::ComponentType::type GetComponentType() const;
         /**
         Returns component type in human-readable string.
         \n SYS_SAGE_COMPONENT_NONE -> "None"
@@ -271,35 +273,37 @@ namespace sys_sage {
         @see componentType
         */
         //SVDOCTODO
-        std::string GetComponentTypeStr();
+        const std::string& GetComponentTypeStr() const;
         /**
         Returns a pointer to std::vector containing all children of the component (empty vector if no children) .
         @returns std::vector<Component *> * with children
         */
-        std::vector<Component*>* GetChildren();
+        const std::vector<Component*>& GetChildren() const;
+        //SVDOCTODO private
+        std::vector<Component*>& _GetChildren();
         /**
         Returns Component pointer to parent (or NULL if this component is the root)
         */
-        Component* GetParent();
+        Component* GetParent() const;
         /**
         Identical to GetChildById
         Retrieve a Component* to a child with child.id=_id.
         \n Should there be more children with the same id, the first match will be retrieved (i.e. the one with lower index in the children array.)
         @see GetChildById
         */
-        Component* GetChild(int _id);
+        Component* GetChild(int _id) const;
 
         /**
         Retrieve a Component* to a child with child.id=_id.
         \n Should there be more children with the same id, the first match will be retrieved (i.e. the one with lower index in the children array.)
         */
-        Component* GetChildById(int _id);
+        Component* GetChildById(int _id) const;
 
         /**
         Retrieve a Component* to a child matching the given component type.
         \n Should there be more children with the same type, the first match will be retrieved (i.e. the one with lower index in the children array.)
         */
-        Component* GetChildByType(int _componentType);
+        Component* GetChildByType(int _componentType) const;
 
         /**
          * Searches for all the children matching the given component type.
@@ -307,7 +311,7 @@ namespace sys_sage {
          * @param _componentType - Required type of components
          * @returns A vector of all the children matching the _componentType
         */
-        std::vector<Component*> GetAllChildrenByType(int _componentType);
+        std::vector<Component*> GetAllChildrenByType(int _componentType) const;
 
         /**
          * Searches for all the children matching the given component type.
@@ -317,18 +321,7 @@ namespace sys_sage {
             \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
         */
-        void GetAllChildrenByType(std::vector<Component *> *_outArray, int _componentType);
-        /**
-        OBSOLETE. Use GetSubcomponentById instead. This function will be removed in the future.
-        */
-        [[deprecated("Use GetSubcomponentById instead. This function will be removed in the future.")]]
-        Component* FindSubcomponentById(int _id, int _componentType);
-        /**
-        @private
-        OBSOLETE. Use GetAllSubcomponentsByType instead. This function will be removed in the future.
-        */
-    [[deprecated("Use GetAllSubcomponentsByType instead. This function will be removed in the future.")]]
-        void FindAllSubcomponentsByType(std::vector<Component*>* outArray, int _componentType);
+        void GetAllChildrenByType(std::vector<Component *> *_outArray, int _componentType) const;
         /**
         Searches the subtree to find a component with a matching id and componentType, i.e. looks for a certain component with a matching ID. The search is a DFS. The search starts with the calling component.
         \n Returns first occurence that matches these criteria.
@@ -360,14 +353,14 @@ namespace sys_sage {
         Counts number of subcomponents (children, their children and so on).
         @return Returns number of subcomponents.
         */
-        int CountAllSubcomponents();
+        int CountAllSubcomponents() const;
         
         /**
         Counts number of subcomponents (children, their children and so on) matching the requested component type.
         @param _componentType - Component type to look for.
         @return Returns number of subcomponents matching the requested component type.
         */
-        int CountAllSubcomponentsByType(int _componentType);
+        int CountAllSubcomponentsByType(int _componentType) const;
 
         /**
         Counts number of children matching the requested component type.
@@ -375,34 +368,20 @@ namespace sys_sage {
         @param _componentType - Component type to look for.
         @return Returns number of children matching the requested component type.
         */
-        int CountAllChildrenByType(int _componentType);
+        int CountAllChildrenByType(int _componentType) const;
         
         /**
         Moves up the tree until a parent of given type.
         @param _componentType - the desired component type
         @return Component * matching the criteria. NULL if no match found
         */
-        Component* GetAncestorByType(int _componentType);
-        /**
-        @private 
-        OBSOLETE. Use GetAncestorByType instead. This function will be removed in the future.
-        */
-        [[deprecated("Use GetAncestorByType instead. This function will be removed in the future.")]]
-        Component* FindParentByType(int _componentType);
-
-        /**
-        OBSOLETE. Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.
-        Returns the number of Components of type SYS_SAGE_COMPONENT_THREAD in the subtree.
-        */
-        [[deprecated("Use int CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) instead.")]]
-        int GetNumThreads();
-        
+        Component* GetAncestorByType(int _componentType);       
         /**
         Retrieves maximal distance to a leaf (i.e. the depth of the subtree).
         \n 0=leaf, 1=children are leaves, 2=at most children's children are leaves .....
         @return maximal distance to a leaf
         */
-        int GetSubtreeDepth();//0=empty, 1=1element,...
+        int GetSubtreeDepth() const;//0=empty, 1=1element,...
         
         /**
         Retrieves Nth ancestor, which resides N levels above. 
@@ -470,12 +449,13 @@ namespace sys_sage {
         //SVDOCTODO 
         //SVDOCTODO is private, should not be called
         //SVDOCTODO mention that std::vector<Relation*>& x = _GetRelations(type); returns a reference (to manipulate with the object) and std::vector<Relation*> x = _GetRelations(type); returns a copy
-        std::vector<Relation*>& _GetRelations(RelationType::type relationType);
+        std::vector<Relation*>& _GetRelations(RelationType::type relationType) const;
         //SVDOCTODO 
         //SVDOCTODO is this a good name?
         //SVDOCTODO mention GetRelations as an alternative
+        //SVDOCTODO returns a newly-constructed vector, so the user can do anything with it
         //SVDOCTODO this method creates a new vector and fills it with data; returns a new vector
-        std::vector<Relation*> FindAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1);
+        std::vector<Relation*> GetAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) const;
 
         // SVDOCTODO was removed -> use GetAllDataPathsByType insteas with dataType::Any
         // //SVDOCTODO update 
@@ -493,6 +473,7 @@ namespace sys_sage {
         @private
         Only called by Relation's int Relation::AddComponent(Component* c), Relation::UpdateComponent
         */
+
         void _AddRelation(int32_t relationType, Relation* r);
 
         // //SVTODO make sure this is deleted from everywhere
@@ -514,7 +495,7 @@ namespace sys_sage {
         @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
         @return DataPath pointer to the found data path; NULL if nothing found.
         */
-        DataPath* GetDataPathByType(DataPathType::type dp_type, DataPathDirection::type direction = DataPathDirection::Any);
+        DataPath* GetDataPathByType(DataPathType::type dp_type, DataPathDirection::type direction = DataPathDirection::Any) const;
         
         //SVTODO rename to GetAllDataPaths
         //SVDOCTODO new parameters
@@ -527,7 +508,7 @@ namespace sys_sage {
             \n An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
         */
-        void GetAllDataPathsByType(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any);
+        void GetAllDataPathsByType(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         //SVTODO rename to GetAllDataPaths
         //SVDOCTODO new parameters
@@ -538,7 +519,7 @@ namespace sys_sage {
         @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
         @return A std::vector<DataPath*> with the results.
         */
-        std::vector<DataPath*> GetAllDataPathsByType(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any);
+        std::vector<DataPath*> GetAllDataPathsByType(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
         @brief Checks the consistency of the component tree starting from this component.
@@ -551,14 +532,14 @@ namespace sys_sage {
         
         The function returns the total number of errors found in the component tree, including errors in the direct children and any nested descendants.
         */
-        int CheckComponentTreeConsistency();
+        int CheckComponentTreeConsistency() const;
         /**
         Calculates approximate memory footprint of the subtree of this element (including the relevant data paths).
         @param out_component_size - output parameter (contains the footprint of the component tree elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
         @param out_dataPathSize - output parameter (contains the footprint of the data-path graph elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
         @return The total size in bytes
         */
-        int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize);
+        int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize) const;
         /**
         @private
         Helper function of int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize); -- normally you would call this one.
@@ -569,7 +550,7 @@ namespace sys_sage {
         @return The total size in bytes
         @see GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize);
         */
-        int _GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths);
+        int _GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths) const;
 
         /**
          * Retrieves the depth (level) of a component in the topology.
@@ -585,7 +566,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree();
         
         //SVDOCTODO
         void DeleteRelation(Relation * r);
@@ -607,7 +588,7 @@ namespace sys_sage {
         /**
         Deletes the whole subtree (all the children) of the component.
         */
-        void DeleteSubtree();
+        void DeleteSubtree() const;
         /**
         Deletes a component, its children (if withSubtree = true) and all the associated data paths.
         If only the component itself is deleted, its children are inserted into its parent's children list.
@@ -843,7 +824,7 @@ namespace sys_sage {
          * @return size
          * @see size
         */
-        long long GetSize();
+        long long GetSize() const;
         /**
          * Sets size/capacity of the memory element
          * @param _size = size
@@ -854,7 +835,7 @@ namespace sys_sage {
          * @return is_volatile  
          * 
          */
-        bool GetIsVolatile();
+        bool GetIsVolatile() const;
         /**
          * Sets if the memory element is volatile
          * @param _is_volatile = update is_volatile
@@ -865,7 +846,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree();
     private:
         long long size; /**< size/capacity of the memory element*/
         bool is_volatile; /**< is volatile? */
@@ -875,7 +856,7 @@ namespace sys_sage {
         /**
          * Gets the MIG size of the memory element.
          */
-        long long GetMIGSize(std::string uuid = "");
+        long long GetMIGSize(std::string uuid = "") const;
     #endif
     };
 
@@ -912,7 +893,7 @@ namespace sys_sage {
          * @return size
          * @see size
         */
-        long long GetSize();
+        long long GetSize() const;
         /**
          * Sets size/capacity of the storage device
          * @param _size = size
@@ -923,7 +904,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree();
     private:
         long long size; /**< size/capacity of the storage device */
     };
@@ -970,7 +951,7 @@ namespace sys_sage {
         @return The name of the vendor.
         @see vendor
         */
-        std::string GetVendor();
+        const std::string& GetVendor() const;
         
         /**
         Sets the model of the chip.
@@ -983,7 +964,7 @@ namespace sys_sage {
         @return The model name.
         @see model
         */
-        std::string GetModel();
+        const std::string& GetModel() const;
         
         /**
         Sets the type of the chip.
@@ -996,14 +977,14 @@ namespace sys_sage {
         @return The chip type.
         @see type
         */
-        int GetChipType();
+        int GetChipType() const;
         
         /**
         @private
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree();
     private:
         std::string vendor; /**< Vendor of the chip */
         std::string model; /**< Model of the chip */
@@ -1022,14 +1003,14 @@ namespace sys_sage {
         @param uuid - The UUID of the chip, default is an empty string.
         @return The number of SMs.
         */
-        int GetMIGNumSMs(std::string uuid = "");
+        int GetMIGNumSMs(std::string uuid = "") const;
 
         /**
         Gets the number of cores for the MIG.
         @param uuid - The UUID of the chip, default is an empty string.
         @return The number of cores.
         */
-        int GetMIGNumCores(std::string uuid = "");
+        int GetMIGNumCores(std::string uuid = "") const;
     #endif
     };
 
@@ -1080,7 +1061,7 @@ namespace sys_sage {
         /**
         @returns cache level of this cache, assuming there's only 1 or no digit in the "cache_type" (e.g. "L1", "texture")
         */
-        int GetCacheLevel();
+        int GetCacheLevel() const;
         
         /**
         Sets cache level of this cache using integer value (For e.g. "1" for "L1", etc.)
@@ -1093,7 +1074,7 @@ namespace sys_sage {
         @returns cache name 
         @see cache_name
         */
-        std::string GetCacheName();
+        const std::string& GetCacheName() const;
         
         /**
         Sets cache name of this cache (e.g. "L1", "texture")
@@ -1106,7 +1087,7 @@ namespace sys_sage {
          * @return size
          * @see size
         */
-        long long GetCacheSize();
+        long long GetCacheSize() const;
         /**
          * Sets size/capacity of the cache
          * @param _size = size
@@ -1115,7 +1096,7 @@ namespace sys_sage {
         /**
         @returns the number of the cache associativity ways of this cache
         */
-        int GetCacheAssociativityWays();
+        int GetCacheAssociativityWays() const;
 
         /**
         Sets cache associativity ways of this cache
@@ -1125,7 +1106,7 @@ namespace sys_sage {
         /**
         @returns the size of a cache line of this cache
         */
-        int GetCacheLineSize();
+        int GetCacheLineSize() const;
         /**
          * Sets the size of a cache line of this cache
         @param _cache_line_size = cache_line_size
@@ -1136,7 +1117,7 @@ namespace sys_sage {
         !!Should normally not be caller from the outside!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree();
     private:
         std::string cache_type; /**< cache level or cache type */
         long long cache_size;  /**< size/capacity of the cache */
@@ -1148,7 +1129,7 @@ namespace sys_sage {
         /**
          * Gets the MIG size of the cache element.
          */
-        long long GetMIGSize(std::string uuid = "");
+        long long GetMIGSize(std::string uuid = "") const;
     #endif
     };
 
@@ -1188,13 +1169,13 @@ namespace sys_sage {
         @returns the type of subdivision
         @see type
         */
-        int GetSubdivisionType();
+        int GetSubdivisionType() const;
         /**
         @private
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree();
     protected:
         /**
         Subdivision constructor (no automatic insertion in the Component Tree). Sets:
@@ -1249,7 +1230,7 @@ namespace sys_sage {
         Get size of the Numa memory segment.
         @returns size of the Numa memory segment.
         */
-        long long GetSize();
+        long long GetSize() const;
 
         /**
         Set size of the Numa memory segment.
@@ -1262,7 +1243,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree();
     private:
         long long size; /**< size of the Numa memory segment.*/
     };
@@ -1310,7 +1291,7 @@ namespace sys_sage {
         /**
         * Gets the frequency of the core.
         */
-        double GetFreq();
+        double GetFreq() const;
     private:
         double freq;
     #endif
@@ -1353,7 +1334,7 @@ namespace sys_sage {
         /**
         * Gets the frequency of the thread.
         */
-        double GetFreq();
+        double GetFreq() const;
     #endif
 
     #ifdef INTEL_PQOS //defined in intel_pqos.cpp
@@ -1427,41 +1408,41 @@ namespace sys_sage {
         * 
         * @return The T1 relaxation time.
         */
-        const double GetT1() const;
+        double GetT1() const;
         /**
         * @brief Gets the T2 dephasing time of the qubit.
         * 
         * @return The T2 dephasing time.
         */
-        const double GetT2() const;
+        double GetT2() const;
 
         /**
         * @brief Gets the readout fidelity of the qubit.
         * 
         * @return The readout fidelity 
         */
-        const double GetReadoutFidelity() const;
+        double GetReadoutFidelity() const;
 
         /**
         * @brief Gets the 1Q fidelity of the qubit.
         * 
         * @return 1Q fidelity 
         */
-        const double Get1QFidelity() const;
+        double Get1QFidelity() const;
 
         /**
         * @brief Gets the readout length of the qubit.
         * 
         * @return The readout length.
         */
-        const double GetReadoutLength() const;
+        double GetReadoutLength() const;
 
         /**
         * @brief Gets the frequency of the qubit.
         * 
         * @return The frequency of the qubit.
         */
-        const double GetFrequency() const;
+        double GetFrequency() const;
 
         /**
         * @brief Refreshes the properties of the qubit.

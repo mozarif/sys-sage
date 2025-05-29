@@ -20,15 +20,15 @@ sys_sage::Relation::Relation(std::initializer_list<Component*> components, bool 
 }
 
 void sys_sage::Relation::SetId(int _id) {id = _id;}
-int sys_sage::Relation::GetId(){ return id; }
-bool sys_sage::Relation::IsOrdered(){ return ordered; }
-bool sys_sage::Relation::ContainsComponent(Component* c)
+int sys_sage::Relation::GetId() const{ return id; }
+bool sys_sage::Relation::IsOrdered() const{ return ordered; }
+bool sys_sage::Relation::ContainsComponent(Component* c) const
 {
     if(std::find(components.begin(), components.end(), c) != components.end())
         return true;
     return false;
 }
-sys_sage::Component* sys_sage::Relation::GetComponent(int index)
+sys_sage::Component* sys_sage::Relation::GetComponent(int index) const
 {
     try {
         return components.at(index);
@@ -48,7 +48,7 @@ void sys_sage::Relation::AddComponent(Component* c)
     c->_AddRelation(type, this);
 }
 
-void sys_sage::Relation::Print()
+void sys_sage::Relation::Print() const
 {
     using namespace sys_sage;
     cout << GetTypeStr() << "(" << (ordered?"ordered":"unordered") << ") -- Components:  ";
@@ -81,8 +81,8 @@ void sys_sage::Relation::Delete()
     }
     delete this;
 }
-int sys_sage::Relation::GetType(){ return type;}
-std::string sys_sage::Relation::GetTypeStr()
+int sys_sage::Relation::GetType() const{ return type;}
+const std::string& sys_sage::Relation::GetTypeStr() const
 {
     std::string ret(sys_sage::RelationType::ToString(type));
     return ret;
@@ -102,14 +102,14 @@ std::string sys_sage::Relation::GetTypeStr()
 //     return dp;
 // }
 
-sys_sage::Component * sys_sage::DataPath::GetSource() {return components[0];}
-sys_sage::Component * sys_sage::DataPath::GetTarget() {return components[1];}
-double sys_sage::DataPath::GetBandwidth() {return bw;}
+sys_sage::Component * sys_sage::DataPath::GetSource() const {return components[0];}
+sys_sage::Component * sys_sage::DataPath::GetTarget() const {return components[1];}
+double sys_sage::DataPath::GetBandwidth() const {return bw;}
 void sys_sage::DataPath::SetBandwidth(double _bandwidth) { bw = _bandwidth;}
-double sys_sage::DataPath::GetLatency() {return latency;}
+double sys_sage::DataPath::GetLatency() const {return latency;}
 void sys_sage::DataPath::SetLatency(double _latency) { latency = _latency; }
-int sys_sage::DataPath::GetDataPathType() {return dp_type;}
-int sys_sage::DataPath::GetOrientation() {return ordered;}
+int sys_sage::DataPath::GetDataPathType() const {return dp_type;}
+int sys_sage::DataPath::GetOrientation() const {return ordered;}
 
 
 void sys_sage::Relation::UpdateComponent(int index, Component * _new_component)
@@ -249,7 +249,7 @@ void sys_sage::DataPath::Delete()
 }
 
 
-void sys_sage::DataPath::Print()
+void sys_sage::DataPath::Print() const
 {
     Relation::Print();
     // cout << "DataPath src: (" << components[0]->GetComponentTypeStr() << ") id " << components[0]->GetId() << ", target: (" << components[1]->GetComponentTypeStr() << ") id " << components[1]->GetId() << " - bw: " << bw << ", latency: " << latency;
@@ -315,37 +315,17 @@ void sys_sage::QuantumGate::SetQuantumGateType()
     }
 }
 
-sys_sage::QuantumGateType::type sys_sage::QuantumGate::GetQuantumGateType()
+sys_sage::QuantumGateType::type sys_sage::QuantumGate::GetQuantumGateType() const { return gate_type; }
+double sys_sage::QuantumGate::GetFidelity() const { return fidelity; }
+size_t sys_sage::QuantumGate::GetGateSize() const { return gate_size; }
+const std::string& sys_sage::QuantumGate::GetUnitary() const { return unitary; }
+std::string sys_sage::QuantumGate::GetName() const { return name; }
+
+void sys_sage::QuantumGate::Print() const
 {
-    return gate_type;
+    //SVTODO
 }
 
-double sys_sage::QuantumGate::GetFidelity() const
-{
-    return fidelity;
-}
-
-size_t sys_sage::QuantumGate::GetGateSize() const
-{
-    return gate_size;
-}
-
-std::string sys_sage::QuantumGate::GetUnitary() const
-{
-    return unitary;
-}
-
-std::string sys_sage::QuantumGate::GetName()
-{
-    return name;
-}
-
-void sys_sage::QuantumGate::Print()
-{
-}
-
-
-// CouplingMap::CouplingMap() {}
 sys_sage::CouplingMap::CouplingMap(Qubit* q1, Qubit* q2) : Relation(sys_sage::RelationType::CouplingMap)
 {
     ordered = true;    
@@ -353,7 +333,7 @@ sys_sage::CouplingMap::CouplingMap(Qubit* q1, Qubit* q2) : Relation(sys_sage::Re
     AddComponent(q2);
 }
 void sys_sage::CouplingMap::SetFidelity(double _fidelity){fidelity = _fidelity;}
-double sys_sage::CouplingMap::GetFidelity(){return fidelity;}
+double sys_sage::CouplingMap::GetFidelity() const {return fidelity;}
 void sys_sage::CouplingMap::Delete()
 {
     Relation::Delete();

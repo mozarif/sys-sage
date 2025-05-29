@@ -148,20 +148,20 @@ namespace sys_sage {
          * @brief Gets the id of the relationship.
          * @return The current id of the relationship.
          */
-        int GetId();
+        int GetId() const;
         /**
          * @brief Gets the type of the relationship.
          * @return The current type of the relationship.
          */
-        int GetType();
+        int GetType() const;
         //SVDOCTODO
-        std::string GetTypeStr();
+        const std::string& GetTypeStr() const;
         //SVDOCTODO
-        bool IsOrdered();
+        bool IsOrdered() const;
         //SVDOCTODO
-        bool ContainsComponent(Component* c);
+        bool ContainsComponent(Component* c) const;
         //SVDOCTODO
-        Component* GetComponent(int index);
+        Component* GetComponent(int index) const;
         //SVDOCTODO
         const std::vector<Component*>& GetComponents() const;
 
@@ -172,7 +172,7 @@ namespace sys_sage {
          * Derived classes must implement this function to provide specific
          * printing behavior.
          */
-        virtual void Print();
+        virtual void Print() const;
         //SVDOCTODO
         void AddComponent(Component* c);
         //SVDOCTODO
@@ -301,7 +301,6 @@ namespace sys_sage {
     \n Data Paths create a Data-Path graph, which is a structure orthogonal to the Component Tree.
     \n Each Component contains a reference to all Data Paths going to or from this components (as well as parents and children in the Component Tree). Using these references, it is possible to navigate between the Components and to view the data stores in the Components or the Data Paths.
     */
-
     class DataPath : public Relation {
 
     public:
@@ -341,16 +340,15 @@ namespace sys_sage {
         /**
         @returns Pointer to the source Component
         */
-        Component* GetSource();
+        Component* GetSource() const;
         /**
         @returns Pointer to the target Component
         */
-        Component* GetTarget();
+        Component* GetTarget() const;
         /**
         @returns Bandwidth from the source(provides the data) to the target(requests the data)
         */
-        double GetBandwidth();
-        
+        double GetBandwidth() const;
         /**
          * Sets the bandwidth from the source to the target.
         @param _bandwidth - value for bw
@@ -360,8 +358,7 @@ namespace sys_sage {
         /**
         @returns Data load latency from the source(provides the data) to the target(requests the data)
         */
-        double GetLatency();
-
+        double GetLatency() const;
         /**
          * Sets the data load latency from the source to the target.
         @param _latency - value for latency
@@ -383,13 +380,14 @@ namespace sys_sage {
          */
         void UpdateTarget(Component * _new_target);
         
+        //SVDOCTODO not private/obsolete -> Relation::Type returns RelationType; GetDataPathType returns DataPathType
         /**
          * @private
         Obsolete;use GetType() instead.
         @returns Type of the Data Path.
         @see type
         */
-        int GetDataPathType();
+        int GetDataPathType() const;
         //SVDOCTODO mention ordered instead of orientation
         /**
          * Retrieves the orientation of the datapath (SYS_SAGE_DATAPATH_ORIENTED or SYS_SAGE_DATAPATH_BIDIRECTIONAL)
@@ -397,12 +395,12 @@ namespace sys_sage {
          * @see oriented
          * 
         */
-        int GetOrientation();
+        int GetOrientation() const;
 
         /**
         Prints basic information about the Data Path to stdout. Prints componentType and Id of the source and target Components, the bandwidth, load latency, and the attributes; for each attribute, the name and value are printed, however the value is only retyped to uint64_t (therefore will print nonsensical values for other data types).
         */
-        void Print() override;
+        void Print() const override;
 
         //SVDOCTODO update doc
         /**
@@ -506,7 +504,7 @@ namespace sys_sage {
          * @brief Gets the type of the quantum gate.
          * @return The type identifier for the quantum gate.
          */
-        sys_sage::QuantumGateType::type GetQuantumGateType();
+        QuantumGateType::type GetQuantumGateType() const;
 
         /**
          * @brief Gets the fidelity of the quantum gate.
@@ -536,7 +534,7 @@ namespace sys_sage {
          * @brief Gets the unitary matrix of the quantum gate.
          * @return A string representing the unitary matrix of the quantum gate.
          */
-        std::string GetUnitary() const;
+        const std::string& GetUnitary() const;
 
         /**
          * @brief Sets the name of the relationship.
@@ -548,14 +546,14 @@ namespace sys_sage {
          * @brief Gets the name of the relationship.
          * @return The current name of the relationship.
          */
-        std::string GetName();
+        std::string GetName() const;
 
         /**
          * @brief Prints the details of the quantum gate.
          * 
          * This method overrides the Print function in the Relation class to provide specific printing behavior for quantum gates.
          */
-        void Print() override;
+        void Print() const override;
 
         // /**
         //  * @brief Deletes the quantum gate relation.
@@ -590,7 +588,7 @@ namespace sys_sage {
          */
         int gate_length;
 
-        sys_sage::QuantumGateType::type gate_type;
+        QuantumGateType::type gate_type;
         /**
          * @brief The fidelity of the quantum gate, indicating its accuracy or performance.
          */
@@ -628,7 +626,7 @@ namespace sys_sage {
         // void DeleteRelation();
         
         void SetFidelity(double _fidelity);
-        double GetFidelity();
+        double GetFidelity() const;
         void Delete() override;
     private:
         double fidelity;

@@ -144,8 +144,8 @@ int sys_sage::xmlProcessChildren(Component* c, xmlNode* parent, int level)
                             bool inserted_as_sibling = false;
                             if(childC->GetComponentType() == sys_sage::ComponentType::Cache)
                             {//make a cache a child of NUMA, if it is a sibling
-                                vector<Component*>* siblings = c->GetChildren();
-                                for(Component* sibling : *siblings){
+                                vector<Component*> siblings = c->GetChildren();
+                                for(Component* sibling : siblings){
                                     if(sibling->GetComponentType() == sys_sage::ComponentType::Numa) {
                                         sibling->InsertChild(childC);
                                         inserted_as_sibling = true;
@@ -155,8 +155,8 @@ int sys_sage::xmlProcessChildren(Component* c, xmlNode* parent, int level)
                             }
                             else if(childC->GetComponentType() == sys_sage::ComponentType::Numa)
                             {//make a (already inserted)cache a child of NUMA, if it is a sibling
-                                vector<Component*>* siblings = c->GetChildren();
-                                for(Component* sibling: *siblings){
+                                vector<Component*> siblings = c->GetChildren();
+                                for(Component* sibling: siblings){
                                     if(sibling->GetComponentType() == sys_sage::ComponentType::Cache) {
                                         c->RemoveChild(sibling);
                                         c->InsertChild(childC);
@@ -187,9 +187,9 @@ int sys_sage::xmlProcessChildren(Component* c, xmlNode* parent, int level)
 }
 
 int sys_sage::removeUnknownCompoents(Component* c){
-    vector<Component*>* children = c->GetChildren();
+    vector<Component*> children = c->GetChildren();
     vector<Component*> children_copy;
-    for(Component* child : *children){
+    for(Component* child : children){
         children_copy.push_back(child);
     }
 
@@ -199,11 +199,11 @@ int sys_sage::removeUnknownCompoents(Component* c){
         ret += removeUnknownCompoents(child);
         if(child->GetComponentType() == sys_sage::ComponentType::None)
         {
-            vector<Component*>* grandchildren = child->GetChildren();
-            int num_grandchildren = grandchildren->size();
+            vector<Component*> grandchildren = child->GetChildren();
+            int num_grandchildren = grandchildren.size();
             if(num_grandchildren >= 1) {
                 c->RemoveChild(child);
-                for(Component * grandchild : *grandchildren){
+                for(Component * grandchild : grandchildren){
                     c->InsertChild(grandchild);
                     grandchild->SetParent(c);
                 }

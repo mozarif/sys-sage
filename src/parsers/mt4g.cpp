@@ -416,7 +416,7 @@ int sys_sage::Mt4gParser::parseMemory(std::string header_name, std::string memor
           
         //make SMs as main memory's children and insert DP with latency
         std::vector<Component*> memory_children;
-        for(Component* sm : *(root->GetChildren()))
+        for(Component* sm : root->GetChildren())
             if(sm->GetComponentType() == sys_sage::ComponentType::Subdivision && ((Subdivision*)sm)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)
                 memory_children.push_back(sm);
 
@@ -427,7 +427,7 @@ int sys_sage::Mt4gParser::parseMemory(std::string header_name, std::string memor
         
         if(latency != -1)
             for(Component* sm: memory_children)
-                for(Component * c : *(sm->GetChildren()))
+                for(Component * c : sm->GetChildren())
                     if(c->GetComponentType() == sys_sage::ComponentType::Thread)
                         new DataPath(mem, c, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Logical, 0, latency); 
     }
@@ -655,7 +655,7 @@ int sys_sage::Mt4gParser::parseCaches(std::string header_name, std::string cache
             cache->SetCacheLineSize(cache_line_size);
 
         std::vector<Component*> sms;
-        for(Component* sm : *(parent->GetChildren()))
+        for(Component* sm : parent->GetChildren())
             if(sm->GetComponentType() == sys_sage::ComponentType::Subdivision && ((Subdivision*)sm)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)
                 sms.push_back(sm);
         

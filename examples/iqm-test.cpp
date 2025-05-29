@@ -52,7 +52,7 @@ int calculateAllWeights(QuantumBackend* backend, int tsForHistory = -1)
     double q1_fidelity_max = *static_cast<double*>(backend->attrib["q1_fidelity_max"]);
     double readout_fidelity_max = *static_cast<double*>(backend->attrib["readout_fidelity_max"]);
     double two_q_fidelity_max = *static_cast<double*>(backend->attrib["two_q_fidelity_max"]);
-    for(Component* c : *backend->GetChildren())
+    for(Component* c : backend->GetChildren())
     {
         if(c->GetComponentType() == sys_sage::ComponentType::Qubit)
         {
@@ -122,7 +122,7 @@ int main()
     cout << "---------------- Printing the configuration of IQM Backend----------------" << endl;
     b->PrintSubtree();
     
-    for(Component * c : *b->GetChildren() )
+    for(Component * c : b->GetChildren() )
     {
         if(c->GetComponentType() == sys_sage::ComponentType::Qubit)
         {
@@ -146,7 +146,7 @@ int main()
     }
 
     file << std::fixed << std::setprecision(14);
-    for(Component * c : *b->GetChildren() )
+    for(Component * c : b->GetChildren() )
     {
         if(c->attrib.contains("weight_history"))
         {
