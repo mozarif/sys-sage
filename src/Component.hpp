@@ -677,6 +677,7 @@ namespace sys_sage {
         int depth; /**< Depth (level) of the Component in the Component Tree */
         std::string name; /**< Name of the component (as a std::string). */
         int count{-1}; /**< Can be used to represent multiple Components with the same properties. By default, it represents only 1 component, and is set to -1. */
+        //SVDOCTODO old values
         /**
         Component type of the component. The component type denotes of which class the instance is (Often the components are stored as Component*, even though they are a member of one of the child classes)
         \n This attribute is constant, set by the constructor, and READONLY.
@@ -692,7 +693,7 @@ namespace sys_sage {
         \n SYS_SAGE_COMPONENT_NODE -> class Node
         \n SYS_SAGE_COMPONENT_TOPOLOGY -> class Topology
         */
-        const int componentType;
+        const ComponentType::type componentType;
         std::vector<Component*> children; /**< Contains the list (std::vector) of pointers to children of the component in the component tree. */
         Component* parent { nullptr }; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be NULL.*/
         
@@ -972,7 +973,7 @@ namespace sys_sage {
     private:
         std::string vendor; /**< Vendor of the chip */
         std::string model; /**< Model of the chip */
-        int type; /**< Type of the chip, e.g., CPU, GPU */
+        ChipType::type type; /**< Type of the chip, e.g., CPU, GPU */
     #ifdef NVIDIA_MIG
     public:
         /**
@@ -1179,7 +1180,7 @@ namespace sys_sage {
         //SVDOCTODO
         Subdivision(Component * parent, int _id, std::string _name, ComponentType::type _componentType);
 
-        int type; /**< Type of the subdivision. Each user can have his own numbering, i.e. the type is there to identify different types of subdivisions as the user defines it.*/
+        SubdivisionType::type type; /**< Type of the subdivision. Each user can have his own numbering, i.e. the type is there to identify different types of subdivisions as the user defines it.*/
     };
 
     /**
@@ -1433,6 +1434,13 @@ namespace sys_sage {
         */
         void RefreshProperties();
 
+        /**
+        @private 
+        !!Should normally not be used!! Helper function of XML dump generation.
+        @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
+        */
+        xmlNodePtr _CreateXmlSubtree();
+
         ~Qubit() override = default;
 
     private:
@@ -1554,20 +1562,38 @@ namespace sys_sage {
          */
         void RefreshTopology(std::set<int> qubit_indices); // qubit_indices: indices of the qubits that need to be refreshed
 
+        /**
+        @private 
+        !!Should normally not be used!! Helper function of XML dump generation.
+        @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
+        */
+        xmlNodePtr _CreateXmlSubtree();
+
         ~QuantumBackend() override = default;
 
     private:
         int num_qubits;
         int num_gates;
+        //SVTODO deal with gate_types -- can this go into Relations?
         std::vector <QuantumGate*> gate_types;
     #ifdef QDMI
         QDMI_Device device; // For refreshing the topology
     #endif
     };
 
-    // TO-DO: Choose a better name for NA and TI systems
+    //SVTODO in general check the quantum-related classes
+    //SVTODO does it make sense to inherit from QuantumBackend?
     class AtomSite : public QuantumBackend{
     public:
+
+        /**
+        @private 
+        !!Should normally not be used!! Helper function of XML dump generation.
+        @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
+        */
+        xmlNodePtr _CreateXmlSubtree();
+
+    //SVTODO move to private?
         struct SiteProperties {
 
             int nRows;

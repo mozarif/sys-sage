@@ -10,7 +10,6 @@
 #include <sstream>
 #include "cccbench.hpp"
 
-//SVTODO remove this?
 using namespace std;
 
 sys_sage::CccbenchParser::CccbenchParser(const char *csv_path)

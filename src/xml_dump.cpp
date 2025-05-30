@@ -9,7 +9,7 @@ std::function<int(std::string,void*,xmlNodePtr)> store_custom_complex_attrib_fcn
 
 //methods for printing out default attributes, i.e. those 
 //for a specific key, return the value as a string to be printed in the xml
-int sys_sage::search_default_attrib_key(std::string key, void* value, std::string* ret_value_str)
+int sys_sage::_search_default_attrib_key(std::string key, void* value, std::string* ret_value_str)
 {
     //value: uint64_t 
     if(!key.compare("CATcos") || 
@@ -58,7 +58,7 @@ int sys_sage::search_default_attrib_key(std::string key, void* value, std::strin
     return 0;
 }
 
-int search_default_complex_attrib_key(std::string key, void* value, xmlNodePtr n)
+int sys_sage::_search_default_complex_attrib_key(std::string key, void* value, xmlNodePtr n)
 {
     //value: std::vector<std::tuple<long long,double>>*
     if(!key.compare("freq_history"))
@@ -96,7 +96,7 @@ int search_default_complex_attrib_key(std::string key, void* value, xmlNodePtr n
     return 0;
 }
 
-int sys_sage::print_attrib(std::map<std::string,void*> attrib, xmlNodePtr n)
+int sys_sage::_print_attrib(std::map<std::string,void*> attrib, xmlNodePtr n)
 {
     std::string attrib_value;
     for (auto const& [key, val] : attrib){
@@ -104,7 +104,7 @@ int sys_sage::print_attrib(std::map<std::string,void*> attrib, xmlNodePtr n)
         if(store_custom_attrib_fcn != NULL)
             ret=store_custom_attrib_fcn(key,val,&attrib_value);
         if(ret==0)
-            ret = search_default_attrib_key(key,val,&attrib_value);
+            ret = _search_default_attrib_key(key,val,&attrib_value);
 
         if(ret==1)//attrib found
         {
@@ -118,7 +118,7 @@ int sys_sage::print_attrib(std::map<std::string,void*> attrib, xmlNodePtr n)
         if(ret == 0 && store_custom_complex_attrib_fcn != NULL) //try looking in search_custom_complex_attrib_key
             ret=store_custom_complex_attrib_fcn(key,val,n);
         if(ret==0)
-            ret = search_default_complex_attrib_key(key,val,n);
+            ret = _search_default_complex_attrib_key(key,val,n);
     }
 
     return 1;
@@ -146,12 +146,13 @@ xmlNodePtr sys_sage::Chip::_CreateXmlSubtree()
         xmlNewProp(n, (const unsigned char *)"vendor", (const unsigned char *)(vendor.c_str()));
     if(!model.empty())
         xmlNewProp(n, (const unsigned char *)"model", (const unsigned char *)(model.c_str()));
+    xmlNewProp(n, (const unsigned char *)"ChipType", (const unsigned char *)(std::to_string(type).c_str()));
     return n;
 }
 xmlNodePtr sys_sage::Cache::_CreateXmlSubtree()
 {
     xmlNodePtr n = Component::_CreateXmlSubtree();
-    xmlNewProp(n, (const unsigned char *)"cache_level", (const unsigned char *)cache_type.c_str());
+    xmlNewProp(n, (const unsigned char *)"cache_type", (const unsigned char *)cache_type.c_str());
     if(cache_size >= 0)
         xmlNewProp(n, (const unsigned char *)"cache_size", (const unsigned char *)(std::to_string(cache_size)).c_str());
     if(cache_associativity_ways >= 0)
@@ -173,6 +174,59 @@ xmlNodePtr sys_sage::Numa::_CreateXmlSubtree()
         xmlNewProp(n, (const unsigned char *)"size", (const unsigned char *)(std::to_string(size)).c_str());
     return n;
 }
+xmlNodePtr sys_sage::Qubit::_CreateXmlSubtree()
+{
+    xmlNodePtr n = Component::_CreateXmlSubtree();
+    xmlNewProp(n, (const unsigned char *)"q1_fidelity", (const unsigned char *)(std::to_string(q1_fidelity)).c_str());
+    xmlNewProp(n, (const unsigned char *)"t1", (const unsigned char *)(std::to_string(t1)).c_str());
+    xmlNewProp(n, (const unsigned char *)"t2", (const unsigned char *)(std::to_string(t2)).c_str());
+    xmlNewProp(n, (const unsigned char *)"readout_fidelity", (const unsigned char *)(std::to_string(readout_fidelity)).c_str());
+    xmlNewProp(n, (const unsigned char *)"readout_length", (const unsigned char *)(std::to_string(readout_length)).c_str());
+    xmlNewProp(n, (const unsigned char *)"fequency", (const unsigned char *)(std::to_string(fequency)).c_str());
+    xmlNewProp(n, (const unsigned char *)"calibration_time", (const unsigned char *)(calibration_time).c_str());
+    return n;
+}
+xmlNodePtr sys_sage::QuantumBackend::_CreateXmlSubtree()
+{
+    //SVTODO deal with gate_types -- can this go into Relations?
+    xmlNodePtr n = Component::_CreateXmlSubtree();
+    xmlNewProp(n, (const unsigned char *)"num_qubits", (const unsigned char *)(std::to_string(num_qubits)).c_str());
+    xmlNewProp(n, (const unsigned char *)"num_gates", (const unsigned char *)(std::to_string(num_gates)).c_str());
+    // if(gate_types.size() > 0)
+    // {
+    //     xmlNodePtr xml_gt = xmlNewNode(NULL, (const unsigned char *)"gateTypes");
+    //     xmlAddChild(n, xml_gt);
+    //     for(QuantumGate* : gate_types)
+    //     {
+    //         xmlNodePtr attrib = xmlNewNode(NULL, (const unsigned char *)key.c_str());
+    //         xmlNewProp(attrib, (const unsigned char *)"timestamp", (const unsigned char *)std::to_string(ts).c_str());
+    //         xmlNewProp(attrib, (const unsigned char *)"frequency", (const unsigned char *)std::to_string(freq).c_str());
+    //         xmlNewProp(attrib, (const unsigned char *)"unit", (const unsigned char *)"MHz");
+    //         xmlAddChild(xml_gt, attrib);
+    //     }
+    // }
+
+    return n;
+}
+xmlNodePtr sys_sage::AtomSite::_CreateXmlSubtree()
+{
+    xmlNodePtr n = Component::_CreateXmlSubtree();
+    
+    xmlNodePtr xml_siteprops = xmlNewNode(NULL, (const unsigned char *)"SiteProperties");
+    xmlNewProp(xml_siteprops, (const unsigned char *)"nRows", (const unsigned char *)(std::to_string(properties.nRows)).c_str());
+    xmlNewProp(xml_siteprops, (const unsigned char *)"nColumns", (const unsigned char *)(std::to_string(properties.nColumns)).c_str());
+    xmlNewProp(xml_siteprops, (const unsigned char *)"nAods", (const unsigned char *)(std::to_string(properties.nAods)).c_str());
+    xmlNewProp(xml_siteprops, (const unsigned char *)"nAodIntermediateLevels", (const unsigned char *)(std::to_string(properties.nAodIntermediateLevels)).c_str());
+    xmlNewProp(xml_siteprops, (const unsigned char *)"nAodCoordinates", (const unsigned char *)(std::to_string(properties.nAodCoordinates)).c_str());
+    xmlNewProp(xml_siteprops, (const unsigned char *)"interQubitDistance", (const unsigned char *)(std::to_string(properties.interQubitDistance)).c_str());
+    xmlNewProp(xml_siteprops, (const unsigned char *)"interactionRadius", (const unsigned char *)(std::to_string(properties.interactionRadius)).c_str());
+    xmlNewProp(xml_siteprops, (const unsigned char *)"blockingFactor", (const unsigned char *)(std::to_string(properties.blockingFactor)).c_str());
+    xmlAddChild(n, xml_siteprops);
+
+    //SVTODO handle shuttlingTimes, shuttlingAverageFidelities
+
+    return n;
+}
 xmlNodePtr sys_sage::Component::_CreateXmlSubtree()
 {
     xmlNodePtr n = xmlNewNode(NULL, (const unsigned char *)GetComponentTypeStr().c_str());
@@ -184,45 +238,84 @@ xmlNodePtr sys_sage::Component::_CreateXmlSubtree()
     addr << this;
     xmlNewProp(n, (const unsigned char *)"addr", (const unsigned char *)(addr.str().c_str()));
 
-    print_attrib(attrib, n);
+    _print_attrib(attrib, n);
 
     for(Component * c : children)
     {
-        xmlNodePtr child;
-        switch (c->GetComponentType()) {
-            case ComponentType::Cache:
-                child = ((Cache*)c)->_CreateXmlSubtree();
-                break;
-            case ComponentType::Subdivision:
-                child = ((Subdivision*)c)->_CreateXmlSubtree();
-                break;
-            case ComponentType::Numa:
-                child = ((Numa*)c)->_CreateXmlSubtree();
-                break;
-            case ComponentType::Chip:
-                child = ((Chip*)c)->_CreateXmlSubtree();
-                break;
-            case ComponentType::Memory:
-                child = ((Memory*)c)->_CreateXmlSubtree();
-                break;
-            case ComponentType::Storage:
-                child = ((Storage*)c)->_CreateXmlSubtree();
-                break;
-            case ComponentType::None:
-            case ComponentType::Thread:
-            case ComponentType::Core:
-            case ComponentType::Node:
-            case ComponentType::Topology:
-            default:
-                child = c->_CreateXmlSubtree();
-                break;
-        };
+        xmlNodePtr child = _buildComponentSubtree(c);
+        // xmlNodePtr child;
+        // switch (c->GetComponentType()) {
+        //     case ComponentType::Cache:
+        //         child = ((Cache*)c)->_CreateXmlSubtree();
+        //         break;
+        //     case ComponentType::Subdivision:
+        //         child = ((Subdivision*)c)->_CreateXmlSubtree();
+        //         break;
+        //     case ComponentType::Numa:
+        //         child = ((Numa*)c)->_CreateXmlSubtree();
+        //         break;
+        //     case ComponentType::Chip:
+        //         child = ((Chip*)c)->_CreateXmlSubtree();
+        //         break;
+        //     case ComponentType::Memory:
+        //         child = ((Memory*)c)->_CreateXmlSubtree();
+        //         break;
+        //     case ComponentType::Storage:
+        //         child = ((Storage*)c)->_CreateXmlSubtree();
+        //         break;
+        //     case ComponentType::None:
+        //         break;
+        //     case ComponentType::Thread:
+        //     case ComponentType::Core:
+        //     case ComponentType::Node:
+        //     case ComponentType::Topology:
+        //     default:
+        //         child = c->_CreateXmlSubtree();
+        //         break;
+        // };
 
         xmlAddChild(n, child);
     }
 
 
     return n;
+}
+
+xmlNodePtr sys_sage::_buildComponentSubtree(Component* c)
+{
+    switch(c->GetComponentType()) //not all necessarily have their specific implementation; if not, it will just call the default Component->_CreateXmlSubtree 
+    {
+        case ComponentType::None:
+            return reinterpret_cast<Component*>(c)->_CreateXmlSubtree();
+        case ComponentType::Thread:
+            return reinterpret_cast<Thread*>(c)->_CreateXmlSubtree();
+        case ComponentType::Core:
+            return reinterpret_cast<Core*>(c)->_CreateXmlSubtree();
+        case ComponentType::Cache:
+            return reinterpret_cast<Cache*>(c)->_CreateXmlSubtree();
+        case ComponentType::Subdivision:
+            return reinterpret_cast<Subdivision*>(c)->_CreateXmlSubtree();
+        case ComponentType::Numa:
+            return reinterpret_cast<Numa*>(c)->_CreateXmlSubtree();
+        case ComponentType::Chip:
+            return reinterpret_cast<Chip*>(c)->_CreateXmlSubtree();
+        case ComponentType::Memory:
+            return reinterpret_cast<Memory*>(c)->_CreateXmlSubtree();
+        case ComponentType::Storage:
+            return reinterpret_cast<Storage*>(c)->_CreateXmlSubtree();
+        case ComponentType::Node:
+            return reinterpret_cast<Node*>(c)->_CreateXmlSubtree();
+        case ComponentType::QuantumBackend:
+            return reinterpret_cast<QuantumBackend*>(c)->_CreateXmlSubtree();
+        case ComponentType::Qubit:
+            return reinterpret_cast<Qubit*>(c)->_CreateXmlSubtree();
+        case ComponentType::Topology:
+            return reinterpret_cast<Topology*>(c)->_CreateXmlSubtree();
+        default:
+            std::cerr << "ERROR: sys_sage::_buildComponentSubtree -- unknown Component Type" << std::endl;
+            return NULL;
+    }
+    return NULL;
 }
 
 int sys_sage::exportToXml(
@@ -244,8 +337,9 @@ int sys_sage::exportToXml(
     xmlAddChild(sys_sage_root, relations_root);
 
     //build a tree for Components
-    xmlNodePtr n = root->_CreateXmlSubtree();
-    xmlAddChild(components_root, n);
+    xmlNodePtr c = _buildComponentSubtree(root);
+    xmlAddChild(components_root, c);
+    ////
 
     //scan all Components for their relations
     std::vector<Component*> components;
@@ -285,7 +379,7 @@ int sys_sage::exportToXml(
                     }
                     xmlAddChild(relations_root, r_n);
 
-                    print_attrib(r->attrib, r_n);
+                    _print_attrib(r->attrib, r_n);
                 }
             }  
         }
