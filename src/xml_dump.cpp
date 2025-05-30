@@ -175,7 +175,6 @@ xmlNodePtr sys_sage::Numa::_CreateXmlSubtree()
 }
 xmlNodePtr sys_sage::Component::_CreateXmlSubtree()
 {
-    using namespace sys_sage;
     xmlNodePtr n = xmlNewNode(NULL, (const unsigned char *)GetComponentTypeStr().c_str());
     xmlNewProp(n, (const unsigned char *)"id", (const unsigned char *)(std::to_string(id)).c_str());
     xmlNewProp(n, (const unsigned char *)"name", (const unsigned char *)name.c_str());
@@ -232,7 +231,6 @@ int sys_sage::exportToXml(
     std::function<int(std::string,void*,std::string*)> _store_custom_attrib_fcn, 
     std::function<int(std::string,void*,xmlNodePtr)> _store_custom_complex_attrib_fcn)
 {
-    using namespace sys_sage;
     store_custom_attrib_fcn=_store_custom_attrib_fcn;
     store_custom_complex_attrib_fcn=_store_custom_complex_attrib_fcn;
 

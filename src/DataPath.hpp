@@ -121,12 +121,26 @@ namespace sys_sage {
         constexpr type Cnot = 4; /**< CNOT Gate */
         constexpr type Sx = 5; /**< SX Gate */
         constexpr type Toffoli = 6; /**< Toffoli Gate */
+
+        //SVTODO this should remain private???
+        static const std::unordered_map<type, const char*> names = {
+            {Unknown, "Unknown"},
+            {Id, "Id"},
+            {X, "X"},
+            {Rz, "Rz"},
+            {Cnot, "Cnot"},
+            {Sx, "Sx"},
+            {Toffoli, "Toffoli"}
+        };
+
+        inline const char* ToString(type rt) {
+            auto it = names.find(rt);
+            if (it != names.end()) return it->second;
+            return "Unknown";
+        }
     }
 
 
-
-
-    //SVTODO make all non-public (non-API) methods with _prefix
 
     /**
      * @class Relation
@@ -155,7 +169,7 @@ namespace sys_sage {
          */
         int GetType() const;
         //SVDOCTODO
-        const std::string& GetTypeStr() const;
+        std::string GetTypeStr() const;
         //SVDOCTODO
         bool IsOrdered() const;
         //SVDOCTODO
@@ -173,13 +187,17 @@ namespace sys_sage {
          * printing behavior.
          */
         virtual void Print() const;
+        //SVDOCTODO private
+        void _PrintRelationAttrib() const;
+        //SVDOCTODO private
+        void _PrintRelationComponentInfo() const;
         //SVDOCTODO
         void AddComponent(Component* c);
         //SVDOCTODO
-        void UpdateComponent(int index, Component * _new_component);
+        int UpdateComponent(int index, Component * _new_component);
         //SVDOCTODO
         //SVDOCTODO mention that it only replaces first entry of _old_component found (using std::find)
-        void UpdateComponent(Component* _old_component, Component * _new_component);
+        int UpdateComponent(Component* _old_component, Component * _new_component);
 
         //SVDOCTODO
         /**
@@ -365,20 +383,22 @@ namespace sys_sage {
         @see latency
         */
         void SetLatency(double _latency);
-        
+
+        //SVDOCTODO
         /**
          * Updates the source of the DataPath. The datapath is removed from the outgoing/incoming vectors of the old source and 
          * added to the vectors of the newer source.
          * @param _new_source - New source of the DataPath.
          */
-        void UpdateSource(Component * _new_source);
+        int UpdateSource(Component * _new_source);
 
+        //SVDOCTODO
         /**
          * Updates the target of the DataPath. The datapath is removed from the outgoing/incoming vectors of the old target and 
          * added to the vectors of the newer target.
          * @param _new_source - New target of the DataPath.
          */
-        void UpdateTarget(Component * _new_target);
+        int UpdateTarget(Component * _new_target);
         
         //SVDOCTODO not private/obsolete -> Relation::Type returns RelationType; GetDataPathType returns DataPathType
         /**

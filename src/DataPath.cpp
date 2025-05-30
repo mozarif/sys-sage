@@ -48,27 +48,31 @@ void sys_sage::Relation::AddComponent(Component* c)
     c->_AddRelation(type, this);
 }
 
-void sys_sage::Relation::Print() const
+
+void sys_sage::Relation::_PrintRelationComponentInfo() const
 {
-    using namespace sys_sage;
-    cout << GetTypeStr() << "(" << (ordered?"ordered":"unordered") << ") -- Components:  ";
+    std::cout << " -- Components:  ";
     for(Component* c : components)
     {
         cout << "(" << c->GetComponentTypeStr() << ") id " << c->GetId() << ", ";
     }
-    // //TODO make this implementation nicer; make sure all is printed for DataPaths etc
-    // if(type == RelationType::DataPath)
-    // {
-    //     cout << " - bw: " << bw << ", latency: " << latency;
-    // }
+}
+void sys_sage::Relation::_PrintRelationAttrib() const
+{
     if(!attrib.empty())
     {
-        cout << " - attrib: ";
+        cout << " -- attrib: ";
         for (const auto& n : attrib) {
             uint64_t* val = (uint64_t*)n.second;
             std::cout << n.first << " = " << *val << "; ";
         }
     }
+}
+void sys_sage::Relation::Print() const
+{
+    std::cout << GetTypeStr() << " (" << (ordered?"ordered":"unordered") << ")";
+    _PrintRelationComponentInfo();
+    _PrintRelationAttrib();
     cout << endl;
 }
 
@@ -82,7 +86,7 @@ void sys_sage::Relation::Delete()
     delete this;
 }
 int sys_sage::Relation::GetType() const{ return type;}
-const std::string& sys_sage::Relation::GetTypeStr() const
+std::string sys_sage::Relation::GetTypeStr() const
 {
     std::string ret(sys_sage::RelationType::ToString(type));
     return ret;
@@ -112,32 +116,36 @@ int sys_sage::DataPath::GetDataPathType() const {return dp_type;}
 int sys_sage::DataPath::GetOrientation() const {return ordered;}
 
 
-void sys_sage::Relation::UpdateComponent(int index, Component * _new_component)
+int sys_sage::Relation::UpdateComponent(int index, Component * _new_component)
 {
     if(index >= components.size() || index < 0)
     {
-        //SVTODO print error and exit/return and do nothing?
+        //TODO ho return an integer; 0=okay, 1=this error?
+        std::cerr << "WARNING: sys_sage::Relation::UpdateComponent index out of bounds -- nothing updated." << std::endl;
+        return 1;
     }
     std::vector<Relation*>& component_relation_vector = components[index]->_GetRelations(type);
     component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
 
     _new_component->_AddRelation(type, this);
     components[index] = _new_component;
+    return 0;
 }
-void sys_sage::Relation::UpdateComponent(Component* _old_component, Component * _new_component)
+int sys_sage::Relation::UpdateComponent(Component* _old_component, Component * _new_component)
 {
     auto it = std::find(components.begin(), components.end(), _old_component);
     if(it == components.end())
     {
-        //SVTODO NOT FOUND -> handle error and return
+        std::cerr << "WARNING: sys_sage::Relation::UpdateComponent component not found -- nothing updated." << std::endl;
+        return 1;
     }
     int index = it - components.begin();
-    UpdateComponent(index, _new_component);
+    return UpdateComponent(index, _new_component);
 }
 
-void sys_sage::DataPath::UpdateSource(Component * _new_source)
+int sys_sage::DataPath::UpdateSource(Component * _new_source)
 {
-    UpdateComponent(0, _new_source);
+    return UpdateComponent(0, _new_source);
 
     // if(ordered)
     // {
@@ -163,9 +171,9 @@ void sys_sage::DataPath::UpdateSource(Component * _new_source)
 
 }
 
-void sys_sage::DataPath::UpdateTarget(Component * _new_target)
+int sys_sage::DataPath::UpdateTarget(Component * _new_target)
 {
-    UpdateComponent(1, _new_target);
+    return UpdateComponent(1, _new_target);
     // if(ordered)
     // {
     //     std::vector<DataPath*>* target_dp_incoming = components[1]->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
@@ -251,7 +259,11 @@ void sys_sage::DataPath::Delete()
 
 void sys_sage::DataPath::Print() const
 {
-    Relation::Print();
+    std::cout << GetTypeStr() << " (" << (ordered?"ordered":"unordered") << ")";
+    _PrintRelationComponentInfo();
+    cout << " -- bw: " << bw << ", latency: " << latency;
+    _PrintRelationAttrib();
+    cout << endl;
     // cout << "DataPath src: (" << components[0]->GetComponentTypeStr() << ") id " << components[0]->GetId() << ", target: (" << components[1]->GetComponentTypeStr() << ") id " << components[1]->GetId() << " - bw: " << bw << ", latency: " << latency;
     // if(!attrib.empty())
     // {
@@ -290,7 +302,6 @@ void sys_sage::QuantumGate::SetGateProperties(std::string _name, double _fidelit
 void sys_sage::QuantumGate::SetQuantumGateType()
 {
     //TODO unite the name in the QuantumGateType namespace, similar to RelationType?
-    using namespace sys_sage;
     if(gate_size == 1)
     {
         if(name == "id") gate_type = QuantumGateType::Id;
@@ -323,7 +334,11 @@ std::string sys_sage::QuantumGate::GetName() const { return name; }
 
 void sys_sage::QuantumGate::Print() const
 {
-    //SVTODO
+    std::cout << GetTypeStr() << " (" << (ordered?"ordered":"unordered") << ")";
+    _PrintRelationComponentInfo();
+    std::cout << " --  Name: " << name << " (type " << QuantumGateType::ToString(gate_type) << "), GateSize: " << gate_size << ", GateLength: " << gate_length << ", Fidelity: " << fidelity;
+    _PrintRelationAttrib();
+    cout << endl;
 }
 
 sys_sage::CouplingMap::CouplingMap(Qubit* q1, Qubit* q2) : Relation(sys_sage::RelationType::CouplingMap)

@@ -113,9 +113,8 @@ namespace sys_sage {
     }
 
 
-
-
-    //SVTODO make all non-public (non-API) methods with _prefix
+    //SVTODO make sure parameters such as ComponentType are of the correct type
+    //SVTODO split component.hpp and datapath.hpp into different classes
 
     /**
     Generic class Component - all components inherit from this class, i.e. this class defines attributes and methods common to all components.
@@ -273,7 +272,7 @@ namespace sys_sage {
         @see componentType
         */
         //SVDOCTODO
-        const std::string& GetComponentTypeStr() const;
+        std::string GetComponentTypeStr() const;
         /**
         Returns a pointer to std::vector containing all children of the component (empty vector if no children) .
         @returns std::vector<Component *> * with children
@@ -439,8 +438,6 @@ namespace sys_sage {
         */
         std::vector<Component*> GetComponentsInSubtree();
 
-        //SVTODO rename to GetRelations
-        //SVTODO how to deal with former int orientation, now bool ordered? -> if checked for position, return any of not ordered
         //SVDOCTODO
         //SVDOCTODO mention FindAllRelationsBy as an alternative
         //SVDOCTODO this one just returns a pointer to the internal structure -- the object already exists and is managed (deleted) by sys-sage
@@ -460,7 +457,6 @@ namespace sys_sage {
         // SVDOCTODO was removed -> use GetAllDataPathsByType insteas with dataType::Any
         // //SVDOCTODO update 
         // //SVDOCTODO changed to return vector<DataPath*> instead of vector<DataPath*>* 
-        // //SVTODO change datatypes, such as int orientation, to something (ssOrientation?) more specific with typedef?
         // /**     
         // Returns the DataPaths of this component according to their orientation.
         // @param orientation - either SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING
@@ -473,21 +469,9 @@ namespace sys_sage {
         @private
         Only called by Relation's int Relation::AddComponent(Component* c), Relation::UpdateComponent
         */
-
         void _AddRelation(int32_t relationType, Relation* r);
 
-        // //SVTODO make sure this is deleted from everywhere
-        // /**
-        // @private
-        // !!Normally should not be called; Use NewDataPath() instead!!
-        // Stores (pushes back) a DataPath pointer to the list(std::vector) of DataPaths of this component. According to the orientation param, the proper list is chosen.
-        // @param p - the pointer to store
-        // @param orientation - orientation of the DataPath. Either SYS_SAGE_DATAPATH_OUTGOING (lands in dp_outgoing) or SYS_SAGE_DATAPATH_INCOMING (lands in dp_incoming)
-        // @see NewDataPath()
-        // */
-        // void AddDataPath(DataPath* p, int orientation);
         
-        //SVTODO restructure to use relations[datapaths] + make sure that the namespace is used
         /**
         Retrieves a DataPath * from the list of this component's data paths with matching type and orientation.
         \n The first match is returned -- first SYS_SAGE_DATAPATH_OUTGOING are searched, then SYS_SAGE_DATAPATH_INCOMING.
@@ -497,8 +481,7 @@ namespace sys_sage {
         */
         DataPath* GetDataPathByType(DataPathType::type dp_type, DataPathDirection::type direction = DataPathDirection::Any) const;
         
-        //SVTODO rename to GetAllDataPaths
-        //SVDOCTODO new parameters
+        //SVDOCTODO new parameters, new name
         /**
         Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
         Results are returned in std::vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
@@ -508,10 +491,9 @@ namespace sys_sage {
             \n An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
         */
-        void GetAllDataPathsByType(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        void GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
-        //SVTODO rename to GetAllDataPaths
-        //SVDOCTODO new parameters
+        //SVDOCTODO new parameters, new name
         /**
         Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
         Results are returned in a std::vector<DataPath*>*, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
@@ -519,7 +501,7 @@ namespace sys_sage {
         @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
         @return A std::vector<DataPath*> with the results.
         */
-        std::vector<DataPath*> GetAllDataPathsByType(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        std::vector<DataPath*> GetAllDataPaths(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
         @brief Checks the consistency of the component tree starting from this component.
@@ -533,6 +515,7 @@ namespace sys_sage {
         The function returns the total number of errors found in the component tree, including errors in the direct children and any nested descendants.
         */
         int CheckComponentTreeConsistency() const;
+        //SVDOCTODO
         /**
         Calculates approximate memory footprint of the subtree of this element (including the relevant data paths).
         @param out_component_size - output parameter (contains the footprint of the component tree elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
@@ -541,6 +524,7 @@ namespace sys_sage {
         */
         int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize) const;
         /**
+        //SVDOCTODO
         @private
         Helper function of int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize); -- normally you would call this one.
         \n Calculates approximate memory footprint of the subtree of this element (including the relevant data paths). Does not count DataPaths stored in counted_dataPaths.

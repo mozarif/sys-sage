@@ -400,7 +400,7 @@ void sys_sage::Component::_AddRelation(int32_t relationType, Relation* r)
     (*relations)[relationType]->push_back(r);
 }
 
-sys_sage::DataPath* sys_sage::Component::GetDataPathByType(sys_sage::DataPathType::type  dp_type, sys_sage::DataPathDirection::type direction) const
+sys_sage::DataPath* sys_sage::Component::GetDataPathByType(DataPathType::type  dp_type, DataPathDirection::type direction) const
 {
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
@@ -480,7 +480,7 @@ std::vector<sys_sage::Relation*> sys_sage::Component::GetAllRelationsBy(Relation
     return out_vector;
 }
 
-void sys_sage::Component::GetAllDataPathsByType(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type, DataPathDirection::type direction) const
+void sys_sage::Component::GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type, DataPathDirection::type direction) const
 {
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
@@ -510,10 +510,10 @@ void sys_sage::Component::GetAllDataPathsByType(std::vector<DataPath*>* outDpArr
     return;
 }
 
-std::vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPathsByType(DataPathType::type dp_type, DataPathDirection::type direction) const
+std::vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPaths(DataPathType::type dp_type, DataPathDirection::type direction) const
 {
     vector<DataPath*> outDpArr;
-    GetAllDataPathsByType(&outDpArr, dp_type, direction);
+    GetAllDataPaths(&outDpArr, dp_type, direction);
     return outDpArr;
 }
 
@@ -538,7 +538,7 @@ std::vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPathsByType(Data
 // }
 
 
-const std::string& sys_sage::Component::GetComponentTypeStr() const
+std::string sys_sage::Component::GetComponentTypeStr() const
 {
     std::string ret(ComponentType::ToString(componentType));
     return ret;
