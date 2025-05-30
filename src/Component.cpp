@@ -594,87 +594,113 @@ int sys_sage::Component::CheckComponentTreeConsistency() const
     return errors;
 }
 
-int sys_sage::Component::GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize) const
+int sys_sage::Component::GetTopologySize(unsigned * out_component_size, unsigned * out_RelationSize) const
 {
-    return _GetTopologySize(out_component_size, out_dataPathSize, NULL);
+    return _GetTopologySize(out_component_size, out_RelationSize, NULL);
 }
 
-int sys_sage::Component::_GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths) const
+int sys_sage::Component::_GetTopologySize(unsigned * out_component_size, unsigned * out_RelationSize, std::set<Relation*>* countedRelations) const
 {
-    return 0;
-    //SVTODO
-    // if(counted_dataPaths == NULL)
-    //     counted_dataPaths = new std::set<DataPath*>();
+    if(countedRelations == NULL)
+        countedRelations = new std::set<Relation*>();
 
-    // int component_size = 0;
-    // switch(componentType)
-    // {
-    //     case SYS_SAGE_COMPONENT_NONE:
-    //     break;
-    //     case SYS_SAGE_COMPONENT_THREAD:
-    //         component_size += sizeof(Thread);
-    //     break;
-    //     case SYS_SAGE_COMPONENT_CORE:
-    //         component_size += sizeof(Core);
-    //     break;
-    //     case SYS_SAGE_COMPONENT_CACHE:
-    //         component_size += sizeof(Cache);
-    //     break;
-    //     case SYS_SAGE_COMPONENT_SUBDIVISION:
-    //         component_size += sizeof(Subdivision);
-    //     break;
-    //     case SYS_SAGE_COMPONENT_NUMA:
-    //         component_size += sizeof(Numa);
-    //     break;
-    //     case SYS_SAGE_COMPONENT_CHIP:
-    //         component_size += sizeof(Chip);
-    //     break;
-    //     case SYS_SAGE_COMPONENT_MEMORY:
-    //         component_size += sizeof(Memory);
-    //     break;
-    //     case SYS_SAGE_COMPONENT_STORAGE:
-    //         component_size += sizeof(Storage);
-    //     break;
-    //     case SYS_SAGE_COMPONENT_NODE:
-    //         component_size += sizeof(Node);
-    //     break;
-    //     case SYS_SAGE_COMPONENT_TOPOLOGY:
-    //         component_size += sizeof(Topology);
-    //     break;
-    // }
-    // component_size += attrib.size()*(sizeof(string)+sizeof(void*)); //TODO improve
-    // component_size += children.size()*sizeof(Component*);
-    // (*out_component_size) += component_size;
+    int component_size = 0;
+    switch(componentType)
+    {
+        case ComponentType::None:
+            component_size += sizeof(Component);
+        break;
+        case ComponentType::Thread:
+            component_size += sizeof(Thread);
+        break;
+        case ComponentType::Core:
+            component_size += sizeof(Core);
+        break;
+        case ComponentType::Cache:
+            component_size += sizeof(Cache);
+        break;
+        case ComponentType::Subdivision:
+            component_size += sizeof(Subdivision);
+        break;
+        case ComponentType::Numa:
+            component_size += sizeof(Numa);
+        break;
+        case ComponentType::Chip:
+            component_size += sizeof(Chip);
+        break;
+        case ComponentType::Memory:
+            component_size += sizeof(Memory);
+        break;
+        case ComponentType::Storage:
+            component_size += sizeof(Storage);
+        break;
+        case ComponentType::Node:
+            component_size += sizeof(Node);
+        break;
+        case ComponentType::Topology:
+            component_size += sizeof(Topology);
+        break;
+    }
+    component_size += attrib.size()*(sizeof(std::string)+sizeof(void*)); //TODO improve
+    component_size += children.size()*sizeof(Component*);
+    //relations -- only counting the vector/array sizes
+    if(relations)
+    {
+        component_size += sizeof(std::array<std::vector<Relation*>*, RelationType::_num_relation_types>);
+        for(int i = 0; i<RelationType::_num_relation_types; i++)
+        {
+            if((*relations)[i] != NULL)
+            {
+                component_size += sizeof(*(*relations)[i]);
+            }
+        }
+    }
+    (*out_component_size) += component_size;
 
-    // int dataPathSize = 0;
-    // dataPathSize += dp_incoming.size() * sizeof(DataPath*);
-    // dataPathSize += dp_outgoing.size() * sizeof(DataPath*);
-    // for(auto it = std::begin(dp_incoming); it != std::end(dp_incoming); ++it) {
-    //     if(!counted_dataPaths->count((DataPath*)(*it))) {
-    //         //cout << "new datapath " << (DataPath*)(*it) << endl;
-    //         dataPathSize += sizeof(DataPath);
-    //         dataPathSize += (*it)->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
-    //         counted_dataPaths->insert((DataPath*)(*it));
-    //     }
-    // }
-    // for(auto it = std::begin(dp_outgoing); it != std::end(dp_outgoing); ++it) {
-    //     if(!counted_dataPaths->count((DataPath*)(*it))){
-    //         //cout << "new datapath " << (DataPath*)(*it) << endl;
-    //         dataPathSize += sizeof(DataPath);
-    //         dataPathSize += (*it)->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
-    //         counted_dataPaths->insert((DataPath*)(*it));
-    //     }
-    // }
-    // (*out_dataPathSize) += dataPathSize;
+    int relationsSize = 0;
 
-    // int subtreeSize = 0;
-    // for(auto it = std::begin(children); it != std::end(children); ++it) {
-    //     subtreeSize += (*it)->GetTopologySize(out_component_size, out_dataPathSize, counted_dataPaths);
-    // }
 
-    // if(counted_dataPaths != NULL)
-    //     delete counted_dataPaths;
-    // return component_size + dataPathSize + subtreeSize;
+    for(RelationType::type rt : RelationType::RelationTypeList)
+    {
+        std::vector<Relation*> rv = GetRelations(rt);
+        for(Relation* r: rv)
+        {
+            if(countedRelations->find(r) == countedRelations->end())
+            {
+                switch(rt)
+                {
+                    case RelationType::Relation:
+                        relationsSize += sizeof(Relation);
+                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
+                        break;
+                    case RelationType::DataPath:
+                        relationsSize += sizeof(DataPath);
+                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
+                        break;
+                    case RelationType::QuantumGate:
+                        relationsSize += sizeof(QuantumGate);
+                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
+                        break;
+                    case RelationType::CouplingMap:
+                        relationsSize += sizeof(CouplingMap);
+                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
+                        break;
+                }
+                countedRelations->insert(r);
+            }
+        }
+    }
+    (*out_RelationSize) += relationsSize;
+
+    int subtreeSize = 0;
+    for(Component * c : children)
+    {
+        subtreeSize += c->_GetTopologySize(out_component_size, out_RelationSize, countedRelations);
+    }
+
+    if(countedRelations != NULL)
+        delete countedRelations;
+    return component_size + relationsSize + subtreeSize;
 }
 
 int sys_sage::Component::GetDepth(bool refresh)

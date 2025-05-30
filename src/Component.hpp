@@ -550,7 +550,7 @@ namespace sys_sage {
         @return The total size in bytes
         @see GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize);
         */
-        int _GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize, std::set<DataPath*>* counted_dataPaths) const;
+        int _GetTopologySize(unsigned * out_component_size, unsigned * out_RelationSize, std::set<Relation*>* countedRelations) const;
 
         /**
          * Retrieves the depth (level) of a component in the topology.
