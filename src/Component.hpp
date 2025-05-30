@@ -550,7 +550,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        virtual xmlNodePtr _CreateXmlSubtree();
         
         //SVDOCTODO
         void DeleteRelation(Relation * r);
@@ -831,7 +831,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree() override;
     private:
         long long size; /**< size/capacity of the memory element*/
         bool is_volatile; /**< is volatile? */
@@ -889,7 +889,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree() override;
     private:
         long long size; /**< size/capacity of the storage device */
     };
@@ -969,7 +969,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree() override;
     private:
         std::string vendor; /**< Vendor of the chip */
         std::string model; /**< Model of the chip */
@@ -1102,7 +1102,7 @@ namespace sys_sage {
         !!Should normally not be caller from the outside!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree() override;
     private:
         std::string cache_type; /**< cache level or cache type */
         long long cache_size;  /**< size/capacity of the cache */
@@ -1160,7 +1160,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree() override;
     protected:
         /**
         Subdivision constructor (no automatic insertion in the Component Tree). Sets:
@@ -1228,7 +1228,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree() override;
     private:
         long long size; /**< size of the Numa memory segment.*/
     };
@@ -1439,7 +1439,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree() override;
 
         ~Qubit() override = default;
 
@@ -1567,7 +1567,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree() override;
 
         ~QuantumBackend() override = default;
 
@@ -1591,7 +1591,7 @@ namespace sys_sage {
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
-        xmlNodePtr _CreateXmlSubtree();
+        xmlNodePtr _CreateXmlSubtree() override;
 
     //SVTODO move to private?
         struct SiteProperties {

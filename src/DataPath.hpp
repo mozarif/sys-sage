@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <libxml/parser.h>
 
 #include "defines.hpp"
 // #include "Component.hpp"
@@ -199,6 +200,8 @@ namespace sys_sage {
         //SVDOCTODO mention that it only replaces first entry of _old_component found (using std::find)
         int UpdateComponent(Component* _old_component, Component * _new_component);
 
+        //SVDOCTODO
+        virtual xmlNodePtr _CreateXmlEntry();
         //SVDOCTODO
         /**
          * @brief Pure virtual function to delete the relationship.
@@ -421,7 +424,8 @@ namespace sys_sage {
         Prints basic information about the Data Path to stdout. Prints componentType and Id of the source and target Components, the bandwidth, load latency, and the attributes; for each attribute, the name and value are printed, however the value is only retyped to uint64_t (therefore will print nonsensical values for other data types).
         */
         void Print() const override;
-
+        //SVDOCTODO private
+        xmlNodePtr _CreateXmlEntry() override;
         //SVDOCTODO update doc
         /**
         Deletes and de-allocates the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of source and target Components.
@@ -574,7 +578,8 @@ namespace sys_sage {
          * This method overrides the Print function in the Relation class to provide specific printing behavior for quantum gates.
          */
         void Print() const override;
-
+        //SVDOCTODO private
+        xmlNodePtr _CreateXmlEntry() override;
         // /**
         //  * @brief Deletes the quantum gate relation.
         //  * 
@@ -639,15 +644,20 @@ namespace sys_sage {
 
     class CouplingMap : public Relation {
     public:
+        //SVDOCTODO
         CouplingMap(Qubit* q1, Qubit*q2);
         // CouplingMap();
 
         // void Print();
         // void DeleteRelation();
-        
+        //SVDOCTODO
         void SetFidelity(double _fidelity);
+        //SVDOCTODO
         double GetFidelity() const;
+        //SVDOCTODO
         void Delete() override;
+        //SVDOCTODO private
+        xmlNodePtr _CreateXmlEntry() override;
     private:
         double fidelity;
     };

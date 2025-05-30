@@ -318,6 +318,59 @@ xmlNodePtr sys_sage::_buildComponentSubtree(Component* c)
     return NULL;
 }
 
+
+xmlNodePtr sys_sage::DataPath::_CreateXmlEntry()
+{
+    xmlNodePtr r_xml = Relation::_CreateXmlEntry();
+
+    xmlNewProp(r_xml, (const unsigned char *)"DataPathType", (const unsigned char *)(std::to_string(dp_type)).c_str());
+    xmlNewProp(r_xml, (const unsigned char *)"bw", (const unsigned char *)(std::to_string(bw)).c_str());
+    xmlNewProp(r_xml, (const unsigned char *)"latency", (const unsigned char *)(std::to_string(latency)).c_str());
+    return r_xml;
+}
+xmlNodePtr sys_sage::QuantumGate::_CreateXmlEntry()
+{
+    xmlNodePtr r_xml = Relation::_CreateXmlEntry();
+
+    xmlNewProp(r_xml, (const unsigned char *)"gate_size", (const unsigned char *)(std::to_string(gate_size)).c_str());
+    xmlNewProp(r_xml, (const unsigned char *)"name", (const unsigned char *)name.c_str());
+    xmlNewProp(r_xml, (const unsigned char *)"gate_length", (const unsigned char *)(std::to_string(gate_length)).c_str());
+    xmlNewProp(r_xml, (const unsigned char *)"gate_type", (const unsigned char *)(std::to_string(gate_type)).c_str());
+    xmlNewProp(r_xml, (const unsigned char *)"fidelity", (const unsigned char *)(std::to_string(fidelity)).c_str());
+    xmlNewProp(r_xml, (const unsigned char *)"unitary", (const unsigned char *)unitary.c_str());    
+    return r_xml;
+}
+xmlNodePtr sys_sage::CouplingMap::_CreateXmlEntry()
+{
+    xmlNodePtr r_xml = Relation::_CreateXmlEntry();
+
+    xmlNewProp(r_xml, (const unsigned char *)"fidelity", (const unsigned char *)(std::to_string(fidelity)).c_str());
+    return r_xml;
+}
+xmlNodePtr sys_sage::Relation::_CreateXmlEntry()
+{
+    xmlNodePtr r_xml = xmlNewNode(NULL, BAD_CAST GetTypeStr().c_str());
+
+    int c_idx = 0;
+    for(Component* rc : components)
+    {
+        std::ostringstream c_addr;
+        c_addr << rc;
+        const std::string xmlprop_name = "component" + std::to_string(c_idx);
+        xmlNewProp(r_xml, (const unsigned char *)xmlprop_name.c_str(), (const unsigned char *)(c_addr.str().c_str()));
+        c_idx++;
+    }
+
+    xmlNewProp(r_xml, (const unsigned char *)"ordered", (const unsigned char *)(std::to_string(ordered).c_str()));
+    xmlNewProp(r_xml, (const unsigned char *)"id", (const unsigned char *)(std::to_string(id).c_str()));
+    //xmlNewProp(r_xml, (const unsigned char *)"RelationType", (const unsigned char *)(std::to_string(type).c_str()));
+    //RelationType provided through the xml node name
+
+    _print_attrib(attrib, r_xml);
+
+    return r_xml;
+}
+
 int sys_sage::exportToXml(
     Component* root, 
     std::string path, 
@@ -357,29 +410,23 @@ int sys_sage::exportToXml(
                 //print only if this component has index 0 => print each Relation once only
                 if(r->GetComponent(0) == cPtr)
                 {
-                    xmlNodePtr r_n = xmlNewNode(NULL, BAD_CAST r->GetTypeStr().c_str());
-
-                    int c_idx = 0;
-                    for(Component* rc : r->GetComponents())
+                    xmlNodePtr r_xml;
+                    switch(r->GetType()) //not all necessarily have their specific implementation; if not, it will just call the default Relation->_CreateXmlEntry 
                     {
-                        std::ostringstream c_addr;
-                        c_addr << rc;
-                        const std::string xmlprop_name = "component" + std::to_string(c_idx);
-                        xmlNewProp(r_n, (const unsigned char *)xmlprop_name.c_str(), (const unsigned char *)(c_addr.str().c_str()));
-                        c_idx++;
+                        case RelationType::Relation:
+                            r_xml = reinterpret_cast<Relation*>(r)->_CreateXmlEntry();
+                            break;
+                        case RelationType::DataPath:
+                            r_xml = reinterpret_cast<DataPath*>(r)->_CreateXmlEntry();
+                        break;
+                        case RelationType::QuantumGate:
+                            r_xml = reinterpret_cast<QuantumGate*>(r)->_CreateXmlEntry();
+                            break;
+                        case RelationType::CouplingMap:
+                            r_xml = reinterpret_cast<CouplingMap*>(r)->_CreateXmlEntry();
+                            break;
                     }
-
-                    xmlNewProp(r_n, (const unsigned char *)"ordered", (const unsigned char *)(std::to_string(r->IsOrdered())).c_str());
-
-                    if(rt == RelationType::DataPath)
-                    {
-                        xmlNewProp(r_n, (const unsigned char *)"DataPathType", (const unsigned char *)(std::to_string(reinterpret_cast<DataPath*>(r)->GetDataPathType())).c_str());
-                        xmlNewProp(r_n, (const unsigned char *)"bw", (const unsigned char *)(std::to_string(reinterpret_cast<DataPath*>(r)->GetBandwidth())).c_str());
-                        xmlNewProp(r_n, (const unsigned char *)"latency", (const unsigned char *)(std::to_string(reinterpret_cast<DataPath*>(r)->GetLatency())).c_str());
-                    }
-                    xmlAddChild(relations_root, r_n);
-
-                    _print_attrib(r->attrib, r_n);
+                    xmlAddChild(relations_root, r_xml);
                 }
             }  
         }
