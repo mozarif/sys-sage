@@ -15,7 +15,6 @@
 using std::cout;
 using std::endl;
 
-//SVTODO fix xml load/dump functionality -- should work for Relations!
 //SVTODO refresh to make sure all attributes are parsed (especially QC stuff)
 
 #include <libxml/parser.h>
@@ -328,7 +327,7 @@ sys_sage::Component* sys_sage::_CreateComponentSubtree(xmlNodePtr n) {
 // corresponding Components
 int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 
-	cout << "_CreateRelations name = " << relationNode->name << endl; 
+	// cout << "_CreateRelations name = " << relationNode->name << endl; 
 	for (xmlNodePtr xml_child = relationNode->children; xml_child != NULL; xml_child = xml_child->next) {
 
 		// skip non-element nodes
@@ -336,7 +335,7 @@ int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 			continue;
 
 		std::string childName(reinterpret_cast<const char *>(xml_child->name));
-		cout << "_CreateRelations childName = " << childName << endl;
+		// cout << "_CreateRelations childName = " << childName << endl;
 
 		int component_index = 0;
 		std::vector<Component*> components;
@@ -399,7 +398,7 @@ sys_sage::Component* sys_sage::importFromXml(
 	xmlInitParser();
 	xmlDocPtr doc = xmlReadFile(path.c_str(), NULL, 0);
 	xmlNodePtr sys_sage_root = xmlDocGetRootElement(doc);
-	cout << "sys_sage_root->name = " << sys_sage_root->name << endl;
+	// cout << "sys_sage_root->name = " << sys_sage_root->name << endl;
 
 	xmlNodePtr n = sys_sage_root->children;
 
@@ -416,8 +415,8 @@ sys_sage::Component* sys_sage::importFromXml(
 		}
 	}
 
-	cout << "xml_load finished" << endl;
-	c->PrintSubtree();
+	// cout << "xml_load finished" << endl;
+	// c->PrintSubtree();
 
 	// Component *c = _CreateComponentSubtree(r->children->next, "Topology");
 
