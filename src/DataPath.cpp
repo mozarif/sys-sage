@@ -10,14 +10,22 @@
 using std::cout;
 using std::endl;
 
+
 ////////////////// RELATION //////////////////
 sys_sage::Relation::Relation(int _relation_type): type(_relation_type) {}
-sys_sage::Relation::Relation(std::initializer_list<Component*> components, bool _ordered): ordered(_ordered), type(sys_sage::RelationType::Relation)
+sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id, bool _ordered, int _relation_type): id(_id), ordered(_ordered), type(_relation_type)
 {
     for (Component* c : components) {
         AddComponent(c);
     }
 }
+sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id, bool _ordered): Relation(components, _id, _ordered, sys_sage::RelationType::Relation) {}
+// sys_sage::Relation::Relation(std::initializer_list<Component*> components, int _id, bool _ordered): id(_id), ordered(_ordered), type(sys_sage::RelationType::Relation)
+// {
+//     for (Component* c : components) {
+//         AddComponent(c);
+//     }
+// }
 
 void sys_sage::Relation::SetId(int _id) {id = _id;}
 int sys_sage::Relation::GetId() const{ return id; }
@@ -289,6 +297,7 @@ sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *>
         AddComponent(reinterpret_cast<Component*>(qp));
     }
 }
+sys_sage::QuantumGate::QuantumGate(const std::vector<Component*>& components, int _id, bool _ordered, size_t _gate_size, std::string _name, int _gate_length, QuantumGateType::type _gate_type, double _fidelity, std::string _unitary) : Relation(components, _id, _ordered, sys_sage::RelationType::QuantumGate), gate_size(_gate_size), name(_name), gate_length(_gate_length), gate_type(_gate_type), fidelity(_fidelity), unitary(_unitary) {}
 
 void sys_sage::QuantumGate::SetGateProperties(std::string _name, double _fidelity, std::string _unitary)
 {
@@ -347,6 +356,8 @@ sys_sage::CouplingMap::CouplingMap(Qubit* q1, Qubit* q2) : Relation(sys_sage::Re
     AddComponent(q1);
     AddComponent(q2);
 }
+sys_sage::CouplingMap::CouplingMap(const std::vector<Component*>& components, int _id, bool _ordered): Relation(components, _id, _ordered, sys_sage::RelationType::CouplingMap) {}
+
 void sys_sage::CouplingMap::SetFidelity(double _fidelity){fidelity = _fidelity;}
 double sys_sage::CouplingMap::GetFidelity() const {return fidelity;}
 void sys_sage::CouplingMap::Delete()

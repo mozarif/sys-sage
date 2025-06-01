@@ -17,23 +17,25 @@ namespace sys_sage {
     */
    Component* importFromXml(std::string path, std::function<void*(xmlNodePtr)> search_custom_attrib_key_fcn = NULL, std::function<int(xmlNodePtr, Component*)> search_custom_complex_attrib_key_fcn = NULL);
 
-   //SVDOCTODO
-   int CreateDataPaths(xmlNodePtr dpNode);
    //SVDOCTODO private
-   Component* CreateComponentSubtree(xmlNodePtr n, std::string type);
+   std::string _getStringFromProp(xmlNodePtr n, std::string prop);
+   //SVDOCTODO private
+   int _CreateRelations(xmlNodePtr relationNode);
+   //SVDOCTODO private
+   Component* _CreateComponentSubtree(xmlNodePtr n);
    /**
     * @private
     * For searching default attributes, i.e. those 
        for a specific key, and adding them to the Component.
    */
-   void* search_default_attrib_key(xmlNodePtr n);
+   void* _search_default_attrib_key(xmlNodePtr n);
    //SVDOCTODO private??
-   int search_default_complex_attrib_key(xmlNodePtr n, Component *c);
+   int _search_default_complex_attrib_key(xmlNodePtr n, Component *c);
    /**
     * @private
     * Collects the attributes from an xmlNode and adds them to a Component.
     */
-   int collect_attrib(xmlNodePtr n, Component* c);
+   int _collect_attrib(xmlNodePtr n, Component* c);
 } //namespace sys_sage
 #endif
 

@@ -153,7 +153,7 @@ namespace sys_sage {
      */
     class Relation {
     public:
-        Relation(std::initializer_list<Component*> components, bool _ordered = true);
+        Relation(const std::vector<Component*>& components, int _id = 0, bool _ordered = true);
         /**
          * @brief Sets the id of the relationship.
          * @param _id The id of the relationship to set.
@@ -218,6 +218,8 @@ namespace sys_sage {
         ~Relation() = default;
     protected:
         Relation(int _relation_type);
+        Relation(const std::vector<Component*>& components, int _id, bool _ordered, int _relation_type);
+
 
         bool ordered;
         /**
@@ -496,6 +498,10 @@ namespace sys_sage {
          */
         QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, std::string _name, double _fidelity, std::string _unitary);
 
+        // //SVDOCTODO
+        // QuantumGate(std::initializer_list<Component*> components, int _id = 0, bool _ordered = true);
+        //SVDOCTODO
+        QuantumGate(const std::vector<Component*>& components, int _id = 0, bool _ordered = true, size_t _gate_size = 0, std::string _name = "", int _gate_length = 0, QuantumGateType::type _gate_type = QuantumGateType::Unknown, double _fidelity = 0, std::string _unitary = "");
         /**
          * @brief Sets the properties of the quantum gate.
          * @param _name The name of the quantum gate.
@@ -541,13 +547,14 @@ namespace sys_sage {
          * @return The number of qubits this gate operates on.
          */
         size_t GetGateSize() const;
-
-        /**
-         * @brief Sets the id of the quantum gate.
-         * @param _id The id to assign to the quantum gate.
-         */
-        void SetId(int _id);
-
+        //SVDOCTODO
+        void SetGateSize(size_t gateSize);
+        // /**
+        //  * @brief Sets the id of the quantum gate.
+        //  * @param _id The id to assign to the quantum gate.
+        //  */
+        // void SetId(int _id);
+        void SetGateLength(int GateLength);
         // /**
         //  * @brief Gets the id of the quantum gate.
         //  * @return The id of the quantum gate.
@@ -613,6 +620,7 @@ namespace sys_sage {
          */
         int gate_length;
 
+
         QuantumGateType::type gate_type;
         /**
          * @brief The fidelity of the quantum gate, indicating its accuracy or performance.
@@ -646,6 +654,7 @@ namespace sys_sage {
     public:
         //SVDOCTODO
         CouplingMap(Qubit* q1, Qubit*q2);
+        CouplingMap(const std::vector<Component*>& components, int _id = 0, bool _ordered = true);
         // CouplingMap();
 
         // void Print();

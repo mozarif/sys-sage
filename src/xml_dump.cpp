@@ -384,9 +384,9 @@ int sys_sage::exportToXml(
 
     xmlNodePtr sys_sage_root = xmlNewNode(NULL, BAD_CAST "sys-sage");
     xmlDocSetRootElement(doc, sys_sage_root);
-    xmlNodePtr components_root = xmlNewNode(NULL, BAD_CAST "components");
+    xmlNodePtr components_root = xmlNewNode(NULL, BAD_CAST "Components");
     xmlAddChild(sys_sage_root, components_root);
-    xmlNodePtr relations_root = xmlNewNode(NULL, BAD_CAST "relations");
+    xmlNodePtr relations_root = xmlNewNode(NULL, BAD_CAST "Relations");
     xmlAddChild(sys_sage_root, relations_root);
 
     //build a tree for Components
