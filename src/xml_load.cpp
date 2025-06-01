@@ -15,7 +15,6 @@
 using std::cout;
 using std::endl;
 
-//SVTODO refresh to make sure all attributes are parsed (especially QC stuff)
 
 #include <libxml/parser.h>
 
