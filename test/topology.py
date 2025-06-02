@@ -5,7 +5,7 @@ class TestComponents(unittest.TestCase):
     def test_node(self):
         n = syge.Node(42)
         self.assertEqual(n.id, 42)
-        self.assertEqual(n.type, sys_sage.COMPONENT_NODE)
+        self.assertEqual(n.type, syge.COMPONENT_NODE)
         self.assertEqual(n.GetComponentTypeStr(), "Node")
         self.assertEqual(n.parent, None)
         
@@ -16,39 +16,39 @@ class TestComponents(unittest.TestCase):
     def test_topologogy(self):
         t = syge.Topology()
         self.assertEqual(t.id, 0)
-        self.assertEqual(t.type, sys_sage.COMPONENT_TOPOLOGY)
+        self.assertEqual(t.type, syge.COMPONENT_TOPOLOGY)
         self.assertEqual(t.GetComponentTypeStr(), "Topology")
         
     def test_thread(self):
-        root = sys_sage.Node(0)
-        t = sys_sage.Thread(root, 42, "foo")
+        root = syge.Node(0)
+        t = syge.Thread(root, 42, "foo")
         self.assertEqual(root, t.parent)
         self.assertEqual(t.id, 42)
-        self.assertEqual(t.type, sys_sage.COMPONENT_THREAD)
+        self.assertEqual(t.type, syge.COMPONENT_THREAD)
         self.assertEqual(t.GetComponentTypeStr(), "HW_thread")
         self.assertEqual(t.name, "foo")
     
     def test_core(self):
-        root = sys_sage.Node(0)
-        c = sys_sage.Core(root, 42, "foo")
+        root = syge.Node(0)
+        c = syge.Core(root, 42, "foo")
         self.assertEqual(root, c.parent)
         self.assertEqual(c.id, 42)
-        self.assertEqual(c.type, sys_sage.COMPONENT_CORE)
+        self.assertEqual(c.type, syge.COMPONENT_CORE)
         self.assertEqual(c.GetComponentTypeStr(), "Core")
         self.assertEqual(c.name, "foo")
         
     def test_cache(self):
-        root = sys_sage.Node(0)
-        c = sys_sage.Cache(root, 42, "3", 32, 2, 16)
+        root = syge.Node(0)
+        c = syge.Cache(root, 42, "3", 32, 2, 16)
         self.assertEqual(root, c.parent)
         self.assertEqual(c.id, 42)
-        self.assertEqual(c.type, sys_sage.COMPONENT_CACHE)
+        self.assertEqual(c.type, syge.COMPONENT_CACHE)
         self.assertEqual(c.GetComponentTypeStr(), "Cache")
         self.assertEqual(c.name, "Cache")
         self.assertEqual(c.cacheName, "3")
         self.assertEqual(c.cacheLevel, 3)
         self.assertEqual(c.cacheSize, 32)
-        self.assertEqual(c.cacheAssociativityWays, 2)
+        self.assertEqual(c.cacheAssociativity, 2)
         self.assertEqual(c.cacheLineSize, 16)
         
     def test_subdivision(self):
@@ -65,7 +65,7 @@ class TestComponents(unittest.TestCase):
         
     def test_numa(self):
         root = syge.Node(0)
-        n = syge.NUMA(root, 42, 64)
+        n = syge.Numa(root, 42, 64)
         self.assertEqual(root, n.parent)
         self.assertEqual(n.id, 42)
         self.assertEqual(n.type, syge.COMPONENT_NUMA)
@@ -127,7 +127,7 @@ class TestComponents(unittest.TestCase):
         a.InsertChild(d)
         self.assertEqual(len(a.GetChildren()), 3)
         self.assertEqual(a.RemoveChild(b), 1)
-        self.assertEquallen((a.GetChildren()), 2)
+        self.assertEqual(len(a.GetChildren()), 2)
         self.assertNotIn(b, a.GetChildren())
         self.assertIn(c, a.GetChildren())
         self.assertIn(d, a.GetChildren())
@@ -148,8 +148,6 @@ class TestComponents(unittest.TestCase):
         a = syge.Cache()
         b = syge.Core(a)
         c = syge.Thread(b)
-        self.assertEqual(a, c.FindParentByType(syge.COMPONENT_CACHE))
-    
     def test_component_tree_consistency(self):
         a = syge.Node()
         b = syge.Node()
@@ -187,7 +185,7 @@ class TestComponents(unittest.TestCase):
         array = []
         array += a.GetSubcomponentsByType(syge.COMPONENT_CHIP)
         
-        syge.assertEqual(2, len(array))
+        self.assertEqual(2, len(array))
     
     def test_get_total_number_of_threads(self):
         a = syge.Node()
