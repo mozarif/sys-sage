@@ -9,7 +9,23 @@ set(EXT_INTF "external_interfaces")
 
 set(SOURCES
     Component.cpp
+    Thread.cpp
+    Core.cpp
+    Cache.cpp
+    Subdivision.cpp
+    Numa.cpp
+    Chip.cpp
+    Memory.cpp
+    Storage.cpp
+    Node.cpp
+    QuantumBackend.cpp
+    Qubit.cpp
+    AtomSite.cpp
+    Topology.cpp
+    Relation.cpp
     DataPath.cpp
+    QuantumGate.cpp
+    CouplingMap.cpp
     xml_dump.cpp
     xml_load.cpp
     ${EXT_INTF}/intel_pqos.cpp
@@ -26,14 +42,31 @@ set(SOURCES
 set(HEADERS
     sys-sage.hpp
     defines.hpp
+    enums.hpp
     Component.hpp
+    Thread.hpp
+    Core.hpp
+    Cache.hpp
+    Subdivision.hpp
+    Numa.hpp
+    Chip.hpp
+    Memory.hpp
+    Storage.hpp
+    Node.hpp
+    QuantumBackend.hpp
+    Qubit.hpp
+    AtomSite.hpp
+    Topology.hpp
+    Relation.hpp
     DataPath.hpp
+    QuantumGate.hpp
+    CouplingMap.hpp
     xml_dump.hpp
     xml_load.hpp
     parsers/hwloc.hpp
     parsers/caps-numa-benchmark.hpp
     parsers/mt4g.hpp
-    parsers/cccbench.cpp
+    parsers/cccbench.hpp
     parsers/qdmi-parser.hpp
     parsers/iqm-parser.hpp
     )

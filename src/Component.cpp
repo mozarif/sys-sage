@@ -1,5 +1,23 @@
 #include "Component.hpp"
 
+#include "Topology.hpp"  // Needed for sizeof(Topology)
+#include "Component.hpp"
+#include "Thread.hpp"
+#include "Core.hpp"
+#include "Cache.hpp"
+#include "Subdivision.hpp"
+#include "Numa.hpp"
+#include "Chip.hpp"
+#include "Memory.hpp"
+#include "Storage.hpp"
+#include "Node.hpp"
+#include "QuantumBackend.hpp"
+#include "Qubit.hpp"
+#include "Relation.hpp"
+#include "DataPath.hpp"
+#include "QuantumGate.hpp"
+#include "CouplingMap.hpp"
+
 #include <algorithm>
 
 using std::string;
@@ -833,55 +851,8 @@ sys_sage::ComponentType::type sys_sage::Component::GetComponentType() const {ret
 
 int sys_sage::Component::GetId() const {return id;}
 
-void sys_sage::Storage::SetSize(long long _size){size = _size;} 
-long long sys_sage::Storage::GetSize() const{return size;}
 
-const std::string& sys_sage::Chip::GetVendor() const{return vendor;}
-void sys_sage::Chip::SetVendor(std::string _vendor){vendor = _vendor;}
-const std::string& sys_sage::Chip::GetModel() const{return model;}
-void sys_sage::Chip::SetModel(std::string _model){model = _model;}
-void sys_sage::Chip::SetChipType(int chipType){type = chipType;}
-int sys_sage::Chip::GetChipType() const{return type;}
 
-void sys_sage::Subdivision::SetSubdivisionType(int subdivisionType){type = subdivisionType;}
-int sys_sage::Subdivision::GetSubdivisionType() const {return type;}
-
-long long sys_sage::Numa::GetSize() const{return size;}
-void sys_sage::Numa::SetSize(long long _size) { size = _size;}
-
-long long sys_sage::Memory::GetSize() const {return size;}
-void sys_sage::Memory::SetSize(long long _size) {size = _size;}
-bool sys_sage::Memory::GetIsVolatile() const {return is_volatile;}
-void sys_sage::Memory::SetIsVolatile(bool _is_volatile) {is_volatile = _is_volatile;}
-
-const std::string& sys_sage::Cache::GetCacheName() const{return cache_type;}
-void sys_sage::Cache::SetCacheName(std::string _name) { cache_type = _name;}
-
-int sys_sage::Cache::GetCacheLevel() const{
-
-    std::string extractedDigits = "";
-    for (char c : cache_type) {
-        // Break, as soon as a digit is found
-        if (std::isdigit(c)) {
-            extractedDigits += c;
-            break;
-        }
-    }
-
-    if (!extractedDigits.empty()) 
-        return stoi(extractedDigits);
-    else 
-        return 0;
-    
-}
-
-void sys_sage::Cache::SetCacheLevel(int _cache_level) { cache_type = std::to_string(_cache_level); }
-long long sys_sage::Cache::GetCacheSize() const {return cache_size;}
-void sys_sage::Cache::SetCacheSize(long long _cache_size){cache_size = _cache_size;}
-int sys_sage::Cache::GetCacheLineSize() const{return cache_line_size;}
-void sys_sage::Cache::SetCacheLineSize(int _cache_line_size){cache_line_size = _cache_line_size;}
-int sys_sage::Cache::GetCacheAssociativityWays() const {return cache_associativity_ways;}
-void sys_sage::Cache::SetCacheAssociativityWays(int _associativity) { cache_associativity_ways = _associativity;}
 
 
 
@@ -901,166 +872,8 @@ sys_sage::Component::Component(Component * parent, int _id, std::string _name, C
 sys_sage::Component::Component(int _id, std::string _name): Component(_id, _name, sys_sage::ComponentType::None) {}
 sys_sage::Component::Component(Component * parent, int _id, std::string _name): Component(parent, _id, _name, sys_sage::ComponentType::None) {}
 
-sys_sage::Topology::Topology():Component(0, "sys-sage Topology", sys_sage::ComponentType::Topology){}
-
-sys_sage::Node::Node(int _id, std::string _name):Component(_id, _name, sys_sage::ComponentType::Node){}
-sys_sage::Node::Node(Component * parent, int _id, std::string _name):Component(parent, _id, _name, sys_sage::ComponentType::Node){}
-
-sys_sage::Memory::Memory(long long _size, bool _is_volatile):Component(0, "Memory", sys_sage::ComponentType::Memory), size(_size), is_volatile(_is_volatile){}
-//Memory::Memory(Component * parent, int _id, string _name, long long _size):Component(parent, _id, _name, SYS_SAGE_COMPONENT_MEMORY), size(_size){}
-sys_sage::Memory::Memory(Component * parent, int _id, std::string _name, long long _size, bool _is_volatile):Component(parent, _id, _name, sys_sage::ComponentType::Memory), size(_size), is_volatile(_is_volatile){}
-
-
-sys_sage::Storage::Storage(long long _size):Component(0, "Storage", sys_sage::ComponentType::Storage), size(_size){}
-sys_sage::Storage::Storage(Component * parent, long long _size):Component(parent, 0, "Storage", sys_sage::ComponentType::Storage), size(_size){}
-
-sys_sage::Chip::Chip(int _id, std::string _name, int _type, std::string _vendor, std::string _model):Component(_id, _name, sys_sage::ComponentType::Chip), type(_type), vendor(_vendor), model(_model) {}
-sys_sage::Chip::Chip(Component * parent, int _id, std::string _name, int _type, std::string _vendor, std::string _model):Component(parent, _id, _name, sys_sage::ComponentType::Chip), type(_type), vendor(_vendor), model(_model){}
-
-sys_sage::Cache::Cache(int _id, int  _cache_level, long long _cache_size, int _associativity, int _cache_line_size): Component(_id, "Cache", sys_sage::ComponentType::Cache), cache_type(std::to_string(_cache_level)), cache_size(_cache_size), cache_associativity_ways(_associativity), cache_line_size(_cache_line_size){}
-sys_sage::Cache::Cache(Component * parent, int _id, std::string _cache_type, long long _cache_size, int _associativity, int _cache_line_size): Component(parent, _id, "Cache", sys_sage::ComponentType::Cache), cache_type(_cache_type), cache_size(_cache_size), cache_associativity_ways(_associativity), cache_line_size(_cache_line_size){}
-sys_sage::Cache::Cache(Component * parent, int _id, int _cache_level, long long _cache_size, int _associativity, int _cache_line_size): Cache(parent, _id, std::to_string(_cache_level), _cache_size, _associativity, -1){}
-
-sys_sage::Subdivision::Subdivision(int _id, std::string _name, sys_sage::ComponentType::type _componentType): Component(_id, _name, _componentType) { }
-sys_sage::Subdivision::Subdivision(Component * parent, int _id, std::string _name, sys_sage::ComponentType::type _componentType): Component(parent, _id, _name, _componentType) { }
-sys_sage::Subdivision::Subdivision(int _id, std::string _name): Component(_id, _name, sys_sage::ComponentType::Subdivision) { }
-sys_sage::Subdivision::Subdivision(Component * parent, int _id, std::string _name): Component(parent, _id, _name, sys_sage::ComponentType::Subdivision) { }
-
-sys_sage::Numa::Numa(int _id, long long _size):Subdivision(_id, "Numa", sys_sage::ComponentType::Numa), size(_size){}
-sys_sage::Numa::Numa(Component * parent, int _id, long long _size):Subdivision(parent, _id, "Numa", sys_sage::ComponentType::Numa), size(_size){}
-
-sys_sage::Core::Core(int _id, std::string _name):Component(_id, _name, sys_sage::ComponentType::Core){}
-sys_sage::Core::Core(Component * parent, int _id, std::string _name):Component(parent, _id, _name, sys_sage::ComponentType::Core){}
-
-sys_sage::Thread::Thread(int _id, std::string _name):Component(_id, _name, sys_sage::ComponentType::Thread){}
-sys_sage::Thread::Thread(Component * parent, int _id, std::string _name):Component(parent, _id, _name, sys_sage::ComponentType::Thread){}
-
-sys_sage::QuantumBackend::QuantumBackend(int _id, std::string _name):Component(_id, _name, sys_sage::ComponentType::QuantumBackend){}
-sys_sage::QuantumBackend::QuantumBackend(Component * _parent, int _id, std::string _name):Component(_parent, _id, _name, sys_sage::ComponentType::QuantumBackend){}
-
-sys_sage::Qubit::Qubit(int _id, std::string _name):Component(_id, _name, sys_sage::ComponentType::Qubit){}
-sys_sage::Qubit::Qubit(Component * parent, int _id, std::string _name):Component(parent, _id, _name, sys_sage::ComponentType::Qubit){}
-
-void sys_sage::QuantumBackend::SetNumQubits(int _num_qubits) { num_qubits = _num_qubits; }
-
-int sys_sage::QuantumBackend::GetNumQubits() const { return num_qubits; }
-
-void sys_sage::QuantumBackend::addGate(QuantumGate *_gate)
-{
-    gate_types.push_back(_gate);
-}
-
-std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::GetGatesBySize(size_t _gate_size) const 
-{
-    std::vector<QuantumGate*> gates;
-    gates.reserve(gate_types.size());
-    
-    for (QuantumGate * gate : gate_types)
-    {
-        if(_gate_size == gate->GetGateSize())
-            gates.emplace_back(gate);        
-    }
-    
-    return gates;
-}
-
-std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::GetGatesByType(size_t _gate_type) const 
-{
-    std::vector<QuantumGate*> gates;
-    gates.reserve(gate_types.size());
-    
-    for (QuantumGate * gate : gate_types)
-    {
-        if(_gate_type == gate->GetType())
-            gates.emplace_back(gate);        
-    }
-    
-    return gates;
-}
-
-std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::GetAllGateTypes() const 
-{
-    return gate_types;
-}
-
-int sys_sage::QuantumBackend::GetNumberofGates() const { return gate_types.size(); }
-
-std::vector<sys_sage::Qubit *> sys_sage::QuantumBackend::GetAllQubits()
-{
-    auto all_children = GetAllChildrenByType(sys_sage::ComponentType::Qubit);
-    std::vector<Qubit *> qubits;
-    qubits.reserve(all_children.size());
-    
-    for (size_t i = 0; i < all_children.size(); ++i)
-    {
-        Qubit* q = dynamic_cast<Qubit*>(all_children[i]);
-        qubits.push_back(q);
-    }
-
-    return qubits;
-}
-
-// std::set<std::pair<std::uint16_t, std::uint16_t> > QuantumBackend::GetAllCouplingMaps()
-// {
-//     std::set<std::pair<std::uint16_t, std::uint16_t>> result; 
-//     for(auto i = 0; i < num_qubits; ++i)
-//     {
-//         Qubit* q = dynamic_cast<Qubit*>(GetChild(i));
-//         auto coupling_map = q->GetCouplingMapping();
-//         for (size_t j = 0; j < coupling_map.size(); ++j)
-//         {
-//             result.emplace(i, coupling_map[j]);
-//         }
-//     }
-
-//     return result;
-// }
-
-#ifdef QDMI
-void sys_sage::QuantumBackend::SetQDMIDevice(QDMI_Device dev)
-{
-    device = dev;
-}
-
-QDMI_Device sys_sage::QuantumBackend::GetQDMIDevice(){ return device; }
-
-#endif
 
 
 
-// void Qubit::SetCouplingMapping( const std::vector <NeighbouringQubit> &coupling_mapping, const int &size_coupling_mapping)
-// {
-//     _coupling_mapping = coupling_mapping;
-//     _size_coupling_mapping = coupling_mapping.size();
-// }
 
-
-
-// const std::vector <Qubit::NeighbouringQubit> & Qubit::GetCouplingMapping() const
-// {
-//     return _coupling_mapping;
-// }
-
-void sys_sage::Qubit::SetProperties(double _t1, double _t2, double _readout_fidelity, double _q1_fidelity, double _readout_length)
-{
-    t1 = _t1;
-    t2 = _t2;
-    readout_fidelity = _readout_fidelity;
-    q1_fidelity = _q1_fidelity;
-    readout_length = _readout_length;
-
-}
-
-double sys_sage::Qubit::GetT1() const { return t1; }    
-double sys_sage::Qubit::GetT2() const { return t2; }
-double sys_sage::Qubit::GetReadoutFidelity() const { return readout_fidelity; }
-double sys_sage::Qubit::Get1QFidelity() const { return q1_fidelity;}
-double sys_sage::Qubit::GetReadoutLength() const { return readout_length; }
-
-// const double Qubit::GetWeight() const
-// {
-//     return _qubit_weight;
-// }
-
-//TODO this is a part of the sys-sage FoMaC, not sys-sage core
 

@@ -6,10 +6,10 @@
 #ifndef IQM_PARSER_HPP
 #define IQM_PARSER_HPP
 
-#include "Component.hpp"
 #include <fstream>
 #include <nlohmann/json.hpp>
 
+#include "sys-sage.hpp"
 
 using json = nlohmann::json;
 

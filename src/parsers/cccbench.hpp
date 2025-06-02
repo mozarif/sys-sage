@@ -2,8 +2,9 @@
 #define CCCBENCH_PARSER
 
 #include <vector>
-#include "Component.hpp"
-#include "DataPath.hpp"
+
+#include "sys-sage.hpp"
+
 
 
 
