@@ -7,9 +7,14 @@
 #define IQM_PARSER_HPP
 
 #include <fstream>
+#include <iostream>
+
 #include <nlohmann/json.hpp>
 
-#include "sys-sage.hpp"
+#include "Component.hpp"
+#include "QuantumBackend.hpp"
+#include "Qubit.hpp"
+#include "CouplingMap.hpp"
 
 using json = nlohmann::json;
 

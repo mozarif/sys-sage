@@ -3,7 +3,10 @@
 
 #include <vector>
 
-#include "sys-sage.hpp"
+#include "enums.hpp"
+
+#include "Component.hpp"
+#include "Node.hpp"
 
 
 
