@@ -3,9 +3,6 @@
 
 #include <iostream>
 
-// QuantumGate::QuantumGate(): QuantumGate(1){}
-// QuantumGate::QuantumGate(size_t _gate_size) : Relation(sys_sage::RelationType::QuantumGate), gate_size(_gate_size){}
-// QuantumGate::QuantumGate(size_t _gate_size, std::string _name, double _fidelity, std::string _unitary) : gate_size(_gate_size), fidelity(_fidelity), unitary(_unitary){ name =_name ;}
 sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits) : QuantumGate(_gate_size, _qubits, "QuantumGate", 0.0, ""){}
 sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, std::string _name, double _fidelity, std::string _unitary) : Relation(sys_sage::RelationType::QuantumGate), gate_size(_gate_size), fidelity(_fidelity), unitary(_unitary) 
 { 

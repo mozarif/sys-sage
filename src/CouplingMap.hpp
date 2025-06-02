@@ -9,11 +9,8 @@ namespace sys_sage {
     public:
         //SVDOCTODO
         CouplingMap(Qubit* q1, Qubit*q2);
+        //SVDOCTODO
         CouplingMap(const std::vector<Component*>& components, int _id = 0, bool _ordered = true);
-        // CouplingMap();
-
-        // void Print();
-        // void DeleteRelation();
         //SVDOCTODO
         void SetFidelity(double _fidelity);
         //SVDOCTODO

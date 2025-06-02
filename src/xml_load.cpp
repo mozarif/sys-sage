@@ -431,15 +431,6 @@ sys_sage::Component* sys_sage::importFromXml(
 		}
 	}
 
-	// cout << "xml_load finished" << endl;
-	// c->PrintSubtree();
-
-	// Component *c = _CreateComponentSubtree(r->children->next, "Topology");
-
-	// xmlNodePtr dp_root = r->next->next;
-
-	// _CreateDataPaths(dp_root);
-
 	return c;
 	}
 

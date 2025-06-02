@@ -11,10 +11,6 @@
 #endif
 // #include <qdmi_internal.h>
 
-// namespace sys_sage {
-//     class QuantumGate;
-// }
-
 namespace sys_sage {
 
 
@@ -108,13 +104,6 @@ namespace sys_sage {
         * @return A vector of pointers to all qubits.
         */
         std::vector<Qubit *> GetAllQubits();
-
-        /**
-        * @brief Gets all coupling maps in the quantum backend.
-        * 
-        * @return A set of pairs representing the coupling maps.
-        */
-        //std::set<std::pair<std::uint16_t, std::uint16_t> > GetAllCouplingMaps();
 
         /**
          * @brief Refreshes the topology of the quantum backend.

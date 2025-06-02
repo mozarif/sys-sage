@@ -106,17 +106,9 @@ namespace sys_sage {
         size_t GetGateSize() const;
         //SVDOCTODO
         void SetGateSize(size_t gateSize);
-        // /**
-        //  * @brief Sets the id of the quantum gate.
-        //  * @param _id The id to assign to the quantum gate.
-        //  */
-        // void SetId(int _id);
+        //SVDOCTODO
         void SetGateLength(int GateLength);
-        // /**
-        //  * @brief Gets the id of the quantum gate.
-        //  * @return The id of the quantum gate.
-        //  */
-        // int GetId();
+
 
         /**
          * @brief Gets the unitary matrix of the quantum gate.
@@ -144,12 +136,6 @@ namespace sys_sage {
         void Print() const override;
         //SVDOCTODO private
         xmlNodePtr _CreateXmlEntry() override;
-        // /**
-        //  * @brief Deletes the quantum gate relation.
-        //  * 
-        //  * This method overrides the DeleteRelation function in the Relation class to handle specific deletion behavior for quantum gates.
-        //  */
-        // void DeleteRelation();
 
     private:
 
@@ -164,13 +150,6 @@ namespace sys_sage {
          * This member variable stores the name or description of the relationship.
          */
         std::string name;
-
-        // /**
-        //  * @brief List of the qubits involved in a quantum gate. 
-        //  * 
-        //  * This vector of qubit pointers stores the list of the qubits involved in the gate.
-        //  */
-        // std::vector<Qubit*> qubits;
 
         /**
          * @brief The length of the quantum gate operation in terms of time or depth.
@@ -190,21 +169,6 @@ namespace sys_sage {
          * This string stores a serialized or symbolic representation of the unitary matrix.
          */
         std::string unitary;
-
-        // /**
-        //  * @brief The coupling map for the quantum gate.
-        //  * 
-        //  * This 2D vector of qubit pointers represents the coupling map, defining how qubits interact within the gate.
-        //  */
-        // std::vector<std::vector<Qubit*>> coupling_mapping;
-
-
-        // /**
-        //  * @brief Additional properties of the quantum gate.
-        //  * 
-        //  * This map allows storing additional key-value pairs representing various other properties related to the quantum gate.
-        //  */
-        // std::map<std::string, double> additional_properties;
     };
 
 

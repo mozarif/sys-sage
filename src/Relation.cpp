@@ -16,12 +16,6 @@ sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id,
     }
 }
 sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id, bool _ordered): Relation(components, _id, _ordered, sys_sage::RelationType::Relation) {}
-// sys_sage::Relation::Relation(std::initializer_list<Component*> components, int _id, bool _ordered): id(_id), ordered(_ordered), type(sys_sage::RelationType::Relation)
-// {
-//     for (Component* c : components) {
-//         AddComponent(c);
-//     }
-// }
 
 void sys_sage::Relation::SetId(int _id) {id = _id;}
 int sys_sage::Relation::GetId() const{ return id; }

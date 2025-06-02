@@ -66,22 +66,6 @@ std::vector<sys_sage::Qubit *> sys_sage::QuantumBackend::GetAllQubits()
     return qubits;
 }
 
-// std::set<std::pair<std::uint16_t, std::uint16_t> > QuantumBackend::GetAllCouplingMaps()
-// {
-//     std::set<std::pair<std::uint16_t, std::uint16_t>> result; 
-//     for(auto i = 0; i < num_qubits; ++i)
-//     {
-//         Qubit* q = dynamic_cast<Qubit*>(GetChild(i));
-//         auto coupling_map = q->GetCouplingMapping();
-//         for (size_t j = 0; j < coupling_map.size(); ++j)
-//         {
-//             result.emplace(i, coupling_map[j]);
-//         }
-//     }
-
-//     return result;
-// }
-
 #ifdef QDMI
 void sys_sage::QuantumBackend::SetQDMIDevice(QDMI_Device dev)
 {

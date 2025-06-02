@@ -35,7 +35,6 @@ void sys_sage::Component::_PrintSubtree(int level) const
 
     cout << GetComponentTypeStr() << " (name " << name << ") id " << id << " - children: " << children.size();
     cout << " level: " << level<<"\n";
-    // sleep(2);
     for(Component* child: children)
     {
         //cout << "size of children: " << child->children.size() << "\n";
@@ -45,27 +44,6 @@ void sys_sage::Component::_PrintSubtree(int level) const
 void sys_sage::Component::PrintAllDataPathsInSubtree()
 {
     PrintAllRelationsInSubtree(RelationType::DataPath);
-    // vector<Component*> subtreeList;
-    // GetComponentsInSubtree(&subtreeList);
-    // for(Component * c : subtreeList)
-    // {   
-    //     vector<DataPath*>* dp_in = c->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING);
-    //     vector<DataPath*>* dp_out = c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
-    //     if(dp_in->size() > 0 || dp_out->size() > 0 )
-    //     {
-    //         cout << "DataPaths regarding Component (" << c->GetComponentTypeStr() << ") id " << c->GetId() << endl;
-    //         for(DataPath * dp : *dp_out)
-    //         {
-    //             cout << "    ";
-    //             dp->Print();
-    //         }
-    //         for(DataPath * dp : *dp_in)
-    //         {
-    //             cout << "    ";
-    //             dp->Print();
-    //         }
-    //     }
-    // }
 }
 void sys_sage::Component::PrintAllRelationsInSubtree(RelationType::type relationType)
 {
@@ -208,18 +186,6 @@ void sys_sage::Component::GetAllChildrenByType(std::vector <Component *> *_outAr
     }
     return;
 }
-
-// int sys_sage::Component::GetNumThreads()
-// {
-//     if(componentType == sys_sage::ComponentType::Thread)
-//         return 1;
-//     int numPu = 0;
-//     for(Component * child: children)
-//     {
-//         numPu += child->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread);
-//     }
-//     return numPu;
-// }
 
 int sys_sage::Component::GetSubtreeDepth() const
 {
@@ -400,14 +366,6 @@ sys_sage::Component* sys_sage::Component::GetAncestorByType(int _componentType)
     return NULL;
 }
 
-// void sys_sage::Component::AddDataPath(DataPath* p, int orientation)
-// {
-//     if(orientation == SYS_SAGE_DATAPATH_OUTGOING)
-//         dp_outgoing.push_back(p);
-//     if(orientation == SYS_SAGE_DATAPATH_INCOMING)
-//         dp_incoming.push_back(p);
-// }
-
 void sys_sage::Component::_AddRelation(int32_t relationType, Relation* r)
 {
     if(!relations)
@@ -462,22 +420,6 @@ const std::vector<sys_sage::Relation*>& sys_sage::Component::GetRelations(Relati
     static const std::vector<Relation*> empty;
     return empty;
 }
-// vector<Relation*>* Component::GetAllRelationsByType(sys_sage::RelationType::type relationType)
-// {
-//     if(relationType >=0 && relationType < sys_sage::RelationType::_num_relation_types)
-//     {
-//         if(relations == NULL){
-//             std::cout << "relations == NULL" << std::endl;
-//             return NULL;
-//         }
-//         else
-//             std::cout << "else    (relations == NULL)" << std::endl;
-//         return (*relations)[relationType];
-//     }
-//     std::cout << "ERROR" << std::endl;
-//     //TODO report the error
-//     return NULL;  
-// }
 
 std::vector<sys_sage::Relation*> sys_sage::Component::GetAllRelationsBy(RelationType::type relationType, int thisComponentPosition) const
 {
@@ -513,18 +455,6 @@ void sys_sage::Component::GetAllDataPaths(std::vector<DataPath*>* outDpArr, Data
                 outDpArr->push_back(dp);
         }
     }
-    // if(orientation & SYS_SAGE_DATAPATH_OUTGOING){
-    //     for(DataPath* dp : dp_outgoing){
-    //         if(dp->GetDataPathType() == dp_type)
-    //             outDpArr->push_back(dp);
-    //     }
-    // }
-    // if(orientation & SYS_SAGE_DATAPATH_INCOMING){
-    //     for(DataPath* dp : dp_incoming){
-    //         if(dp->GetDataPathType() == dp_type)
-    //             outDpArr->push_back(dp);
-    //     }
-    // }
     return;
 }
 
@@ -535,67 +465,11 @@ std::vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPaths(DataPathTy
     return outDpArr;
 }
 
-// vector<DataPath*> sys_sage::Component::GetDataPaths(int orientation)
-// {
-
-//     if(orientation == sys_sage::DataPathOrientation::Any)
-//         return GetRelations(sys_sage::RelationType::DataPath, -1);
-//     else if(orientation == sys_sage::DataPathOrientation::Outgoing)
-//         return GetRelations(sys_sage::RelationType::DataPath, 0);
-//     else if(orientation == sys_sage::DataPathOrientation::Incoming)
-//         return GetRelations(sys_sage::RelationType::DataPath, 1);
-//     else
-//         return NULL; //TODO should not happen; add some error message?
-    
-//     // if(orientation == SYS_SAGE_DATAPATH_INCOMING)
-//     //     return &dp_incoming;
-//     // else if(orientation == SYS_SAGE_DATAPATH_OUTGOING)
-//     //     return &dp_outgoing;
-//     // else //TODO
-//     //     return NULL;
-// }
-
-
 std::string sys_sage::Component::GetComponentTypeStr() const
 {
     std::string ret(ComponentType::ToString(componentType));
     return ret;
 }
-
-// string sys_sage::Component::GetComponentTypeStr()
-// {
-//     switch(componentType)
-//     {
-//         case SYS_SAGE_COMPONENT_NONE:
-//             return "None";
-//         case SYS_SAGE_COMPONENT_THREAD:
-//             return "HW_thread";
-//         case SYS_SAGE_COMPONENT_CORE:
-//             return "Core";
-//         case SYS_SAGE_COMPONENT_CACHE:
-//             return "Cache";
-//         case SYS_SAGE_COMPONENT_SUBDIVISION:
-//             return "Subdivision";
-//         case SYS_SAGE_COMPONENT_NUMA:
-//             return "NUMA";
-//         case SYS_SAGE_COMPONENT_CHIP:
-//             return "Chip";
-//         case SYS_SAGE_COMPONENT_MEMORY:
-//             return "Memory";
-//         case SYS_SAGE_COMPONENT_STORAGE:
-//             return "Storage";
-//         case SYS_SAGE_COMPONENT_NODE:
-//             return "Node";
-//         case SYS_SAGE_COMPONENT_TOPOLOGY:
-//             return "Topology";
-//         case SYS_SAGE_COMPONENT_QUANTUM_BACKEND:
-//             return "Quantum Backend";
-//         case SYS_SAGE_COMPONENT_QUBIT:
-//             return "Qubit";
-
-//     }
-//     return "";
-// }
 
 int sys_sage::Component::CheckComponentTreeConsistency() const
 {
@@ -780,22 +654,11 @@ void sys_sage::Component::DeleteAllRelations(RelationType::type relationType)
 void sys_sage::Component::DeleteDataPath(DataPath * dp)
 {
     DeleteRelation(dp);
-    // dp->DeleteDataPath();
 }
 
 void sys_sage::Component::DeleteAllDataPaths()
 {
     DeleteAllRelations(RelationType::DataPath);
-    // while(!dp_outgoing.empty())
-    // {
-    //     DataPath * dp = dp_outgoing.back();
-    //     dp->DeleteDataPath();
-    // }
-    // while(!dp_incoming.empty())
-    // {
-    //     DataPath * dp = dp_incoming.back();
-    //     dp->DeleteDataPath();
-    // }
 }
 void sys_sage::Component::DeleteSubtree() const
 {
@@ -848,13 +711,7 @@ void sys_sage::Component::SetParent(Component* _parent){parent = _parent;}
 const std::vector<sys_sage::Component*>& sys_sage::Component::GetChildren() const {return children;}
 std::vector<sys_sage::Component*>& sys_sage::Component::_GetChildren() {return children;}
 sys_sage::ComponentType::type sys_sage::Component::GetComponentType() const {return componentType;}
-
 int sys_sage::Component::GetId() const {return id;}
-
-
-
-
-
 
 sys_sage::Component::Component(int _id, std::string _name, ComponentType::type _componentType) : id(_id), name(_name), componentType(_componentType)
 {
@@ -871,9 +728,3 @@ sys_sage::Component::Component(Component * parent, int _id, std::string _name, C
 }
 sys_sage::Component::Component(int _id, std::string _name): Component(_id, _name, sys_sage::ComponentType::None) {}
 sys_sage::Component::Component(Component * parent, int _id, std::string _name): Component(parent, _id, _name, sys_sage::ComponentType::None) {}
-
-
-
-
-
-

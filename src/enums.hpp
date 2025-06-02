@@ -164,6 +164,4 @@ namespace sys_sage {
 
 
 }
-
-
 #endif //ENUMS_HPP

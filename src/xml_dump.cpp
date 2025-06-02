@@ -262,40 +262,8 @@ xmlNodePtr sys_sage::Component::_CreateXmlSubtree()
     for(Component * c : children)
     {
         xmlNodePtr child = _buildComponentSubtree(c);
-        // xmlNodePtr child;
-        // switch (c->GetComponentType()) {
-        //     case ComponentType::Cache:
-        //         child = ((Cache*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Subdivision:
-        //         child = ((Subdivision*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Numa:
-        //         child = ((Numa*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Chip:
-        //         child = ((Chip*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Memory:
-        //         child = ((Memory*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Storage:
-        //         child = ((Storage*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::None:
-        //         break;
-        //     case ComponentType::Thread:
-        //     case ComponentType::Core:
-        //     case ComponentType::Node:
-        //     case ComponentType::Topology:
-        //     default:
-        //         child = c->_CreateXmlSubtree();
-        //         break;
-        // };
-
         xmlAddChild(n, child);
     }
-
 
     return n;
 }

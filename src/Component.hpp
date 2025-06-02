@@ -13,37 +13,6 @@
 
 
 
-
-// #define SYS_SAGE_COMPONENT_NONE 1 /**< class Component (do not use normally)*/
-// #define SYS_SAGE_COMPONENT_THREAD 2 /**< class Thread */
-// #define SYS_SAGE_COMPONENT_CORE 4 /**< class Core */
-// #define SYS_SAGE_COMPONENT_CACHE 8 /**< class Cache */
-// #define SYS_SAGE_COMPONENT_SUBDIVISION 16 /**< class Subdivision */
-// #define SYS_SAGE_COMPONENT_NUMA 32 /**< class Numa */
-// #define SYS_SAGE_COMPONENT_CHIP 64 /**< class Chip */
-// #define SYS_SAGE_COMPONENT_MEMORY 128 /**< class Memory */
-// #define SYS_SAGE_COMPONENT_STORAGE 256 /**< class Storage */
-// #define SYS_SAGE_COMPONENT_NODE 512 /**< class Node */
-// #define SYS_SAGE_COMPONENT_TOPOLOGY 1024 /**< class Topology */
-
-// /* To-do: Add defines for different quantum backends
-// * For e.g.: SYS_SAGE_COMPONENT_NEUTRAL_ATOMS, SYS_SAGE_COMPONENT_SUPERCONDUCTING, etc.
-
-// */
-// #define SYS_SAGE_COMPONENT_QUANTUM_BACKEND 2048 /**< class QuantumBackend */
-// #define SYS_SAGE_COMPONENT_QUBIT 4096 /**< class Qubit */
-
-// #define SYS_SAGE_SUBDIVISION_TYPE_NONE 1 /**< Generic Subdivision type. */
-// #define SYS_SAGE_SUBDIVISION_TYPE_GPU_SM 2 /**< Subdivision type for GPU SMs */
-
-// #define SYS_SAGE_CHIP_TYPE_NONE 1 /**< Generic Chip type. */
-// #define SYS_SAGE_CHIP_TYPE_CPU 2 /**< Chip type used for a CPU. */
-// #define SYS_SAGE_CHIP_TYPE_CPU_SOCKET 4 /**< Chip type used for one CPU socket. */
-// #define SYS_SAGE_CHIP_TYPE_GPU 8 /**< Chip type used for a GPU.*/
-
-
-///////////////////////////////////////////////////
-
 namespace sys_sage { //forward declaration
     class Topology;
 
@@ -394,25 +363,11 @@ namespace sys_sage {
         //SVDOCTODO returns a newly-constructed vector, so the user can do anything with it
         //SVDOCTODO this method creates a new vector and fills it with data; returns a new vector
         std::vector<Relation*> GetAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) const;
-
-        // SVDOCTODO was removed -> use GetAllDataPathsByType insteas with dataType::Any
-        // //SVDOCTODO update 
-        // //SVDOCTODO changed to return vector<DataPath*> instead of vector<DataPath*>* 
-        // /**     
-        // Returns the DataPaths of this component according to their orientation.
-        // @param orientation - either SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING
-        // @return Pointer to std::vector<DataPath *> with the result (dp_outgoing on SYS_SAGE_DATAPATH_OUTGOING, or dp_incoming on SYS_SAGE_DATAPATH_INCOMING, otherwise NULL)
-        // @see dp_incoming
-        // @see dp_outgoing
-        // */
-        // vector<DataPath*> GetDataPaths(int orientation = sys_sage::DataPathOrientation::Any);
         /**
         @private
         Only called by Relation's int Relation::AddComponent(Component* c), Relation::UpdateComponent
         */
         void _AddRelation(int32_t relationType, Relation* r);
-
-        
         /**
         Retrieves a DataPath * from the list of this component's data paths with matching type and orientation.
         \n The first match is returned -- first SYS_SAGE_DATAPATH_OUTGOING are searched, then SYS_SAGE_DATAPATH_INCOMING.
@@ -637,10 +592,6 @@ namespace sys_sage {
         const ComponentType::type componentType;
         std::vector<Component*> children; /**< Contains the list (std::vector) of pointers to children of the component in the component tree. */
         Component* parent { nullptr }; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be NULL.*/
-        
-        
-        // vector<DataPath*> dp_incoming; /**< Contains references to data paths that point to this component. @see DataPath */
-        // vector<DataPath*> dp_outgoing; /**< Contains references to data paths that point from this component. @see DataPath */
         
         //SVDOCTODO
         std::array<std::vector<Relation*>*, RelationType::_num_relation_types>* relations = nullptr;

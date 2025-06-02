@@ -6,9 +6,6 @@
 #include <algorithm>
 #include <sstream>
 
-//using CouplingMap = std::unordered_map<int, std::vector<int>>;
-//using FidelityMap = std::map<std::pair<int, int>, double>; // For storing fidelities
-
 
 int sys_sage::parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForHistory)
 {
@@ -37,7 +34,6 @@ int sys_sage::parseIQM(QuantumBackend* qc, std::string dataSourcePath, int qcId,
     return ret;
 }
 
-//IQMParser::IQMParser(std::ifstream& filepath)
 sys_sage::IQMParser::IQMParser(QuantumBackend* _qc,std::string filepath)
 { 
     backend = _qc;
@@ -186,7 +182,6 @@ int sys_sage::IQMParser::ParseDynamicData(int tsForHistory)
     }
     
     *static_cast<double*>(backend->attrib["two_q_fidelity_max"]) = max;
-
 
     return 0;
 }

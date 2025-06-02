@@ -18,7 +18,7 @@ namespace sys_sage { //forward declaration
 
 namespace sys_sage {
 
-        /**
+    /**
      * @class Relation
      * @brief Represents a generic relationship or connectivity between an arbitrary number of components.
      *
