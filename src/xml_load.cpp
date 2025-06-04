@@ -7,10 +7,27 @@
 #include <sys/types.h>
 #include <tuple>
 #include <vector>
-#include <initializer_list>
 
 #include "xml_load.hpp"
 
+#include "Topology.hpp"
+#include "Component.hpp"
+#include "Thread.hpp"
+#include "Core.hpp"
+#include "Cache.hpp"
+#include "Subdivision.hpp"
+#include "Numa.hpp"
+#include "Chip.hpp"
+#include "Memory.hpp"
+#include "Storage.hpp"
+#include "Node.hpp"
+#include "QuantumBackend.hpp"
+#include "Qubit.hpp"
+#include "AtomSite.hpp"
+#include "Relation.hpp"
+#include "DataPath.hpp"
+#include "QuantumGate.hpp"
+#include "CouplingMap.hpp"
 
 using std::cout;
 using std::endl;
@@ -413,15 +430,6 @@ sys_sage::Component* sys_sage::importFromXml(
 			_CreateRelations(n);
 		}
 	}
-
-	// cout << "xml_load finished" << endl;
-	// c->PrintSubtree();
-
-	// Component *c = _CreateComponentSubtree(r->children->next, "Topology");
-
-	// xmlNodePtr dp_root = r->next->next;
-
-	// _CreateDataPaths(dp_root);
 
 	return c;
 	}

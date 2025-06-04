@@ -19,7 +19,7 @@ namespace sys_sage{
        for a specific key, return the value as a string to be printed in the xml
    */
    int _search_default_attrib_key(std::string key, void *value, std::string *ret_value_str);
-   //SVDOCTODO
+   //SVDOCTODO private
    xmlNodePtr _buildComponentSubtree(Component* root);
    /**
     * @private

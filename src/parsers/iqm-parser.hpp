@@ -6,10 +6,15 @@
 #ifndef IQM_PARSER_HPP
 #define IQM_PARSER_HPP
 
-#include "Component.hpp"
 #include <fstream>
+#include <iostream>
+
 #include <nlohmann/json.hpp>
 
+#include "Component.hpp"
+#include "QuantumBackend.hpp"
+#include "Qubit.hpp"
+#include "CouplingMap.hpp"
 
 using json = nlohmann::json;
 

@@ -1,7 +1,15 @@
 #ifndef MT4G_PARSER
 #define MT4G_PARSER
 
-#include "Component.hpp"
+#include "Thread.hpp"
+#include "Core.hpp"
+#include "Cache.hpp"
+#include "Subdivision.hpp"
+#include "Numa.hpp"
+#include "Chip.hpp"
+#include "Memory.hpp"
+#include "Storage.hpp"
+#include "Node.hpp"
 #include "DataPath.hpp"
 
 /*! \file */

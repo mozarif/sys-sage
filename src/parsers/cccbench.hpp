@@ -2,8 +2,12 @@
 #define CCCBENCH_PARSER
 
 #include <vector>
+
+#include "enums.hpp"
+
 #include "Component.hpp"
-#include "DataPath.hpp"
+#include "Node.hpp"
+
 
 
 

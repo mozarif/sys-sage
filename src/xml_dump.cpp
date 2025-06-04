@@ -4,6 +4,25 @@
 #include "xml_dump.hpp"
 #include <libxml/parser.h>
 
+#include "Topology.hpp"
+#include "Component.hpp"
+#include "Thread.hpp"
+#include "Core.hpp"
+#include "Cache.hpp"
+#include "Subdivision.hpp"
+#include "Numa.hpp"
+#include "Chip.hpp"
+#include "Memory.hpp"
+#include "Storage.hpp"
+#include "Node.hpp"
+#include "QuantumBackend.hpp"
+#include "Qubit.hpp"
+#include "AtomSite.hpp"
+#include "Relation.hpp"
+#include "DataPath.hpp"
+#include "QuantumGate.hpp"
+#include "CouplingMap.hpp"
+
 std::function<int(std::string,void*,std::string*)> store_custom_attrib_fcn = NULL;
 std::function<int(std::string,void*,xmlNodePtr)> store_custom_complex_attrib_fcn = NULL;
 
@@ -243,40 +262,8 @@ xmlNodePtr sys_sage::Component::_CreateXmlSubtree()
     for(Component * c : children)
     {
         xmlNodePtr child = _buildComponentSubtree(c);
-        // xmlNodePtr child;
-        // switch (c->GetComponentType()) {
-        //     case ComponentType::Cache:
-        //         child = ((Cache*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Subdivision:
-        //         child = ((Subdivision*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Numa:
-        //         child = ((Numa*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Chip:
-        //         child = ((Chip*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Memory:
-        //         child = ((Memory*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::Storage:
-        //         child = ((Storage*)c)->_CreateXmlSubtree();
-        //         break;
-        //     case ComponentType::None:
-        //         break;
-        //     case ComponentType::Thread:
-        //     case ComponentType::Core:
-        //     case ComponentType::Node:
-        //     case ComponentType::Topology:
-        //     default:
-        //         child = c->_CreateXmlSubtree();
-        //         break;
-        // };
-
         xmlAddChild(n, child);
     }
-
 
     return n;
 }
@@ -309,6 +296,8 @@ xmlNodePtr sys_sage::_buildComponentSubtree(Component* c)
             return reinterpret_cast<QuantumBackend*>(c)->_CreateXmlSubtree();
         case ComponentType::Qubit:
             return reinterpret_cast<Qubit*>(c)->_CreateXmlSubtree();
+        case ComponentType::AtomSite:
+            return reinterpret_cast<AtomSite*>(c)->_CreateXmlSubtree();
         case ComponentType::Topology:
             return reinterpret_cast<Topology*>(c)->_CreateXmlSubtree();
         default:
