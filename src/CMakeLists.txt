@@ -33,9 +33,6 @@ set(HEADERS
     parsers/cccbench.cpp
     )
 
-<<<<<<< HEAD
-add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
-=======
 # add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
 if(PYBIND)
@@ -95,7 +92,6 @@ else()
         FILES_MATCHING PATTERN "*.hpp")
 
 endif()
->>>>>>> 01f46ffac5b71ef3f0a2e13dc03196c791e8e9da
 
 target_include_directories(sys-sage PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
