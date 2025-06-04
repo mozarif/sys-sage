@@ -16,9 +16,9 @@
 
 #include "Component.hpp"
 
-//retrieve frequency in MHz from /proc/cpuinfo for each thread in vector<Thread*> threads
+//retrieve frequency in MHz from /proc/cpuinfo for each thread in std::vector<Thread*> threads
 //helper function is called by RefreshCpuCoreFrequency/RefreshFreq methods
-int readCpuinfoFreq(std::vector<Thread*> threads, bool keep_history = false)
+int _readCpuinfoFreq(std::vector<sys_sage::Thread*> threads, bool keep_history = false)
 {
     int fd = open("/proc/cpuinfo", O_RDONLY);
     if(fd == -1)
@@ -99,14 +99,14 @@ int readCpuinfoFreq(std::vector<Thread*> threads, bool keep_history = false)
     return 1;
 }
 
-int Node::RefreshCpuCoreFrequency(bool keep_history)
+int sys_sage::Node::RefreshCpuCoreFrequency(bool keep_history)
 {
-    vector<Component*> sockets = this->GetAllChildrenByType(sys_sage::ComponentType::Chip);
-    vector<Thread*> cpu_hw_threads, hw_threads_to_refresh;
+    std::vector<Component*> sockets = this->GetAllChildrenByType(sys_sage::ComponentType::Chip);
+    std::vector<Thread*> cpu_hw_threads, hw_threads_to_refresh;
     for(Component * socket : sockets)
     {
         if(((Chip*)socket)->GetChipType() == sys_sage::ChipType::CpuSocket || ((Chip*)socket)->GetChipType() == sys_sage::ChipType::Cpu)
-            socket->FindAllSubcomponentsByType((vector<Component*>*)&cpu_hw_threads, sys_sage::ComponentType::Thread);
+            socket->FindAllSubcomponentsByType((std::vector<Component*>*)&cpu_hw_threads, sys_sage::ComponentType::Thread);
     }
 
     //remove duplicate threads of the same core (hyperthreading -- 2 threads on the same core have the same freq)
@@ -123,28 +123,28 @@ int Node::RefreshCpuCoreFrequency(bool keep_history)
     }
     //cout << endl;
 
-    return readCpuinfoFreq(hw_threads_to_refresh, keep_history);
+    return _readCpuinfoFreq(hw_threads_to_refresh, keep_history);
 }
 
-int Core::RefreshFreq(bool keep_history)
+int sys_sage::Core::RefreshFreq(bool keep_history)
 {
-    vector<Thread*> cpu_hw_threads;
+    std::vector<Thread*> cpu_hw_threads;
     Thread* hw_thread = (Thread*)this->GetChildByType(sys_sage::ComponentType::Thread);
     if(hw_thread != NULL)
         cpu_hw_threads.push_back(hw_thread);
-    return readCpuinfoFreq(cpu_hw_threads, keep_history);
+    return _readCpuinfoFreq(cpu_hw_threads, keep_history);
 }
 
-int Thread::RefreshFreq(bool keep_history)
+int sys_sage::Thread::RefreshFreq(bool keep_history)
 {
-    vector<Thread*> cpu_hw_threads;
+    std::vector<Thread*> cpu_hw_threads;
     cpu_hw_threads.push_back(this);
-    return readCpuinfoFreq(cpu_hw_threads, keep_history);
+    return _readCpuinfoFreq(cpu_hw_threads, keep_history);
 }
 
-double Core::GetFreq() {return freq;}
-void Core::SetFreq(double _freq) {freq = _freq;}
-double Thread::GetFreq()
+double sys_sage::Core::GetFreq() {return freq;}
+void sys_sage::Core::SetFreq(double _freq) {freq = _freq;}
+double sys_sage::Thread::GetFreq()
 {
     Core * c = (Core*)this->FindParentByType(sys_sage::ComponentType::Core);
     if(c == NULL)
