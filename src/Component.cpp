@@ -404,7 +404,7 @@ std::vector<sys_sage::Relation*>& sys_sage::Component::_GetRelations(RelationTyp
         return *(*relations)[relationType];
     }
 
-    std::vector<Relation*> empty;
+    static std::vector<Relation*> empty;
     return empty;
 }
 const std::vector<sys_sage::Relation*>& sys_sage::Component::GetRelations(RelationType::type relationType) const

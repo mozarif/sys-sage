@@ -5,30 +5,27 @@
 #include <hwloc.h>
 
 
-using namespace std;
-
-
 /*! \file */
 /// @private
-string get_hwloc_topology_xml_string();
+std::string _get_hwloc_topology_xml_string();
 
 /**
 Binary (entrypoint) for generating hwloc topology XML output (to current directory). Functionality is almost identical to "lstopo --of XML" (with an option to store to a file).
 \n usage: ./hwloc-output [output_filename]
 @param filename of the output file. If no output_filename is selected, print to stdout (also use "-" as output_filename to print to stdout)
 */
-int main(int argc, char* argv[])
+int main(int argc, const char* argv[])
 {
     bool to_stdout = false;
-    string filename;
-    if (argc < 2 || std::strcmp(argv[1], "-") == 0 ) {
+    std::string filename;
+    if (argc < 2 || std::string(argv[1]) == "-" ) {
         to_stdout = true;
     }
     else {
        filename = argv[1];
     }
 
-    string xml_output = get_hwloc_topology_xml_string();
+    std::string xml_output = _get_hwloc_topology_xml_string();
 
     if (!xml_output.empty()) {
         if(to_stdout)
@@ -37,7 +34,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            ofstream outfile;
+            std::ofstream outfile;
             outfile.open(filename);
             outfile << xml_output;
             outfile.close();
@@ -45,32 +42,32 @@ int main(int argc, char* argv[])
         }
     }
     else {
-        cerr << "Failed to generate hwloc topology XML output" << endl;
+        std::cerr << "Failed to generate hwloc topology XML output" << std::endl;
         return 1;
     }
 
     return 0;
 }
 
-string get_hwloc_topology_xml_string() {
+std::string _get_hwloc_topology_xml_string() {
     int err;
     unsigned long flags = 0; // don't show anything special
     hwloc_topology_t topology;
 
     err = hwloc_topology_init(&topology);
     if (err) {
-        cerr << "hwloc: Failed to initialize" << endl;
+        std::cerr << "hwloc: Failed to initialize" << std::endl;
         return "";
     }
     err = hwloc_topology_set_flags(topology, flags);
     if (err) {
-        cerr << "hwloc: Failed to set flags" << endl;
+        std::cerr << "hwloc: Failed to set flags" << std::endl;
         hwloc_topology_destroy(topology);
         return "";
     }
     err = hwloc_topology_load(topology);
     if (err) {
-        cerr << "hwloc: Failed to load topology" << endl;
+        std::cerr << "hwloc: Failed to load topology" << std::endl;
         hwloc_topology_destroy(topology);
         return "";
     }
@@ -78,7 +75,7 @@ string get_hwloc_topology_xml_string() {
     int buflen;
     err = hwloc_topology_export_xmlbuffer(topology, &xmlbuffer, &buflen, flags);
     if (err) {
-        cerr << "hwloc: Failed to export to a temporary buffer" << endl;
+        std::cerr << "hwloc: Failed to export to a temporary buffer" << std::endl;
         hwloc_free_xmlbuffer(topology, xmlbuffer);
         hwloc_topology_destroy(topology);
         return "";

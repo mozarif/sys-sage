@@ -30,7 +30,7 @@ cmake -DCMAKE_INSTALL_PREFIX=../inst-dir -DDS_MT4G=ON -DNVIDIA_UARCH="volta" -DC
 
 The CAPS NUMA Benchmark is a tool used for testing and proof of concept purposes to evaluate memory latency and bandwidth between different NUMA regions and CPUs. It measures memory latency and bandwidth between NUMA nodes and CPUs for a given memory size and array size. However, it is not recommended to use it as a benchmarking tool for comparative analysis due to its limitations and assumptions. Instead, it is intended to be used as a tool for ensuring that the system is working correctly and the NUMA architecture is being properly utilized.
 
-To enable the **mt4g** data source, add `-DDS_NUMA=ON ` to the cmake script.
+To enable the **caps-numa-benchmark** data source, add `-DDS_NUMA=ON ` to the cmake script.
 it's worth noting that some linux specific libraries are required. 
 
 Example cmake command to build sys-sage with caps_numa_benchmark data source:

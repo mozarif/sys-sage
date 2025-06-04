@@ -48,6 +48,9 @@ if(QDMI)
     find_package(qinfo REQUIRED)
 endif()
 
+if(DATA_SOURCES OR DS_NUMA)
+    find_package(numactl REQUIRED)
+endif()
 
 # Create and install package configuration and version files.
 include(CMakePackageConfigHelpers)
