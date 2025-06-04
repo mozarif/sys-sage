@@ -25,7 +25,7 @@
                   <xs:attribute name="source" type="addr" />
                   <xs:attribute name="target" type="addr" />
                   <xs:attribute name="oriented" type="xs:integer" />
-                  <xs:attribute name="dp_type" type="xs:integer" />
+                  <xs:attribute name="type" type="xs:integer" />
                   <xs:attribute name="bw" type="xs:double" />
                   <xs:attribute name="latency" type="xs:double" />
                 </xs:complexType>

@@ -6,14 +6,14 @@
 
 using namespace std;
 
-vector<string> xmlRelevantNames
+vector<string> sys_sage::xmlRelevantNames
 {
     "topology",
     "object",
     "info"
 };
 
-vector<string> xmlRelevantObjectTypes
+vector<string> sys_sage::xmlRelevantObjectTypes
 {
     "Machine",
     "Package",
@@ -27,7 +27,7 @@ vector<string> xmlRelevantObjectTypes
     "Group"
 };
 
-string xmlGetPropStr(xmlNode* node, string key)
+string sys_sage::xmlGetPropStr(xmlNode* node, string key)
 {
     string val;
     xmlChar* valX = xmlGetProp(node, (xmlChar *)key.c_str());
@@ -39,7 +39,7 @@ string xmlGetPropStr(xmlNode* node, string key)
     return val;
 }
 
-Component* createChildC(string type, xmlNode* node)
+sys_sage::Component* sys_sage::createChildC(string type, xmlNode* node)
 {
     Component* c = NULL;
     string s;
@@ -51,7 +51,7 @@ Component* createChildC(string type, xmlNode* node)
     {
         s = xmlGetPropStr(node, "os_index");
         int id = stoi(s.empty()?"0":s);
-        c = (Component*)new Chip(id, "socket", SYS_SAGE_CHIP_TYPE_CPU_SOCKET);
+        c = (Component*)new Chip(id, "socket", sys_sage::ChipType::CpuSocket);
     }
     else if(!type.compare("Cache") || !type.compare("L3Cache") || !type.compare("L2Cache") || !type.compare("L1Cache"))
     {
@@ -95,7 +95,7 @@ Component* createChildC(string type, xmlNode* node)
     return c;
 }
 
-int xmlProcessChildren(Component* c, xmlNode* parent, int level)
+int sys_sage::xmlProcessChildren(Component* c, xmlNode* parent, int level)
 {
     for (xmlNode* child = parent->children; child; child = child->next)
     {
@@ -110,12 +110,12 @@ int xmlProcessChildren(Component* c, xmlNode* parent, int level)
                     string name = xmlGetPropStr(child, "name");
                     if(!name.compare("CPUVendor")){
                         string value = xmlGetPropStr(child, "value");
-                        if(c->GetComponentType() == SYS_SAGE_COMPONENT_CHIP)
+                        if(c->GetComponentType() == sys_sage::ComponentType::Chip)
                             ((Chip*)c)->SetVendor(value);
                     }
                     else if(!name.compare("CPUModel")){
                         string value = xmlGetPropStr(child, "value");
-                        if(c->GetComponentType() == SYS_SAGE_COMPONENT_CHIP)
+                        if(c->GetComponentType() == sys_sage::ComponentType::Chip)
                             ((Chip*)c)->SetModel(value);
                     }
                 }
@@ -142,22 +142,22 @@ int xmlProcessChildren(Component* c, xmlNode* parent, int level)
                             childC = createChildC(type, child);
 
                             bool inserted_as_sibling = false;
-                            if(childC->GetComponentType() == SYS_SAGE_COMPONENT_CACHE)
+                            if(childC->GetComponentType() == sys_sage::ComponentType::Cache)
                             {//make a cache a child of NUMA, if it is a sibling
-                                vector<Component*>* siblings = c->GetChildren();
-                                for(Component* sibling : *siblings){
-                                    if(sibling->GetComponentType() == SYS_SAGE_COMPONENT_NUMA) {
+                                vector<Component*> siblings = c->GetChildren();
+                                for(Component* sibling : siblings){
+                                    if(sibling->GetComponentType() == sys_sage::ComponentType::Numa) {
                                         sibling->InsertChild(childC);
                                         inserted_as_sibling = true;
                                         break;
                                     }
                                 }
                             }
-                            else if(childC->GetComponentType() == SYS_SAGE_COMPONENT_NUMA)
+                            else if(childC->GetComponentType() == sys_sage::ComponentType::Numa)
                             {//make a (already inserted)cache a child of NUMA, if it is a sibling
-                                vector<Component*>* siblings = c->GetChildren();
-                                for(Component* sibling: *siblings){
-                                    if(sibling->GetComponentType() == SYS_SAGE_COMPONENT_CACHE) {
+                                vector<Component*> siblings = c->GetChildren();
+                                for(Component* sibling: siblings){
+                                    if(sibling->GetComponentType() == sys_sage::ComponentType::Cache) {
                                         c->RemoveChild(sibling);
                                         c->InsertChild(childC);
                                         childC->InsertChild(childC);
@@ -186,10 +186,10 @@ int xmlProcessChildren(Component* c, xmlNode* parent, int level)
     return 0;
 }
 
-int removeUnknownCompoents(Component* c){
-    vector<Component*>* children = c->GetChildren();
+int sys_sage::removeUnknownCompoents(Component* c){
+    vector<Component*> children = c->GetChildren();
     vector<Component*> children_copy;
-    for(Component* child : *children){
+    for(Component* child : children){
         children_copy.push_back(child);
     }
 
@@ -197,13 +197,13 @@ int removeUnknownCompoents(Component* c){
     for(Component* child : children_copy)
     {
         ret += removeUnknownCompoents(child);
-        if(child->GetComponentType() == SYS_SAGE_COMPONENT_NONE)
+        if(child->GetComponentType() == sys_sage::ComponentType::None)
         {
-            vector<Component*>* grandchildren = child->GetChildren();
-            int num_grandchildren = grandchildren->size();
+            vector<Component*> grandchildren = child->GetChildren();
+            int num_grandchildren = grandchildren.size();
             if(num_grandchildren >= 1) {
                 c->RemoveChild(child);
-                for(Component * grandchild : *grandchildren){
+                for(Component * grandchild : grandchildren){
                     c->InsertChild(grandchild);
                     grandchild->SetParent(c);
                 }
@@ -220,7 +220,7 @@ int removeUnknownCompoents(Component* c){
 }
 
 //parses a hwloc output and adds it to topology
-int parseHwlocOutput(Node* n, string xmlPath)
+int sys_sage::parseHwlocOutput(Node* n, string xmlPath)
 {
     xmlDoc *document = xmlReadFile(xmlPath.c_str(), NULL, 0);
     if (document == NULL) {

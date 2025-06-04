@@ -11,10 +11,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   endif()
 endif()
 
-project(sys-sage VERSION 0.4.3 LANGUAGES C CXX )
+project(sys-sage VERSION 1.0.0 LANGUAGES C CXX )
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
-#### dependencies
+######################################################
+#################### DEPENDENCIES ####################
+######################################################
+# libxml2
 find_package(LibXml2 REQUIRED) # Use pkg-config via the LibXml2 find-module
 execute_process(COMMAND xml2-config --cflags OUTPUT_VARIABLE LIBXML_F OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND xml2-config --libs OUTPUT_VARIABLE LIBXML_L OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -24,6 +27,9 @@ include_directories(${LIBXML2_INCLUDE_DIR})
 include_directories(${LIBXML2_INCLUDE_DIRS})
 link_libraries(${LIBXML2_LIBRARY})
 link_libraries(${LIBXML2_LIBRARIES})
+
+# Find nlohmann_json package
+find_package(nlohmann_json 3.11 REQUIRED)
 
 if(NVIDIA_MIG)
   find_package(CUDAToolkit 10.0 REQUIRED)
@@ -35,6 +41,16 @@ if(DATA_SOURCES OR DS_HWLOC)
   find_package(HWLOC REQUIRED)
 endif()
 
+if(QDMI)
+    # Find QDMI package
+    find_package(backends REQUIRED)
+    # Find QInfo package
+    find_package(qinfo REQUIRED)
+endif()
+
+if(DATA_SOURCES OR DS_NUMA)
+    find_package(numactl REQUIRED)
+endif()
 
 # Create and install package configuration and version files.
 include(CMakePackageConfigHelpers)
@@ -63,6 +79,8 @@ option(DATA_SOURCES "Build and install all data sources" OFF)
 option(DS_HWLOC "Build and install data source hwloc (Retrieves hwloc topology information)" OFF)
 option(DS_MT4G "Build and install data source mt4g (Compute and memory topology of NVidia GPUs)" OFF)
 option(DS_NUMA "Build and install data source caps-numa-benchmark" OFF)
+option(QDMI "Build with QDMI for Quantum Systems")
+
 option(TEST "Build tests" OFF)
 option(TEST_ASAN "Build tests with enabled address sanitizers" OFF)
 option(TEST_TSAN "Build tests with enabled thread sanitizers" OFF)

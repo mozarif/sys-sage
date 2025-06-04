@@ -3,6 +3,11 @@
 
 #include "sys-sage.hpp"
 
+using namespace sys_sage;
+
+using std::cout;
+using std::endl;
+
 void usage(char* argv0)
 {
     std::cerr << "usage: " << argv0 << " <hwloc xml path> <caps-numa-benchmark csv path>" << std::endl;
@@ -13,8 +18,8 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string xmlPath;
-    string bwPath;
+    std::string xmlPath;
+    std::string bwPath;
     if(argc < 2){
         std::string path_prefix(argv[0]);
         std::size_t found = path_prefix.find_last_of("/\\");
@@ -43,7 +48,7 @@ int main(int argc, char *argv[])
     }
     cout << "-- End parseHwlocOutput" << endl;
 
-    cout << "Total num HW threads: " << topo->CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) << endl;
+    cout << "Total num HW threads: " << topo->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread) << endl;
 
     cout << "---------------- Printing the whole tree ----------------" << endl;
     topo->PrintSubtree();
@@ -60,7 +65,7 @@ int main(int argc, char *argv[])
     n->PrintAllDataPathsInSubtree();
     cout << "----------------                        ----------------" << endl;
 
-    string output_name = "sys-sage_sample_output.xml";
+    std::string output_name = "sys-sage_sample_output.xml";
     cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
     exportToXml(topo, output_name);
 

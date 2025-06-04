@@ -46,7 +46,7 @@ int Chip::UpdateMIGSettings(string uuid)
     //cout << "...........multiprocessorCount " << attributes.multiprocessorCount << " gpuInstanceSliceCount=" << attributes.gpuInstanceSliceCount << "  computeInstanceSliceCount=" << attributes.computeInstanceSliceCount << "    memorySizeMB=" << attributes.memorySizeMB << endl;
     
     //main memory, expects the memory as a child of
-    Memory* m = (Memory*)GetChildByType(SYS_SAGE_COMPONENT_MEMORY);
+    Memory* m = (Memory*)GetChildByType(sys_sage::ComponentType::Memory);
     long long* mig_size;
     if(m != NULL){
         DataPath * d = NULL;
@@ -74,7 +74,7 @@ int Chip::UpdateMIGSettings(string uuid)
         L2_fraction = (m->GetSize() + (*mig_size/2)) / *mig_size; //divide and round up or down
     }
     vector<Component*> caches;
-    FindAllSubcomponentsByType(&caches, SYS_SAGE_COMPONENT_CACHE);
+    FindAllSubcomponentsByType(&caches, sys_sage::ComponentType::Cache);
     vector<Cache*> L2_caches;
     for(Component* c : caches){
         if(((Cache*)c)->GetCacheName() == "L2"){
@@ -102,10 +102,10 @@ int Chip::UpdateMIGSettings(string uuid)
 
     //sm  attributes.multiprocessorCount
     vector<Component*> subdivisions;
-    FindAllSubcomponentsByType(&subdivisions,SYS_SAGE_COMPONENT_SUBDIVISION);
+    FindAllSubcomponentsByType(&subdivisions,sys_sage::ComponentType::Subdivision);
     vector<Subdivision*> sms;
     for(Component* sm : subdivisions){
-        if(((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+        if(((Subdivision*)sm)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)
             sms.push_back((Subdivision*)sm);
     }
     for(Subdivision* sm: sms){
@@ -132,10 +132,10 @@ int Chip::GetMIGNumSMs(string uuid)
         std::cerr << "Chip::GetMIGNumSMs: no UUID provided or found in env CUDA_VISIBLE_DEVICES. Returning information for full machine." << std::endl;
         
         vector<Component*> subdivisions;
-        FindAllSubcomponentsByType(&subdivisions, SYS_SAGE_COMPONENT_SUBDIVISION);
+        FindAllSubcomponentsByType(&subdivisions, sys_sage::ComponentType::Subdivision);
         vector<Subdivision*> sms;
         for(Component* sm : subdivisions){
-            if(((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM){
+            if(((Subdivision*)sm)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM){
                 num_sm++;
             }
         }
@@ -145,7 +145,7 @@ int Chip::GetMIGNumSMs(string uuid)
         for(DataPath* dp: dp_outgoing){
             if(dp->GetDataPathType() == SYS_SAGE_DATAPATH_TYPE_MIG && *(string*)dp->attrib["mig_uuid"] == uuid){
                 Component* target = dp->GetTarget();
-                if(target->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)target)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM ){
+                if(target->GetComponentType() == sys_sage::ComponentType::Subdivision && ((Subdivision*)target)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM ){
                     num_sm++;
                 }
             }
@@ -169,9 +169,9 @@ int Chip::GetMIGNumCores(string uuid)
         std::cerr << "Chip::GetMIGNumCores: no UUID provided or found in env CUDA_VISIBLE_DEVICES. Returning information for full machine." << std::endl;
 
         vector<Component*> subdivisions;
-        FindAllSubcomponentsByType(&subdivisions, SYS_SAGE_COMPONENT_SUBDIVISION);
+        FindAllSubcomponentsByType(&subdivisions, sys_sage::ComponentType::Subdivision);
         for(Component* sm : subdivisions){
-            if(((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+            if(((Subdivision*)sm)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)
                 sms.push_back((Subdivision*)sm);
         }
     }
@@ -180,7 +180,7 @@ int Chip::GetMIGNumCores(string uuid)
         for(DataPath* dp: dp_outgoing){
             if(dp->GetDataPathType() == SYS_SAGE_DATAPATH_TYPE_MIG && *(string*)dp->attrib["mig_uuid"] == uuid){
                 Component* target = dp->GetTarget();
-                if(target->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)target)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM ){
+                if(target->GetComponentType() == sys_sage::ComponentType::Subdivision && ((Subdivision*)target)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM ){
                     sms.push_back((Subdivision*)target);
                 }
             }
@@ -189,7 +189,7 @@ int Chip::GetMIGNumCores(string uuid)
 
     for(Subdivision* sm: sms)
     {
-        sm->FindAllSubcomponentsByType(&cores, SYS_SAGE_COMPONENT_THREAD);
+        sm->FindAllSubcomponentsByType(&cores, sys_sage::ComponentType::Thread;
     }
     
     return cores.size();
