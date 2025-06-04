@@ -284,7 +284,7 @@ namespace sys_sage {
         @param _componentType - the desired component type
         @return Component * matching the criteria. NULL if no match found
         */
-        Component* GetAncestorByType(int _componentType);       
+        Component* GetAncestorByType(int _componentType);
         /**
         Retrieves maximal distance to a leaf (i.e. the depth of the subtree).
         \n 0=leaf, 1=children are leaves, 2=at most children's children are leaves .....

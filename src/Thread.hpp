@@ -43,7 +43,7 @@ namespace sys_sage {
         /**
         * Gets the frequency of the thread.
         */
-        double GetFreq() const;
+        double GetFreq();
     #endif
 
     #ifdef INTEL_PQOS //defined in intel_pqos.cpp
