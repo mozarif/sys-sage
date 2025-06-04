@@ -5,6 +5,8 @@
 
 #include "sys-sage.hpp"
 
+using namespace sys_sage;
+
 void usage(char* argv0)
 {
     std::cerr << "usage: " << argv0 << " [hwloc xml path] [xml output path/name]" << std::endl;
@@ -45,7 +47,7 @@ int main(int argc, char *argv[])
     cout << "-- End parseHwlocOutput" << endl;
 
     cout << "-- Refresh frequency on core 1 (and do not store the timestamp). ";
-    Core* c1 = (Core*)n->FindSubcomponentById(1, SYS_SAGE_COMPONENT_CORE);
+    Core* c1 = (Core*)n->FindSubcomponentById(1, sys_sage::ComponentType::Core);
     if(c1 != NULL)
     {
         c1->RefreshFreq(false);//

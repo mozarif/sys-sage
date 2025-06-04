@@ -1,6 +1,9 @@
 #include "sys-sage.hpp"
 #include <functional>
 
+using namespace sys_sage;
+using std::cout;
+using std::endl;
 
 class My_core_attributes {
 public:
@@ -11,11 +14,11 @@ public:
 
 // define your own XML output function, where you define how your custom attribs will get printed.
 // key is the attrib key, value is the void* to the value, and ret_value_str is an output parameter where you save the output string to put to the XML.
-int print_my_attribs(string key, void* value, string* ret_value_str)
+int print_my_attribs(std::string key, void* value, std::string* ret_value_str)
 {
     if(!key.compare("codename") || !key.compare("info"))
     {
-        *ret_value_str=*(string*)value;
+        *ret_value_str=*(std::string*)value;
         return 1;
     }
     else if(!key.compare("rack_no"))
@@ -27,7 +30,7 @@ int print_my_attribs(string key, void* value, string* ret_value_str)
     return 0;
 }
 
-int print_my_custom_attribs(string key, void* value, xmlNodePtr n)
+int print_my_custom_attribs(std::string key, void* value, xmlNodePtr n)
 {
     if(!key.compare("my_core_info"))
     {
@@ -57,8 +60,8 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string xmlPath;
-    string bwPath;
+    std::string xmlPath;
+    std::string bwPath;
     if(argc < 2){
         std::string path_prefix(argv[0]);
         std::size_t found = path_prefix.find_last_of("/\\");
@@ -94,35 +97,37 @@ int main(int argc, char *argv[])
     cout << "-- End parseCapsNumaBenchmark" << endl;
 
     //let's add a few custom attributes
-    string codename = "marsupial";
+    std::string codename = "marsupial";
     int r = 15;
     n->attrib["codename"]=(void*)&codename;
     n->attrib["rack_no"]=(void*)&r;
     n->attrib["unknown_will_not_be_printed"]=(void*)&xmlPath;
 
     My_core_attributes c1_attrib(38.222, 2000000000);
-    Core* c1 = (Core*)n->GetSubcomponentById(1, SYS_SAGE_COMPONENT_CORE);
+    Core* c1 = (Core*)n->GetSubcomponentById(1, sys_sage::ComponentType::Core);
     if(c1 != NULL)
         c1->attrib["my_core_info"]=(void*)&c1_attrib;
 
     My_core_attributes c4_attrib(44.1, 1500000000);
-    Core* c4 = (Core*)n->GetSubcomponentById(4, SYS_SAGE_COMPONENT_CORE);
+    Core* c4 = (Core*)n->GetSubcomponentById(4, sys_sage::ComponentType::Core);
     if(c4 != NULL)
         c4->attrib["my_core_info"]=(void*)&c4_attrib;
 
-    string benchmark_info="measured with no load on 07.07.";
-    Numa* n2 = (Numa*)n->GetSubcomponentById(2, SYS_SAGE_COMPONENT_NUMA);
+    std::string benchmark_info="measured with no load on 07.07.";
+    Numa* n2 = (Numa*)n->GetSubcomponentById(2, sys_sage::ComponentType::Numa);
     if(n2 != NULL){
-        DataPath * dp = (*(n2->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)))[0];
+        DataPath * dp = reinterpret_cast<DataPath*>(n2->GetRelations(sys_sage::RelationType::DataPath)[0]);
+        // DataPath * dp = (*(n2->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)))[0];
         if(dp != NULL)
             dp->attrib["info"]=(void*)&benchmark_info;
-        dp = (*(n2->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)))[2];
+        dp = reinterpret_cast<DataPath*>(n2->GetRelations(sys_sage::RelationType::DataPath)[2]);
+        // dp = (*(n2->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)))[2];
         if(dp != NULL)
             dp->attrib["info"]=(void*)&benchmark_info;
     }
 
     //export to xml
-    string output_name = "sys-sage_custom_attributes.xml";
+    std::string output_name = "sys-sage_custom_attributes.xml";
     cout << "-- Export all information to xml " << output_name << endl;
     exportToXml(topo, output_name, print_my_attribs, print_my_custom_attribs);
 

@@ -1,4 +1,5 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake" ${CMAKE_MODULE_PATH})
 
 #defines.hpp header with #cmakedefine 
 configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/src/defines.hpp)
@@ -18,6 +19,8 @@ set(SOURCES
     parsers/caps-numa-benchmark.cpp
     parsers/mt4g.cpp
     parsers/cccbench.cpp
+    parsers/qdmi-parser.cpp
+    parsers/iqm-parser.cpp
     )
 
 set(HEADERS
@@ -31,25 +34,39 @@ set(HEADERS
     parsers/caps-numa-benchmark.hpp
     parsers/mt4g.hpp
     parsers/cccbench.cpp
+    parsers/qdmi-parser.hpp
+    parsers/iqm-parser.hpp
     )
 
 add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
-target_include_directories(sys-sage PUBLIC  
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
-    $<INSTALL_INTERFACE:inc>
-    $<INSTALL_INTERFACE:lib>
+# For Quantum Systems
+if(QDMI)
+    target_link_libraries(sys-sage PUBLIC
+      backend_ibm
+      qdmi
+      qinfo
+      )
+endif()
+
+target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
+
+target_include_directories(sys-sage 
+    PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
+            $<INSTALL_INTERFACE:inc>
+            $<INSTALL_INTERFACE:lib>
 )
+
 install(
     TARGETS sys-sage
-    EXPORT sys-sage-targets
+    EXPORT sys-sage-targets 
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib/cmake/lib
     ARCHIVE DESTINATION lib/cmake/lib
 )
 #for spack
 install(
-    EXPORT sys-sage-targets
+    EXPORT sys-sage-targets 
     FILE sys-sage-targets.cmake
     DESTINATION lib/cmake/sys-sage
     NAMESPACE sys-sage::
@@ -67,3 +84,5 @@ install(
 install(DIRECTORY "."
     DESTINATION inc
     FILES_MATCHING PATTERN "*.hpp")
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})

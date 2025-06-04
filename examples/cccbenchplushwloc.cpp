@@ -4,6 +4,11 @@
 #include "sys-sage.hpp"
 #include "parsers/cccbench.hpp"
 
+using std::cout;
+using std::endl;
+
+using namespace sys_sage;
+
 void usage(char* argv0)
 {
     std::cerr << "usage: " << argv0 << " <hwloc xml path> <cccbench csv path>" << std::endl;
@@ -12,7 +17,7 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string xmlPath;
+    std::string xmlPath;
     std::string cccPath;
     if(argc == 3){
         xmlPath = argv[1];
@@ -33,10 +38,10 @@ int main(int argc, char *argv[])
     }
     cout << "-- End parseHwlocOutput" << endl;
 
-    cout << "Total num HW threads: " << topo->CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD) << endl;
+    cout << "Total num HW threads: " << topo->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread) << endl;
 
     cout << "---------------- Printing the whole tree ----------------" << endl;
-    topo->PrintSubtree(2);
+    topo->PrintSubtree();
     cout << "----------------                     ----------------" << endl;
     
     
@@ -44,8 +49,8 @@ int main(int argc, char *argv[])
     parseCccbenchOutput(n, cccPath);
 
 
-    auto allcores = new vector<Component *>();
-    topo->GetAllSubcomponentsByType(allcores, SYS_SAGE_COMPONENT_CORE);    
+    auto allcores = new std::vector<Component *>();
+    topo->GetAllSubcomponentsByType(allcores, sys_sage::ComponentType::Core);    
     //auto allcores = topo->GetAllChildrenByType(SYS_SAGE_COMPONENT_CORE);
 
     for(auto c0 : *allcores)

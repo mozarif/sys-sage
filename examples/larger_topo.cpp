@@ -5,6 +5,10 @@
 
 #include "sys-sage.hpp"
 
+using namespace sys_sage;
+
+using std::cout;
+using std::endl;
 
 int main(int argc, char *argv[])
 {
@@ -19,8 +23,8 @@ int main(int argc, char *argv[])
     std::string path_prefix(argv[0]);
     std::size_t found = path_prefix.find_last_of("/\\");
     path_prefix=path_prefix.substr(0,found) + "/";
-    string xmlPath = "example_data/skylake_hwloc.xml";
-    string bwPath = "example_data/skylake_caps_numa_benchmark.csv";
+    std::string xmlPath = "example_data/skylake_hwloc.xml";
+    std::string bwPath = "example_data/skylake_caps_numa_benchmark.csv";
     for(int n_idx=0; n_idx<tot_nodes; n_idx++)
     {
         Node* n = new Node(n_idx);
@@ -38,7 +42,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    string output_name = "sys-sage_sample_output.xml";
+    std::string output_name = "sys-sage_sample_output.xml";
     cout << "Exporting as XML to " << output_name << endl;
     exportToXml(topo, output_name);
 

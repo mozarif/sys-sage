@@ -5,20 +5,19 @@
 #include <fstream>
 #include <vector>
 
-using namespace std;
 
-int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, string delim)
+int sys_sage::parseCapsNumaBenchmark(Component* rootComponent, std::string benchmarkPath, std::string delim)
 {
     CSVReader reader(benchmarkPath, delim);
-    vector<vector<string> > benchmarkData;
+    std::vector<std::vector<std::string> > benchmarkData;
     if(reader.getData(&benchmarkData) != 0) {//Error
-        cerr << "error: could not parse CapsNumaBenchmark file " << benchmarkPath.c_str() << endl;
+        std::cerr << "error: could not parse CapsNumaBenchmark file " << benchmarkPath.c_str() << std::endl;
         return 1;
     }
 
     //get indexes of relevant columns
     int cpu_is_source=-1;//-1 initial, 0 numa is source, 1 cpu is source
-    vector<string> header = benchmarkData[0];
+    std::vector<std::string> header = benchmarkData[0];
     int src_cpu_idx=-1;
     int src_numa_idx=-1;
     int target_numa_idx=-1;
@@ -43,7 +42,7 @@ int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, strin
         cpu_is_source += 1;
 
     if(cpu_is_source==-1 || cpu_is_source>1 || target_numa_idx==-1 || ldlat_idx==-1 || bw_idx==-1){
-        cerr << "indexes: " << src_cpu_idx << src_numa_idx << target_numa_idx << ldlat_idx << bw_idx << endl;
+        std::cerr << "indexes: " << src_cpu_idx << src_numa_idx << target_numa_idx << ldlat_idx << bw_idx << std::endl;
         return 1;
     }
 
@@ -57,27 +56,27 @@ int parseCapsNumaBenchmark(Component* rootComponent, string benchmarkPath, strin
 
         if(cpu_is_source){
             src_cpu_id = stoi(benchmarkData[i][src_cpu_idx]);
-            src = rootComponent->GetSubcomponentById(src_cpu_id, SYS_SAGE_COMPONENT_THREAD);
+            src = rootComponent->GetSubcomponentById(src_cpu_id, sys_sage::ComponentType::Thread);
         }else{
             src_numa_id = stoi(benchmarkData[i][src_numa_idx]);
-            src = rootComponent->GetSubcomponentById(src_numa_id, SYS_SAGE_COMPONENT_NUMA);
+            src = rootComponent->GetSubcomponentById(src_numa_id, sys_sage::ComponentType::Numa);
         }
         target_numa_id = stoi(benchmarkData[i][target_numa_idx]);
-        target = rootComponent->GetSubcomponentById(target_numa_id, SYS_SAGE_COMPONENT_NUMA);
+        target = rootComponent->GetSubcomponentById(target_numa_id, sys_sage::ComponentType::Numa);
         if(src == NULL || target == NULL)
-            cerr << "error: could not find components; skipping " << endl;
+            std::cerr << "error: could not find components; skipping " << std::endl;
         else{
             bw = stoul(benchmarkData[i][bw_idx]);
             ldlat = stoul(benchmarkData[i][ldlat_idx]);
 
-            new DataPath(src, target, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_DATATRANSFER, (double)bw, (double)ldlat);
+            new DataPath(src, target, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Datatransfer, (double)bw, (double)ldlat);
 
         }
     }
     return 0;
 }
 
-int CSVReader::getData(vector<vector<string> >* dataList)
+int sys_sage::CSVReader::getData(std::vector<std::vector<std::string> >* dataList)
 {
     std::ifstream file(benchmarkPath);
     if (!file.good())

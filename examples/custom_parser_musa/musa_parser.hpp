@@ -12,21 +12,21 @@
 #include "sys-sage.hpp"
 
 
-int parseMusa(Chip* _socket, std::string datapath);
+int parseMusa(sys_sage::Chip* _socket, std::string datapath);
 
 class MusaParser {
 public:
 	int ParseData();
-	MusaParser(Chip* _socket, std::string _datapath);
+	MusaParser(sys_sage::Chip* _socket, std::string _datapath);
 
 private:
 	int ReadData(std::vector<std::string>);
-	Memory* ParseMemory();
-	Cache* ParseCache(std::string, Component* parent);
+	sys_sage::Memory* ParseMemory();
+	sys_sage::Cache* ParseCache(std::string, sys_sage::Component* parent);
 
 	std::map<std::string, std::map<std::string, std::string>> mapping;
 	std::string datapath;
-	Chip* socket;
+	sys_sage::Chip* socket;
 };
 
 #endif
