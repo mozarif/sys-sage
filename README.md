@@ -1,8 +1,8 @@
+<img src="docs/images/logo-white.png" alt="sys-sage logo" style="float: right;" width="200"/>
+
 # sys-sage
 
 sys-sage is a library for capturing and manipulating hardware topology of compute systems.
-
-![sys-sage logo](docs/images/logo-white.pdf)
 
 It is currently under development, so there may be breaking changes in the API in the future.
 
