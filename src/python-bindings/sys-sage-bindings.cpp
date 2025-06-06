@@ -13,8 +13,7 @@
 #include <pybind11/attr.h>
 #include <string>
 #include <tuple>
-#include "Component.hpp"
-#include "DataPath.hpp"
+
 #include "sys-sage.hpp"
 
 namespace py = pybind11;
@@ -78,7 +77,7 @@ void* xmlloader(xmlNodePtr node) {
     }
 }
 
-int xmlloader_complex(xmlNodePtr node, Component *c) {
+int xmlloader_complex(xmlNodePtr node, sys_sage::Component *c) {
     xmlBufferPtr buffer = xmlBufferCreate();
     try{
         xmlNodeDump(buffer, node->doc, node, 0, 1);
@@ -98,7 +97,7 @@ int xmlloader_complex(xmlNodePtr node, Component *c) {
 
 //TODO: Add dynamic allocation for values
 //TODO: Delete values only after success
-void set_attribute(Component &self, const std::string &key, py::object &value) {
+void set_attribute(sys_sage::Component &self, const std::string &key, py::object &value) {
     //std::cout << "set attribute: " << key << " = " << value << std::endl;
 
     auto val = self.attrib.find(key);
@@ -169,7 +168,7 @@ void set_attribute(Component &self, const std::string &key, py::object &value) {
 
 }
 
-py::object get_attribute(Component &self, const std::string &key) {
+py::object get_attribute(sys_sage::Component &self, const std::string &key) {
     auto val = self.attrib.find(key);
     if (val != self.attrib.end()) {
         if(!key.compare("CATcos") || !key.compare("CATL3mask")){
@@ -204,7 +203,7 @@ py::object get_attribute(Component &self, const std::string &key) {
         else if(!key.compare("CUDA_compute_capability") || 
         !key.compare("mig_uuid") )
         {
-            return py::cast(*(string*)val->second);
+            return py::cast(*(std::string*)val->second);
         }
         else if(!key.compare("freq_history") ){
             std::vector<std::tuple<long long,double>>* value = (std::vector<std::tuple<long long,double>>*)(val->second);
@@ -230,7 +229,7 @@ py::object get_attribute(Component &self, const std::string &key) {
         throw py::attribute_error("Attribute '" + key + "' not found"); 
     }
 }
-py::object get_attribute(Component &self, int pos){
+py::object get_attribute(sys_sage::Component &self, int pos){
     if(pos >= self.attrib.size())
         throw py::index_error("Index out of bounds");
     auto it = self.attrib.begin();
@@ -239,7 +238,7 @@ py::object get_attribute(Component &self, int pos){
 }
 
 
-void remove_attribute(Component &self, const std::string &key) {
+void remove_attribute(sys_sage::Component &self, const std::string &key) {
     auto val = self.attrib.find(key);
     if (val != self.attrib.end()) {
         delete static_cast<std::shared_ptr<py::object>*>(val->second);
@@ -251,44 +250,55 @@ void remove_attribute(Component &self, const std::string &key) {
 
 
 PYBIND11_MODULE(sys_sage, m) {
+    using namespace sys_sage;
 
-        m.attr("COMPONENT_NONE") = SYS_SAGE_COMPONENT_NONE;
-        m.attr("COMPONENT_THREAD") = SYS_SAGE_COMPONENT_THREAD;
-        m.attr("COMPONENT_CORE") = SYS_SAGE_COMPONENT_CORE;
-        m.attr("COMPONENT_CACHE") = SYS_SAGE_COMPONENT_CACHE;
-        m.attr("COMPONENT_SUBDIVISION") = SYS_SAGE_COMPONENT_SUBDIVISION;
-        m.attr("COMPONENT_NUMA") = SYS_SAGE_COMPONENT_NUMA;
-        m.attr("COMPONENT_CHIP") = SYS_SAGE_COMPONENT_CHIP;
-        m.attr("COMPONENT_MEMORY") = SYS_SAGE_COMPONENT_MEMORY;
-        m.attr("COMPONENT_STORAGE") = SYS_SAGE_COMPONENT_STORAGE;
-        m.attr("COMPONENT_NODE") = SYS_SAGE_COMPONENT_NODE;
-        m.attr("COMPONENT_TOPOLOGY") = SYS_SAGE_COMPONENT_TOPOLOGY;
+    m.attr("COMPONENT_NONE") = ComponentType::None;
+    m.attr("COMPONENT_THREAD") = ComponentType::Thread;
+    m.attr("COMPONENT_CORE") = ComponentType::Core;
+    m.attr("COMPONENT_CACHE") = ComponentType::Cache;
+    m.attr("COMPONENT_SUBDIVISION") = ComponentType::Subdivision;
+    m.attr("COMPONENT_NUMA") = ComponentType::Numa;
+    m.attr("COMPONENT_CHIP") = ComponentType::Chip;
+    m.attr("COMPONENT_MEMORY") = ComponentType::Memory;
+    m.attr("COMPONENT_STORAGE") = ComponentType::Storage;
+    m.attr("COMPONENT_NODE") = ComponentType::Node;
+    m.attr("COMPONENT_QuantumBackend") = ComponentType::QuantumBackend;
+    m.attr("COMPONENT_AtomSitee") = ComponentType::AtomSite;
+    m.attr("COMPONENT_Qubit") = ComponentType::Qubit;
+    m.attr("COMPONENT_TOPOLOGY") = ComponentType::Topology;
 
-        m.attr("SUBDIVISION_TYPE_NONE") = SYS_SAGE_SUBDIVISION_TYPE_NONE;
-        m.attr("SUBDIVISION_TYPE_GPU_SM") = SYS_SAGE_SUBDIVISION_TYPE_GPU_SM;
+    m.attr("SUBDIVISION_TYPE_NONE") = SubdivisionType::None;
+    m.attr("SUBDIVISION_TYPE_GPU_SM") = SubdivisionType::GpuSM;
 
-        m.attr("CHIP_TYPE_NONE") = SYS_SAGE_CHIP_TYPE_NONE;
-        m.attr("CHIP_TYPE_CPU") = SYS_SAGE_CHIP_TYPE_CPU;
-        m.attr("CHIP_TYPE_CPU_SOCKET") = SYS_SAGE_CHIP_TYPE_CPU_SOCKET;
-        m.attr("CHIP_TYPE_GPU") = SYS_SAGE_CHIP_TYPE_GPU;
+    m.attr("CHIP_TYPE_NONE") = ChipType::None;
+    m.attr("CHIP_TYPE_CPU") = ChipType::Cpu;
+    m.attr("CHIP_TYPE_CPU_SOCKET") = ChipType::CpuSocket;
+    m.attr("CHIP_TYPE_GPU") = ChipType::Gpu;
 
-        m.attr("DATAPATH_NONE") = SYS_SAGE_DATAPATH_NONE;
-        m.attr("DATAPATH_OUTGOING") = SYS_SAGE_DATAPATH_OUTGOING;
-        m.attr("DATAPATH_INCOMING") = SYS_SAGE_DATAPATH_INCOMING;
-        m.attr("DATAPATH_BIDIRECTIONAL") = SYS_SAGE_DATAPATH_BIDIRECTIONAL;
-        m.attr("DATAPATH_ORIENTED") = SYS_SAGE_DATAPATH_ORIENTED;
-        m.attr("DATAPATH_TYPE_NONE") = SYS_SAGE_DATAPATH_TYPE_NONE;
-        m.attr("DATAPATH_TYPE_LOGICAL") = SYS_SAGE_DATAPATH_TYPE_LOGICAL;
-        m.attr("DATAPATH_TYPE_PHYSICAL") = SYS_SAGE_DATAPATH_TYPE_PHYSICAL;
-        m.attr("DATAPATH_TYPE_L3CAT") = SYS_SAGE_DATAPATH_TYPE_L3CAT;
-        m.attr("DATAPATH_TYPE_MIG") = SYS_SAGE_DATAPATH_TYPE_MIG;
-        m.attr("DATAPATH_TYPE_DATATRANSFER") = SYS_SAGE_DATAPATH_TYPE_DATATRANSFER;
-        m.attr("DATAPATH_TYPE_C2C") = SYS_SAGE_DATAPATH_TYPE_C2C;
+    m.attr("RELATIONTYPE_Relation") = RelationType::Relation;
+    m.attr("RELATIONTYPE_DataPath") = RelationType::DataPath;
+    m.attr("RELATIONTYPE_QuantumGate") = RelationType::QuantumGate;
+    m.attr("RELATIONTYPE_CouplingMap") = RelationType::CouplingMap;
+
+    m.attr("DATAPATH_NONE") = DataPathDirection::Any;
+    m.attr("DATAPATH_OUTGOING") = DataPathDirection::Outgoing;
+    m.attr("DATAPATH_INCOMING") = DataPathDirection::Incoming;
+
+    m.attr("DATAPATH_BIDIRECTIONAL") = DataPathOrientation::NotOriented;
+    m.attr("DATAPATH_ORIENTED") = DataPathOrientation::Oriented;
+
+    m.attr("DATAPATH_TYPE_NONE") = DataPathType::None;
+    m.attr("DATAPATH_TYPE_LOGICAL") = DataPathType::Logical;
+    m.attr("DATAPATH_TYPE_PHYSICAL") = DataPathType::Physical;
+    m.attr("DATAPATH_TYPE_DATATRANSFER") = DataPathType::Datatransfer;
+    m.attr("DATAPATH_TYPE_L3CAT") = DataPathType::L3CAT;
+    m.attr("DATAPATH_TYPE_MIG") = DataPathType::MIG;
+    m.attr("DATAPATH_TYPE_C2C") = DataPathType::C2C;
 
     //bind component class
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
-        .def(py::init<int, string, int>(), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
-        .def(py::init<Component *, int, string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
+        .def(py::init<int, std::string, int>(), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
+        .def(py::init<Component *, int, std::string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
         .def("__setitem__", [](Component& self, const std::string& name, py::object value) {
             set_attribute(self,name, value);
         })
@@ -367,14 +377,14 @@ PYBIND11_MODULE(sys_sage, m) {
         #ifdef PROC_CPUINFO
         .def("RefreshCpuCoreFrequency", &Node::RefreshCpuCoreFrequency, py::arg("keep_history")=false,"Refresh the cpu core frequency")
         #endif
-        .def(py::init<int, string>(), py::arg("id") = 0, py::arg("name")= "Node")
-        .def(py::init<Component*, int, string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Node");
+        .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name")= "Node")
+        .def(py::init<Component*, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Node");
     py::class_<Memory,std::unique_ptr<Memory, py::nodelete>, Component>(m, "Memory")
         #ifdef NVIDIA_MIG
         .def("GetMIGSize", &Memory::GetMIGSize, py::arg("uuid"))
         #endif
         .def(py::init<long long, bool>(), py::arg("size") = -1, py::arg("isVolatile") = false)
-        .def(py::init<Component*,int, string, long long, bool>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Memory", py::arg("size")=-1, py::arg("isVolatile")=false)
+        .def(py::init<Component*,int, std::string, long long, bool>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Memory", py::arg("size")=-1, py::arg("isVolatile")=false)
         .def_property("size", &Memory::GetSize, &Memory::SetSize, "The size of the memory")
         .def_property("isVolatile", &Memory::GetIsVolatile, &Memory::SetIsVolatile, "Whether the memory is volatile or not");
     py::class_<Storage, std::unique_ptr<Storage, py::nodelete>, Component>(m, "Storage")
@@ -387,8 +397,8 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetMIGNumSMs", &Chip::GetMIGNumSMs, py::arg("uuid"))
         .def("UpdateMIGSettings", &Chip::UpdateMIGSettings, py::arg("uuid"))
         #endif
-        .def(py::init<int,string,int,string,string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
-        .def(py::init<Component*,int,string,int,string,string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = 1, py::arg("vendor") = "", py::arg("model") = "")
+        .def(py::init<int,std::string,int,std::string,std::string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
+        .def(py::init<Component*,int,std::string,int,std::string,std::string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = 1, py::arg("vendor") = "", py::arg("model") = "")
         .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
         .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
         .def_property("chipType", &Chip::GetChipType, &Chip::SetChipType, "The type of the chip");
@@ -398,15 +408,15 @@ PYBIND11_MODULE(sys_sage, m) {
         #endif
         .def(py::init<int,int,long long, int, int>(), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
         .def(py::init<Component*,int,int,long long, int, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("level") = 0, py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
-        .def(py::init<Component*, int, string, long long, int, int>(), py::arg("parent"), py::arg("id"), py::arg("cache_type"), py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
+        .def(py::init<Component*, int, std::string, long long, int, int>(), py::arg("parent"), py::arg("id"), py::arg("cache_type"), py::arg("size") = -1, py::arg("associativity") = -1, py::arg("lineSize") = -1)
         .def_property("cacheLevel", &Cache::GetCacheLevel, &Cache::SetCacheLevel, "The level of the cache")
         .def_property("cacheName", &Cache::GetCacheName, &Cache::SetCacheName, "The name of the cache")
         .def_property("cacheSize", &Cache::GetCacheSize, &Cache::SetCacheSize, "The size of the cache")
         .def_property("cacheAssociativity", &Cache::GetCacheAssociativityWays, &Cache::SetCacheAssociativityWays, "The associativity of the cache")
         .def_property("cacheLineSize", &Cache::GetCacheLineSize, &Cache::SetCacheLineSize, "The line size of the cache");
     py::class_<Subdivision, std::unique_ptr<Subdivision, py::nodelete>, Component>(m, "Subdivision")
-        .def(py::init<int,string, int>(), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
-        .def(py::init<Component*,int,string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
+        .def(py::init<int,std::string, int>(), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
+        .def(py::init<Component*,int,std::string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
         .def_property("subdivisionType", &Subdivision::GetSubdivisionType, &Subdivision::SetSubdivisionType, "The type of the subdivision");
     py::class_<Numa,std::unique_ptr<Numa, py::nodelete>, Subdivision>(m, "Numa")
         .def(py::init<int, long long>(), py::arg("id") = 0, py::arg("size") = -1)
@@ -418,8 +428,8 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("RefreshFreq", &Core::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
         .def_property("freq", &Core::GetFreq, &Core::SetFreq, "Frequency of this core")
         #endif
-        .def(py::init<int,string>(),py::arg("id") = 0, py::arg("name") = "Core")
-        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0 ,py::arg("name") = "Core");
+        .def(py::init<int,std::string>(),py::arg("id") = 0, py::arg("name") = "Core")
+        .def(py::init<Component*,int,std::string>(),py::arg("parent"),py::arg("id") = 0 ,py::arg("name") = "Core");
 
     py::class_<Thread, std::unique_ptr<Thread, py::nodelete>,Component>(m,"Thread")
         #ifdef INTEL_PQOS
@@ -430,8 +440,8 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetCATAwareL3Size", &Thread::GetCATAwareL3Size, "Get L3 size of this thread")
         .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread")
         #endif
-        .def(py::init<int,string>(),py::arg("id") = 0,py::arg("name") = "Thread")
-        .def(py::init<Component*,int,string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread");
+        .def(py::init<int,std::string>(),py::arg("id") = 0,py::arg("name") = "Thread")
+        .def(py::init<Component*,int,std::string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread");
     py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>>(m,"DataPath",py::dynamic_attr())
         .def(py::init<Component*, Component*, int, int>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = 32)
         .def(py::init<Component*, Component*, int, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
@@ -443,9 +453,9 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("source", &DataPath::GetSource, &DataPath::UpdateSource, "The source of the data path")
         .def_property("target", &DataPath::GetTarget, &DataPath::UpdateTarget, "The target of the data path");
 
-    m.def("parseMt4gTopo", (int (*) (Node*,string,int, string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");
-    m.def("parseMt4gTopo", (int (*) (Component*,string,int, string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");
-    m.def("parseMt4gTopo", (int (*) (Chip*,string, string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"),  py::arg("delim") = ";");
+    m.def("parseMt4gTopo", (int (*) (Node*,std::string,int, std::string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");
+    m.def("parseMt4gTopo", (int (*) (Component*,std::string,int, std::string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");
+    m.def("parseMt4gTopo", (int (*) (Chip*,std::string, std::string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"),  py::arg("delim") = ";");
 
     m.def("parseHwlocOutput", &parseHwlocOutput, "parseHwlocOutput", py::arg("root"), py::arg("xmlPath"));
 
@@ -453,7 +463,7 @@ PYBIND11_MODULE(sys_sage, m) {
 
     m.def("parseCapsNumaBenchmark", &parseCapsNumaBenchmark,  py::arg("root"), py::arg("benchmarkPath"), py::arg("delim") = ";");
 
-    m.def("exportToXml", [](Component& root, string xmlPath, std::optional<py::function> print_att = std::nullopt, std::optional<py::function> print_catt = std::nullopt) {
+    m.def("exportToXml", [](Component& root, std::string xmlPath, std::optional<py::function> print_att = std::nullopt, std::optional<py::function> print_catt = std::nullopt) {
         if(print_att)
             print_attributes = *print_att;
         if(print_catt)
@@ -461,7 +471,7 @@ PYBIND11_MODULE(sys_sage, m) {
         exportToXml(&root, xmlPath,print_att ? xmldumper : nullptr,print_catt ? xmldumper_complex : nullptr);
     },py::arg("root"), py::arg("xmlPath") = "out.xml", py::arg("print_att") = py::none(), py::arg("print_catt") = py::none());
     
-    m.def("importFromXml",[](string path, std::optional<py::function> search_custom_attrib_key_fcn = std::nullopt, std::optional<py::function> search_custom_complex_attrib_key_fcn = std::nullopt) {
+    m.def("importFromXml",[](std::string path, std::optional<py::function> search_custom_attrib_key_fcn = std::nullopt, std::optional<py::function> search_custom_complex_attrib_key_fcn = std::nullopt) {
         if(search_custom_attrib_key_fcn)
             read_attributes = *search_custom_attrib_key_fcn;
         if(search_custom_complex_attrib_key_fcn)

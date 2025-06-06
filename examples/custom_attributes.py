@@ -28,6 +28,7 @@ def usage (argv0):
     print("       or", file=sys.stderr)
     print("       {} (uses predefined paths which may be incorrect.)".format(argv0), file=sys.stderr)
     return
+
 if __name__ == "__main__":
     xmlPath = None
     bwPath = None
