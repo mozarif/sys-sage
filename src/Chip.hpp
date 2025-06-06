@@ -99,14 +99,14 @@ namespace sys_sage {
         @param uuid - The UUID of the chip, default is an empty string.
         @return The number of SMs.
         */
-        int GetMIGNumSMs(std::string uuid = "") const;
+        int GetMIGNumSMs(std::string uuid = "");
 
         /**
         Gets the number of cores for the MIG.
         @param uuid - The UUID of the chip, default is an empty string.
         @return The number of cores.
         */
-        int GetMIGNumCores(std::string uuid = "") const;
+        int GetMIGNumCores(std::string uuid = "");
     #endif
     };
 }
