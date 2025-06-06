@@ -35,6 +35,11 @@ if(DATA_SOURCES OR DS_HWLOC)
   find_package(HWLOC REQUIRED)
 endif()
 
+if(PY_SYS_SAGE)
+  find_package(Python 3.13 COMPONENTS Interpreter Development REQUIRED)
+  find_package(pybind11 CONFIG REQUIRED)
+endif()
+
 
 # Create and install package configuration and version files.
 include(CMakePackageConfigHelpers)

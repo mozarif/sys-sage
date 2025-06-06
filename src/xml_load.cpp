@@ -15,11 +15,11 @@ using namespace std;
 #import <libxml/parser.h>
 
 // Function pointer for custom attribute key search
-std::function<void*(xmlNodePtr)> search_custom_attrib_key_fcn = NULL;
+std::function<void*(xmlNodePtr)> a_search_custom_attrib_key_fcn = NULL;
 
 // Function pointer for custom complex attribute key search
 std::function<int(xmlNodePtr, Component *)>
-    search_custom_complex_attrib_key_fcn = NULL;
+    a_search_custom_complex_attrib_key_fcn = NULL;
 
 // Create map of addresses to Components created
 // this is used to create the Datapaths
@@ -143,8 +143,8 @@ int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
 int collect_attrib(xmlNodePtr n, Component *c) {
   void *attrib_value = NULL;
   // try custom attribute search function
-  if (search_custom_attrib_key_fcn != NULL)
-    attrib_value = search_custom_attrib_key_fcn(n);
+  if (a_search_custom_attrib_key_fcn != NULL)
+    attrib_value = a_search_custom_attrib_key_fcn(n);
   // if custom function could not handle attribute, try default
   if (attrib_value == NULL)
     attrib_value = search_default_attrib_key(n);
@@ -155,8 +155,8 @@ int collect_attrib(xmlNodePtr n, Component *c) {
   }
   int ret = 0;
   // try custom complex attribute search function
-  if (attrib_value == NULL && search_custom_complex_attrib_key_fcn != NULL)
-     ret = search_custom_complex_attrib_key_fcn(n, c);
+  if (attrib_value == NULL && a_search_custom_complex_attrib_key_fcn != NULL)
+     ret = a_search_custom_complex_attrib_key_fcn(n, c);
   // if custom function could not handle attribute, try default
   if (attrib_value == NULL && ret == 0)
     return search_default_complex_attrib_key(n, c);
@@ -315,8 +315,8 @@ Component *importFromXml(
     std::function<int(xmlNodePtr, Component *)>
         _search_custom_complex_attrib_key_fcn) {
 
-  search_custom_attrib_key_fcn = _search_custom_attrib_key_fcn;
-  search_custom_complex_attrib_key_fcn = _search_custom_complex_attrib_key_fcn;
+  a_search_custom_attrib_key_fcn = _search_custom_attrib_key_fcn;
+  a_search_custom_complex_attrib_key_fcn = _search_custom_complex_attrib_key_fcn;
 
   xmlInitParser();
   xmlDocPtr doc = xmlReadFile(path.c_str(), NULL, 0);
