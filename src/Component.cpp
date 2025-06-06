@@ -476,7 +476,7 @@ int sys_sage::Component::CheckComponentTreeConsistency() const
     int errors = 0;
     for(Component * child : children){
         if(child->GetParent() != this){
-            std::cerr << "Component " << child->GetComponentType() << " id " << child->GetName() << " has wrong parent" << std::endl;
+            // std::cerr << "Component " << child->GetComponentTypeStr() << " id " << child->GetId() << " has wrong parent" << std::endl;
             errors++;
         }
     }

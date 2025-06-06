@@ -661,7 +661,7 @@ int sys_sage::Mt4gParser::parseCaches(std::string header_name, std::string cache
         
         if((ret = cache->InsertBetweenParentAndChildren(parent, sms, true)) != 0)
         {
-            cerr << "parseCaches:InsertBetweenParentAndChildren failed with return code " << ret << endl;
+            cerr << "parseCaches:InsertBetweenParentAndChildren 1 failed with return code " << ret << endl;
         }
         
         //insert DP with latency
@@ -675,6 +675,7 @@ int sys_sage::Mt4gParser::parseCaches(std::string header_name, std::string cache
     else if(shared_on == 1) //shared on SM
     {
         std::vector<Component*> sms = root->GetAllSubcomponentsByType(sys_sage::ComponentType::Subdivision);
+        cout << endl << endl << endl << "=====      ===== ENTERING elseif for  - " << header_name << "sms (size=:" << sms.size() << endl << endl << endl;
         for(Component * sm : sms)
         {
             if(((Subdivision*)sm)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)
@@ -723,9 +724,17 @@ int sys_sage::Mt4gParser::parseCaches(std::string header_name, std::string cache
                             //for L1 and L2 caches, insert them between them and their cores as children
                             if((cache_type.find("L1") != std::string::npos && cache_type.find("Constant") == std::string::npos) || cache_type == "L2")
                             {
+                                // cout << "   processing " << header_name << endl;
+                                // cout << "cache_type=" << cache_type << ", Parent = " << parent->GetComponentTypeStr() << " " << parent->GetId() << endl; 
+                                // for(Component * tc: parent->GetChildren())
+                                // {
+                                //     if(tc->GetComponentType() == ComponentType::Thread)
+                                //         cout << ", " << tc->GetComponentTypeStr() << "(parent " << tc->GetParent()->GetComponentTypeStr() << ")";
+                                // }
+                                // cout << endl;
                                 if((ret = cache->InsertBetweenParentAndChild(parent, thread, true)) != 0)
                                 {
-                                    cerr << "parseCaches:InsertBetweenParentAndChild failed with return code " << ret << endl;
+                                    //cerr << "parseCaches:InsertBetweenParentAndChild 2 failed with return code " << ret << endl;
                                 }
                             }
 
@@ -733,11 +742,14 @@ int sys_sage::Mt4gParser::parseCaches(std::string header_name, std::string cache
                                 new DataPath(cache, thread, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Logical, 0, latency);
                         }
                     }
-                    
+                    cout << threads.size() << " - threads.size()" << ",   processing " << header_name << " == exited the (Component * thread : threads) " << endl;
                 }
+                //cout << "finished iterating over caches_per_sm:" << caches_per_sm << endl;
             }
         }
+        cout << "=====      ===== FINISHED iterating over sms (size=:" << sms.size() << endl;
     }
+    cout << endl << endl << endl << "FINISHING FUNCTION  - " << header_name << endl << endl << endl;
     return 0;
 }
 
