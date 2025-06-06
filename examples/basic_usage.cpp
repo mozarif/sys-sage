@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
     }
     cout << "-- End parseCapsNumaBenchmark" << endl;
 
-    cout << "---------------- Printing all DataPaths ----------------" << endl;
-    n->PrintAllDataPathsInSubtree();
+    cout << "---------------- Printing all Relations ----------------" << endl;
+    n->PrintAllRelationsInSubtree();
     cout << "----------------                        ----------------" << endl;
 
     std::string output_name = "sys-sage_sample_output.xml";

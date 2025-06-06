@@ -119,6 +119,18 @@ endif()
 #else()
 
     add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
+
+    # For Quantum Systems
+    if(QDMI)
+        target_link_libraries(sys-sage PUBLIC
+            backend_ibm
+            qdmi
+            qinfo
+        )
+    endif()
+
+    target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
+
     target_include_directories(sys-sage PUBLIC  
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
         $<INSTALL_INTERFACE:inc>

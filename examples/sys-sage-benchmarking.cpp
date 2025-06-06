@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
         }        
     }
     t_end = high_resolution_clock::now();
-    uint64_t time = t_end.time_since_epoch().count() -  t_start.time_since_epoch().count() - timer_overhead;
+    time = t_end.time_since_epoch().count() -  t_start.time_since_epoch().count() - timer_overhead;
     if (time < time_getNumaMaxBw) {
         time_getNumaMaxBw = time;
     }
