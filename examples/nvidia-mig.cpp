@@ -15,7 +15,7 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string gpuTopoPath;
+    std::string gpuTopoPath;
     if(argc < 2){
         std::string path_prefix(argv[0]);
         std::size_t found = path_prefix.find_last_of("/\\");
@@ -34,29 +34,29 @@ int main(int argc, char *argv[])
     Topology* topo = new Topology();
     Node* n = new Node(topo,1);
 
-    cout << "-- Parsing gpu-topo benchmark from file " << gpuTopoPath << endl;
-    if(parseGpuTopo((Component*)n, gpuTopoPath, 0, ";") != 0) { //adds topo to a next node
+    std::cout << "-- Parsing gpu-topo benchmark from file " << gpuTopoPath << std::endl;
+    if(parseMt4gTopo((Component*)n, gpuTopoPath, 0, ";") != 0) { //adds topo to a next node
         return 1;
     }
-    cout << "-- End parseGpuTopo" << endl;
+    std::cout << "-- End parseGpuTopo" << std::endl;
     Chip * gpu = (Chip*)n->GetChild(0);
     gpu->UpdateMIGSettings();
 
-    cout << "-- Current MIG settings reflected." << endl;
-    string output_name = "sys-sage_sample_output.xml";
-    cout << "-------- Exporting as XML to " << output_name << " --------" << endl;
+    std::cout << "-- Current MIG settings reflected." << std::endl;
+    std::string output_name = "sys-sage_sample_output.xml";
+    std::cout << "-------- Exporting as XML to " << output_name << " --------" << std::endl;
     exportToXml(topo, output_name);
 
-    vector<Component*> memories;
-    gpu->FindAllSubcomponentsByType(&memories, sys_sage::ComponentType::Memory);
+    std::vector<Component*> memories;
+    gpu->GetSubcomponentsByType(&memories, sys_sage::ComponentType::Memory);
     for(Component* m: memories){
-        cout << "Memory with id " << ((Memory*)m)->GetId() << ": MIG size " << ((Memory*)m)->GetMIGSize() << " (total size " << ((Memory*)m)->GetSize() << ")" << endl;
+        std::cout << "Memory with id " << ((Memory*)m)->GetId() << ": MIG size " << ((Memory*)m)->GetMIGSize() << " (total size " << ((Memory*)m)->GetSize() << ")" << std::endl;
     }
     if(memories.size() == 0){
-        cout << "NO MEMORIES FOUND ON THE GPU" << endl;
+        std::cout << "NO MEMORIES FOUND ON THE GPU" << std::endl;
     }
-    cout << "Number of MIG available SMs: " << gpu->GetMIGNumSMs() << endl;
-    cout << "Number of MIG available GPU cores: " << gpu->GetMIGNumCores() << endl;
+    std::cout << "Number of MIG available SMs: " << gpu->GetMIGNumSMs() << std::endl;
+    std::cout << "Number of MIG available GPU cores: " << gpu->GetMIGNumCores() << std::endl;
 
     return 0;
 }
