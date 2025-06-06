@@ -12,10 +12,16 @@
 #include <nvml.h>
 
 #include "Component.hpp"
+#include "Chip.hpp"
+#include "Memory.hpp"
+#include "Cache.hpp"
+#include "Subdivision.hpp"
 
+
+//SVTODO refactor to std::map<std::string, std::any> attrib;
 
 //nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex ( nvmlDevice_t device, unsigned int  index, nvmlDevice_t* migDevice ) --> look for all mig devices and add/update them
-int Chip::UpdateMIGSettings(string uuid)
+int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
 {
     int ret = 0;
     if(uuid.empty())
@@ -46,20 +52,23 @@ int Chip::UpdateMIGSettings(string uuid)
     //cout << "...........multiprocessorCount " << attributes.multiprocessorCount << " gpuInstanceSliceCount=" << attributes.gpuInstanceSliceCount << "  computeInstanceSliceCount=" << attributes.computeInstanceSliceCount << "    memorySizeMB=" << attributes.memorySizeMB << endl;
     
     //main memory, expects the memory as a child of
-    Memory* m = (Memory*)GetChildByType(SYS_SAGE_COMPONENT_MEMORY);
+    Memory* m = (Memory*)GetChildByType(ComponentType::Memory);
     long long* mig_size;
     if(m != NULL){
         DataPath * d = NULL;
         //iterate over dp_outgoing to check if DP already exists
-        for(DataPath* dp : dp_outgoing){
-            if(dp->GetDataPathType() == SYS_SAGE_DATAPATH_TYPE_MIG && *(string*)dp->attrib["mig_uuid"] == uuid){
+        for(Relation* r : GetRelations(RelationType::DataPath))
+        {
+            DataPath * dp = reinterpret_cast<DataPath*>(r);
+            if( dp->GetDataPathType() == DataPathType::MIG && *(static_cast<std::string*>(dp->attrib["mig_uuid"])) == uuid)
+            {
                 d = dp;
                 break;
             }
         }
 
-        d = new DataPath(this, m, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_MIG);
-        string* mig_uuid = new string(uuid);
+        d = new DataPath(this, m, DataPathOrientation::NotOriented, DataPathType::MIG);
+        std::string* mig_uuid = new std::string(uuid);
         mig_size = new long long(attributes.memorySizeMB*1000000);
         d->attrib.insert({"mig_uuid",(void*)mig_uuid});
         d->attrib.insert({"mig_size",(void*)mig_size});
@@ -73,9 +82,9 @@ int Chip::UpdateMIGSettings(string uuid)
     if(m->GetSize() > *mig_size){
         L2_fraction = (m->GetSize() + (*mig_size/2)) / *mig_size; //divide and round up or down
     }
-    vector<Component*> caches;
-    FindAllSubcomponentsByType(&caches, SYS_SAGE_COMPONENT_CACHE);
-    vector<Cache*> L2_caches;
+    std::vector<Component*> caches;
+    GetSubcomponentsByType(&caches, ComponentType::Cache);
+    std::vector<Cache*> L2_caches;
     for(Component* c : caches){
         if(((Cache*)c)->GetCacheName() == "L2"){
             L2_caches.push_back((Cache*)c);
@@ -85,8 +94,8 @@ int Chip::UpdateMIGSettings(string uuid)
     if(num_caches > 0){
         int cache_id = 0;
         for(Cache* c : L2_caches){
-            DataPath * d = new DataPath(this, c, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_MIG);
-            string* mig_uuid = new string(uuid);
+            DataPath * d = new DataPath(this, c, DataPathOrientation::NotOriented, DataPathType::MIG);
+            std::string* mig_uuid = new std::string(uuid);
             mig_size = new long long();
             *mig_size = c->GetCacheSize() * ( (float)num_caches/(float)L2_fraction-(float)cache_id/(float)num_caches);
             if(*mig_size <0)
@@ -101,17 +110,17 @@ int Chip::UpdateMIGSettings(string uuid)
     }
 
     //sm  attributes.multiprocessorCount
-    vector<Component*> subdivisions;
-    FindAllSubcomponentsByType(&subdivisions,SYS_SAGE_COMPONENT_SUBDIVISION);
-    vector<Subdivision*> sms;
+    std::vector<Component*> subdivisions;
+    GetSubcomponentsByType(&subdivisions, ComponentType::Subdivision);
+    std::vector<Subdivision*> sms;
     for(Component* sm : subdivisions){
-        if(((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+        if(((Subdivision*)sm)->GetSubdivisionType() == SubdivisionType::GpuSM)
             sms.push_back((Subdivision*)sm);
     }
     for(Subdivision* sm: sms){
         if(sm->GetId() < (int)attributes.multiprocessorCount){
-            DataPath * d = new DataPath(this, sm, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_MIG);
-            string* mig_uuid = new string(uuid);
+            DataPath * d = new DataPath(this, sm, DataPathOrientation::NotOriented, DataPathType::MIG);
+            std::string* mig_uuid = new std::string(uuid);
             d->attrib.insert({"mig_uuid",(void*)mig_uuid});
         }
     }
@@ -119,7 +128,7 @@ int Chip::UpdateMIGSettings(string uuid)
     return ret;
 }
 
-int Chip::GetMIGNumSMs(string uuid)
+int sys_sage::Chip::GetMIGNumSMs(std::string uuid)
 {
     if(uuid.empty()){
         if(const char* env_p = std::getenv("CUDA_VISIBLE_DEVICES")){
@@ -131,21 +140,23 @@ int Chip::GetMIGNumSMs(string uuid)
     {
         std::cerr << "Chip::GetMIGNumSMs: no UUID provided or found in env CUDA_VISIBLE_DEVICES. Returning information for full machine." << std::endl;
         
-        vector<Component*> subdivisions;
-        FindAllSubcomponentsByType(&subdivisions, SYS_SAGE_COMPONENT_SUBDIVISION);
-        vector<Subdivision*> sms;
+        std::vector<Component*> subdivisions;
+        GetSubcomponentsByType(&subdivisions, ComponentType::Subdivision);
+        std::vector<Subdivision*> sms;
         for(Component* sm : subdivisions){
-            if(((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM){
+            if(((Subdivision*)sm)->GetSubdivisionType() == SubdivisionType::GpuSM){
                 num_sm++;
             }
         }
     } 
     else
     {
-        for(DataPath* dp: dp_outgoing){
-            if(dp->GetDataPathType() == SYS_SAGE_DATAPATH_TYPE_MIG && *(string*)dp->attrib["mig_uuid"] == uuid){
+        for(Relation* r : GetRelations(RelationType::DataPath))
+        {
+            DataPath * dp = reinterpret_cast<DataPath*>(r);
+            if(dp->GetDataPathType() == DataPathType::MIG && *(std::string*)dp->attrib["mig_uuid"] == uuid){
                 Component* target = dp->GetTarget();
-                if(target->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)target)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM ){
+                if(target->GetComponentType() == ComponentType::Subdivision && ((Subdivision*)target)->GetSubdivisionType() == SubdivisionType::GpuSM ){
                     num_sm++;
                 }
             }
@@ -154,10 +165,10 @@ int Chip::GetMIGNumSMs(string uuid)
     return num_sm;
 }
 
-int Chip::GetMIGNumCores(string uuid)
+int sys_sage::Chip::GetMIGNumCores(std::string uuid)
 {
-    vector<Subdivision*> sms;
-    vector<Component*> cores;
+    std::vector<Subdivision*> sms;
+    std::vector<Component*> cores;
     if(uuid.empty()){
         if(const char* env_p = std::getenv("CUDA_VISIBLE_DEVICES")){
             uuid = env_p;
@@ -168,19 +179,21 @@ int Chip::GetMIGNumCores(string uuid)
     {
         std::cerr << "Chip::GetMIGNumCores: no UUID provided or found in env CUDA_VISIBLE_DEVICES. Returning information for full machine." << std::endl;
 
-        vector<Component*> subdivisions;
-        FindAllSubcomponentsByType(&subdivisions, SYS_SAGE_COMPONENT_SUBDIVISION);
+        std::vector<Component*> subdivisions;
+        GetSubcomponentsByType(&subdivisions, ComponentType::Subdivision);
         for(Component* sm : subdivisions){
-            if(((Subdivision*)sm)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM)
+            if(((Subdivision*)sm)->GetSubdivisionType() == SubdivisionType::GpuSM)
                 sms.push_back((Subdivision*)sm);
         }
     }
     else
     {
-        for(DataPath* dp: dp_outgoing){
-            if(dp->GetDataPathType() == SYS_SAGE_DATAPATH_TYPE_MIG && *(string*)dp->attrib["mig_uuid"] == uuid){
+        for(Relation* r : GetRelations(RelationType::DataPath))
+        {
+            DataPath * dp = reinterpret_cast<DataPath*>(r);
+            if(dp->GetDataPathType() == DataPathType::MIG && *(std::string*)dp->attrib["mig_uuid"] == uuid){
                 Component* target = dp->GetTarget();
-                if(target->GetComponentType() == SYS_SAGE_COMPONENT_SUBDIVISION && ((Subdivision*)target)->GetSubdivisionType() == SYS_SAGE_SUBDIVISION_TYPE_GPU_SM ){
+                if(target->GetComponentType() == ComponentType::Subdivision && ((Subdivision*)target)->GetSubdivisionType() == SubdivisionType::GpuSM ){
                     sms.push_back((Subdivision*)target);
                 }
             }
@@ -189,13 +202,13 @@ int Chip::GetMIGNumCores(string uuid)
 
     for(Subdivision* sm: sms)
     {
-        sm->FindAllSubcomponentsByType(&cores, SYS_SAGE_COMPONENT_THREAD);
+        sm->GetSubcomponentsByType(&cores, ComponentType::Thread);
     }
     
     return cores.size();
 }
 
-long long Memory::GetMIGSize(string uuid)
+long long sys_sage::Memory::GetMIGSize(std::string uuid) const
 {
     if(uuid.empty()){
         if(const char* env_p = std::getenv("CUDA_VISIBLE_DEVICES")){
@@ -209,8 +222,10 @@ long long Memory::GetMIGSize(string uuid)
         return size;
     } 
 
-    for(DataPath* dp: dp_incoming){
-        if(dp->GetDataPathType() == SYS_SAGE_DATAPATH_TYPE_MIG && *(string*)dp->attrib["mig_uuid"] == uuid){
+    for(Relation* r : GetRelations(RelationType::DataPath))
+    {
+        DataPath * dp = reinterpret_cast<DataPath*>(r);
+        if(dp->GetDataPathType() == DataPathType::MIG && *(std::string*)dp->attrib["mig_uuid"] == uuid){
             if (dp->attrib.count("mig_size")){
                 long long r = *(long long*)dp->attrib["mig_size"];
                 return r;
@@ -221,7 +236,7 @@ long long Memory::GetMIGSize(string uuid)
     return size; 
 }
 
-long long Cache::GetMIGSize(string uuid)
+long long sys_sage::Cache::GetMIGSize(std::string uuid) const
 {
     if(uuid.empty()){
         if(const char* env_p = std::getenv("CUDA_VISIBLE_DEVICES")){
@@ -236,8 +251,10 @@ long long Cache::GetMIGSize(string uuid)
     }
 
     if(GetCacheLevel() == 2){
-        for(DataPath* dp: dp_incoming){
-            if(dp->GetDataPathType() == SYS_SAGE_DATAPATH_TYPE_MIG && *(string*)dp->attrib["mig_uuid"] == uuid){
+        for(Relation* r : GetRelations(RelationType::DataPath))
+        {
+            DataPath * dp = reinterpret_cast<DataPath*>(r);
+            if(dp->GetDataPathType() == DataPathType::MIG && *(std::string*)dp->attrib["mig_uuid"] == uuid){
                 if (dp->attrib.count("mig_size")){
                     long long r = *(long long*)dp->attrib["mig_size"];
                     return r;

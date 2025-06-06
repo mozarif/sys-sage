@@ -5,6 +5,11 @@
 
 #include "sys-sage.hpp"
 
+using namespace sys_sage;
+
+using std::cout;
+using std::endl;
+
 void usage(char* argv0)
 {
     std::cerr << "usage: " << argv0 << " [hwloc xml path] [xml output path/name]" << std::endl;
@@ -13,8 +18,8 @@ void usage(char* argv0)
 
 int main(int argc, char *argv[])
 {
-    string xmlPath;
-    string output_name = "sys-sage_cpu-frequency.xml";
+    std::string xmlPath;
+    std::string output_name = "sys-sage_cpu-frequency.xml";
     if(argc < 2){
         std::string path_prefix(argv[0]);
         std::size_t found = path_prefix.find_last_of("/\\");
@@ -45,7 +50,7 @@ int main(int argc, char *argv[])
     cout << "-- End parseHwlocOutput" << endl;
 
     cout << "-- Refresh frequency on core 1 (and do not store the timestamp). ";
-    Core* c1 = (Core*)n->GetSubcomponentById(1, SYS_SAGE_COMPONENT_CORE);
+    Core* c1 = (Core*)n->GetSubcomponentById(1, sys_sage::ComponentType::Core);
     if(c1 != NULL)
     {
         c1->RefreshFreq(false);//

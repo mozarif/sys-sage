@@ -1,4 +1,5 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake" ${CMAKE_MODULE_PATH})
 
 #defines.hpp header with #cmakedefine 
 configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/src/defines.hpp)
@@ -9,7 +10,23 @@ set(PY_BINDS "python-bindings")
 
 set(SOURCES
     Component.cpp
+    Thread.cpp
+    Core.cpp
+    Cache.cpp
+    Subdivision.cpp
+    Numa.cpp
+    Chip.cpp
+    Memory.cpp
+    Storage.cpp
+    Node.cpp
+    QuantumBackend.cpp
+    Qubit.cpp
+    AtomSite.cpp
+    Topology.cpp
+    Relation.cpp
     DataPath.cpp
+    QuantumGate.cpp
+    CouplingMap.cpp
     xml_dump.cpp
     xml_load.cpp
     ${EXT_INTF}/intel_pqos.cpp
@@ -20,26 +37,50 @@ set(SOURCES
     parsers/caps-numa-benchmark.cpp
     parsers/mt4g.cpp
     parsers/cccbench.cpp
+    parsers/qdmi-parser.cpp
+    parsers/iqm-parser.cpp
     )
 
 set(HEADERS
     sys-sage.hpp
     defines.hpp
+    enums.hpp
     Component.hpp
+    Thread.hpp
+    Core.hpp
+    Cache.hpp
+    Subdivision.hpp
+    Numa.hpp
+    Chip.hpp
+    Memory.hpp
+    Storage.hpp
+    Node.hpp
+    QuantumBackend.hpp
+    Qubit.hpp
+    AtomSite.hpp
+    Topology.hpp
+    Relation.hpp
     DataPath.hpp
+    QuantumGate.hpp
+    CouplingMap.hpp
     xml_dump.hpp
     xml_load.hpp
     parsers/hwloc.hpp
     parsers/caps-numa-benchmark.hpp
     parsers/mt4g.hpp
-    parsers/cccbench.cpp
+    parsers/cccbench.hpp
+    parsers/qdmi-parser.hpp
+    parsers/iqm-parser.hpp
     )
 
 # add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
 if(PY_SYS_SAGE)
+    # find_package(Python 3.13 COMPONENTS Interpreter Development REQUIRED)
     link_directories(${PYTHON_LIBRARY_DIRS})
     include_directories(${PYTHON_INCLUDE_DIRS})
+    set(PYBIND11_FINDPYTHON ON)
+    # find_package(pybind11 CONFIG REQUIRED)
     # Get Python site-packages path
     execute_process(
         COMMAND "${Python_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_paths().get('purelib', ''))"
@@ -63,7 +104,6 @@ if(PY_SYS_SAGE)
 
     # set(PY_BINDS ${CMAKE_SOURCE_DIR}/src/python-bindings)
     message(STATUS "PY_BINDS=${PY_BINDS}")
-    message(STATUS "PYTHON_SITE=${PYTHON_SITE}")
 
     # This builds a Python extension module (NOT a regular .so/.dylib)
     pybind11_add_module(sys_sage MODULE ${PY_BINDS}/sys-sage-bindings.cpp ${SOURCES} ${HEADERS})

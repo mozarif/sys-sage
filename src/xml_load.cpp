@@ -10,128 +10,160 @@
 
 #include "xml_load.hpp"
 
-using namespace std;
+#include "Topology.hpp"
+#include "Component.hpp"
+#include "Thread.hpp"
+#include "Core.hpp"
+#include "Cache.hpp"
+#include "Subdivision.hpp"
+#include "Numa.hpp"
+#include "Chip.hpp"
+#include "Memory.hpp"
+#include "Storage.hpp"
+#include "Node.hpp"
+#include "QuantumBackend.hpp"
+#include "Qubit.hpp"
+#include "AtomSite.hpp"
+#include "Relation.hpp"
+#include "DataPath.hpp"
+#include "QuantumGate.hpp"
+#include "CouplingMap.hpp"
 
-#import <libxml/parser.h>
+using std::cout;
+using std::endl;
+
+
+#include <libxml/parser.h>
 
 // Function pointer for custom attribute key search
-std::function<void*(xmlNodePtr)> a_search_custom_attrib_key_fcn = NULL;
-
+std::function<void*(xmlNodePtr)> load_custom_attrib_fcn = NULL;
 // Function pointer for custom complex attribute key search
-std::function<int(xmlNodePtr, Component *)>
-    a_search_custom_complex_attrib_key_fcn = NULL;
+std::function<int(xmlNodePtr, sys_sage::Component *)> load_custom_complex_attrib_fcn = NULL;
 
 // Create map of addresses to Components created
 // this is used to create the Datapaths
-std::map<string, Component *> addr_to_component;
+std::map<std::string, sys_sage::Component *> addr_to_component;
 
 //Helper-Function to retrieve string from xml-node
-std::string getStringFromProp(xmlNodePtr n, string prop) {
-  const unsigned char *v = xmlGetProp(n, (const unsigned char *)prop.c_str());
-  std::string value(reinterpret_cast<char const *>(v));
-  return value;
+std::string sys_sage::_getStringFromProp(xmlNodePtr n, std::string prop) {
+	const unsigned char *v = xmlGetProp(n, (const unsigned char *)prop.c_str());
+	std::string value(reinterpret_cast<char const *>(v));
+	return value;
 }
 
 // Extract attribute value from xml-node based on attribute name
-void* search_default_attrib_key(xmlNodePtr n) {
-  string key, value;
-  //check if the node has a name-attribute
-  if (xmlHasProp(n, (const xmlChar *)"name") && xmlHasProp(n, (const xmlChar *)"value")) {
-    key = getStringFromProp(n, "name");
-    value = getStringFromProp(n, "value");
-  }
-  else {
-    return NULL;
-  }
-  // Handle attributes with uint64_t values
-  if (!key.compare("CATcos") || !key.compare("CATL3mask")) {
-    return new long long (std::strtoull((const char *)value.c_str(), NULL, 16));
-  }
-  // Handle attributes with long long values
-  else if (!key.compare("mig_size")) {
-    return new long long (std::strtoull((const char *)value.c_str(), NULL, 10));
-  }
+void* sys_sage::_search_default_attrib_key(xmlNodePtr n) {
+	std::string key, value;
+	//check if the node has a name-attribute
+	if (xmlHasProp(n, (const xmlChar *)"name") && xmlHasProp(n, (const xmlChar *)"value")) 
+	{
+		key = _getStringFromProp(n, "name");
+		value = _getStringFromProp(n, "value");
+	}
+	else 
+	{
+		return NULL;
+	}
 
-  // Handle attributes with int values
-  else if (!key.compare("Number_of_streaming_multiprocessors") ||
-           !key.compare("Number_of_cores_in_GPU") ||
-           !key.compare("Number_of_cores_per_SM") ||
-           !key.compare("Bus_Width_bit")) {
-    return (new int(std::stoi(value)));
-  }
 
-  // Handle attributes with double values
-  else if (!key.compare("Clock_Frequency")) {
-    return new double(std::stod(value));
-  }
+	// Handle attributes with uint64_t values
+	if (!key.compare("CATcos") || !key.compare("CATL3mask")) 
+	{
+		return new long long (std::strtoull((const char *)value.c_str(), NULL, 16));
+	}
+	// Handle attributes with long long values
+	else if (!key.compare("mig_size")) 
+	{
+		return new long long (std::strtoull((const char *)value.c_str(), NULL, 10));
+	}
 
-  // Handle attributes with float values
-  else if (!key.compare("latency") || !key.compare("latency_min") ||
-           !key.compare("latency_max")) {
-    return new float(std::stof(value));
-  }
+	// Handle attributes with int values
+	else if (!key.compare("Number_of_streaming_multiprocessors") ||
+		!key.compare("Number_of_cores_in_GPU") ||
+		!key.compare("Number_of_cores_per_SM") ||
+		!key.compare("Bus_Width_bit")) 
+	{
+		return (new int(std::stoi(value)));
+	}
 
-  // Handle attributes with string values
-  else if (!key.compare("CUDA_compute_capability") ||
-           !key.compare("mig_uuid")) {
-    return new std::string(value);
-  }
+	// Handle attributes with double values
+	else if (!key.compare("Clock_Frequency")) 
+	{
+		return new double(std::stod(value));
+	}
 
-  return NULL; // Attribute not found or not handled
+	// Handle attributes with float values
+	else if (!key.compare("latency") || !key.compare("latency_min") ||
+		!key.compare("latency_max"))
+	{
+		return new float(std::stof(value));
+	}
+
+	// Handle attributes with string values
+	else if (!key.compare("CUDA_compute_capability") ||
+		!key.compare("mig_uuid"))
+	{
+		return new std::string(value);
+	}
+
+	return NULL; // Attribute not found or not handled
 }
+
 // Search for custom complex attributes in xmlNode n and add them to Component c
 //
 // Complex attributes are attributes that have a value that is not a simple type
 // but a more complex structure like a vector
-int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
-  string key;
-  if (xmlHasProp(n, (const xmlChar *)"name")) {
-    key = getStringFromProp(n, "name");
-  }
-  else {
-    return 0;
-  }
-  // freq_history is a vector of tuples containing the timestamp and the
-  // frequency
-  if (!key.compare("freq_history")) {
-    std::vector<std::tuple<long long, double>>* val = new std::vector<std::tuple<long long, double>>();
-    for (xmlNodePtr cur = n->children; cur != NULL; cur = cur->next) {
-      // skip text nodes
-      if (cur->type == XML_TEXT_NODE)
-        continue;
+int sys_sage::_search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
+	std::string key;
+	if (xmlHasProp(n, (const xmlChar *)"name")) 
+	{
+		key = _getStringFromProp(n, "name");
+	}
+	else 
+	{
+		return 0;
+	}
+	// freq_history is a vector of tuples containing the timestamp and the
+	// frequency
+	if (!key.compare("freq_history")) {
+		std::vector<std::tuple<long long, double>>* val = new std::vector<std::tuple<long long, double>>();
+		for (xmlNodePtr cur = n->children; cur != NULL; cur = cur->next) 
+		{
+			// skip text nodes
+			if (cur->type == XML_TEXT_NODE)
+				continue;
 
-      // add value to vector
+			// add value to vector
+			std::string ts = _getStringFromProp(cur, "timestamp");
+			std::string freq = _getStringFromProp(cur, "frequency");
+			long long ts_ll = std::strtoll((const char *)ts.c_str(), NULL, 10);
+			double freq_d = std::stod(freq);
 
-      string ts = getStringFromProp(cur, "timestamp");
-      string freq = getStringFromProp(cur, "frequency");
+			val->push_back(std::make_tuple(ts_ll, freq_d));
+		}
+		c->attrib[key] = (void*) val;
+		return 1;
+	} 
+	else if (!key.compare("GPU_Clock_Rate"))
+	{
+		// GPU_Clock_Rate is a vector of tuples containing the frequency and the unit
+		xmlNodePtr attr = n->children;
+		if(attr->type == XML_TEXT_NODE)
+			attr = attr->next;
 
-      long long ts_ll = std::strtoll((const char *)ts.c_str(), NULL, 10);
-      double freq_d = std::stod(freq);
+		std::string unit = _getStringFromProp(attr, "unit");
+		std::string freq = _getStringFromProp(attr, "frequency");
 
-      val->push_back(std::make_tuple(ts_ll, freq_d));
-    }
-    c->attrib[key] = (void*) val;
-    return 1;
-  } else if (!key.compare("GPU_Clock_Rate")) {
-    // GPU_Clock_Rate is a vector of tuples containing the frequency and the
-    // unit
-    xmlNodePtr attr = n->children;
-    if(attr->type == XML_TEXT_NODE)
-      attr = attr->next;
+		double freq_d = std::stod(freq);
 
-    string unit = getStringFromProp(attr, "unit");
-    string freq = getStringFromProp(attr, "frequency");
+		auto val = new std::tuple<double, std::string>(freq_d, unit); 
+		void *value = (void *)val;
+		c->attrib[key] = value;
 
-    double freq_d = std::stod(freq);
+		return 1;
+	}
 
-    auto val = new std::tuple<double, std::string>(freq_d, unit); 
-    void *value = (void *)val;
-    c->attrib[key] = value;
-
-    return 1;
-  }
-
-  return 0;
+	return 0;
 }
 
 // Collect all attributes and add to Component c
@@ -140,197 +172,265 @@ int search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
 // The attributes are added to the Component c.
 // If the custom functions are not null, they are called first. If they
 // can not handle the attribute, the default functions are used.
-int collect_attrib(xmlNodePtr n, Component *c) {
-  void *attrib_value = NULL;
-  // try custom attribute search function
-  if (a_search_custom_attrib_key_fcn != NULL)
-    attrib_value = a_search_custom_attrib_key_fcn(n);
-  // if custom function could not handle attribute, try default
-  if (attrib_value == NULL)
-    attrib_value = search_default_attrib_key(n);
-  // if attribute was handled, add it to Component
-  if (attrib_value != NULL) {
-    string key = getStringFromProp(n, "name");
-    c->attrib[key] = attrib_value;
-  }
-  int ret = 0;
-  // try custom complex attribute search function
-  if (attrib_value == NULL && a_search_custom_complex_attrib_key_fcn != NULL)
-     ret = a_search_custom_complex_attrib_key_fcn(n, c);
-  // if custom function could not handle attribute, try default
-  if (attrib_value == NULL && ret == 0)
-    return search_default_complex_attrib_key(n, c);
+int sys_sage::_collect_attrib(xmlNodePtr n, Component *c) {
+	void *attrib_value = NULL;
+	// try custom attribute search function
+	if (load_custom_attrib_fcn != NULL)
+		attrib_value = load_custom_attrib_fcn(n);
+	// if custom function could not handle attribute, try default
+	if (attrib_value == NULL)
+		attrib_value = _search_default_attrib_key(n);
+	// if attribute was handled, add it to Component
+	if (attrib_value != NULL) {
+		std::string key = _getStringFromProp(n, "name");
+		c->attrib[key] = attrib_value;
+	}
+	int ret = 0;
+	// try custom complex attribute search function
+	if (attrib_value == NULL && load_custom_complex_attrib_fcn != NULL)
+		ret = load_custom_complex_attrib_fcn(n, c);
+	// if custom function could not handle attribute, try default
+	if (attrib_value == NULL && ret == 0)
+		return _search_default_complex_attrib_key(n, c);
 
-  return 0;
+	return 0;
 }
 
 // Create ComponentSubtree from xmlNodes
 //
 // This function creates a ComponentSubtree from the xmlNode n by creating
 // a Component and then recursively calling itself for all children of n.
-Component *CreateComponentSubtree(xmlNodePtr n, string type) {
-  Component *c = NULL;
+sys_sage::Component* sys_sage::_CreateComponentSubtree(xmlNodePtr n) {
+	Component *c = NULL;
 
-  std::string name = getStringFromProp(n, "name");
-  int id = std::stoi(getStringFromProp(n, "id"));
-  std::string addr = getStringFromProp(n, "addr");
+	std::string nodeName(reinterpret_cast<const char *>(n->name));
+	// cout << "_CreateComponentSubtree nodeName = " << nodeName << endl;
 
-  // Check the type of Component and create the corresponding Component
-  if (type.compare("Memory") == 0) {
-    long long size = 0;
-    bool is_volatile = false;
-    if (xmlHasProp(n, (const xmlChar *)"size")) {
-      string value = getStringFromProp(n, "size");
-      size = std::stoll(value);
-    }
-    if (xmlHasProp(n, (const xmlChar *)"is_volatile")) {
-      string value = getStringFromProp(n, "is_volatile");
-      is_volatile = (std::string(value) == "true");
-    }
-    c = new Memory(NULL, id, name, size, is_volatile);
-  }
-  if (type.compare("Storage") == 0) {
-    // Same as with memory
-    long long size = 0;
-    if (xmlHasProp(n, (const xmlChar *)"size")) {
-      string value = getStringFromProp(n, "size");
-      size = std::stoll(value);
-    }
-    c = new Storage();
-    ((Storage *)c)->SetSize(size);
-  }
-  if (type.compare("Chip") == 0) {
+	// entrypoint is 'Components' -- just scan for a non-'text' child and process that"
+	if(nodeName.compare("Components") == 0)
+	{
+		for (xmlNodePtr xml_child = n->children; xml_child != NULL; xml_child = xml_child->next)
+		{
+			std::string childName(reinterpret_cast<const char *>(xml_child->name));
+			if (childName.compare("text") == 0)
+				continue;
+			else
+				return _CreateComponentSubtree(xml_child);
+		}
+	}
 
-    c = new Chip(id);
-    // check for vendor and model
-    if (xmlHasProp(n, (const xmlChar *)"vendor")) {
-      string value = getStringFromProp(n, "vendor");
-      ((Chip *)c)->SetVendor(value);
-    }
-    if (xmlHasProp(n, (const xmlChar *)"model")) {
-      string model = getStringFromProp(n, "model");
-      ((Chip *)c)->SetModel(model);
-    }
-  }
-  if (type.compare("Cache") == 0) {
+	//from here processing real Components
 
-    c = new Cache(id);
-    if (xmlHasProp(n, (const xmlChar *)"cache_level")) {
-      string value = getStringFromProp(n, "cache_level");
-      ((Cache *)c)->SetCacheLevel(std::stoi(value));
-    }
-    if (xmlHasProp(n, (const xmlChar *)"cache_size")) {
-      string value = getStringFromProp(n, "cache_size");
-      ((Cache *)c)->SetCacheSize(std::stoi(value));
-    }
-    if (xmlHasProp(n, (const xmlChar *)"cache_associativity_ways")) {
-      string value = getStringFromProp(n, "cache_associativity_ways");
-      ((Cache *)c)->SetCacheAssociativityWays(std::stoi(value));
-    }
-    if (xmlHasProp(n, (const xmlChar *)"cache_line_size")) {
-      string value = getStringFromProp(n, "cache_line_size");
-      ((Cache *)c)->SetCacheLineSize(std::stoi(value));
-    }
-  }
-  if (type.compare("Subdivision") == 0) {
-    c = new Subdivision(id);
-    int sd_type = std::stoi(getStringFromProp(n, "type"));
-    
-    ((Subdivision *)c)->SetSubdivisionType(sd_type);
-  }
-  if (type.compare("NUMA") == 0) {
-    c = new Numa(id);
-    if (xmlHasProp(n, (const xmlChar *)"size")) {
-      string value = getStringFromProp(n, "size");
-      ((Numa *)c)->SetSize(std::stoll(value));
-    }
-  }
-  if (type.compare("None") == 0) {
-    c = new Component((id));
-  }
-  if (type.compare("HW_thread") == 0) {
-    c = new Thread(id);
-  }
-  if (type.compare("Core") == 0) {
-    c = new Core(id);
-  }
-  if (type.compare("Node") == 0) {
-    c = new Node(id);
-  }
-  if (type.compare("Topology") == 0) {
-    c = new Topology();
-  }
+	std::string name = _getStringFromProp(n, "name");
+	int id = std::stoi(_getStringFromProp(n, "id"));
+	std::string addr = _getStringFromProp(n, "addr");
 
-  // Recursively traverse all children of n and create Components
-  for (xmlNodePtr cur = n->children; cur != NULL; cur = cur->next) {
-    std::string type(reinterpret_cast<const char *>(cur->name));
+	// Check the type of Component and create the corresponding Component
+	if (nodeName.compare("None") == 0) {
+		c = new Component((id));
+	}
+	if (nodeName.compare("HW_Thread") == 0) {
+		c = new Thread(id);
+	}
+	if (nodeName.compare("Core") == 0) {
+		c = new Core(id);
+	}
+	if (nodeName.compare("Cache") == 0) {
+		c = new Cache(id);
+		if (xmlHasProp(n, (const xmlChar *)"cache_level")) {
+			std::string value = _getStringFromProp(n, "cache_level");
+			((Cache *)c)->SetCacheLevel(std::stoi(value));
+		}
+		if (xmlHasProp(n, (const xmlChar *)"cache_size")) {
+			std::string value = _getStringFromProp(n, "cache_size");
+			((Cache *)c)->SetCacheSize(std::stoi(value));
+		}
+		if (xmlHasProp(n, (const xmlChar *)"cache_associativity_ways")) {
+			std::string value = _getStringFromProp(n, "cache_associativity_ways");
+			((Cache *)c)->SetCacheAssociativityWays(std::stoi(value));
+		}
+		if (xmlHasProp(n, (const xmlChar *)"cache_line_size")) {
+			std::string value = _getStringFromProp(n, "cache_line_size");
+			((Cache *)c)->SetCacheLineSize(std::stoi(value));
+		}
+	}
+	if (nodeName.compare("Subdivision") == 0) {
+		c = new Subdivision(id);
+		int sd_type = std::stoi(_getStringFromProp(n, "type"));
 
-    // Skip Text nodes
-    if (std::string("text").compare(type) == 0)
-      continue;
-    // Check if cur is Attribute-Node
-    if (type.compare("Attribute") == 0) {
-      collect_attrib(cur, c);
-    } else {
-      Component *child = CreateComponentSubtree(cur, type);
-      if (child != NULL) {
-        c->InsertChild(child);
-      }
-    }
-  }
-  // Add the Component to the hashmap
-  addr_to_component[addr] = c;
-  return c;
+		((Subdivision *)c)->SetSubdivisionType(sd_type);
+	}
+	if (nodeName.compare("NUMA") == 0) {
+		c = new Numa(id);
+		if (xmlHasProp(n, (const xmlChar *)"size")) {
+			std::string value = _getStringFromProp(n, "size");
+			((Numa *)c)->SetSize(std::stoll(value));
+		}
+	}
+	if (nodeName.compare("Chip") == 0) {
+		c = new Chip(id);
+		// check for vendor and model
+		if (xmlHasProp(n, (const xmlChar *)"vendor")) {
+			std::string value = _getStringFromProp(n, "vendor");
+			((Chip *)c)->SetVendor(value);
+		}
+		if (xmlHasProp(n, (const xmlChar *)"model")) {
+			std::string model = _getStringFromProp(n, "model");
+			((Chip *)c)->SetModel(model);
+		}
+	}
+	if (nodeName.compare("Memory") == 0) {
+		long long size = 0;
+		bool is_volatile = false;
+		if (xmlHasProp(n, (const xmlChar *)"size")) {
+			std::string value = _getStringFromProp(n, "size");
+			size = std::stoll(value);
+		}
+		if (xmlHasProp(n, (const xmlChar *)"is_volatile")) {
+			std::string value = _getStringFromProp(n, "is_volatile");
+			is_volatile = (std::string(value) == "true");
+		}
+		c = new Memory(NULL, id, name, size, is_volatile);
+	}
+	if (nodeName.compare("Storage") == 0) {
+		// Same as with memory
+		long long size = 0;
+		if (xmlHasProp(n, (const xmlChar *)"size")) {
+			std::string value = _getStringFromProp(n, "size");
+			size = std::stoll(value);
+		}
+		c = new Storage();
+		((Storage *)c)->SetSize(size);
+	}
+	if (nodeName.compare("Node") == 0) {
+		c = new Node(id);
+	}
+	if (nodeName.compare("QuantumBackend") == 0) {
+		c = new QuantumBackend(id);
+	}
+	if (nodeName.compare("Qubit") == 0) {
+		c = new Qubit(id);
+	}
+	if (nodeName.compare("Topology") == 0) {
+		c = new Topology();
+	}
+
+	// Recursively traverse all children of n and create Components
+	for (xmlNodePtr xml_child = n->children; xml_child != NULL; xml_child = xml_child->next)
+	{
+		std::string childName(reinterpret_cast<const char *>(xml_child->name));
+
+		// Skip Text nodes
+		if (childName.compare("text") == 0)
+			continue;
+		// Check if cur is Attribute-Node
+		if (childName.compare("Attribute") == 0) {
+			_collect_attrib(xml_child, c);
+		} else {
+			Component *child = _CreateComponentSubtree(xml_child);
+			// cout << "nodeName = " << nodeName << "   childName = " << childName << ", childPtr = " << child << endl;
+			if (child != NULL) {
+				c->InsertChild(child);
+			}
+		}
+	}
+	// Add the Component to the hashmap
+	addr_to_component[addr] = c;
+	return c;
 }
 
-// Create DataPath objects from xmlNode dpNode and add them to the
+// Create Relation objects from xmlNode dpNode and add them to the
 // corresponding Components
-int CreateDataPaths(xmlNodePtr dpNode) {
+int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 
-  for (xmlNodePtr cur = dpNode->children; cur != NULL; cur = cur->next) {
+	// cout << "_CreateRelations name = " << relationNode->name << endl; 
+	for (xmlNodePtr xml_child = relationNode->children; xml_child != NULL; xml_child = xml_child->next) {
 
-    // skip non-element nodes
-    if (cur->type != XML_ELEMENT_NODE)
-      continue;
-    string src = getStringFromProp(cur, "source");
-    string trg = getStringFromProp(cur, "target");
-    int oriented = std::stoi(getStringFromProp(cur, "oriented"));
-    int dp_type = std::stoi(getStringFromProp(cur, "dp_type"));
-    double bw = std::stod(getStringFromProp(cur, "bw"));
-    double latency = std::stod(getStringFromProp(cur, "latency"));
+		// skip non-element nodes
+		if (xml_child->type != XML_ELEMENT_NODE)
+			continue;
 
-    // get source and target Components from hashmap
-    Component *src_c = addr_to_component[src];
-    Component *trg_c = addr_to_component[trg];
-    // Datapath constructor adds dp to Component-objects. Also handles
-    // bidirectional relations
-    new DataPath(src_c, trg_c, oriented, dp_type, bw, latency);
-  }
-  return 1;
+		std::string childName(reinterpret_cast<const char *>(xml_child->name));
+		// cout << "_CreateRelations childName = " << childName << endl;
+
+		int component_index = 0;
+		std::vector<Component*> components;
+		while(xmlHasProp(xml_child, (const xmlChar *)("component" + std::to_string(component_index)).c_str()))
+		{
+			std::string c_str = _getStringFromProp(xml_child, "component" + std::to_string(component_index));
+			Component *c = addr_to_component[c_str];
+			components.push_back(c);
+			component_index++;
+		}
+		std::string ordered_str = _getStringFromProp(xml_child, "ordered");
+		bool ordered = (ordered_str == "1");
+		int id = std::stoi(_getStringFromProp(xml_child, "id"));
+
+
+		if (childName.compare("Relation") == 0)
+		{
+			new Relation(components, id, ordered);
+		}
+		if (childName.compare("DataPath") == 0)
+		{
+			int dataPathType = std::stoi(_getStringFromProp(xml_child, "DataPathType"));
+			double bw = std::stod(_getStringFromProp(xml_child, "bw"));
+			double latency = std::stod(_getStringFromProp(xml_child, "latency"));
+			DataPathOrientation::type dpo = (ordered ? DataPathOrientation::Oriented : DataPathOrientation::NotOriented);
+
+			new DataPath(components[0], components[1], dpo, dataPathType, bw, latency);
+		}
+		if (childName.compare("QuantumGate") == 0)
+		{
+			int gate_size = std::stoi(_getStringFromProp(xml_child, "gate_size"));
+			std::string name = _getStringFromProp(xml_child, "name");
+			int gate_length = std::stoi(_getStringFromProp(xml_child, "gate_length"));
+			QuantumGateType::type gate_type = std::stoi(_getStringFromProp(xml_child, "gate_type"));
+			double fidelity = std::stod(_getStringFromProp(xml_child, "fidelity"));
+			std::string unitary = _getStringFromProp(xml_child, "unitary");
+
+			new QuantumGate(components, id, ordered, gate_size, name, gate_length, gate_type, fidelity, unitary);
+		}
+		if (childName.compare("CouplingMap") == 0)
+		{
+			CouplingMap* cm = new CouplingMap(components, id, ordered);
+
+			double fidelity = std::stod(_getStringFromProp(xml_child, "fidelity"));
+			cm->SetFidelity(fidelity);
+		}		
+	}
+	return 1;
 }
 
-Component *importFromXml(
-    string path,
-    std::function<void*(xmlNodePtr)> _search_custom_attrib_key_fcn,
-    std::function<int(xmlNodePtr, Component *)>
-        _search_custom_complex_attrib_key_fcn) {
+sys_sage::Component* sys_sage::importFromXml(
+	std::string path,
+	std::function<void*(xmlNodePtr)> _load_custom_attrib_fcn,
+	std::function<int(xmlNodePtr, Component *)> _load_custom_complex_attrib_fcn) 
+{
 
-  a_search_custom_attrib_key_fcn = _search_custom_attrib_key_fcn;
-  a_search_custom_complex_attrib_key_fcn = _search_custom_complex_attrib_key_fcn;
+	load_custom_attrib_fcn = _load_custom_attrib_fcn;
+	load_custom_complex_attrib_fcn = _load_custom_complex_attrib_fcn;
 
-  xmlInitParser();
-  xmlDocPtr doc = xmlReadFile(path.c_str(), NULL, 0);
-  xmlNodePtr sys_sage_root = xmlDocGetRootElement(doc);
+	xmlInitParser();
+	xmlDocPtr doc = xmlReadFile(path.c_str(), NULL, 0);
+	xmlNodePtr sys_sage_root = xmlDocGetRootElement(doc);
+	// cout << "sys_sage_root->name = " << sys_sage_root->name << endl;
 
-  xmlNodePtr root = sys_sage_root->children;
-  xmlNodePtr r = root->next;
+	xmlNodePtr n = sys_sage_root->children;
 
-  Component *c = CreateComponentSubtree(r->children->next, "Topology");
+	Component *c = NULL;
+	for (xmlNodePtr n = sys_sage_root->children; n != NULL; n = n->next) {
+		if (xmlStrcmp(n->name, (const xmlChar *)"text") == 0) {
+			//do nothing
+		}
+		else if (xmlStrcmp(n->name, (const xmlChar *)"Components") == 0) {
+			c = _CreateComponentSubtree(n);
+		}
+		else if (xmlStrcmp(n->name, (const xmlChar *)"Relations") == 0) {
+			_CreateRelations(n);
+		}
+	}
 
-  xmlNodePtr dp_root = r->next->next;
-
-  CreateDataPaths(dp_root);
-
-  return c;
-}
+	return c;
+	}
 

@@ -26,6 +26,8 @@
 
 ////////////////////////////////////////////////////////////////////////
 
+using namespace sys_sage;
+
 using namespace std;
 using namespace std::chrono;
 
@@ -91,7 +93,7 @@ int main(int argc, char *argv[]) {
         if(getcpu(&myCpu, &myNuma) != 0){
             cerr << "getcpu failed" << endl; return 1;
         }
-        Thread * t = (Thread*)n->FindSubcomponentById(myCpu, SYS_SAGE_COMPONENT_THREAD);//find current hw thread in sys-sage
+        Thread * t = (Thread*)n->FindSubcomponentById(myCpu, sys_sage::ComponentType::Thread);//find current hw thread in sys-sage
         if(t==NULL){
             cerr << "HW thread " << myCpu << "not found in sys-sage" << endl; return 1;
         }
@@ -103,10 +105,10 @@ int main(int argc, char *argv[]) {
         while(c->GetParent() != NULL){
             //go up until L3 found
             c = c->GetParent();
-            if(c->GetComponentType() == SYS_SAGE_COMPONENT_CACHE && ((Cache*)c)->GetCacheLevel() == 3)
+            if(c->GetComponentType() == sys_sage::ComponentType::Cache && ((Cache*)c)->GetCacheLevel() == 3)
                 break;
         };
-        if(c==NULL || c->GetComponentType() != SYS_SAGE_COMPONENT_CACHE){
+        if(c==NULL || c->GetComponentType() != sys_sage::ComponentType::Cache){
             cerr << "L3 cache not found" << endl; return 1;
         }
         long long available_L3_size = ((Cache*)c)->GetCacheSize();
