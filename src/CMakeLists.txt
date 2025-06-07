@@ -6,6 +6,7 @@ configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/sr
 
 include_directories(external_interfaces)
 set(EXT_INTF "external_interfaces")
+set(PY_BINDS "python-bindings")
 
 set(SOURCES
     Component.cpp
@@ -31,6 +32,7 @@ set(SOURCES
     ${EXT_INTF}/intel_pqos.cpp
     ${EXT_INTF}/proc_cpuinfo.cpp
     ${EXT_INTF}/nvidia_mig.cpp
+    #${PY_BINDS}/sys-sage-bindings.cpp
     parsers/hwloc.cpp
     parsers/caps-numa-benchmark.cpp
     parsers/mt4g.cpp
@@ -71,51 +73,97 @@ set(HEADERS
     parsers/iqm-parser.hpp
     )
 
-add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
+# add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
-# For Quantum Systems
-if(QDMI)
-    target_link_libraries(sys-sage PUBLIC
-      backend_ibm
-      qdmi
-      qinfo
-      )
+if(PY_SYS_SAGE)
+    # find_package(Python 3.13 COMPONENTS Interpreter Development REQUIRED)
+    link_directories(${PYTHON_LIBRARY_DIRS})
+    include_directories(${PYTHON_INCLUDE_DIRS})
+    set(PYBIND11_FINDPYTHON ON)
+    # find_package(pybind11 CONFIG REQUIRED)
+    # Get Python site-packages path
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_paths().get('purelib', ''))"
+        OUTPUT_VARIABLE PYTHON_SITE
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    #set install directory of the python library
+    if(CMAKE_INSTALL_PREFIX STREQUAL "")
+        # use install prefix if result is empty
+        if(PYTHON_SITE STREQUAL "")
+            set(PYTHON_SITE "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
+            message(WARNING "PYTHON_SITE was empty, falling back to: ${PYTHON_SITE}")
+        # else()
+            # message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
+        endif()
+    else()
+        set(PYTHON_SITE "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
+        # message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
+    endif()
+
+    # set(PY_BINDS ${CMAKE_SOURCE_DIR}/src/python-bindings)
+    message(STATUS "PY_BINDS=${PY_BINDS}")
+
+    # This builds a Python extension module (NOT a regular .so/.dylib)
+    pybind11_add_module(sys_sage MODULE ${PY_BINDS}/sys-sage-bindings.cpp ${SOURCES} ${HEADERS})
+    target_link_libraries(sys_sage PUBLIC ${PYTHON_LIBRARIES} pybind11::module)
+    target_link_libraries(sys_sage PUBLIC nlohmann_json::nlohmann_json)
+    install(
+        TARGETS sys_sage
+        LIBRARY DESTINATION ${PYTHON_SITE}       # For Unix-like systems
+        RUNTIME DESTINATION ${PYTHON_SITE}       # For Windows (safe to include)
+    )
+    message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
+
 endif()
+#else()
 
-target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
+    add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
-target_include_directories(sys-sage 
-    PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
-            $<INSTALL_INTERFACE:inc>
-            $<INSTALL_INTERFACE:lib>
-)
+    # For Quantum Systems
+    if(QDMI)
+        target_link_libraries(sys-sage PUBLIC
+            backend_ibm
+            qdmi
+            qinfo
+        )
+    endif()
 
-install(
-    TARGETS sys-sage
-    EXPORT sys-sage-targets 
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib/cmake/lib
-    ARCHIVE DESTINATION lib/cmake/lib
-)
-#for spack
-install(
-    EXPORT sys-sage-targets 
-    FILE sys-sage-targets.cmake
-    DESTINATION lib/cmake/sys-sage
-    NAMESPACE sys-sage::
-)
-install(DIRECTORY "."
-    DESTINATION lib/cmake/inc
-    FILES_MATCHING PATTERN "*.hpp")
+    target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
 
-install(
-    TARGETS sys-sage
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-)
-install(DIRECTORY "."
-    DESTINATION inc
-    FILES_MATCHING PATTERN "*.hpp")
+    target_include_directories(sys-sage PUBLIC  
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
+        $<INSTALL_INTERFACE:inc>
+        $<INSTALL_INTERFACE:lib>
+    )
+    install(
+        TARGETS sys-sage
+        EXPORT sys-sage-targets
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib/cmake/lib
+        ARCHIVE DESTINATION lib/cmake/lib
+    )
+    #for spack
+    install(
+        EXPORT sys-sage-targets
+        FILE sys-sage-targets.cmake
+        DESTINATION lib/cmake/syssage
+        NAMESPACE syssage::
+    )
+    install(DIRECTORY "."
+        DESTINATION lib/cmake/inc
+        FILES_MATCHING PATTERN "*.hpp")
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+    install(
+        TARGETS sys-sage
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+    )
+    install(DIRECTORY "."
+        DESTINATION inc
+        FILES_MATCHING PATTERN "*.hpp")
+
+#endif()
+

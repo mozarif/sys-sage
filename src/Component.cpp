@@ -19,6 +19,23 @@
 #include "CouplingMap.hpp"
 
 #include <algorithm>
+#include <csignal>
+
+// Component::~Component() { 
+//     DeleteAllDataPaths();
+//     if(GetParent() != NULL)
+//         GetParent()->RemoveChild(this);
+//     else{
+//         while(children.size() > 0)
+//         {
+//             RemoveChild(children[0]);
+//             children[0]->SetParent(NULL);
+//         }
+//     }
+//     for(auto& pair : this->attrib){
+//         //TODO: delete attribs somehow
+//     }
+//  }
 
 using std::string;
 using std::vector;
@@ -665,7 +682,7 @@ void sys_sage::Component::DeleteSubtree() const
     while(children.size() > 0)
     {       
         children[0]->Delete(true); // Recursively free children
-    }    
+    }
     return;
 }
 void sys_sage::Component::Delete(bool withSubtree)

@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <stdexcept>
 
-
 #include "Component.hpp"
 
 using std::cout;
