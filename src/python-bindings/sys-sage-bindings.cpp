@@ -297,8 +297,8 @@ PYBIND11_MODULE(sys_sage, m) {
 
     //bind component class
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
-        .def(py::init<int, std::string, int>(), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
-        .def(py::init<Component *, int, std::string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown", py::arg("type") = SYS_SAGE_COMPONENT_NONE)
+        .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "unknown")
+        .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown")
         .def("__setitem__", [](Component& self, const std::string& name, py::object value) {
             set_attribute(self,name, value);
         })
@@ -329,29 +329,29 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetChildById", &Component::GetChildById, py::arg("id"), "Get the first child component by id")
         .def("GetChildByType", &Component::GetChildByType, py::arg("type"), "Get the first child component by type")
         //vector<Component*> as input doesnt work
-        .def("GetAllChildrenByType", (void (Component::*)(vector<Component*> *, int)) &Component::GetAllChildrenByType, py::arg("children"), py::arg("type"), "Get all child components by type")
-        .def("GetAllChildrenByType", (vector<Component*> (Component::*)(int))(&Component::GetAllChildrenByType), py::arg("type"), "Get all child components by type")
+        .def("GetAllChildrenByType", (void (Component::*)(std::vector<Component*> *, int) const) &Component::GetAllChildrenByType, py::arg("children"), py::arg("type"), "Get all child components by type")
+        .def("GetAllChildrenByType", (std::vector<Component*> (Component::*)(int) const)(&Component::GetAllChildrenByType), py::arg("type"), "Get all child components by type")
         .def("GetSubcomponentById", &Component::GetSubcomponentById, "Get the first sub component by id")
-        .def("GetAllSubcomponentsByType", (void (Component::*)(vector<Component*> *, int))(&Component::GetAllSubcomponentsByType), py::arg("subcomponents"), py::arg("type"), "Get the first sub component by type")
-        .def("GetAllSubcomponentsByType", (vector<Component*> (Component::*)(int))(&Component::GetAllSubcomponentsByType),py::arg("type") ,"Get all sub components by type")
+        .def("GetAllSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, int))(&Component::GetAllSubcomponentsByType), py::arg("subcomponents"), py::arg("type"), "Get the first sub component by type")
+        .def("GetAllSubcomponentsByType", (std::vector<Component*> (Component::*)(int))(&Component::GetAllSubcomponentsByType),py::arg("type") ,"Get all sub components by type")
         .def("CountAllSubcomponents", &Component::CountAllSubcomponents, "Count all sub components")
         .def("CountAllSubcomponentsByType", &Component::CountAllSubcomponentsByType, py::arg("type"),"Count sub components by type")
         .def("CountChildrenByType", &Component::CountAllChildrenByType,py::arg("type"),"Count children by type")
         .def("GetAncestorByType", &Component::GetAncestorByType, py::arg("type"),"Get the first ancestor component by type")
         .def("GetSubtreeDepth", &Component::GetSubtreeDepth, "Get the depth of the subtree")
         .def("GetNthAncestor", &Component::GetNthAncestor, py::arg("n"),"Get the nth ancestor of the component")
-        .def("GetNthDescendents", (void (Component::*)(vector<Component*> *, int))&Component::GetNthDescendents,py::arg("descendents"), py::arg("n"),"Get all the nth descendents of the component")
-        .def("GetNthDescendents", (vector<Component*> (Component::*)(int))&Component::GetNthDescendents,py::arg("n"),"Get all the nth descendents of the component")
-        .def("GetSubcomponentsByType", (void (Component::*)(vector<Component*> *, int))&Component::GetSubcomponentsByType,py::arg("subcomponents"), py::arg("type"),"Get all the sub components of the component by type")
-        .def("GetSubcomponentsByType", (vector<Component*> (Component::*)(int))&Component::GetSubcomponentsByType,py::arg("type"),"Get all the sub components of the component by type")
-        .def("GetComponentsInSubtree", (void (Component::*)(vector<Component*> *))&Component::GetComponentsInSubtree,py::arg("components"),"Get all the components in the subtree of the component")
-        .def("GetComponentsInSubtree", (vector<Component*> (Component::*)())&Component::GetComponentsInSubtree,"Get all the components in the subtree of the component")
+        .def("GetNthDescendents", (void (Component::*)(std::vector<Component*> *, int))&Component::GetNthDescendents,py::arg("descendents"), py::arg("n"),"Get all the nth descendents of the component")
+        .def("GetNthDescendents", (std::vector<Component*> (Component::*)(int))&Component::GetNthDescendents,py::arg("n"),"Get all the nth descendents of the component")
+        .def("GetSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, int))&Component::GetSubcomponentsByType,py::arg("subcomponents"), py::arg("type"),"Get all the sub components of the component by type")
+        .def("GetSubcomponentsByType", (std::vector<Component*> (Component::*)(int))&Component::GetSubcomponentsByType,py::arg("type"),"Get all the sub components of the component by type")
+        .def("GetComponentsInSubtree", (void (Component::*)(std::vector<Component*> *))&Component::GetComponentsInSubtree,py::arg("components"),"Get all the components in the subtree of the component")
+        .def("GetComponentsInSubtree", (std::vector<Component*> (Component::*)())&Component::GetComponentsInSubtree,"Get all the components in the subtree of the component")
         .def("GetSubcomponentById", &Component::GetSubcomponentById, py::arg("id"),py::arg("type"),"Get the first sub component by id and type")
-        .def("GetDataPaths", &Component::GetDataPaths,py::arg("orientation"),"Get all the data paths associated with the component")
-        .def("AddDataPath", &Component::AddDataPath,py::arg("datapath"), py::arg("orientation"),"Add a data path to the component")
+        // .def("GetDataPaths", &Component::GetDataPaths,py::arg("orientation"),"Get all the data paths associated with the component")
+        // .def("AddDataPath", &Component::AddDataPath,py::arg("datapath"), py::arg("orientation"),"Add a data path to the component")
         .def("GetDataPathByType", &Component::GetDataPathByType, py::arg("type"), py::arg("orientation"),"Get the first data path associated with the component by type")
-        .def("GetAllDataPathsByType", (void (Component::*)(vector<DataPath*> *, int, int))&Component::GetAllDataPathsByType, py::arg("datapaths"), py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
-        .def("GetAllDataPathsByType", (vector<DataPath*> (Component::*)(int, int)) &Component::GetAllDataPathsByType,py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
+        // .def("GetAllDataPathsByType", (void (Component::*)(std::vector<DataPath*> *, int, int))&Component::GetAllDataPathsByType, py::arg("datapaths"), py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
+        // .def("GetAllDataPathsByType", (std::vector<DataPath*> (Component::*)(int, int)) &Component::GetAllDataPathsByType,py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
         .def("CheckComponentTreeConsistency", &Component::CheckComponentTreeConsistency,"Check if the component tree is consistent")
         .def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),"Get the size of the topology")
         .def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*, std::set<DataPath*>*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),py::arg("datapaths_counted"),"Get the size of the topology")
@@ -361,8 +361,8 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("DeleteSubtree", &Component::DeleteSubtree,"Delete the subtree of the component")
         .def("Delete", &Component::Delete,py::arg("withSubtree") = true,"Delete the component")
         .def("__bool__",[](Component& self){
-            std::vector<Component*>* children = self.GetChildren();
-            return !children->empty();
+            std::vector<Component*> children = self.GetChildren();
+            return !children.empty();
         })
         .def("__repr__", [](Component& self) {
             //TODO: add more info
@@ -415,8 +415,8 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("cacheAssociativity", &Cache::GetCacheAssociativityWays, &Cache::SetCacheAssociativityWays, "The associativity of the cache")
         .def_property("cacheLineSize", &Cache::GetCacheLineSize, &Cache::SetCacheLineSize, "The line size of the cache");
     py::class_<Subdivision, std::unique_ptr<Subdivision, py::nodelete>, Component>(m, "Subdivision")
-        .def(py::init<int,std::string, int>(), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
-        .def(py::init<Component*,int,std::string, int>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision", py::arg("componentType") = 16)
+        .def(py::init<int,std::string>(), py::arg("id") = 0, py::arg("name") = "Subdivision")
+        .def(py::init<Component*,int,std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision")
         .def_property("subdivisionType", &Subdivision::GetSubdivisionType, &Subdivision::SetSubdivisionType, "The type of the subdivision");
     py::class_<Numa,std::unique_ptr<Numa, py::nodelete>, Subdivision>(m, "Numa")
         .def(py::init<int, long long>(), py::arg("id") = 0, py::arg("size") = -1)
