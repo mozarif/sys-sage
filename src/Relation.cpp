@@ -8,8 +8,8 @@
 using std::cout;
 using std::endl;
 
-sys_sage::Relation::Relation(int _relation_type): type(_relation_type) {}
-sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id, bool _ordered, int _relation_type): id(_id), ordered(_ordered), type(_relation_type)
+sys_sage::Relation::Relation(RelationType::type _relation_type): type(_relation_type) {}
+sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id, bool _ordered, RelationType::type _relation_type): id(_id), ordered(_ordered), type(_relation_type)
 {
     for (Component* c : components) {
         AddComponent(c);
@@ -83,7 +83,7 @@ void sys_sage::Relation::Delete()
     }
     delete this;
 }
-int sys_sage::Relation::GetType() const{ return type;}
+RelationType::type sys_sage::Relation::GetType() const{ return type;}
 std::string sys_sage::Relation::GetTypeStr() const
 {
     std::string ret(sys_sage::RelationType::ToString(type));
