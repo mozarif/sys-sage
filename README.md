@@ -2,19 +2,62 @@
 
 # sys-sage
 
-sys-sage is a library for capturing and manipulating hardware topology of compute systems.
+**sys-sage** is a C++ library and toolkit for capturing, representing, and analyzing the hardware topology of compute systems.
+It provides a unified, extensible interface to query, store, and manipulate hardware information from diverse sources, supporting both classical HPC and emerging quantum computing environments.
 
-It is currently under development, so there may be breaking changes in the API in the future.
+## Overview
+
+**sys-sage** aims to provide a unified abstraction for hardware topology, making it easier to develop portable and extensible tools for system introspection, resource management, and performance analysis. It is designed for both traditional HPC and quantum-accelerated systems, without making a strict distinction between the two.
+
+### Features
+
+- **Unified Hardware Topology Representation:** Abstracts CPUs, GPUs, QPUs, accelerators, memory, and more.
+- **Multi-Source Data Integration:** Gathers and merges data from various sources -- some of them already available out-of-the-box (e.g., hwloc), others can easily be created by the user using the API.
+- **Extensible Parser System:** Easily add new data sources or custom parsers.
+- **Rich C++ API:** Query, traverse, and manipulate system topology programmatically.
+- **Support for Classical HPC and HPCQC:** Designed for HPC, extensible to quantum and hybrid systems.
+<!-- - **Comprehensive Documentation:** Includes guides, API reference, and practical examples. -->
+
 
 ## Documentation
 
 The documentation is available [here](https://stepanvanecek.github.io/sys-sage/html/index.html).
 
+<!-- - [Installation Guide](docs/Installation_Guide.md)
+- [Concepts & Architecture](docs/Concept.md)
+- [Usage Examples](docs/Usage.md)
+- [Data Parsers](docs/Data_Parsers.md)
+- [API Reference (Doxygen)](docs/html/index.html) -->
+
+## Usage
+
+```cpp
+#include <iostream>
+
+#include "sys-sage.hpp"
+using namespace sys_sage;
+
+int main(int argc, char *argv[])
+{
+    Node* n = new Node(1);
+    parseHwlocOutput(n, <hwloc_xml_dump_path>);
+    std::cout << "Total num HW threads: " << n->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread) << std::endl;
+
+    std::cout << "---------------- Printing the whole tree ----------------" << std::endl;
+    n->PrintSubtree();
+
+    n->Delete(true);
+    return 0;
+}
+```
+
+Refer to `examples/` for more showcases of how to use sys-sage.
+
 ## Installation
 
 Please refer to the [Installation Guide](https://stepanvanecek.github.io/sys-sage/html/md__installation__guide.html) for more information.
 
-The recommended installation is through spack, alternatively, sys-sage can be built from the sources.
+The recommended installation is through spack. Alternatively, sys-sage can be built from the sources.
 
 ### Installation with spack
 ```bash
@@ -26,8 +69,16 @@ spack install sys-sage
 
 #### Basic dependencies
 
-- cmake (3.22 or newer)
-- libxml2 (tested with 2.9.13)
+- cmake (3.22+)
+- libxml2 (2.9.13+)
+- nlohmann-json (3.11+)
+
+#### Build option-specific dependencies
+
+- cuda (11+, only when building with the **NVIDIA_MIG** option)
+- libpqos (11+, only when building with the **INTEL_CAT** option)
+- numactl (only when building **caps-numa-benchmark data source**)
+- hwloc (2.9+, only when building **hwloc data source**)
 
 #### Building from sources
 
