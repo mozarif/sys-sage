@@ -24,49 +24,54 @@ namespace sys_sage { //forward declaration
 
 namespace sys_sage {
     //SVTODO make sure parameters such as ComponentType are of the correct type
-    //SVTODO split component.hpp and datapath.hpp into different classes
 
     /**
-    Generic class Component - all components inherit from this class, i.e. this class defines attributes and methods common to all components.
-    \n Therefore, these can be used universally among all components. Usually, a Component instance would be an instance of one of the child classes, but a generic component (instance of class Component) is also possible.
-    */
+     * @class Component
+     * @brief Generic class for all hardware and logical components in sys-sage.
+     *
+     * All components inherit from this class, which defines attributes and methods common to all components.
+     * This enables a unified interface for tree traversal, querying, and manipulation.
+     * Usually, a Component instance is one of the derived subclasses, but a generic Component is also possible.
+     */
     class Component {
     public:
         /**
-        Generic Component constructor (no automatic insertion in the Component Tree). Usually one of the derived subclasses for different Component Types will be created. Sets:
-        @param _id = id, default 0
-        @param _name = name, default "unknown"
-        @param _componentType = componentType, default sys_sage::ComponentType::None
-        */
-        //SVDOCTODO
+         * @brief Generic Component constructor (no automatic insertion in the Component Tree).
+         * Usually one of the derived subclasses for different Component Types will be created, not this one.
+         * @param _id Numeric ID of the component (default 0)
+         * @param _name Name of the component (default "unknown")
+         *
+         * Sets componentType to sys_sage::ComponentType::None.
+         */
         Component(int _id = 0, std::string _name = "unknown");
         /**
-        Generic Component constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Usually one of the derived subclasses for different Component Types will be created. Sets:
-        @param parent = the parent 
-        @param _id = id, default 0
-        @param _name = name, default "unknown"
-        @param _componentType = componentType, default sys_sage::ComponentType::None
-        */
-        //SVDOCTODO
+         * @brief Generic Component constructor with insertion into the Component Tree as the parent's child.
+         * Usually one of the derived subclasses for different Component Types will be created.
+         * @param parent Pointer to the parent component
+         * @param _id Numeric ID of the component (default 0)
+         * @param _name Name of the component (default "unknown")
+         *
+         * Sets componentType to sys_sage::ComponentType::None.
+         */
         Component(Component * parent, int _id = 0, std::string _name = "unknown");
         //SVTODO reevaluate the delete vs destructor
-        //SVDOCTODO update the doc accordingly to "reevaluate the delete vs destructor"
         /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
+         * @private
+         * @brief Use Delete() or DeleteSubtree() for deleting and deallocating the components.
+         */
         virtual ~Component() = default;
         /**
-        Inserts a Child component to this component (in the Component Tree).
-        The child pointer will be inserted at the end of std::vector of children (retrievable through GetChildren(), GetChild(int _id) etc.)
-        @param child - a pointer to a Component (or any class instance that inherits from Component).
-        @see GetChildren()
-        @see GetChild(int _id)
-        */
+         * @brief Inserts a child component to this component (in the Component Tree).
+         * The child pointer will be inserted at the end of the children vector.
+         * @param child Pointer to a Component (or any class instance that inherits from Component).
+         * @see GetChildren()
+         * @see GetChild(int _id)
+         */
         void InsertChild(Component * child);
         
         /**
-         * Inserts this component between a parent and one of its children. The parent component remains the parent, this Component becomes a new child of the parent, and the specified child becomes this component's child.
+         * @brief Inserts this component between a parent and one of its children.
+         * The parent component remains the parent, this Component becomes a new child of the parent, and the specified child becomes this component's child.
          * @param parent The parent component to which this component will be inserted as a child.
          * @param child The child component that will become the child of this component and will remain a descendant of the original parent.
          * @param alreadyParentsChild A boolean flag indicating whether this component is already a child of the parent. 
@@ -80,7 +85,8 @@ namespace sys_sage {
         int InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild);
         
         /**
-         * Inserts this component between a parent and a (subset of) his children. The parent component remains parent, this Component becomes a new child, and the children become parent's grandchildren.
+         * @brief Inserts this component between a parent and a (subset of) its children. 
+         * The parent component remains parent, this Component becomes a new child, and the children become parent's grandchildren.
          * @param parent The parent component to which this component will be inserted as a child.
          * @param children A vector of child components that will become the children of this component and the grandchildren of the original parent.
          * @param alreadyParentsChild A boolean flag indicating whether this component is already a child of the parent. 
@@ -98,305 +104,308 @@ namespace sys_sage {
         @param child - child to remove
         @return how many elements were deleted (normally, 0 or 1 should be possible)
         */
+        /**
+         * @brief Removes the passed component from the list of children, without completely deleting (and deallocating) the child itself
+         * @param child Child to remove
+         * @return Number of elements deleted (normally 0 or 1)
+         */
         int RemoveChild(Component * child);
         /**
-        Define a parent to the component. This is usually used when inserting a component in the tree (by calling InsertChild on the parent, and calling SetParent on the child).
-        @param parent - a pointer to a Component (or any class instance that inherits from Component).
-        @see InsertChild()
-        */
+         * @brief Set a parent to the component.
+         * This is usually used when inserting a component in the tree (by calling InsertChild on the parent, and calling SetParent on the child).
+         * @param parent Pointer to a Component (or any class instance that inherits from Component).
+         * @see InsertChild()
+         */
         void SetParent(Component* parent);
         /**
-        Prints the whole subtree of this component (including the component itself) to stdout. The tree is printed in DFS order, so that the hierarchy can be easily seen. Each child is indented by "  ".
-        For each component in the subtree, the following is printed: "<string component type> (name <name>) id <id> - children: <num children>
-        */
+         * @brief Prints the whole subtree of this component (including the component itself) to stdout.
+         * The tree is printed in DFS order, so that the hierarchy can be easily seen. Each child is indented by "  ".
+         * For each component in the subtree, the following is printed: "<string component type> (name <name>) id <id> - children: <num children>
+         */
         void PrintSubtree() const;
 
         /**
-        @private
-        Helper function of PrintSubtree();, which ensures the proper indentation. Using PrintSubtree(); is recommended, however this method can be used as well.
-        @param level - number of "  " to print out in front of the first component.
-        @see PrintSubtree();
-        */
+         * @private
+         * @brief Helper function for PrintSubtree(), ensures proper indentation.
+         * Using PrintSubtree() is recommended, but this can be used for custom indentation.
+         * @param level Number of "  " to print before the component.
+         * @see PrintSubtree()
+         */
         void _PrintSubtree(int level) const;
         /**
-         * OBSOLETE. Use PrintAllRelationsInSubtree instead. This function will be removed in the future.
-         * 
-        Prints to stdout basic information about all DataPaths that go either from or to the components in the subtree.
-        \n For each component, all outgoing and incoming DataPaths are printed, i.e. a DataPath may be printed twice.
-        */
+         * @deprecated Use PrintAllRelationsInSubtree instead. This function will be removed in the future.
+         * @brief Prints all DataPaths that go from or to components in the subtree.
+         * @see PrintAllRelationsInSubtree( RelationType::type RelationType = RelationType::Any)
+         * @note This function is deprecated and will be removed in the future. Use PrintAllRelationsInSubtree instead.
+         */
         [[deprecated("Use PrintAllRelationsInSubtree instead. This function will be removed in the future.")]]
         void PrintAllDataPathsInSubtree();
-        //SVDOCTODO
-        //SVDOCTODO similar doc to PrintAllDataPathsInSubtree but not obsolete
+        /**
+         * @brief Prints all Relations in the subtree.
+         * @param RelationType Filter by relation type (default: Any)
+         */
         void PrintAllRelationsInSubtree(RelationType::type RelationType = RelationType::Any);
         /**
-        Returns name of the component.
-        @return name
-        @see name
-        */
+         * @brief Returns name of the component.
+         * @return Name
+         * @see name
+         */
         const std::string& GetName() const;
         /**
-        Sets name of the component.
-        @param _name - name of the component
-        @see name
-        */
+         * @brief Sets name of the component.
+         * @param _name Name of the component
+         * @see name
+         */
         void SetName(std::string _name);
         /**
-        Returns id of the component.
-        @return id
-        @see id
-        */
+         * @brief Returns id of the component.
+         * @return id
+         * @see id
+         */
         int GetId() const;
         /**
-        Returns component type of the component. The component type denotes of which class the instance is (Often the components are stored as Component*, even though they are a member of one of the child classes)
-        \n SYS_SAGE_COMPONENT_NONE -> class Component
-        \n SYS_SAGE_COMPONENT_THREAD -> class Thread
-        \n SYS_SAGE_COMPONENT_CORE -> class Core
-        \n SYS_SAGE_COMPONENT_CACHE -> class Cache
-        \n SYS_SAGE_COMPONENT_SUBDIVISION -> class Subdivision
-        \n SYS_SAGE_COMPONENT_NUMA -> class Numa
-        \n SYS_SAGE_COMPONENT_CHIP -> class Chip
-        \n SYS_SAGE_COMPONENT_MEMORY -> class Memory
-        \n SYS_SAGE_COMPONENT_STORAGE -> class Storage
-        \n SYS_SAGE_COMPONENT_NODE -> class Node
-        \n SYS_SAGE_COMPONENT_TOPOLOGY -> class Topology
-        @returns componentType
-        @see componentType
-        */
-        //SVDOCTODO
+         * @brief Returns component type of the component.
+         * The component type denotes which class the instance is (often stored as Component*, even though they are a member of one of the child classes).
+         * @return componentType (of type sys_sage::ComponentType::type)
+         * @see componentType
+         */
         sys_sage::ComponentType::type GetComponentType() const;
         /**
-        Returns component type in human-readable string.
-        \n SYS_SAGE_COMPONENT_NONE -> "None"
-        \n SYS_SAGE_COMPONENT_THREAD -> "HW_thread"
-        \n SYS_SAGE_COMPONENT_CORE -> "Core"
-        \n SYS_SAGE_COMPONENT_CACHE -> "Cache"
-        \n SYS_SAGE_COMPONENT_SUBDIVISION -> "Subdivision"
-        \n SYS_SAGE_COMPONENT_NUMA -> "NUMA"
-        \n SYS_SAGE_COMPONENT_CHIP -> "Chip"
-        \n SYS_SAGE_COMPONENT_MEMORY -> "Memory"
-        \n SYS_SAGE_COMPONENT_STORAGE -> "Storage"
-        \n SYS_SAGE_COMPONENT_NODE -> "Node"
-        \n SYS_SAGE_COMPONENT_TOPOLOGY -> "Topology"
-        @returns string component type
-        @see componentType
-        */
-        //SVDOCTODO
+         * @brief Returns component type as a human-readable string, as defined in ComponentType::names.
+         * @return String representation of the component type.
+         * @see componentType
+         */
         std::string GetComponentTypeStr() const;
         /**
-        Returns a pointer to std::vector containing all children of the component (empty vector if no children) .
-        @returns std::vector<Component *> * with children
-        */
+         * @brief Returns a const reference to std::vector containing all children of the component (empty vector if no children).
+         * @return const std::vector<Component *> & with children
+         */
         const std::vector<Component*>& GetChildren() const;
-        //SVDOCTODO private
+        /**
+         * @private
+         * @brief Returns a non-const reference to the children vector (internal use).
+         */
         std::vector<Component*>& _GetChildren();
         /**
-        Returns Component pointer to parent (or NULL if this component is the root)
-        */
+         * @brief Returns Component pointer to parent (or NULL if this component is the root)
+         */
         Component* GetParent() const;
         /**
-        Identical to GetChildById
-        Retrieve a Component* to a child with child.id=_id.
-        \n Should there be more children with the same id, the first match will be retrieved (i.e. the one with lower index in the children array.)
-        @see GetChildById
+        * @brief Retrieve a Component* to a child with child.id=_id.
+        * Identical to GetChildById
+        * \n Should there be more children with the same id, the first match will be retrieved (i.e. the one with lower index in the children array.)
+        * @see GetChildById
         */
         Component* GetChild(int _id) const;
 
         /**
-        Retrieve a Component* to a child with child.id=_id.
-        \n Should there be more children with the same id, the first match will be retrieved (i.e. the one with lower index in the children array.)
+        * @brief Retrieve a Component* to a child with child.id=_id.
+        * Should there be more children with the same id, the first match will be retrieved (i.e. the one with lower index in the children array.)
         */
         Component* GetChildById(int _id) const;
 
         /**
-        Retrieve a Component* to a child matching the given component type.
-        \n Should there be more children with the same type, the first match will be retrieved (i.e. the one with lower index in the children array.)
+        * @brief Retrieve a Component* to a child matching the given component type.
+        * Should there be more children with the same type, the first match will be retrieved (i.e. the one with lower index in the children array.)
+        * @param _componentType Component type to match
+        * @return Pointer to the first matching child, or nullptr if not found
         */
-        Component* GetChildByType(int _componentType) const;
+        Component* GetChildByType(ComponentType::type _componentType) const;
+        /**
+         * @brief Searches for all children matching the given component type.
+         * @param _componentType Required type of components
+         * @return Vector of all matching children
+         */
+        std::vector<Component*> GetAllChildrenByType(ComponentType::type _componentType) const;
 
         /**
-         * Searches for all the children matching the given component type.
-         * 
-         * @param _componentType - Required type of components
-         * @returns A vector of all the children matching the _componentType
-        */
-        std::vector<Component*> GetAllChildrenByType(int _componentType) const;
-
-        /**
-         * Searches for all the children matching the given component type.
+         * @brief Searches for all the children matching the given component type.
          * 
          * @param _componentType - Required type of components
          * @param outArray - output parameter (vector with results)
             \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
         */
-        void GetAllChildrenByType(std::vector<Component *> *_outArray, int _componentType) const;
+        void GetAllChildrenByType(std::vector<Component *> *_outArray, ComponentType::type _componentType) const;
         /**
-        Searches the subtree to find a component with a matching id and componentType, i.e. looks for a certain component with a matching ID. The search is a DFS. The search starts with the calling component.
-        \n Returns first occurence that matches these criteria.
-        @param _id - the id to look for
-        @param _componentType - the component type where to look for the id
-        @return Component * matching the criteria. Returns the first match. NULL if no match found
+        * @brief Searches the subtree to find a component with a matching id and componentType, i.e. looks for a certain component with a matching ID. The search is a DFS. The search starts with the calling component.
+        * @return Returns first occurence that matches these criteria.
+        * @param _id - the id to look for
+        * @param _componentType - the component type where to look for the id
+        * @return Component * matching the criteria. Returns the first match. NULL if no match found
         */
-        Component* GetSubcomponentById(int _id, int _componentType);
-        
+        Component* GetSubcomponentById(int _id, ComponentType::type _componentType);
+
         /**
-         * Searches for all the subcomponents (children, their children and so on) matching the given component type.
+         * @brief Searches for all the subcomponents (children, their children and so on) matching the given component type.
          * 
          * @param _componentType - Required type of components
          * @param outArray - output parameter (vector with results)
             \n An input is pointer to a std::std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
         */
-        void GetAllSubcomponentsByType(std::vector<Component*>* outArray, int _componentType);
-        
+        void GetAllSubcomponentsByType(std::vector<Component*>* outArray, ComponentType::type _componentType);
+
         /**
-         * Searches for all the subcomponents (children, their children and so on) matching the given component type.
+         * @brief Searches for all the subcomponents (children, their children and so on) matching the given component type.
          * 
          * @param _componentType - Required type of components.
          * @returns A vector of all the subcomponents matching the _componentType.
         */
-        std::vector<Component*> GetAllSubcomponentsByType(int _componentType);
-        
+        std::vector<Component*> GetAllSubcomponentsByType(ComponentType::type _componentType);
+
         /**
-        Counts number of subcomponents (children, their children and so on).
-        @return Returns number of subcomponents.
-        */
+         * @brief Counts number of subcomponents (children, grandchildren, etc.).
+         * @return Number of subcomponents
+         */
         int CountAllSubcomponents() const;
         
         /**
-        Counts number of subcomponents (children, their children and so on) matching the requested component type.
-        @param _componentType - Component type to look for.
-        @return Returns number of subcomponents matching the requested component type.
-        */
-        int CountAllSubcomponentsByType(int _componentType) const;
+         * @brief Counts number of subcomponents (children, their children and so on) matching the requested component type.
+         * @param _componentType - ComponentType to look for.
+         * @return Returns number of subcomponents matching the requested component type.
+         */
+        int CountAllSubcomponentsByType(ComponentType::type _componentType) const;
 
         /**
-        Counts number of children matching the requested component type.
+        * @brief Counts number of children matching the requested component type.
+        * @param _componentType - ComponentType to look for.
+        * @return Returns number of children matching the requested component type.
+        */
+        int CountAllChildrenByType(ComponentType::type _componentType) const;
 
-        @param _componentType - Component type to look for.
-        @return Returns number of children matching the requested component type.
-        */
-        int CountAllChildrenByType(int _componentType) const;
-        
         /**
-        Moves up the tree until a parent of given type.
-        @param _componentType - the desired component type
-        @return Component * matching the criteria. NULL if no match found
-        */
-        Component* GetAncestorByType(int _componentType);
+         * @brief Moves up the tree until a parent of the given type is found.
+         * @param _componentType Desired component type
+         * @return Pointer to the ancestor, or nullptr if not found
+         */
+        Component* GetAncestorByType(ComponentType::type _componentType);
         /**
-        Retrieves maximal distance to a leaf (i.e. the depth of the subtree).
-        \n 0=leaf, 1=children are leaves, 2=at most children's children are leaves .....
-        @return maximal distance to a leaf
-        */
+         * @brief Retrieves maximal distance to a leaf (i.e. the depth of the subtree).
+         * 0=leaf, 1=children are leaves, 2=at most children's children are leaves .....
+         * @return maximal distance to a leaf
+         */
         int GetSubtreeDepth() const;//0=empty, 1=1element,...
-        
+
         /**
-        Retrieves Nth ancestor, which resides N levels above. 
-        \n E.g. if n=1, the parent is retrieved; if n=2, the grandparent is retrieved and so on.
-        @param n - how many levels above the tree should be looked.
-        @returns The ancestor residing N levels above.
+         * @brief Retrieves Nth ancestor, which resides N levels above.
+         * E.g. if n=1, the parent is retrieved; if n=2, the grandparent is retrieved and so on.
+         * @param n - how many levels above the tree should be looked.
+         * @returns The ancestor residing N levels above.
         */
         Component* GetNthAncestor(int n);
 
         /**
-        Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. The tree is traversed in order as the children are stored in std::vector children.
-        \n E.g. if depth=1, only children of the current are retrieved; if depth=2, only children of the children are retrieved..
-        @param depth - how many levels down the tree should be looked
-        @param outArray - output parameter (vector with results)
-            \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
-            \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
-        */
+         * @brief Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. The tree is traversed in order as the children are stored in std::vector children.
+         * E.g. if depth=1, only children of the current are retrieved; if depth=2, only children of the children are retrieved..
+         * @param depth - how many levels down the tree should be looked
+         * @param outArray - output parameter (vector with results)
+         *   An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
+         *   The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
+         */
         void GetNthDescendents(std::vector<Component*>* outArray, int depth);
 
         /**
-        Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. The tree is traversed in order as the children are stored in the std::vector.
-        \n E.g. if depth=1, only children of the current are retrieved; if depth=2, only children of the children are retrieved..
-        @param depth - how many levels down the tree should be looked
-        @return A std::std::vector<Component*> with the results.
-        */
+         * @brief Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. 
+         * The tree is traversed in order as the children are stored in the std::vector.
+         * E.g. if depth=1, only children of the current are retrieved; if depth=2, only children of the children are retrieved..
+         * @param depth - how many levels down the tree should be looked
+         * @return A std::vector<Component*> with the results.
+         */
         std::vector<Component*> GetNthDescendents(int depth);
 
         /**
-        Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. The tree is traversed DFS in order as the children are stored in each std::vector children.
-        @param componentType - componentType
-        @param outArray - output parameter (vector with results)
-            \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
-            \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
-        */
+         * @brief Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. 
+         * The tree is traversed DFS in order as the children are stored in each std::vector children.
+         * @param componentType - componentType
+         * @param outArray - output parameter (vector with results)
+         *   An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
+         *   The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
+         */
         void GetSubcomponentsByType(std::vector<Component*>* outArray, int componentType);
 
         /**
-        Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. The tree is traversed DFS in order as the children are stored in the std::vector.
-        @param componentType - componentType
-        @return A std::vector<Component*> with the results.
-        */
-        std::vector<Component*> GetSubcomponentsByType(int _componentType);
-        
-        /** 
-        Retrieves a std::vector of Component pointers, which form the subtree (current node and all the subcomponents) of this.
-        @param outArray - output parameter (vector with results)
-            \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
-            \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
-        */
+         * @brief Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. 
+         * The tree is traversed DFS in order as the children are stored in the std::vector.
+         * @param componentType - componentType
+         * @return A std::vector<Component*> with the results.
+         */
+        std::vector<Component*> GetSubcomponentsByType(ComponentType::type _componentType);
+
+        /**
+         * @brief Retrieves a std::vector of Component pointers, which form the subtree (current node and all the subcomponents) of this.
+         * @param outArray - output parameter (vector with results)
+         *   An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
+         *   The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
+         */
         void GetComponentsInSubtree(std::vector<Component*>* outArray);
 
-        /**  
-        Retrieves a std::vector of Component pointers, which form the subtree (current node and all the subcomponents) of this.
-        @return A std::vector<Component*> with the results.
-        */
+        /**
+         * @brief Retrieves a std::vector of Component pointers, which form the subtree (current node and all the subcomponents) of this.
+         * @return A std::vector<Component*> with the results.
+         */
         std::vector<Component*> GetComponentsInSubtree();
 
-        //SVDOCTODO
-        //SVDOCTODO mention FindAllRelationsBy as an alternative
-        //SVDOCTODO this one just returns a pointer to the internal structure -- the object already exists and is managed (deleted) by sys-sage
-        //SVDOCTODO mention that std::vector<Relation*>& x = _GetRelations(type); returns a reference (to manipulate with the object) and std::vector<Relation*> x = _GetRelations(type); returns a copy
+        /**
+         * @brief Returns a (const) reference to the internal vector of relations for a given type.
+         * @param relationType Type of relation (see RelationType for available types). Only use specific Relation Types, not RelationType::Any (you will get an empty vector).
+         * @return const std::vector<Relation*>& (reference to internal structure)
+         * @note The vector is const so that the Relations of a Component cannot be manipulated this way. Use new Relation()/DeleteRelation() to modify the list of Relations, or access the Relations' API directly.
+         * @see FindAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) as an alternative offering more flexibility at the price of increased overhead through generating a new output vector.
+         */
         const std::vector<Relation*>& GetRelations(RelationType::type relationType) const;
-        //SVDOCTODO 
-        //SVDOCTODO is private, should not be called
-        //SVDOCTODO mention that std::vector<Relation*>& x = _GetRelations(type); returns a reference (to manipulate with the object) and std::vector<Relation*> x = _GetRelations(type); returns a copy
+        /**
+         * @private
+         * @brief Returns a non-const reference to the internal vector of relations (should not be called externally -- you can break things).
+         * @param relationType Type of relation
+         * @return std::vector<Relation*>& (reference to internal structure)
+         * @see public alternative GetRelations(RelationType::type relationType) const
+         */
         std::vector<Relation*>& _GetRelations(RelationType::type relationType) const;
-        //SVDOCTODO 
-        //SVDOCTODO is this a good name?
-        //SVDOCTODO mention GetRelations as an alternative
-        //SVDOCTODO returns a newly-constructed vector, so the user can do anything with it
-        //SVDOCTODO this method creates a new vector and fills it with data; returns a new vector
+
+        /**
+         * @brief Returns a newly-constructed vector of all relations of a given type and position.
+         * @param relationType Type of relation (default: Any)
+         * @param thisComponentPosition Position of this component in the relation (default: -1 = do NOT care about position)
+         * @return Vector of matching relations (copy, not reference)
+         * @see getRelations(RelationType::type relationType) const as an alternative that returns a reference to the internal structure, i.e. has less overhead.
+         */
         std::vector<Relation*> GetAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) const;
         /**
-        @private
-        Only called by Relation's int Relation::AddComponent(Component* c), Relation::UpdateComponent
-        */
-        void _AddRelation(int32_t relationType, Relation* r);
+         * @private
+         * @brief Only called by Relation's AddComponent/UpdateComponent.
+         * @param relationType Type of relation
+         * @param r Pointer to the relation
+         */
+        void _AddRelation(RelationType::type relationType, Relation* r);
+
         /**
-        Retrieves a DataPath * from the list of this component's data paths with matching type and orientation.
-        \n The first match is returned -- first SYS_SAGE_DATAPATH_OUTGOING are searched, then SYS_SAGE_DATAPATH_INCOMING.
-        @param type - DataPath type (type) to search for
-        @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
-        @return DataPath pointer to the found data path; NULL if nothing found.
-        */
+         * @brief Retrieves a DataPath* from the list of this component's data paths with matching DataPathType and DataPathDirection.
+         * The first match is returned.
+         * @param dp_type DataPath type to search for
+         * @param direction Orientation (default: Any)
+         * @return Pointer to the found DataPath, or nullptr if not found
+         */
         DataPath* GetDataPathByType(DataPathType::type dp_type, DataPathDirection::type direction = DataPathDirection::Any) const;
         
-        //SVDOCTODO new parameters, new name
         /**
-        Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
-        Results are returned in std::vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
-        @param type - DataPath type (type) to search for.
-        @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
-        @param outDpArr - output parameter (vector with results)
-            \n An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
-            \n The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
-        */
+         * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation.
+         * Results are returned in std::vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
+         * @param outDpArr - output parameter (vector with results)
+         * An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
+         * The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
+         * @param dp_type DataPath type to search for (default: Any)
+         * @param direction Orientation/direction of a DataPath (default: Any)
+         */
         void GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
-        //SVDOCTODO new parameters, new name
         /**
-        Retrieves all DataPath * from the list of this component's data paths with matching type and orientation.
-        Results are returned in a std::vector<DataPath*>*, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
-        @param dp_type - DataPath type (dp_type) to search for.
-        @param orientation - orientation of the DataPath (SYS_SAGE_DATAPATH_OUTGOING or SYS_SAGE_DATAPATH_INCOMING or a logical or of these)
-        @return A std::vector<DataPath*> with the results.
-        */
+         * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation/direction.
+         * Results are returned in a std::vector<DataPath*>*.
+         * @param dp_type DataPath type to search for (default: Any)
+         * @param direction Orientation (default: Any)
+         * @return Vector of matching DataPaths
+         */
         std::vector<DataPath*> GetAllDataPaths(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
@@ -411,58 +420,65 @@ namespace sys_sage {
         The function returns the total number of errors found in the component tree, including errors in the direct children and any nested descendants.
         */
         int CheckComponentTreeConsistency() const;
-        //SVDOCTODO
         /**
-        Calculates approximate memory footprint of the subtree of this element (including the relevant data paths).
-        @param out_component_size - output parameter (contains the footprint of the component tree elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
-        @param out_dataPathSize - output parameter (contains the footprint of the data-path graph elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
-        @return The total size in bytes
-        */
+         * @brief Calculates approximate memory footprint of the subtree of this element (including the relevant Relations).
+         * @param out_component_size output parameter (contains the footprint of the component tree elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
+         * @param out_dataPathSize output parameter (contains the footprint of the data-path graph elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
+         * @return The total size in bytes
+         */
         int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize) const;
         /**
-        //SVDOCTODO
-        @private
-        Helper function of int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize); -- normally you would call this one.
-        \n Calculates approximate memory footprint of the subtree of this element (including the relevant data paths). Does not count DataPaths stored in counted_dataPaths.
-        @param out_component_size - output parameter (contains the footprint of the component tree elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
-        @param out_dataPathSize - output parameter (contains the footprint of the data-path graph elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
-        @param counted_dataPaths - std::set<DataPath*>* of data paths that should not be counted
-        @return The total size in bytes
-        @see GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize);
-        */
+         * @private
+         * Helper function of int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize); -- normally you would call this one.
+         * \n Calculates approximate memory footprint of the subtree of this element (including the relevant data paths). Does not count DataPaths stored in counted_dataPaths.
+         * @param out_component_size - output parameter (contains the footprint of the component tree elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
+         * @param out_dataPathSize - output parameter (contains the footprint of the data-path graph elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
+         * @param counted_dataPaths - std::set<DataPath*>* of data paths that should not be counted
+         * @return The total size in bytes
+         * @see GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize);
+         */
         int _GetTopologySize(unsigned * out_component_size, unsigned * out_RelationSize, std::set<Relation*>* countedRelations) const;
 
         /**
-         * Retrieves the depth (level) of a component in the topology.
-         * @param refresh - Boolean value, if true: recalculate the position (depth) of the component in the tree,
-         *                  if false, return the already stored value
-         * @return The depth (level) of a component in the topology
+         * @brief Retrieves the depth (level) of a component in the topology.
+         * @param refresh If true, recalculate the position (depth) of the component in the tree; if false, return the already stored value
+         * @return Depth (level) of the component in the topology
          * @see depth
-        */
+         */
         int GetDepth(bool refresh);
 
         /**
-        @private
-        !!Should normally not be used!! Helper function of XML dump generation.
-        @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
-        */
+         * @private
+         * @brief Helper for XML dump generation.
+         * Should normally not be used directly. Used internally for exporting the topology to XML.
+         * @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL)
+         * @return Pointer to the created XML subtree node.
+         */
         virtual xmlNodePtr _CreateXmlSubtree();
         
-        //SVDOCTODO
+        /**
+         * @brief Deletes a Relation from this component as well as the Relation itself.
+         * @param r Pointer to the relation to delete
+         * @see Relation/DataPath/QuantumGate Delete()
+         */
         void DeleteRelation(Relation * r);
         /**
-         * [[deprecated("Use void DeleteRelation(Relation * r) instead.")]]
-        Deletes and de-allocates the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of the Components.
-        @param dp - DataPath to Delete
-        */
+         * @deprecated Use void DeleteRelation(Relation * r) instead.
+         * @brief Deletes and deallocates the DataPath pointer from the list of outgoing/incoming DataPaths.
+         * @param dp DataPath to delete
+         */
         [[deprecated("DeleteDataPath is deprecated. Use void DeleteRelation(Relation * r) instead.")]]
         void DeleteDataPath(DataPath * dp);
 
+        /**
+         * @brief Deletes all relations of this component (optionally filtered by type).
+         * @param relationType Relation type to delete (default: Any)
+         */
         void DeleteAllRelations(RelationType::type relationType = RelationType::Any);
         /**
-         * [[deprecated("Use void DeleteAllRelations(int32_t relationType = sys_sage::RelationType::Any) instead.")]]
-         * Deletes all DataPaths of this component.
-        */
+         * @deprecated Use void DeleteAllRelations(int32_t relationType = sys_sage::RelationType::Any) instead.
+         * @brief Deletes all DataPaths of this component.
+         */
         [[deprecated("DeleteAllDataPaths is deprecated. Use void DeleteAllRelations(int32_t relationType = sys_sage::RelationType::Any) instead.")]]
         void DeleteAllDataPaths();
         /**
@@ -470,10 +486,10 @@ namespace sys_sage {
         */
         void DeleteSubtree() const;
         /**
-        Deletes a component, its children (if withSubtree = true) and all the associated data paths.
-        If only the component itself is deleted, its children are inserted into its parent's children list.
-        @param withSubtree - if true, the whole subtree is deleted, otherwise only the component itself.
-        */
+         * @brief Deletes a component, its children (if withSubtree = true), and all associated Relations.
+         * If only the component itself is deleted, its children are inserted into its parent's children list.
+         * @param withSubtree If true, the whole subtree is deleted; otherwise only the component itself.
+         */
         void Delete(bool withSubtree = true);
 
         /**
@@ -552,48 +568,40 @@ namespace sys_sage {
         
     protected:
         /**
-        Generic Component constructor (no automatic insertion in the Component Tree). Usually one of the derived subclasses for different Component Types will be created. Sets:
-        @param _id = id, default 0
-        @param _name = name, default "unknown"
-        @param _componentType = componentType, default sys_sage::ComponentType::None
-        */
-        //SVDOCTODO
+         * @brief Protected constructor for derived classes (no automatic insertion in the Component Tree).
+         * @param _id Numeric ID of the component
+         * @param _name Name of the component
+         * @param _componentType Component type (of type sys_sage::ComponentType::type)
+         */
         Component(int _id, std::string _name, ComponentType::type _componentType);
+
         /**
-        Generic Component constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Usually one of the derived subclasses for different Component Types will be created. Sets:
-        @param parent = the parent 
-        @param _id = id, default 0
-        @param _name = name, default "unknown"
-        @param _componentType = componentType, default sys_sage::ComponentType::None
-        */
-        //SVDOCTODO
+         * @brief Protected constructor for derived classes with insertion into the Component Tree.
+         * @param parent Pointer to the parent component
+         * @param _id Numeric ID of the component
+         * @param _name Name of the component
+         * @param _componentType Component type (of type sys_sage::ComponentType::type)
+         */
         Component(Component * parent, int _id, std::string _name, ComponentType::type _componentType);
 
-        int id; /**< Numeric ID of the component. There is no requirement for uniqueness of the ID, however it is advised to have unique IDs at least in the realm of parent's children. Some tree search functions, which take the id as a search parameter search for first match, so the user is responsible to manage uniqueness in the realm of the search subtree (or should be aware of the consequences of not doing so). Component's ID is set by the constructor, and is retrieved via int GetId(); */
+        int id; /**< Numeric ID of the component. There is no requirement for uniqueness of the ID, however it is advised to have unique IDs at least in the realm of parent's children (siblings). Some tree search functions, which take the id as a search parameter search for first match, so the user is responsible to manage uniqueness in the realm of the search subtree (or should be aware of the consequences of not doing so). Component's ID is set by the constructor, and is retrieved via int GetId(); */
         int depth; /**< Depth (level) of the Component in the Component Tree */
         std::string name; /**< Name of the component (as a std::string). */
         int count{-1}; /**< Can be used to represent multiple Components with the same properties. By default, it represents only 1 component, and is set to -1. */
-        //SVDOCTODO old values
         /**
-        Component type of the component. The component type denotes of which class the instance is (Often the components are stored as Component*, even though they are a member of one of the child classes)
-        \n This attribute is constant, set by the constructor, and READONLY.
-        \n SYS_SAGE_COMPONENT_NONE -> class Component
-        \n SYS_SAGE_COMPONENT_THREAD -> class Thread
-        \n SYS_SAGE_COMPONENT_CORE -> class Core
-        \n SYS_SAGE_COMPONENT_CACHE -> class Cache
-        \n SYS_SAGE_COMPONENT_SUBDIVISION -> class Subdivision
-        \n SYS_SAGE_COMPONENT_NUMA -> class Numa
-        \n SYS_SAGE_COMPONENT_CHIP -> class Chip
-        \n SYS_SAGE_COMPONENT_MEMORY -> class Memory
-        \n SYS_SAGE_COMPONENT_STORAGE -> class Storage
-        \n SYS_SAGE_COMPONENT_NODE -> class Node
-        \n SYS_SAGE_COMPONENT_TOPOLOGY -> class Topology
-        */
+        Component type of the component. The component type denotes of which class the instance is (often the components are stored as Component*, even though they are a member of one of the child classes)
+        Component type is constant, set by constructor, readonly. 
+        It can be of types as listed in ComponentType::type (which is user-extensible).*/
         const ComponentType::type componentType;
         std::vector<Component*> children; /**< Contains the list (std::vector) of pointers to children of the component in the component tree. */
-        Component* parent { nullptr }; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be NULL.*/
+        Component* parent { nullptr }; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be nullptr.*/
         
-        //SVDOCTODO
+        /**
+         * Contains a list (std::array) of different Relation types. 
+         * Initially nullptr, it is allocated on the first call to AddRelation() or new Relation().
+         * The array size is RelationType::_num_relation_types, which is defined in RelationType.
+         * Each element of the array is a pointer to a std::vector<Relation*> that contains all Relations of that type. (also lazy-allocated)
+         */
         std::array<std::vector<Relation*>*, RelationType::_num_relation_types>* relations = nullptr;
     };
 

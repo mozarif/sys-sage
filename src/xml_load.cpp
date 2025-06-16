@@ -376,7 +376,7 @@ int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 			int dataPathType = std::stoi(_getStringFromProp(xml_child, "DataPathType"));
 			double bw = std::stod(_getStringFromProp(xml_child, "bw"));
 			double latency = std::stod(_getStringFromProp(xml_child, "latency"));
-			DataPathOrientation::type dpo = (ordered ? DataPathOrientation::Oriented : DataPathOrientation::NotOriented);
+			DataPathOrientation::type dpo = (ordered ? DataPathOrientation::Oriented : DataPathOrientation::Bidirectional);
 
 			new DataPath(components[0], components[1], dpo, dataPathType, bw, latency);
 		}

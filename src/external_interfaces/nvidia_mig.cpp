@@ -67,7 +67,7 @@ int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
             }
         }
 
-        d = new DataPath(this, m, DataPathOrientation::NotOriented, DataPathType::MIG);
+        d = new DataPath(this, m, DataPathOrientation::Bidirectional, DataPathType::MIG);
         std::string* mig_uuid = new std::string(uuid);
         mig_size = new long long(attributes.memorySizeMB*1000000);
         d->attrib.insert({"mig_uuid",(void*)mig_uuid});
@@ -94,7 +94,7 @@ int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
     if(num_caches > 0){
         int cache_id = 0;
         for(Cache* c : L2_caches){
-            DataPath * d = new DataPath(this, c, DataPathOrientation::NotOriented, DataPathType::MIG);
+            DataPath * d = new DataPath(this, c, DataPathOrientation::Bidirectional, DataPathType::MIG);
             std::string* mig_uuid = new std::string(uuid);
             mig_size = new long long();
             *mig_size = c->GetCacheSize() * ( (float)num_caches/(float)L2_fraction-(float)cache_id/(float)num_caches);
@@ -119,7 +119,7 @@ int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
     }
     for(Subdivision* sm: sms){
         if(sm->GetId() < (int)attributes.multiprocessorCount){
-            DataPath * d = new DataPath(this, sm, DataPathOrientation::NotOriented, DataPathType::MIG);
+            DataPath * d = new DataPath(this, sm, DataPathOrientation::Bidirectional, DataPathType::MIG);
             std::string* mig_uuid = new std::string(uuid);
             d->attrib.insert({"mig_uuid",(void*)mig_uuid});
         }

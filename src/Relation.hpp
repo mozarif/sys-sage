@@ -51,6 +51,8 @@ namespace sys_sage {
          * @param components List of pointers to participating Components.
          * @param _id Optional unique ID for the relation.
          * @param _ordered Whether the order of components carries semantic meaning.
+         *
+         * The type of the relation is set to sys_sage::RelationType::Relation.
          */
         Relation(const std::vector<Component*>& components, int _id = 0, bool _ordered = true);
         /**
@@ -65,8 +67,7 @@ namespace sys_sage {
         int GetId() const;
         /**
          * @brief Get the type of the relation.
-         * @return The current type of the relation (as an int).
-         * @note Consider replacing with RelationType for type safety.
+         * @return The current type of the relation (as sys_sage::RelationType::type).
          */
         RelationType::type GetType() const;
         /**
@@ -146,6 +147,8 @@ namespace sys_sage {
          * @private
          * @brief Serialize this relation to XML.
          * @return A libxml node representing the relation.
+         *
+         * Should normally not be used directly. Used internally for exporting the relation to XML.
          */
         virtual xmlNodePtr _CreateXmlEntry();
         /**
@@ -164,28 +167,35 @@ namespace sys_sage {
         /**
          * @private
          * @brief Protected constructor for internal use. Makes sure that the relation type is set correctly.
+         * @param _relation_type The type of the relation (see RelationType::type).
          */
         Relation(RelationType::type _relation_type);
         /**
          * @private
          * @brief Protected constructor for internal use. Makes sure that the relation type is set correctly.
+         * @param components List of pointers to participating Components.
+         * @param _id Optional unique ID for the relation.
+         * @param _ordered Whether the order of components carries semantic meaning.
+         * @param _relation_type The type of the relation (see RelationType::type).
          */
         Relation(const std::vector<Component*>& components, int _id, bool _ordered, RelationType::type _relation_type);
 
-        /// Whether order in the component list is meaningful
+        /**
+         * @brief Whether order in the component list is meaningful.
+         */
         bool ordered;
         /**
          * @brief The id of the relationship.
-         * 
+         *
          * This member variable stores the unique identifier for the relationship.
          */
         int id;
         /**
-         * @brief The type of the relationship.
-         * 
+         * @brief The type of the relationship (see RelationType::type).
+         *
          * This member variable stores the type or category of the relationship.
          */
-        int type;
+        RelationType::type type;
         /**
          * @brief A vector of components associated with the relationship.
          * 

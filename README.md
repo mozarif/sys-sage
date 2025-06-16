@@ -35,12 +35,11 @@ The documentation is available [here](https://stepanvanecek.github.io/sys-sage/h
 #include <iostream>
 
 #include "sys-sage.hpp"
-using namespace sys_sage;
 
 int main(int argc, char *argv[])
 {
-    Node* n = new Node(1);
-    parseHwlocOutput(n, <hwloc_xml_dump_path>);
+    sys_sage::Node* n = new sys_sage::Node(1);
+    sys_sage::parseHwlocOutput(n, <hwloc_xml_dump_path>);
     std::cout << "Total num HW threads: " << n->CountAllSubcomponentsByType(sys_sage::ComponentType::Thread) << std::endl;
 
     std::cout << "---------------- Printing the whole tree ----------------" << std::endl;

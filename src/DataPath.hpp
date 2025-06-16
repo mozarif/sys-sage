@@ -9,124 +9,132 @@ namespace sys_sage { //forward declaration
 
 namespace sys_sage {
     /**
-    Class DataPath represents Data Paths in the topology -- Data Paths represent an arbitrary relation (or data movement) between two Components from the Component Tree.
-    \n Data Paths create a Data-Path graph, which is a structure orthogonal to the Component Tree.
-    \n Each Component contains a reference to all Data Paths going to or from this components (as well as parents and children in the Component Tree). Using these references, it is possible to navigate between the Components and to view the data stores in the Components or the Data Paths.
-    */
+     * @class DataPath
+     * @brief Represents a data path (arbitrary relation or data movement) between two Components in the topology.
+     *
+     * DataPaths form a data-path graph, which is orthogonal to the Component Tree. Each Component contains references
+     * to all DataPaths going to or from it, in addition to its parent and children in the Component Tree. This enables
+     * navigation between Components and access to data stored in Components or DataPaths.
+     *
+     * DataPaths can be oriented (directed) or bidirectional, and can carry additional information such as bandwidth,
+     * latency, and user-defined types. They are essential for modeling memory hierarchies, interconnects, and other
+     * logical or physical data flows in heterogeneous systems.
+     */
     class DataPath : public Relation {
 
     public:
-        //SVDOCTODO
         /**
-        DataPath constructor.
-        @param _source - pointer to the source Component. (If _oriented == SYS_SAGE_DATAPATH_BIDIRECTIONAL, there is no difference between _source and _target)
-        @param _target - pointer to the target Component.
-        @param _oriented - is the Data Path oriented? (SYS_SAGE_DATAPATH_ORIENTED = oriented DP; SYS_SAGE_DATAPATH_BIDIRECTIONAL = NOT oriented DP)
-        @param _type - (optional parameter) Denotes type of the Data Path -- helps to distinguish Data Paths carrying different type of information. The value is user-defined. If not specified, the Data Path will have type SYS_SAGE_DATAPATH_TYPE_NONE.
-            \n Predefined types: SYS_SAGE_DATAPATH_TYPE_NONE, SYS_SAGE_DATAPATH_TYPE_LOGICAL, SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_TYPE_L3CAT. Each user can define an arbitrary type as an integer value > 1024
+         * @brief DataPath constructor.
+         * @param _source Pointer to the source Component. (If _oriented == DataPathOrientation::Bidirectional, there is no difference between _source and _target)
+         * @param _target Pointer to the target Component.
+         * @param _oriented Is the Data Path oriented? (DataPathOrientation::Oriented = oriented DP; DataPathOrientation::Bidirectional = NOT oriented DP)
+         * @param _dp_type (optional) Type of the Data Path (user-defined, default: DataPathType::None).
+         *        Predefined types: DataPathType::None, DataPathType::Logical, DataPathType::Physical, DataPathType::Datatransfer, DataPathType::L3CAT, DataPathType::MIG, DataPathType::C2C .
+         *        Each user can define an arbitrary type in the DataPathType namespace.
         */
         DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathType::type _dp_type = sys_sage::DataPathType::None);
-        //SVDOCTODO
         /**
-        DataPath constructor. DataPath type is set to SYS_SAGE_DATAPATH_TYPE_NONE.
-        @param _source - pointer to the source Component. (If _oriented == SYS_SAGE_DATAPATH_BIDIRECTIONAL, there is no difference between _source and _target)
-        @param _target - pointer to the target Component.
-        @param _oriented - is the Data Path oriented? (SYS_SAGE_DATAPATH_ORIENTED = oriented DP; SYS_SAGE_DATAPATH_BIDIRECTIONAL = NOT oriented DP)
-        @param _bw - bandwidth from the source(provides the data) to the target(requests the data)
-        @param _latency - Data load latency from the source(provides the data) to the target(requests the data)
-        */
+         * @brief DataPath constructor. DataPath type is set to DataPathType::None.
+         * @param _source Pointer to the source Component. (If _oriented == DataPathOrientation::Bidirectional, there is no difference between _source and _target)
+         * @param _target Pointer to the target Component.
+         * @param _oriented Is the Data Path oriented? (DataPathOrientation::Oriented = oriented DP; DataPathOrientation::Bidirectional = NOT oriented DP)
+         * @param _bw Bandwidth from the source (provides the data) to the target (requests the data)
+         * @param _latency Data load latency from the source (provides the data) to the target (requests the data)
+         */
         DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, double _bw, double _latency);
-        //SVDOCTODO
+
         /**
-        DataPath constructor.
-        @param _source - pointer to the source Component. (If _oriented == SYS_SAGE_DATAPATH_BIDIRECTIONAL, there is no difference between _source and _target)
-        @param _target - pointer to the target Component.
-        @param _oriented - is the Data Path oriented? (SYS_SAGE_DATAPATH_ORIENTED = oriented DP; SYS_SAGE_DATAPATH_BIDIRECTIONAL = NOT oriented DP)
-        @param _type - (optional parameter) Denotes type of the Data Path -- helps to distinguish Data Paths carrying different type of information. The value is user-defined. If not specified, the Data Path will have type SYS_SAGE_DATAPATH_TYPE_NONE.
-            \n Predefined types: SYS_SAGE_DATAPATH_TYPE_NONE, SYS_SAGE_DATAPATH_TYPE_LOGICAL, SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_TYPE_L3CAT. Each user can define an arbitrary type as an integer value > 1024
-        @param _bw - Bandwidth from the source(provides the data) to the target(requests the data)
-        @param _latency - Data load latency from the source(provides the data) to the target(requests the data)
-        */
+         * @brief DataPath constructor.
+         * @param _source Pointer to the source Component. (If _oriented == DataPathOrientation::Bidirectional, there is no difference between _source and _target)
+         * @param _target Pointer to the target Component.
+         * @param _oriented Is the Data Path oriented? (DataPathOrientation::Oriented = oriented DP; DataPathOrientation::Bidirectional = NOT oriented DP)
+         * @param _dp_type (optional) Type of the Data Path (user-defined, default: DataPathType::None).
+         *        Predefined types: DataPathType::None, DataPathType::Logical, DataPathType::Physical, DataPathType::Datatransfer, DataPathType::L3CAT, DataPathType::MIG, DataPathType::C2C .
+         *        Each user can define an arbitrary type in the DataPathType namespace.
+         * @param _bw Bandwidth from the source (provides the data) to the target (requests the data)
+         * @param _latency Data load latency from the source (provides the data) to the target (requests the data)
+         */
         DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathType::type _dp_type, double _bw, double _latency);
 
         /**
-        @returns Pointer to the source Component
-        */
+         * @brief Retrieves the source Component.
+         * @returns Pointer to the source Component
+         */
         Component* GetSource() const;
         /**
-        @returns Pointer to the target Component
-        */
+         * @brief Retrieves the target Component.
+         * @returns Pointer to the target Component
+         */
         Component* GetTarget() const;
         /**
-        @returns Bandwidth from the source(provides the data) to the target(requests the data)
-        */
+         * @brief Retrieves the bandwidth from the source to the target.
+         * @returns Bandwidth from the source(provides the data) to the target(requests the data)
+         */
         double GetBandwidth() const;
         /**
-         * Sets the bandwidth from the source to the target.
-        @param _bandwidth - value for bw
-        @see bw
-        */
+         * @brief Sets the bandwidth from the source to the target.
+         * @param _bandwidth Value for bw
+         * @see bw
+         */
         void SetBandwidth(double _bandwidth);
         /**
         @returns Data load latency from the source(provides the data) to the target(requests the data)
         */
         double GetLatency() const;
         /**
-         * Sets the data load latency from the source to the target.
-        @param _latency - value for latency
-        @see latency
-        */
+         * @brief Sets the data load latency from the source to the target.
+         * @param _latency Value for latency
+         * @see latency
+         */
         void SetLatency(double _latency);
 
-        //SVDOCTODO
         /**
-         * Updates the source of the DataPath. The datapath is removed from the outgoing/incoming vectors of the old source and 
-         * added to the vectors of the newer source.
-         * @param _new_source - New source of the DataPath.
+         * @brief Updates the source of the DataPath. The datapath is removed from the outgoing/incoming vectors of the old source and 
+         * added to the vectors of the new source.
+         * @param _new_source New source of the DataPath.
          */
         int UpdateSource(Component * _new_source);
 
-        //SVDOCTODO
         /**
-         * Updates the target of the DataPath. The datapath is removed from the outgoing/incoming vectors of the old target and 
-         * added to the vectors of the newer target.
-         * @param _new_source - New target of the DataPath.
+         * @brief Updates the target of the DataPath. The datapath is removed from the outgoing/incoming vectors of the old target and 
+         * added to the vectors of the new target.
+         * @param _new_target New target of the DataPath.
          */
         int UpdateTarget(Component * _new_target);
         
-        //SVDOCTODO not private/obsolete -> Relation::Type returns RelationType; GetDataPathType returns DataPathType
         /**
-         * @private
-        Obsolete;use GetType() instead.
-        @returns Type of the Data Path.
-        @see type
-        */
+         * @returns Type of the Data Path (DataPathType). Do not mix with RelationType!
+         * @see type
+         */
         int GetDataPathType() const;
-        //SVDOCTODO mention ordered instead of orientation
+
         /**
-         * Retrieves the orientation of the datapath (SYS_SAGE_DATAPATH_ORIENTED or SYS_SAGE_DATAPATH_BIDIRECTIONAL)
+         * @brief Retrieves the orientation of the DataPath (DataPathOrientation::Oriented or DataPathOrientation::Bidirectional).
          * @returns orientation 
          * @see oriented
-         * 
-        */
+         */
         int GetOrientation() const;
 
         /**
-        Prints basic information about the Data Path to stdout. Prints componentType and Id of the source and target Components, the bandwidth, load latency, and the attributes; for each attribute, the name and value are printed, however the value is only retyped to uint64_t (therefore will print nonsensical values for other data types).
-        */
+         * @brief Prints basic information about the Data Path to stdout.
+         * Prints componentType and Id of the source and target Components, the bandwidth, load latency, and the attributes.
+         * For each attribute, the name and value are printed; the value is only retyped to uint64_t (so will print nonsensical values for other data types).
+         */
         void Print() const override;
-        //SVDOCTODO private
-        xmlNodePtr _CreateXmlEntry() override;
-        //SVDOCTODO update doc
         /**
-        Deletes and de-allocates the DataPath pointer from the list(std::vector) of outgoing and incoming DataPaths of source and target Components.
-        @see dp_incoming
-        @see dp_outgoing
-        */
+         * @private
+         * @brief Helper function for XML export.
+         * Should normally not be used directly. Used internally for exporting the DataPath to XML.
+         * @return Pointer to the created XML entry node.
+         */
+        xmlNodePtr _CreateXmlEntry() override;
+        /**
+         * @brief Deletes and de-allocates the DataPath pointer from the list (std::vector) of outgoing and incoming DataPaths of source and target Components.
+         */
         void Delete() override;
 
     private:
-        int dp_type; /**< type of the datapath */
+        DataPathType::type dp_type; /**< type of the datapath */
 
         double bw; /**< Bandwidth from the source(provides the data) to the target(requests the data) */
         double latency; /**< Data load latency from the source(provides the data) to the target(requests the data) */

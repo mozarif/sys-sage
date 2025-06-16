@@ -60,7 +60,7 @@ sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::D
 sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, double _bw, double _latency): DataPath(_source, _target, _oriented, sys_sage::DataPathType::None, _bw, _latency) {}
 sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathType::type _dp_type, double _bw, double _latency): dp_type(_dp_type), bw(_bw), latency(_latency), Relation(sys_sage::RelationType::DataPath)
 {
-    if(_oriented == sys_sage::DataPathOrientation::NotOriented)
+    if(_oriented == sys_sage::DataPathOrientation::Bidirectional)
         ordered = false;
     else
         ordered = true;

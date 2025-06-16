@@ -447,7 +447,7 @@ std::vector<sys_sage::Relation*> sys_sage::Component::GetAllRelationsBy(Relation
         {
             for(Relation* r : *(*relations)[curr_rt])
             {
-                if(!r->IsOrdered() || (r->IsOrdered() && r->GetComponent(thisComponentPosition) == this))
+                if(!r->IsOrdered() || (r->IsOrdered() && (thisComponentPosition==-1 || r->GetComponent(thisComponentPosition) == this)))
                 {
                     out_vector.push_back(r);
                 }
