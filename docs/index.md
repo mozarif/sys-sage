@@ -141,3 +141,5 @@ sys-sage has been created by Stepan Vanecek (stepan.vanecek@tum.de) and the [CAP
 The source code can be found at [https://github.com/caps-tum/sys-sage](https://github.com/caps-tum/sys-sage) .
 
 sys-sage is available under the Apache-2.0 license. (see [License](https://github.com/caps-tum/sys-sage/blob/master/LICENSE))
+
+Version: 1.0.0
