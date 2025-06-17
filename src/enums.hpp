@@ -20,7 +20,7 @@ namespace sys_sage {
      * Use ComponentType::type for all component type variables and arguments.
      */
     namespace ComponentType{
-        using type = int32_t;
+        using type = int32_t; /**< ComponentType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type None = 1; /**< class Component (do not use normally)*/
         constexpr type Thread = 2; /**< class Thread */
@@ -75,7 +75,7 @@ namespace sys_sage {
      * @brief Enumerates subdivision types for components (e.g., GPU SMs).
      */
     namespace SubdivisionType {
-        using type = int32_t;
+        using type = int32_t; /**< SubdivisionType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type None = 1; /**< Generic Subdivision type. */
         constexpr type GpuSM = 2; /**< Subdivision type for GPU SMs */
@@ -86,7 +86,7 @@ namespace sys_sage {
      * @brief Enumerates chip types (CPU, GPU, etc.).
      */
     namespace ChipType {
-        using type = int32_t;
+        using type = int32_t; /**< ChipType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type None = 1; /**< Generic Chip type. */
         constexpr type Cpu = 2; /**< Chip type used for a CPU. */
@@ -105,7 +105,7 @@ namespace sys_sage {
      * Used to distinguish between different types of relations (edges) in the topology graph.
      */
     namespace RelationType{
-        using type = int32_t;
+        using type = int32_t; /**< RelationType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type Any = -1;
         constexpr type Relation = 0;
@@ -151,7 +151,7 @@ namespace sys_sage {
      * Used to specify the semantics of a DataPath between components.
      */
     namespace DataPathType{
-        using type = int32_t;
+        using type = int32_t; /**< DataPathType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type Any = 1;
         constexpr type None = 0; /**< Generic type of DataPath */
@@ -167,7 +167,7 @@ namespace sys_sage {
      * @brief Enumerates directionality for DataPaths.
      */
     namespace DataPathDirection{
-        using type = int32_t;
+        using type = int32_t; /**< DataPathDirection datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type Any = 1;
         constexpr type Outgoing = 2; /**< This Component is the source DataPath. */
@@ -180,7 +180,7 @@ namespace sys_sage {
      * @brief Enumerates orientation (directed/bidirectional) for DataPaths.
      */
     namespace DataPathOrientation{
-        using type = int32_t;
+        using type = int32_t; /**< DataPathOrientation datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type Oriented = 1; /**< DataPath is directed from the source to the target. */
         constexpr type Bidirectional = 2; /**< DataPath has no direction. */
@@ -190,7 +190,7 @@ namespace sys_sage {
      * @brief Enumerates quantum gate types.
      */
     namespace QuantumGateType{
-        using type = int32_t;
+        using type = int32_t; /**< QuantumGateType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type Unknown = 0; /**< Unknown Gate */
         constexpr type Id = 1; /**< Identity Gate */

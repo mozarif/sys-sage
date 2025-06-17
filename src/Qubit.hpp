@@ -96,6 +96,7 @@ namespace sys_sage {
          */
         xmlNodePtr _CreateXmlSubtree() override;
 
+        /** Destructor for Qubir. */
         ~Qubit() override = default;
 
     private:

@@ -56,6 +56,10 @@ While sys-sage is deeply rooted in HPC and classical hardware, it’s built to b
         - [DataPath](class_datapath.html)
         - [QuantumGate](class_quantumgate.html)
         - [CouplingMap](class_couplingmap.html)
+    - External Interfaces
+        - Intel PQOS
+        - NVidia MIG
+        - /proc/cpuinfo
     - Input Parsers
         - caps-numa-benchmark
         - cccbench
@@ -63,16 +67,12 @@ While sys-sage is deeply rooted in HPC and classical hardware, it’s built to b
         - iqm
         - mt4g
         - qdmi
-    - External Interfaces
-        - Intel PQOS
-        - NVidia MIG
-        - /proc/cpuinfo
+
     - Data Sources
         - caps-numa-benchmark
         - [**hwloc**](hwloc-output_8cpp.html)
         - mt4g
-    - [XML import/export](xmlio.md)
-    ---
+    - [XML import/export](xmlio.md) <!-- TODO: is this API or concept? -->
     - [**Python API**](python-sys-sage.md)
 
 

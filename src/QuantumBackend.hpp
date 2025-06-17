@@ -127,6 +127,7 @@ namespace sys_sage {
         */
         xmlNodePtr _CreateXmlSubtree() override;
 
+        /** Destructor for QuantumBackend. */
         ~QuantumBackend() override = default;
 
     private:
