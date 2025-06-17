@@ -83,7 +83,7 @@ void sys_sage::Relation::Delete()
     }
     delete this;
 }
-RelationType::type sys_sage::Relation::GetType() const{ return type;}
+sys_sage::RelationType::type sys_sage::Relation::GetType() const{ return type;}
 std::string sys_sage::Relation::GetTypeStr() const
 {
     std::string ret(sys_sage::RelationType::ToString(type));
