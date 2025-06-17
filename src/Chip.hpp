@@ -6,80 +6,92 @@
 namespace sys_sage {
 
     /**
-    Class Chip - represents a building block of a node. It may be a CPU socket, a GPU, a NIC or any other chip.
-    \n This class is a child of Component class, therefore inherits its attributes and methods.
-    */
+     * @class Chip
+     * @brief Represents a building block of a node (CPU socket, GPU, NIC, etc.).
+     *
+     * This class is a child of Component and inherits its attributes and methods.
+     * It provides a unified abstraction for various chip types, allowing for extensible
+     * modeling of CPUs, GPUs, and other accelerators in heterogeneous systems.
+     * The chip abstraction is designed to be flexible for new architectures and data sources.
+     */
     class Chip : public Component {
     public:
         /**
-        Chip constructor (no automatic insertion in the Component Tree). Sets:
-        @param _id = id, default 0
-        @param _name = name, default "Chip"
-        @param _type = chip type, default sys_sage::ChipType::None. Defines which chip we are describing. The options are: sys_sage::ChipType::None (default/generic), sys_sage::ChipType::Cpu, sys_sage::ChipType::CpuSocket, sys_sage::ChipType::Gpu.
-        @param componentType=>SYS_SAGE_COMPONENT_CHIP
-        @param _vendor = name of the vendor, default ""
-        @param _model = model name, default ""
-        */
+         * @brief Chip constructor (no automatic insertion in the Component Tree).
+         * @param _id ID of the chip (default 0)
+         * @param _name Name of the chip (default "Chip")
+         * @param _type Chip type (default sys_sage::ChipType::None). Defines which chip we are describing.
+         *        Options: sys_sage::ChipType::None (default/generic), sys_sage::ChipType::Cpu, sys_sage::ChipType::CpuSocket, sys_sage::ChipType::Gpu.
+         * @param _vendor Name of the vendor (default "")
+         * @param _model Model name (default "")
+         *
+         * Sets componentType to sys_sage::ComponentType::Chip.
+         */
         Chip(int _id = 0, std::string _name = "Chip", ChipType::type _type = ChipType::None, std::string _vendor = "", std::string _model = "");
         /**
-        Chip constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
-        @param parent = the parent 
-        @param _id = id, default 0
-        @param _name = name, default "Chip"
-        @param _type = chip type, default sys_sage::ChipType::None. Defines which chip we are describing. The options are: sys_sage::ChipType::None (default/generic), sys_sage::ChipType::Cpu, sys_sage::ChipType::CpuSocket, sys_sage::ChipType::Gpu.
-        @param componentType=>SYS_SAGE_COMPONENT_CHIP
-        @param _vendor = name of the vendor, default ""
-        @param _model = model name, default ""
-        */
+         * @brief Chip constructor with insertion into the Component Tree as the parent's child.
+         * @param parent The parent component
+         * @param _id ID of the chip (default 0)
+         * @param _name Name of the chip (default "Chip")
+         * @param _type Chip type (default sys_sage::ChipType::None). Defines which chip we are describing.
+         *        Options: sys_sage::ChipType::None (default/generic), sys_sage::ChipType::Cpu, sys_sage::ChipType::CpuSocket, sys_sage::ChipType::Gpu.
+         * @param _vendor Name of the vendor (default "")
+         * @param _model Model name (default "")
+         *
+         * Sets componentType to sys_sage::ComponentType::Chip.
+         */
         Chip(Component * parent, int _id = 0, std::string _name = "Chip", ChipType::type _type = ChipType::None, std::string _vendor = "", std::string _model = "");
         /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
+         * @private
+         * Use Delete() or DeleteSubtree() for deleting and deallocating the components.
+         */
         ~Chip() override = default;
         /**
-        Sets the vendor of the chip.
-        @param _vendor - The name of the vendor to set.
-        */
+         * @brief Sets the vendor of the chip.
+         * @param _vendor The name of the vendor to set.
+         */
         void SetVendor(std::string _vendor);
         /**
-        Gets the vendor of the chip.
-        @return The name of the vendor.
-        @see vendor
-        */
+         * @brief Gets the vendor of the chip.
+         * @return The name of the vendor.
+         * @see vendor
+         */
         const std::string& GetVendor() const;
         
         /**
-        Sets the model of the chip.
-        @param _model - The model name to set.
-        */
+         * @brief Sets the model of the chip.
+         * @param _model The model name to set.
+         */
         void SetModel(std::string _model);
         
         /**
-        Gets the model of the chip.
-        @return The model name.
-        @see model
-        */
+         * @brief Gets the model of the chip.
+         * @return The model name.
+         * @see model
+         */
         const std::string& GetModel() const;
         
         /**
-        Sets the type of the chip.
-        @param chipType - The chip type to set.
-        */
+         * @brief Sets the type of the chip.
+         * @param chipType The chip type to set.
+         */
         void SetChipType(int chipType);
         
         /**
-        Gets the type of the chip.
-        @return The chip type.
-        @see type
-        */
+         * @brief Gets the type of the chip.
+         * @return The chip type.
+         * @see type
+         */
         int GetChipType() const;
         
         /**
-        @private
-        !!Should normally not be used!! Helper function of XML dump generation.
-        @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
-        */
+         * @private
+         * @brief Helper function for XML dump generation.
+         *
+         * Should normally not be used directly. Used internally for exporting the topology to XML.
+         * @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
+         * @return Pointer to the created XML subtree node.
+         */
         xmlNodePtr _CreateXmlSubtree() override;
     private:
         std::string vendor; /**< Vendor of the chip */
@@ -88,24 +100,24 @@ namespace sys_sage {
     #ifdef NVIDIA_MIG
     public:
         /**
-        Updates the MIG settings for the chip.
-        @param uuid - The UUID of the chip, default is an empty string.
-        @return Status of the update operation.
-        */
+         * @brief Updates the MIG settings for the chip (NVIDIA-specific).
+         * @param uuid The UUID of the chip, default is an empty string.
+         * @return Status of the update operation.
+         */
         int UpdateMIGSettings(std::string uuid = "");
 
         /**
-        Gets the number of SMs for the MIG.
-        @param uuid - The UUID of the chip, default is an empty string.
-        @return The number of SMs.
-        */
+         * @brief Gets the number of SMs for the MIG.
+         * @param uuid The UUID of the chip, default is an empty string.
+         * @return The number of SMs.
+         */
         int GetMIGNumSMs(std::string uuid = "");
 
         /**
-        Gets the number of cores for the MIG.
-        @param uuid - The UUID of the chip, default is an empty string.
-        @return The number of cores.
-        */
+         * @brief Gets the number of cores for the MIG.
+         * @param uuid The UUID of the chip, default is an empty string.
+         * @return The number of cores.
+         */
         int GetMIGNumCores(std::string uuid = "");
     #endif
     };

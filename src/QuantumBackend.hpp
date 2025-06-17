@@ -13,7 +13,15 @@
 
 namespace sys_sage {
 
-
+    /**
+     * @class QuantumBackend
+     * @brief Represents a quantum backend device (e.g., quantum processor or simulator).
+     *
+     * Inherits from Component and provides a unified abstraction for quantum hardware backends.
+     * This class manages qubits, quantum gates, and their relations, and supports integration with
+     * external quantum device interfaces (e.g., QDMI). It is designed to be extensible for new
+     * quantum architectures and data sources.
+     */
     class QuantumBackend : public Component {
     public:
         /**
@@ -119,6 +127,7 @@ namespace sys_sage {
         */
         xmlNodePtr _CreateXmlSubtree() override;
 
+        /** Destructor for QuantumBackend. */
         ~QuantumBackend() override = default;
 
     private:

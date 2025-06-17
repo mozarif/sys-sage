@@ -284,7 +284,7 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("DATAPATH_OUTGOING") = DataPathDirection::Outgoing;
     m.attr("DATAPATH_INCOMING") = DataPathDirection::Incoming;
 
-    m.attr("DATAPATH_BIDIRECTIONAL") = DataPathOrientation::NotOriented;
+    m.attr("DATAPATH_BIDIRECTIONAL") = DataPathOrientation::Bidirectional;
     m.attr("DATAPATH_ORIENTED") = DataPathOrientation::Oriented;
 
     m.attr("DATAPATH_TYPE_NONE") = DataPathType::None;

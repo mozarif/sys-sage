@@ -7,119 +7,138 @@
 namespace sys_sage {
 
     /**
-    Class Cache - represents a data cache memories in the system (of different levels/purposes).
-    \n This class is a child of Component class, therefore inherits its attributes and methods.
-    */
+     * @class Cache
+     * @brief Represents a data cache in the system (of different levels/purposes).
+     *
+     * Models hardware cache components (L1, L2, L3, texture, etc.) as part of the unified hardware topology abstraction.
+     * Inherits from Component and provides attributes and methods for describing cache hierarchy, size, associativity, and line size.
+     * The cache abstraction supports both classical and heterogeneous (e.g., GPU, accelerator) memory hierarchies, and is extensible for new architectures and data sources.
+     *
+     * @see Component
+     */
     class Cache : public Component {
     public:
         /**
-        Cache constructor (no automatic insertion in the Component Tree). Sets:
-        @param _id = id, default 0
-        @param _cache_level - (int) cache level (1=L1, 2=L2, ...), default 0. This value is represented as a cahce_type, i.e. either one of int cache_level or string cache_type can be used.
-        @param _cache_size - size of the cache (Bytes), default 0
-        @param _associativity - number of cache associativity ways, default -1
-        @param _cache_line_size - size of a cache line (Bytes), default -1
-        @param componentType=>SYS_SAGE_COMPONENT_CACHE
-        */
+         * @brief Cache constructor (no automatic insertion in the Component Tree).
+         * @param _id Unique cache ID (default 0)
+         * @param _cache_level Cache level (1=L1, 2=L2, ...), default 0. This value is represented as cache_type.
+         * @param _cache_size Size of the cache in bytes (default -1)
+         * @param _associativity Number of cache associativity ways (default -1)
+         * @param _cache_line_size Size of a cache line in bytes (default -1)
+         *
+         * Sets componentType to sys_sage::ComponentType::Cache.
+         */
         Cache(int _id = 0, int  _cache_level = 0, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
         /**
-        Cache constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
-        @param parent = the parent 
-        @param _id = id, default 0
-        @param _cache_type - (string) name/type of the cache (constant, textture, L1, ...). Only one of (int) cache_level or (string) cache_type can be used.
-        @param _cache_size - size of the cache (Bytes), default 0
-        @param _associativity - number of cache associativity ways, default -1
-        @param _cache_line_size - size of a cache line (Bytes), default -1
-        @param componentType=>SYS_SAGE_COMPONENT_CACHE
-        */
+         * @brief Cache constructor with insertion into the Component Tree as the parent's child (as long as parent is an existing Component).
+         * @param parent Parent component
+         * @param _id Unique cache ID (default 0)
+         * @param _cache_type Name/type of the cache (e.g., "L1", "texture"). Only one of int cache_level or string cache_type should be used.
+         * @param _cache_size Size of the cache in bytes (default 0)
+         * @param _associativity Number of cache associativity ways (default -1)
+         * @param _cache_line_size Size of a cache line in bytes (default -1)
+         *
+         * Sets componentType to sys_sage::ComponentType::Cache.
+         */
         Cache(Component * parent, int _id, std::string _cache_type, long long _cache_size = 0, int _associativity = -1, int _cache_line_size = -1);
+
         /**
-        Cache constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
-        @param parent = the parent 
-        @param _id = id, default 0
-        @param _cache_level - (int) cache level (1=L1, 2=L2, ...), default 0. This value is represented as a cahce_type, i.e. either one of int cache_level or string cache_type can be used.
-        @param _cache_size - size of the cache (Bytes), default 0
-        @param _associativity - number of cache associativity ways, default -1
-        @param _cache_line_size - size of a cache line (Bytes), default -1
-        @param componentType=>SYS_SAGE_COMPONENT_CACHE
-        */
+         * @brief Cache constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component).
+         * @param parent Parent component
+         * @param _id Unique cache ID (default 0)
+         * @param _cache_level Cache level (1=L1, 2=L2, ...), default 0. This value is represented as cache_type.
+         * @param _cache_size Size of the cache in bytes (default -1)
+         * @param _associativity Number of cache associativity ways (default -1)
+         * @param _cache_line_size Size of a cache line in bytes (default -1)
+         *
+         * Sets componentType to sys_sage::ComponentType::Cache.
+         */
         Cache(Component * parent, int _id = 0, int _cache_level = 0, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
         /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
+         * @private
+         * @brief Use Delete() or DeleteSubtree() for deleting and deallocating the components.
+         */
         ~Cache() override = default;
 
         /**
-        @returns cache level of this cache, assuming there's only 1 or no digit in the "cache_type" (e.g. "L1", "texture")
-        */
+         * @brief Get the cache level (e.g., 1 for L1, 2 for L2).
+         * @return Cache level as integer.
+         *
+         * Assumes there's only 1 or no digit in the "cache_type" (e.g., "L1", "texture").
+         */
         int GetCacheLevel() const;
         
         /**
-        Sets cache level of this cache using integer value (For e.g. "1" for "L1", etc.)
-        @param _cache_level - value for cache_type
-        */
+         * @brief Set the cache level using an integer value (e.g., 1 for "L1").
+         * @param _cache_level Value for cache_type.
+         */
         void SetCacheLevel(int _cache_level);
         
         /**
-        Retrieves cache name of this cache (e.g. "L1", "texture")
-        @returns cache name 
-        @see cache_name
-        */
+         * @brief Retrieves cache name/type (e.g., "L1", "texture").
+         * @return Cache name as string.
+         * @see cache_type
+         */
         const std::string& GetCacheName() const;
         
         /**
-        Sets cache name of this cache (e.g. "L1", "texture")
-        @param _cache_name - value for cache_type
-        */
+         * @brief Set the cache name/type (e.g., "L1", "texture").
+         * @param _name Value for cache_type.
+         */
         void SetCacheName(std::string _name);
 
         /**
-         * Retrieves size/capacity of the cache
-         * @return size
-         * @see size
-        */
+         * @brief Retrieves size/capacity of the cache.
+         * @return Cache size in bytes.
+         */
         long long GetCacheSize() const;
         /**
-         * Sets size/capacity of the cache
-         * @param _size = size
-        */
+         * @brief Sets size/capacity of the cache.
+         * @param _cache_size Size in bytes.
+         */
         void SetCacheSize(long long _cache_size);
         /**
-        @returns the number of the cache associativity ways of this cache
-        */
+         * @brief Get the number of cache associativity ways.
+         * @return Number of associativity ways.
+         */
         int GetCacheAssociativityWays() const;
 
         /**
-        Sets cache associativity ways of this cache
-        @param _associativity - value for cache_associativity_ways
-        */
+         * @brief Set the number of cache associativity ways.
+         * @param _associativity Value for cache_associativity_ways.
+         */
         void SetCacheAssociativityWays(int _associativity);
         /**
-        @returns the size of a cache line of this cache
-        */
+         * @brief Get the size of a cache line.
+         * @return Cache line size in bytes.
+         */
         int GetCacheLineSize() const;
         /**
-         * Sets the size of a cache line of this cache
-        @param _cache_line_size = cache_line_size
-        */
+         * @brief Set the size of a cache line.
+         * @param _cache_line_size Cache line size in bytes.
+         */
         void SetCacheLineSize(int _cache_line_size);
         /**
-        @private
-        !!Should normally not be caller from the outside!! Helper function of XML dump generation.
-        @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
-        */
+         * @private
+         * @brief Helper function for XML dump generation.
+         *
+         * Should normally not be called from the outside. Used internally for exporting the topology to XML.
+         * @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL)
+         * @return Pointer to the created XML subtree node.
+         */
         xmlNodePtr _CreateXmlSubtree() override;
     private:
-        std::string cache_type; /**< cache level or cache type */
-        long long cache_size;  /**< size/capacity of the cache */
-        int cache_associativity_ways; /**< number of cache associativity ways */
-        int cache_line_size; /**< size of a cache line */
+        std::string cache_type;           ///< Cache level or cache type (e.g., "L1", "texture")
+        long long cache_size;             ///< Size/capacity of the cache in bytes
+        int cache_associativity_ways;     ///< Number of cache associativity ways
+        int cache_line_size;              ///< Size of a cache line in bytes
 
     #ifdef NVIDIA_MIG
     public:
         /**
-         * Gets the MIG size of the cache element.
+         * @brief Gets the MIG size of the cache element (NVIDIA-specific).
+         * @param uuid Optional UUID string for the MIG instance.
+         * @return MIG size in bytes.
          */
         long long GetMIGSize(std::string uuid = "") const;
     #endif

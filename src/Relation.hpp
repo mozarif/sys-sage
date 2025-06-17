@@ -1,6 +1,17 @@
 #ifndef RELATION_HPP
 #define RELATION_HPP
 
+/**
+ * @file Relation.hpp
+ * @brief Defines the Relation class for modeling connections between components in system topologies.
+ *
+ * This header provides the Relation class, a core component of the sys-sage library.
+ * Relations represent interactions or connections between components in a system topology,
+ * enabling flexible modeling and analysis of architectural relationships.
+ * Derived classes like DataPath, QuantumGate, and CouplingMap inherit from Relation
+ * to represent specific types of connections.
+ */
+
 #include <map>
 #include <vector>
 #include <string>
@@ -8,8 +19,6 @@
 
 #include "defines.hpp"
 #include "enums.hpp"
-
-// #include "Component.hpp"
 
 namespace sys_sage { //forward declaration
     class Component;
@@ -20,15 +29,31 @@ namespace sys_sage {
 
     /**
      * @class Relation
-     * @brief Represents a generic relationship or connectivity between an arbitrary number of components.
+     * @brief Abstract base class representing a multi-way connection among Components.
      *
-     * This class defines a generic relationship with methods to set and get
-     * the type, id, and name of the relationship. It also provides pure virtual
-     * functions for printing and deleting the relationship, making it an abstract class.
+     * A Relation models a relationship among one or more Components, such as a data path,
+     * logical gate, or any other connectivity construct. Derived classes define the specific
+     * type and semantics.
+     *
+     * Key Features:
+     * - The @c components vector holds participating components. The @c ordered flag
+     *   determines whether their order is semantically meaningful.
+     * - The @c id and @c name identify the relation.
+     * - The @c type indicates the specific kind of relation (e.g. data path, gate).
+     * - The class supports extensible metadata via @c attrib.
+     *
+     * Clients can use this interface generically or extend it with domain-specific semantics.
      */
     class Relation {
     public:
-        //SVDOCTODO
+        /**
+         * @brief Construct a new Relation object.
+         * @param components List of pointers to participating Components.
+         * @param _id Optional unique ID for the relation.
+         * @param _ordered Whether the order of components carries semantic meaning.
+         *
+         * The type of the relation is set to sys_sage::RelationType::Relation.
+         */
         Relation(const std::vector<Component*>& components, int _id = 0, bool _ordered = true);
         /**
          * @brief Sets the id of the relationship.
@@ -41,49 +66,95 @@ namespace sys_sage {
          */
         int GetId() const;
         /**
-         * @brief Gets the type of the relationship.
-         * @return The current type of the relationship.
+         * @brief Get the type of the relation.
+         * @return The current type of the relation (as sys_sage::RelationType::type).
          */
-        int GetType() const;
-        //SVDOCTODO
-        std::string GetTypeStr() const;
-        //SVDOCTODO
-        bool IsOrdered() const;
-        //SVDOCTODO
-        bool ContainsComponent(Component* c) const;
-        //SVDOCTODO
-        Component* GetComponent(int index) const;
-        //SVDOCTODO
-        const std::vector<Component*>& GetComponents() const;
-
-        //SVDOCTODO
+        RelationType::type GetType() const;
         /**
-         * @brief Pure virtual function to print the details of the relationship.
+         * @brief Return a human-readable name of the relation type.
+         * @return A string like "DataPath" or "QuantumGate".
+         */
+        std::string GetTypeStr() const;
+        /**
+         * @brief Check if this relation treats component order as meaningful.
+         * @return True if the order of components matters.
+         */
+        bool IsOrdered() const;
+        /**
+         * @brief Check whether the given component is part of this relation.
+         * @param c Pointer to the Component to check.
+         * @return True if @p c is found in the components vector.
+         */
+        bool ContainsComponent(Component* c) const;
+        /**
+         * @brief Get the component at a specific position.
+         * @param index Index in the component list.
+         * @return Pointer to the Component at that index.
+         */
+        Component* GetComponent(int index) const;
+        /**
+         * @brief Access the list of components.
+         * @return Read-only reference to the component vector.
          * 
-         * Derived classes must implement this function to provide specific
+         * This avoids copying and prevents direct modification.
+         */
+        const std::vector<Component*>& GetComponents() const;
+        /**
+         * @brief Virtual function to print the details of the relationship.
+         * 
+         * Derived classes may implement this function to provide specific
          * printing behavior.
          */
         virtual void Print() const;
-        //SVDOCTODO private
+        /**
+         * @private
+         * @brief Print all key-value pairs in the attribute map.
+         *
+         * Meant for debugging or verbose output. Can be overridden.
+         */
         void _PrintRelationAttrib() const;
-        //SVDOCTODO private
+        /**
+         * @private
+         * @brief Print summary of the components involved.
+         *
+         * Useful for debugging the structure of the relation.
+        */ 
         void _PrintRelationComponentInfo() const;
-        //SVDOCTODO
+        /**
+         * @brief Add a new component to the relation.
+         * @param c Component to append to the internal list.
+         */
         void AddComponent(Component* c);
-        //SVDOCTODO
+        /**
+         * @brief Replace a component at the given index.
+         * @param index The index of the component to replace.
+         * @param _new_component New component to insert.
+         * @return 0 on success, -1 if the index is invalid.
+         */
         int UpdateComponent(int index, Component * _new_component);
-        //SVDOCTODO
-        //SVDOCTODO mention that it only replaces first entry of _old_component found (using std::find)
+        /**
+         * @brief Replace the first occurrence of a given component.
+         *
+         * Uses std::find to locate @p _old_component and replaces it with @p _new_component.
+         *
+         * @param _old_component The component to replace.
+         * @param _new_component The replacement component.
+         * @return 0 on success, -1 if not found.
+         */
         int UpdateComponent(Component* _old_component, Component * _new_component);
 
-        //SVDOCTODO
-        virtual xmlNodePtr _CreateXmlEntry();
-        //SVDOCTODO
         /**
-         * @brief Pure virtual function to delete the relationship.
-         * 
-         * Derived classes must implement this function to provide specific
-         * deletion behavior.
+         * @private
+         * @brief Serialize this relation to XML.
+         * @return A libxml node representing the relation.
+         *
+         * Should normally not be used directly. Used internally for exporting the relation to XML.
+         */
+        virtual xmlNodePtr _CreateXmlEntry();
+        /**
+         * @brief Virtual function to delete the relation.
+         *
+         * Should be overridden in subclasses if custom destruction logic is needed.
          */
         virtual void Delete();//TODO
         /**
@@ -93,23 +164,38 @@ namespace sys_sage {
          */
         ~Relation() = default;
     protected:
-        Relation(int _relation_type);
-        Relation(const std::vector<Component*>& components, int _id, bool _ordered, int _relation_type);
+        /**
+         * @private
+         * @brief Protected constructor for internal use. Makes sure that the relation type is set correctly.
+         * @param _relation_type The type of the relation (see RelationType::type).
+         */
+        Relation(RelationType::type _relation_type);
+        /**
+         * @private
+         * @brief Protected constructor for internal use. Makes sure that the relation type is set correctly.
+         * @param components List of pointers to participating Components.
+         * @param _id Optional unique ID for the relation.
+         * @param _ordered Whether the order of components carries semantic meaning.
+         * @param _relation_type The type of the relation (see RelationType::type).
+         */
+        Relation(const std::vector<Component*>& components, int _id, bool _ordered, RelationType::type _relation_type);
 
-
+        /**
+         * @brief Whether order in the component list is meaningful.
+         */
         bool ordered;
         /**
          * @brief The id of the relationship.
-         * 
+         *
          * This member variable stores the unique identifier for the relationship.
          */
         int id;
         /**
-         * @brief The type of the relationship.
-         * 
+         * @brief The type of the relationship (see RelationType::type).
+         *
          * This member variable stores the type or category of the relationship.
          */
-        int type;
+        RelationType::type type;
         /**
          * @brief A vector of components associated with the relationship.
          * 

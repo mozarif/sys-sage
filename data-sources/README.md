@@ -10,7 +10,7 @@ to enable the **hwloc** data source, add '-DDS_HWLOC=on' to the cmake script
 Example cmake command to build sys-sage with hwloc data source:
 ```
 cmake -DCMAKE_INSTALL_PREFIX=../inst-dir -DDS_HWLOC=ON 
-
+```
 
 ## mt4g
 
@@ -36,3 +36,4 @@ it's worth noting that some linux specific libraries are required.
 Example cmake command to build sys-sage with caps_numa_benchmark data source:
 ```
 cmake -DCMAKE_INSTALL_PREFIX=../inst-dir -DDS_NUMA=ON ..
+```
