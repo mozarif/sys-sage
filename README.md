@@ -8,7 +8,7 @@ It is currently under development, so there may be breaking changes in the API i
 
 ## Documentation
 
-The documentation is available [here](https://stepanvanecek.github.io/sys-sage/html/index.html).
+The documentation is available [here](https://stepanvanecek.github.io/sys-sage/latest/html/index.html).
 
 ## Installation
 
