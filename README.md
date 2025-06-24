@@ -21,7 +21,7 @@ It provides a unified, extensible interface to query, store, and manipulate hard
 
 ## Documentation
 
-The documentation is available [here](https://stepanvanecek.github.io/sys-sage/html/index.html).
+The documentation is available [here](https://stepanvanecek.github.io/sys-sage/latest/html/index.html).
 
 <!-- - [Installation Guide](docs/Installation_Guide.md)
 - [Concepts & Architecture](docs/Concept.md)
