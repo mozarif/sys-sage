@@ -1,6 +1,7 @@
 #ifndef COMPONENT
 #define COMPONENT
 
+#include <array>
 #include <iostream>
 #include <vector>
 #include <map>

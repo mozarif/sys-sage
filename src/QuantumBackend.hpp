@@ -90,7 +90,7 @@ namespace sys_sage {
         * @param _gate_type The type of the gates to retrieve.
         * @return A vector of quantum gates with the specified type.
         */
-        std::vector<QuantumGate*> GetGatesByType(size_t _gate_type) const;
+        std::vector<QuantumGate*> GetGatesByType(QuantumGateType::type _gate_type) const;
 
         /**
         * @brief Gets all types of quantum gates in the quantum backend.

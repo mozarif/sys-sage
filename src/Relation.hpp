@@ -162,7 +162,7 @@ namespace sys_sage {
          * 
          * This is a virtual destructor to ensure proper cleanup of derived classes.
          */
-        ~Relation() = default;
+        virtual ~Relation() = default;
     protected:
         /**
          * @private
