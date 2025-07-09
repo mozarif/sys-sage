@@ -262,9 +262,9 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("COMPONENT_MEMORY") = ComponentType::Memory;
     m.attr("COMPONENT_STORAGE") = ComponentType::Storage;
     m.attr("COMPONENT_NODE") = ComponentType::Node;
-    m.attr("COMPONENT_QuantumBackend") = ComponentType::QuantumBackend;
-    m.attr("COMPONENT_AtomSitee") = ComponentType::AtomSite;
-    m.attr("COMPONENT_Qubit") = ComponentType::Qubit;
+    m.attr("COMPONENT_QUANTUMBACKEND") = ComponentType::QuantumBackend;
+    m.attr("COMPONENT_ATOMSITE") = ComponentType::AtomSite;
+    m.attr("COMPONENT_QUBIT") = ComponentType::Qubit;
     m.attr("COMPONENT_TOPOLOGY") = ComponentType::Topology;
 
     m.attr("SUBDIVISION_TYPE_NONE") = SubdivisionType::None;
@@ -275,18 +275,13 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("CHIP_TYPE_CPU_SOCKET") = ChipType::CpuSocket;
     m.attr("CHIP_TYPE_GPU") = ChipType::Gpu;
 
-    m.attr("RELATIONTYPE_Relation") = RelationType::Relation;
-    m.attr("RELATIONTYPE_DataPath") = RelationType::DataPath;
-    m.attr("RELATIONTYPE_QuantumGate") = RelationType::QuantumGate;
-    m.attr("RELATIONTYPE_CouplingMap") = RelationType::CouplingMap;
+    m.attr("RELATION_TYPE_ANY") = RelationType::Any;
+    m.attr("RELATION_TYPE_RELATION") = RelationType::Relation;
+    m.attr("RELATION_TYPE_DATAPATH") = RelationType::DataPath;
+    m.attr("RELATION_TYPE_QUANTUMGATE") = RelationType::QuantumGate;
+    m.attr("RELATION_TYPE_COUPLINGMAP") = RelationType::CouplingMap;
 
-    m.attr("DATAPATH_NONE") = DataPathDirection::Any;
-    m.attr("DATAPATH_OUTGOING") = DataPathDirection::Outgoing;
-    m.attr("DATAPATH_INCOMING") = DataPathDirection::Incoming;
-
-    m.attr("DATAPATH_BIDIRECTIONAL") = DataPathOrientation::Bidirectional;
-    m.attr("DATAPATH_ORIENTED") = DataPathOrientation::Oriented;
-
+    m.attr("DATAPATH_TYPE_ANY") = DataPathType::Any;
     m.attr("DATAPATH_TYPE_NONE") = DataPathType::None;
     m.attr("DATAPATH_TYPE_LOGICAL") = DataPathType::Logical;
     m.attr("DATAPATH_TYPE_PHYSICAL") = DataPathType::Physical;
@@ -294,6 +289,21 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("DATAPATH_TYPE_L3CAT") = DataPathType::L3CAT;
     m.attr("DATAPATH_TYPE_MIG") = DataPathType::MIG;
     m.attr("DATAPATH_TYPE_C2C") = DataPathType::C2C;
+
+    m.attr("DATAPATH_DIRECTION_ANY") = DataPathDirection::Any;
+    m.attr("DATAPATH_DIRECTION_OUTGOING") = DataPathDirection::Outgoing;
+    m.attr("DATAPATH_DIRECTION_INCOMING") = DataPathDirection::Incoming;
+
+    m.attr("DATAPATH_ORIENTATION_ORIENTED") = DataPathOrientation::Oriented;
+    m.attr("DATAPATH_ORIENTATION_BIDIRECTIONAL") = DataPathOrientation::Bidirectional;
+
+    m.attr("QUANTUMGATE_TYPE_UNKNOWN") = QuantumGateType::Unknown;
+    m.attr("QUANTUMGATE_TYPE_ID") = QuantumGateType::Id;
+    m.attr("QUANTUMGATE_TYPE_X") = QuantumGateType::X;
+    m.attr("QUANTUMGATE_TYPE_RZ") = QuantumGateType::Rz;
+    m.attr("QUANTUMGATE_TYPE_CNOT") = QuantumGateType::Cnot;
+    m.attr("QUANTUMGATE_TYPE_SX") = QuantumGateType::Sx;
+    m.attr("QUANTUMGATE_TYPE_TOFFOLI") = QuantumGateType::Toffoli;
 
     //bind component class
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
