@@ -310,14 +310,6 @@ int sys_sage::Mt4gParser::parseADDITIONAL_INFORMATION()
                 return 1;
             }
             Memory_Bus_Width = std::stoi(data[i + 1]);
-            // TODO: parse correct unit
-            //std::string unit = data[i+2];
-            //if(unit == "KHz")
-            //    Memory_Bus_Width *= 1000;
-            //else if(unit == "MHz")
-            //    Memory_Bus_Width *= 1000*1000;
-            //else if(unit == "GHz")
-            //    Memory_Bus_Width *= 1000*1000*1000;
             i+=2;
         }
         else if(data[i]== "GPU_Clock_Rate")
