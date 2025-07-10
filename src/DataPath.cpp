@@ -21,7 +21,6 @@ int sys_sage::DataPath::GetOrientation() const {return ordered;}
 
 int sys_sage::Relation::UpdateComponent(int index, Component * _new_component)
 {
-    //if(index >= components.size() || index < 0)
     if (index < 0 || static_cast<size_t>(index) >= components.size())
     {
         //TODO ho return an integer; 0=okay, 1=this error?

@@ -309,14 +309,7 @@ int sys_sage::Mt4gParser::parseADDITIONAL_INFORMATION()
                 cerr << "parseADDITIONAL_INFORMATION: \"" << data[i] << "\" is supposed to be followed by 2 additional values." << endl;
                 return 1;
             }
-            Memory_Bus_Width = stod(data[i+1]);
-            std::string unit = data[i+2];
-            if(unit == "KHz")
-                Memory_Bus_Width *= 1000;
-            else if(unit == "MHz")
-                Memory_Bus_Width *= 1000*1000;
-            else if(unit == "GHz")
-                Memory_Bus_Width *= 1000*1000*1000;
+            Memory_Bus_Width = std::stoi(data[i + 1]);
             i+=2;
         }
         else if(data[i]== "GPU_Clock_Rate")

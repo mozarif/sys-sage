@@ -53,7 +53,7 @@ int sys_sage::_search_default_attrib_key(std::string key, void* value, std::stri
         return 1;
     }
     //value: double
-    else if(!key.compare("Clock_Frequency") )
+    else if(!key.compare("Clock_Frequency") || !key.compare("GPU_Clock_Rate") )
     {
         *ret_value_str=std::to_string(*(double*)value);
         return 1;
@@ -98,19 +98,19 @@ int sys_sage::_search_default_complex_attrib_key(std::string key, void* value, x
         return 1;
     }
     //value: std::tuple<double, std::string>
-    else if(!key.compare("GPU_Clock_Rate"))
-    {
-        xmlNodePtr attrib_node = xmlNewNode(NULL, (const unsigned char *)"Attribute");
-        xmlNewProp(attrib_node, (const unsigned char *)"name", (const unsigned char *)key.c_str());
-        xmlAddChild(n, attrib_node);
+    //else if(!key.compare("GPU_Clock_Rate"))
+    //{
+    //    xmlNodePtr attrib_node = xmlNewNode(NULL, (const unsigned char *)"Attribute");
+    //    xmlNewProp(attrib_node, (const unsigned char *)"name", (const unsigned char *)key.c_str());
+    //    xmlAddChild(n, attrib_node);
 
-        auto [ freq, unit ] = *(std::tuple<double, std::string>*)value;
-        xmlNodePtr attrib = xmlNewNode(NULL, (const unsigned char *)key.c_str());
-        xmlNewProp(attrib, (const unsigned char *)"frequency", (const unsigned char *)std::to_string(freq).c_str());
-        xmlNewProp(attrib, (const unsigned char *)"unit", (const unsigned char *)unit.c_str());
-        xmlAddChild(attrib_node, attrib);
-        return 1;
-    }
+    //    auto [ freq, unit ] = *(std::tuple<double, std::string>*)value;
+    //    xmlNodePtr attrib = xmlNewNode(NULL, (const unsigned char *)key.c_str());
+    //    xmlNewProp(attrib, (const unsigned char *)"frequency", (const unsigned char *)std::to_string(freq).c_str());
+    //    xmlNewProp(attrib, (const unsigned char *)"unit", (const unsigned char *)unit.c_str());
+    //    xmlAddChild(attrib_node, attrib);
+    //    return 1;
+    //}
 
     return 0;
 }

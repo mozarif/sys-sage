@@ -87,7 +87,7 @@ void* sys_sage::_search_default_attrib_key(xmlNodePtr n) {
 	}
 
 	// Handle attributes with double values
-	else if (!key.compare("Clock_Frequency")) 
+	else if (!key.compare("Clock_Frequency") || !key.compare("GPU_Clock_Rate")) 
 	{
 		return new double(std::stod(value));
 	}
@@ -144,24 +144,24 @@ int sys_sage::_search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
 		c->attrib[key] = (void*) val;
 		return 1;
 	} 
-	else if (!key.compare("GPU_Clock_Rate"))
-	{
-		// GPU_Clock_Rate is a vector of tuples containing the frequency and the unit
-		xmlNodePtr attr = n->children;
-		if(attr->type == XML_TEXT_NODE)
-			attr = attr->next;
+	//else if (!key.compare("GPU_Clock_Rate"))
+	//{
+	//	// GPU_Clock_Rate is a vector of tuples containing the frequency and the unit
+	//	xmlNodePtr attr = n->children;
+	//	if(attr->type == XML_TEXT_NODE)
+	//		attr = attr->next;
 
-		std::string unit = _getStringFromProp(attr, "unit");
-		std::string freq = _getStringFromProp(attr, "frequency");
+	//	std::string unit = _getStringFromProp(attr, "unit");
+	//	std::string freq = _getStringFromProp(attr, "frequency");
 
-		double freq_d = std::stod(freq);
+	//	double freq_d = std::stod(freq);
 
-		auto val = new std::tuple<double, std::string>(freq_d, unit); 
-		void *value = (void *)val;
-		c->attrib[key] = value;
+	//	auto val = new std::tuple<double, std::string>(freq_d, unit); 
+	//	void *value = (void *)val;
+	//	c->attrib[key] = value;
 
-		return 1;
-	}
+	//	return 1;
+	//}
 
 	return 0;
 }

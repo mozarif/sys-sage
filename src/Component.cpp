@@ -97,7 +97,7 @@ void sys_sage::Component::InsertChild(Component * child)
 int sys_sage::Component::InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild)
 {
     //consistency check
-    vector<Component*> p_children = parent->_GetChildren();
+    vector<Component*>& p_children = parent->_GetChildren();
     if(child->GetParent() != parent){
         if(std::find(p_children.begin(), p_children.end(), child) != p_children.end())
             return 1; //child and parent are not child and parent in the component tree
@@ -125,7 +125,7 @@ int sys_sage::Component::InsertBetweenParentAndChild(Component* parent, Componen
 }
 int sys_sage::Component::InsertBetweenParentAndChildren(Component* parent, std::vector<Component*> children, bool alreadyParentsChild)
 {
-    vector<Component*> p_children = parent->_GetChildren();
+    vector<Component*>& p_children = parent->_GetChildren();
     for(Component* child: children) //first just check for consistency
     {
         bool isParent = (child->GetParent() == parent);      
