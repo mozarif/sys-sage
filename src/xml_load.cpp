@@ -416,8 +416,6 @@ sys_sage::Component* sys_sage::importFromXml(
 	xmlNodePtr sys_sage_root = xmlDocGetRootElement(doc);
 	// cout << "sys_sage_root->name = " << sys_sage_root->name << endl;
 
-	xmlNodePtr n = sys_sage_root->children;
-
 	Component *c = NULL;
 	for (xmlNodePtr n = sys_sage_root->children; n != NULL; n = n->next) {
 		if (xmlStrcmp(n->name, (const xmlChar *)"text") == 0) {

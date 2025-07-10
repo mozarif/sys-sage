@@ -1,15 +1,13 @@
-
+#include <algorithm>
 #include "Relation.hpp"
-
 #include <iostream>
-
 #include "Component.hpp"
 
 using std::cout;
 using std::endl;
 
 sys_sage::Relation::Relation(RelationType::type _relation_type): type(_relation_type) {}
-sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id, bool _ordered, RelationType::type _relation_type): id(_id), ordered(_ordered), type(_relation_type)
+sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id, bool _ordered, RelationType::type _relation_type): ordered(_ordered), id(_id), type(_relation_type)
 {
     for (Component* c : components) {
         AddComponent(c);

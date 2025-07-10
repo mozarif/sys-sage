@@ -21,7 +21,8 @@ int sys_sage::DataPath::GetOrientation() const {return ordered;}
 
 int sys_sage::Relation::UpdateComponent(int index, Component * _new_component)
 {
-    if(index >= components.size() || index < 0)
+    //if(index >= components.size() || index < 0)
+    if (index < 0 || static_cast<size_t>(index) >= components.size())
     {
         //TODO ho return an integer; 0=okay, 1=this error?
         std::cerr << "WARNING: sys_sage::Relation::UpdateComponent index out of bounds -- nothing updated." << std::endl;
@@ -58,7 +59,7 @@ int sys_sage::DataPath::UpdateTarget(Component * _new_target)
 
 sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathType::type _dp_type): DataPath(_source, _target, _oriented, _dp_type, -1, -1) {}
 sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, double _bw, double _latency): DataPath(_source, _target, _oriented, sys_sage::DataPathType::None, _bw, _latency) {}
-sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathType::type _dp_type, double _bw, double _latency): dp_type(_dp_type), bw(_bw), latency(_latency), Relation(sys_sage::RelationType::DataPath)
+sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathType::type _dp_type, double _bw, double _latency) : Relation(sys_sage::RelationType::DataPath), dp_type(_dp_type), bw(_bw), latency(_latency)
 {
     if(_oriented == sys_sage::DataPathOrientation::Bidirectional)
         ordered = false;
