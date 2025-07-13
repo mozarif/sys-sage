@@ -19,5 +19,6 @@ void sys_sage::Qubit::SetProperties(double _t1, double _t2, double _readout_fide
 double sys_sage::Qubit::GetT1() const { return t1; }    
 double sys_sage::Qubit::GetT2() const { return t2; }
 double sys_sage::Qubit::GetReadoutFidelity() const { return readout_fidelity; }
-double sys_sage::Qubit::Get1QFidelity() const { return q1_fidelity;}
+double sys_sage::Qubit::GetQ1Fidelity() const { return q1_fidelity;}
 double sys_sage::Qubit::GetReadoutLength() const { return readout_length; }
+double sys_sage::Qubit::GetFrequency() const { return frequency; }

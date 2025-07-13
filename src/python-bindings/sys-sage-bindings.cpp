@@ -120,7 +120,7 @@ void set_attribute(sys_sage::Component &self, const std::string &key, py::object
         if(val != self.attrib.end())
             delete static_cast<int*>(val->second);
         self.attrib[key] = new_val;
-    } else if (!key.compare("Clock_Frequency")) {
+    } else if (!key.compare("Clock_Frequency") || !key.compare("GPU_Clock_Rate")) {
         void * new_val = static_cast<void*>(new double(py::cast<double>(value)));
         if(val != self.attrib.end())
             delete static_cast<double*>(val->second);
@@ -148,16 +148,16 @@ void set_attribute(sys_sage::Component &self, const std::string &key, py::object
         if(val != self.attrib.end())
             delete static_cast<std::vector<std::tuple<long long, double>>*>(val->second);
         self.attrib[key] = new_val;
-    } else if (!key.compare("GPU_Clock_Rate")) {
-        std::cout << "Setting attribute: " << key << std::endl;
-        py::object freq = value["freq"];
-        py::str unit = value["unit"];
-        //double * f = new double(py::cast<double>(freq));
-        //std::string * u = new std::string(py::cast<std::string>(unit));
-        void * new_val = static_cast<void*>(new std::tuple<double, std::string>(py::cast<double>(freq), py::cast<std::string>(unit)));
-        if(val != self.attrib.end())
-            delete static_cast<std::tuple<double, std::string>*>(val->second);
-        self.attrib[key] = new_val;
+    //} else if (!key.compare("GPU_Clock_Rate")) {
+    //    std::cout << "Setting attribute: " << key << std::endl;
+    //    py::object freq = value["freq"];
+    //    py::str unit = value["unit"];
+    //    //double * f = new double(py::cast<double>(freq));
+    //    //std::string * u = new std::string(py::cast<std::string>(unit));
+    //    void * new_val = static_cast<void*>(new std::tuple<double, std::string>(py::cast<double>(freq), py::cast<std::string>(unit)));
+    //    if(val != self.attrib.end())
+    //        delete static_cast<std::tuple<double, std::string>*>(val->second);
+    //    self.attrib[key] = new_val;
     } else {
         void * new_val = static_cast<void*>(new std::shared_ptr<py::object>(
             std::make_shared<py::object>(value)));
@@ -188,7 +188,7 @@ py::object get_attribute(sys_sage::Component &self, const std::string &key) {
             return py::cast(*(int*)val->second);
         }
         //value: double
-        else if(!key.compare("Clock_Frequency") )
+        else if(!key.compare("Clock_Frequency") || !key.compare("GPU_Clock_Rate"))
         {
             return py::cast(*(double*)val->second);
         }
@@ -213,14 +213,14 @@ py::object get_attribute(sys_sage::Component &self, const std::string &key) {
                  //printf("ts:%lld freq:%f\n",ts,freq);
              }
              return freq_dict;
-        }
-        else if(!key.compare("GPU_Clock_Rate")){
-            auto value = static_cast<std::tuple<double, std::string>*>(val->second);
-            auto [ freq, unit ] = *value;
-            py::dict freq_dict;
-            freq_dict[py::str("freq")] = py::cast(freq);
-            freq_dict[py::str("unit")] = py::cast(unit);  
-            return freq_dict;     
+        //}
+        //else if(!key.compare("GPU_Clock_Rate")){
+        //    auto value = static_cast<std::tuple<double, std::string>*>(val->second);
+        //    auto [ freq, unit ] = *value;
+        //    py::dict freq_dict;
+        //    freq_dict[py::str("freq")] = py::cast(freq);
+        //    freq_dict[py::str("unit")] = py::cast(unit);  
+        //    return freq_dict;     
         }else{
             auto * ptr = static_cast<std::shared_ptr<py::object>*>(val->second);
             return *ptr->get();
@@ -306,6 +306,7 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("QUANTUMGATE_TYPE_TOFFOLI") = QuantumGateType::Toffoli;
 
     //bind component class
+    // shouldn't we also export the attrib map?
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
         .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "unknown")
         .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown")
@@ -328,8 +329,9 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("parent", &Component::GetParent, &Component::SetParent, "The parent of the component")
         .def("SetParent", &Component::SetParent, py::arg("parent"), "Set the parent of the component")
         .def("PrintSubtree", (void (Component::*)()) &Component::PrintSubtree, "Print the subtree of the component up to level 0")
-        .def("PrintSubtree", (void (Component::*)(int)) &Component::PrintSubtree, "Print the subtree of the component with a maximum depth of <level>")
-        .def("PrintAllDataPathsInSubtree", &Component::PrintAllDataPathsInSubtree, "Print the datapath subtree of the component")
+        // why do we want to expose a helper function?
+        //.def("PrintSubtree", (void (Component::*)(int)) &Component::PrintSubtree, "Print the subtree of the component with a maximum depth of <level>")
+        .def("PrintAllRelationsInSubtree", &Component::PrintAllRelationsInSubtree, py::arg("relationType") = RelationType::Any, "Print all relations in the subtree")
         .def_property("name", &Component::GetName, &Component::SetName, "The name of the component")
         .def_property_readonly("id", &Component::GetId, "The id of the component")
         .def_property_readonly("type", &Component::GetComponentType, "The type of the component")
@@ -341,9 +343,10 @@ PYBIND11_MODULE(sys_sage, m) {
         //vector<Component*> as input doesnt work
         .def("GetAllChildrenByType", (void (Component::*)(std::vector<Component*> *, int) const) &Component::GetAllChildrenByType, py::arg("children"), py::arg("type"), "Get all child components by type")
         .def("GetAllChildrenByType", (std::vector<Component*> (Component::*)(int) const)(&Component::GetAllChildrenByType), py::arg("type"), "Get all child components by type")
-        .def("GetSubcomponentById", &Component::GetSubcomponentById, "Get the first sub component by id")
-        .def("GetAllSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, int))(&Component::GetAllSubcomponentsByType), py::arg("subcomponents"), py::arg("type"), "Get the first sub component by type")
-        .def("GetAllSubcomponentsByType", (std::vector<Component*> (Component::*)(int))(&Component::GetAllSubcomponentsByType),py::arg("type") ,"Get all sub components by type")
+        // This doesn't exist anymore
+        //.def("GetSubcomponentById", &Component::GetSubcomponentById, "Get the first sub component by id")
+        .def("GetAllSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, ComponentType::type))(&Component::GetAllSubcomponentsByType), py::arg("subcomponents"), py::arg("type"), "Get the first sub component by type")
+        .def("GetAllSubcomponentsByType", (std::vector<Component*> (Component::*)(ComponentType::type))(&Component::GetAllSubcomponentsByType),py::arg("type") ,"Get all sub components by type")
         .def("CountAllSubcomponents", &Component::CountAllSubcomponents, "Count all sub components")
         .def("CountAllSubcomponentsByType", &Component::CountAllSubcomponentsByType, py::arg("type"),"Count sub components by type")
         .def("CountChildrenByType", &Component::CountAllChildrenByType,py::arg("type"),"Count children by type")
@@ -352,22 +355,30 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetNthAncestor", &Component::GetNthAncestor, py::arg("n"),"Get the nth ancestor of the component")
         .def("GetNthDescendents", (void (Component::*)(std::vector<Component*> *, int))&Component::GetNthDescendents,py::arg("descendents"), py::arg("n"),"Get all the nth descendents of the component")
         .def("GetNthDescendents", (std::vector<Component*> (Component::*)(int))&Component::GetNthDescendents,py::arg("n"),"Get all the nth descendents of the component")
-        .def("GetSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, int))&Component::GetSubcomponentsByType,py::arg("subcomponents"), py::arg("type"),"Get all the sub components of the component by type")
-        .def("GetSubcomponentsByType", (std::vector<Component*> (Component::*)(int))&Component::GetSubcomponentsByType,py::arg("type"),"Get all the sub components of the component by type")
+        .def("GetSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, ComponentType::type))&Component::GetSubcomponentsByType,py::arg("subcomponents"), py::arg("type"),"Get all the sub components of the component by type")
+        .def("GetSubcomponentsByType", (std::vector<Component*> (Component::*)(ComponentType::type))&Component::GetSubcomponentsByType,py::arg("type"),"Get all the sub components of the component by type")
         .def("GetComponentsInSubtree", (void (Component::*)(std::vector<Component*> *))&Component::GetComponentsInSubtree,py::arg("components"),"Get all the components in the subtree of the component")
         .def("GetComponentsInSubtree", (std::vector<Component*> (Component::*)())&Component::GetComponentsInSubtree,"Get all the components in the subtree of the component")
         .def("GetSubcomponentById", &Component::GetSubcomponentById, py::arg("id"),py::arg("type"),"Get the first sub component by id and type")
         // .def("GetDataPaths", &Component::GetDataPaths,py::arg("orientation"),"Get all the data paths associated with the component")
+        .def("GetRelations", &Component::GetRelations, py::arg("type"), "Get all relations of that type")
+        .def("GetAllRelationsBy", &Component::GetAllRelationsBy, py::arg("type") = RelationType::Any, py::arg("position") = -1, "Get all relations of that type and position")
         // .def("AddDataPath", &Component::AddDataPath,py::arg("datapath"), py::arg("orientation"),"Add a data path to the component")
-        .def("GetDataPathByType", &Component::GetDataPathByType, py::arg("type"), py::arg("orientation"),"Get the first data path associated with the component by type")
+        .def("GetDataPathByType", &Component::GetDataPathByType, py::arg("type"), py::arg("direction") = DataPathDirection::Any,"Get the first data path associated with the component by type")
         // .def("GetAllDataPathsByType", (void (Component::*)(std::vector<DataPath*> *, int, int))&Component::GetAllDataPathsByType, py::arg("datapaths"), py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
         // .def("GetAllDataPathsByType", (std::vector<DataPath*> (Component::*)(int, int)) &Component::GetAllDataPathsByType,py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
+        .def("GetAllDataPaths", (void (Component::*)(std::vector<DataPath *> *, DataPathType::type, DataPathDirection::type) const)&Component::GetAllDataPaths, py::arg("datapaths"), py::arg("type") = DataPathType::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that type and direction")
+        .def("GetAllDataPaths", (std::vector<DataPath *> (Component::*)(DataPathType::type, DataPathDirection::type) const)&Component::GetAllDataPaths, py::arg("type") = DataPathType::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that type and direction")
         .def("CheckComponentTreeConsistency", &Component::CheckComponentTreeConsistency,"Check if the component tree is consistent")
-        .def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),"Get the size of the topology")
-        .def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*, std::set<DataPath*>*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),py::arg("datapaths_counted"),"Get the size of the topology")
+        //this isn't overloaded anymore
+        //.def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),"Get the size of the topology")
+        .def("GetTopologySize", &Component::GetTopologySize,py::arg("components_size"),py::arg("datapaths_size"),"Get the size of the topology")
+        //doesn't exist anymore
+        //.def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*, std::set<DataPath*>*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),py::arg("datapaths_counted"),"Get the size of the topology")
         .def("GetDepth", &Component::GetDepth,py::arg("refresh"),"Get the depth of the component, if refresh is true it will update the depth")
-        .def("DeleteDataPath", &Component::DeleteDataPath, py::arg("datapath"),"Delete a data path from the component")
-        .def("DeleteAllDataPaths", &Component::DeleteAllDataPaths,"Delete all the data paths from the component")
+        .def("DeleteRelation", &Component::DeleteRelation, py::arg("relation"), "Delete the given relation from the component")
+        //.def("DeleteAllDataPaths", &Component::DeleteAllDataPaths,"Delete all the data paths from the component")
+        .def("DeleteAllRelations", &Component::DeleteAllRelations, py::arg("type") = RelationType::Any,"Delete all relations of that type from the component")
         .def("DeleteSubtree", &Component::DeleteSubtree,"Delete the subtree of the component")
         .def("Delete", &Component::Delete,py::arg("withSubtree") = true,"Delete the component")
         .def("__bool__",[](Component& self){
@@ -378,40 +389,50 @@ PYBIND11_MODULE(sys_sage, m) {
             //TODO: add more info
             return "<Component: " + self.GetName() + ">";
             });
+
     py::class_<Topology, std::unique_ptr<Topology, py::nodelete>,Component>(m, "Topology")
         .def(py::init<>());
+
     py::class_<Node, std::unique_ptr<Node, py::nodelete>, Component>(m, "Node")
         #ifdef INTEL_PQOS
-        .def("UpdateL3CATCoreCOS", &Node::UpdateL3CATCoreCOS, py::arg("core"), py::arg("cos"))
+        // this function signature does not match with the one specified in Node.hpp
+        //.def("UpdateL3CATCoreCOS", &Node::UpdateL3CATCoreCOS, py::arg("core"), py::arg("cos"))
+        .def("UpdateL3CATCoreCOS", &Node::UpdateL3CATCoreCOS, "Create new data paths between all cores of the node and the L3 cache to reflect new L3 cache settings")
         #endif
         #ifdef PROC_CPUINFO
         .def("RefreshCpuCoreFrequency", &Node::RefreshCpuCoreFrequency, py::arg("keep_history")=false,"Refresh the cpu core frequency")
         #endif
         .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name")= "Node")
         .def(py::init<Component*, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Node");
+
     py::class_<Memory,std::unique_ptr<Memory, py::nodelete>, Component>(m, "Memory")
         #ifdef NVIDIA_MIG
-        .def("GetMIGSize", &Memory::GetMIGSize, py::arg("uuid"))
+        .def("GetMIGSize", &Memory::GetMIGSize, py::arg("uuid"), "Get the MIG size of the memory element")
         #endif
         .def(py::init<long long, bool>(), py::arg("size") = -1, py::arg("isVolatile") = false)
         .def(py::init<Component*,int, std::string, long long, bool>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Memory", py::arg("size")=-1, py::arg("isVolatile")=false)
         .def_property("size", &Memory::GetSize, &Memory::SetSize, "The size of the memory")
         .def_property("isVolatile", &Memory::GetIsVolatile, &Memory::SetIsVolatile, "Whether the memory is volatile or not");
+
     py::class_<Storage, std::unique_ptr<Storage, py::nodelete>, Component>(m, "Storage")
         .def(py::init<long long>(), py::arg("size")=-1)
         .def(py::init<Component*,long long>(), py::arg("parent"), py::arg("size")= -1)
         .def_property("size", &Storage::GetSize, &Storage::SetSize, "The size of the storage");
+
     py::class_<Chip,std::unique_ptr<Chip, py::nodelete>, Component>(m, "Chip")
         #ifdef NVIDIA_MIG
         .def("GetMIGNumCores", &Chip::GetMIGNumCores, py::arg("uuid"))
         .def("GetMIGNumSMs", &Chip::GetMIGNumSMs, py::arg("uuid"))
         .def("UpdateMIGSettings", &Chip::UpdateMIGSettings, py::arg("uuid"))
         #endif
-        .def(py::init<int,std::string,int,std::string,std::string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
-        .def(py::init<Component*,int,std::string,int,std::string,std::string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = 1, py::arg("vendor") = "", py::arg("model") = "")
+        // why do we want to return a reference of an object when creating it in the constructor? Isn't that dangerous?
+        //.def(py::init<int,std::string,int,std::string,std::string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
+        .def(py::init<int,std::string,ChipType::type,std::string,std::string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= ChipType::None, py::arg("vendor") = "", py::arg("model") = "")
+        .def(py::init<Component*,int,std::string,ChipType::type,std::string,std::string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = ChipType::None, py::arg("vendor") = "", py::arg("model") = "")
         .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
         .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
         .def_property("chipType", &Chip::GetChipType, &Chip::SetChipType, "The type of the chip");
+
     py::class_<Cache, std::unique_ptr<Cache, py::nodelete>, Component>(m, "Cache")
         #ifdef NVIDIA_MIG
         .def("GetMIGSize", &Cache::GetMIGSize, py::arg("uuid"))
@@ -424,16 +445,18 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("cacheSize", &Cache::GetCacheSize, &Cache::SetCacheSize, "The size of the cache")
         .def_property("cacheAssociativity", &Cache::GetCacheAssociativityWays, &Cache::SetCacheAssociativityWays, "The associativity of the cache")
         .def_property("cacheLineSize", &Cache::GetCacheLineSize, &Cache::SetCacheLineSize, "The line size of the cache");
+
     py::class_<Subdivision, std::unique_ptr<Subdivision, py::nodelete>, Component>(m, "Subdivision")
         .def(py::init<int,std::string>(), py::arg("id") = 0, py::arg("name") = "Subdivision")
         .def(py::init<Component*,int,std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision")
         .def_property("subdivisionType", &Subdivision::GetSubdivisionType, &Subdivision::SetSubdivisionType, "The type of the subdivision");
+
     py::class_<Numa,std::unique_ptr<Numa, py::nodelete>, Subdivision>(m, "Numa")
         .def(py::init<int, long long>(), py::arg("id") = 0, py::arg("size") = -1)
         .def(py::init<Component*, int, long long>(), py::arg("parent"), py::arg("id") = 0, py::arg("size") = -1)
         .def_property("size", &Numa::GetSize, &Numa::SetSize, "Size of the NUMA region");
+
     py::class_<Core, std::unique_ptr<Core, py::nodelete>, Component>(m, "Core")
-        
         #ifdef PROC_CPUINFO
         .def("RefreshFreq", &Core::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
         .def_property("freq", &Core::GetFreq, &Core::SetFreq, "Frequency of this core")
@@ -447,21 +470,109 @@ PYBIND11_MODULE(sys_sage, m) {
         #endif
         #ifdef PROC_CPUINFO
         .def("RefreshFreq", &Thread::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
-        .def("GetCATAwareL3Size", &Thread::GetCATAwareL3Size, "Get L3 size of this thread")
+        // not part of the Macro
+        //.def("GetCATAwareL3Size", &Thread::GetCATAwareL3Size, "Get L3 size of this thread")
         .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread")
         #endif
         .def(py::init<int,std::string>(),py::arg("id") = 0,py::arg("name") = "Thread")
         .def(py::init<Component*,int,std::string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread");
+
+    // why do we allow for dynamic attachements of new members? Why is that needed?
     py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>>(m,"DataPath",py::dynamic_attr())
-        .def(py::init<Component*, Component*, int, int>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = 32)
-        .def(py::init<Component*, Component*, int, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
-        .def(py::init<Component*, Component*, int, int, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))
+        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = sys_sage::DataPathType::None)
+        .def(py::init<Component*, Component*, DataPathOrientation::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
+        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))
         .def_property("bandwidth", &DataPath::GetBandwidth, &DataPath::SetBandwidth, "The bandwidth of the data path")
         .def_property("latency", &DataPath::GetLatency, &DataPath::SetLatency, "The latency of the data path")
         .def_property_readonly("type", &DataPath::GetDataPathType, "The type of the data path")
         .def_property_readonly("oriented", &DataPath::GetOrientation, "The orientation of the data path")
+        // used the UpdateSource and UpdateTarget functions as the setters of the member variables
+        // not sure if thats ok?
         .def_property("source", &DataPath::GetSource, &DataPath::UpdateSource, "The source of the data path")
-        .def_property("target", &DataPath::GetTarget, &DataPath::UpdateTarget, "The target of the data path");
+        .def_property("target", &DataPath::GetTarget, &DataPath::UpdateTarget, "The target of the data path")
+        // these may be missing?
+        .def("Print", &DataPath::Print, "Print basic information of the data path to stdout")
+        .def("Delete", &DataPath::Delete, "Delete the data path");
+
+    py::class_<Relation, std::unique_ptr<Relation, py::nodelete>>(m, "Relation")
+        .def(py::init<const std::vector<Component*> &, int, bool>, py::arg("components"), py::arg("id") = 0, py::arg("ordered") = true)
+        .def_property("id", &Relation::GetId, &Relation::SetId)
+        .def_property("type", &Relation::GetType)
+        .def_property("ordered", &Relation::IsOrdered)
+        .def_property("components", &Relation::GetComponents)
+        .def("GetTypeStr", &Relation::GetTypeStr, "Get a string representing the type of the relation")
+        .def("ContainsComponent", &Relation::ContainsComponent, py::arg("component"), "Check if a component is part of this relation")
+        .def("GetComponent", &Relation::GetComponent, py::arg("index"), "Get a component at a specific position")
+        .def("Print", &Relation::Print, "Prin basic information about this relation")
+        .def("AddComponent", &Relation::AddComponent, py::arg("component"), "Add this component to the relation")
+        .def("UpdateComponent", (int (Relation::*) (int, Component *)) &Relation::UpdateComponent, py::arg("index"), py::arg("new_component"), "Tries to replace the component at the given index with the new component")
+        .def("UpdateComponent", (int (Relation::*) (Component *, Component *)) &Relation::UpdateComponent, py::arg("old_component"), py::arg("new_component"), "Tries to find the old component to replace it with the new component")
+        .def("Delte", &Relation::Delete, "Delete this relation");
+
+    py::class_<AtomSite::SiteProperties>(m, "SiteProperties")
+        .def_readwrite("nRows", &AtomSite::SiteProperties::nRows)
+        .def_readwrite("nColumns", &AtomSite::SiteProperties::nColumns)
+        .def_readwrite("nAods", &AtomSite::SiteProperties::nAods)
+        .def_readwrite("nAodIntermediateLevels", &AtomSite::SiteProperties::nAodIntermediateLevels)
+        .def_readwrite("nAodCoordinates", &AtomSite::SiteProperties::nAodCoordinates)
+        .def_readwrite("interQubitDistance", &AtomSite::SiteProperties::interQubitDistance)
+        .def_readwrite("interactionRadius", &AtomSite::SiteProperties::interactionRadius)
+        .def_readwrite("blockingFactor", &AtomSite::SiteProperties::blockingFactor);
+    py::class_<AtomSite, std::unique_ptr<AtomSite, py::nodelete>>(m, "AtomSite")
+        .def(py::init<>())
+        .def_readwrite("properties", &AtomSite::properties)
+        .def_readwrite("shuttlingTimes", &AtomSite::shuttlingTimes)
+        .def_readwrite("shuttlingAverageFidelities", &AtomSite::shuttlingAverageFidelities);
+
+    // what about the delete functions?
+    py::class_<CouplingMap, std::unique_ptr<CouplingMap, py::nodelete>>(m, "CouplingMap")
+        .def(py::init<Qubit *, Qubit *>(), py::arg("q1"), py::arg("q2"))
+        .def(py::init<const std::vector<Component*>&, int, bool>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = false)
+        .def_property("fidelity", &CouplingMap::GetFidelity, &CouplingMap::SetFidelity)
+        .def("Delete", &CouplingMap::Delete, "Delete the coupling map");
+
+    py::class_<QuantumBackend, std::unique_ptr<QuantumBackend, py::nodelete>>(m, "QuantumBackend")
+        .def(py::init<>(int, std::string), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
+        .def(py::init<Component *, int, std::string>, py::arg("parent"), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
+        .def_property("num_qubits", &QuantumBackend::GetNumQubits, &QuantumBackend::SetNumQubits)
+        .def_property("gate_types", &QuantumBackend::GetAllGateTypes)
+        #ifdef QDMI
+        .def_property("device", &QuantumBackend::GetQDMIDevice, &QuantumBackend::SetQDMIDevice)
+        #endif
+        .def("addGate", &QuantumBackend::addGate, py::arg("gate"), "Add this gate to the backend")
+        .def("GetGatesBySize", &QuantumBackend::GetGatesBySize, py::arg("size"), "Get quantum gates by their size")
+        .def("GetGatesByType", &QuantumBackend::GetGatesByType, py::arg("type"), "Get quantum gates by their type")
+        .def("GetNumberofGates", &QuantumBackend::GetNumberofGates, "Get the number of gates in the backend")
+        .def("GetAllQubits", &QuantumBackend::GetAllQubits, "Get all qubits in the backend")
+        .def("RefreshTopology", &QuantumBackend::RefreshTopology, py::arg("qubit_indices"), "Refresh the topology of the backend");
+
+    py::class_<QuantumGate, std::unique_ptr<QuantumGate, py::nodelete>>(m, "QuantumGate")
+        .def(py::init<size_t, std::string, double, std::string>(), py::arg("size"), py::arg("name"), py::arg("fidelity"), py::arg("unitary"))
+        .def(py::init<size_t, const std::vector<Qubit *> &>(), py::arg("size"), py::arg("qubits"))
+        .def(py::init<size_t, const std::vector<Qubit *> &, std::string, double, std::string>(), py::arg("size"), py::arg("qubits"), py::arg("name"), py::arg("fidelity"), py::arg("unitary"))
+        .def(py::init<const std::vector<Component *> &, int, bool, size_t, std::string, int, QuantumGateType::type, double, std::string>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = true, py::arg("size") = 0, py::arg("name") = "", py::arg("length") = 0, py::arg("type") = QuantumGateType::Unknown, py::arg("fidelity") = 0, py::arg("unitary") = "")
+        .def_property("gate_size", &QuantumGate::GetGateSize, &QuantumGate::SetGateSize)
+        .def_property("name", &QuantumGate::GetName, &QuantumGate::SetName)
+        .def_property("gate_length", &QuantumGate::GetGateLength, &QuantumGate::SetGateLength)
+        .def_property("gate_type", &QuantumGate::GetQuantumGateType, &QuantumGate::SetQuantumGateType)
+        .def_property("fidelity", &QuantumGate::GetFidelity, &QuantumGate::SetFidelity)
+        .def_property("unitary" &QuantumGate::GetUnitary, &QuantumGate::SetUnitary)
+        .def("SetGateProperties", &QuantumGate::SetGateProperties, py::arg("name") py::arg("fidelity"), py::arg("unitary"), "Sets the name, fidelity, unitary and type of the quantum gate")
+        // TODO: first implement these functions before exporting them
+        //.def("SetGateCouplingMap", &QuantumGate::SetGateCouplingMap)
+        //.def("SetAdditionalProperties", &QuantumGate::SetAdditionalProperties)
+        .def("Print", &QuantumGate::Print, "Print basic information about the quantum gate to stdout");
+
+    py::class_<Qubit, std::unique_ptr<Qubit, py::nodelete>>(m, "Qubit")
+        .def(py::init<int, std::string>, py::arg("id") = 0, py::arg("name") = "Qubit")
+        .def(py::init<Component *, int, std::string>, py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Qubit")
+        .def_property("t1", &Qubit::GetT1)
+        .def_property("t2", &Qubit::GetT2)
+        .def_property("readout_fidelity", &Qubit::GetReadoutFidelity)
+        .def_property("q1_fidelity", &Qubit::GetQ1Fidelity)
+        .def_property("readout_length", &Qubit::GetReadoutLength)
+        .def_property("frequency", &Qubit::GetFrequency)
+        .def("SetProperties", &Qubit::SetProperties, py::arg("t1"), py::arg("t2"), py::arg("readout_fidelity"), py::arg("q1_fidelity") = 0, py::arg("readout_length") = 0, "Set properties relevant for quantum error modeling and backend calibration");
 
     m.def("parseMt4gTopo", (int (*) (Node*,std::string,int, std::string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");
     m.def("parseMt4gTopo", (int (*) (Component*,std::string,int, std::string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");
@@ -473,13 +584,20 @@ PYBIND11_MODULE(sys_sage, m) {
 
     m.def("parseCapsNumaBenchmark", &parseCapsNumaBenchmark,  py::arg("root"), py::arg("benchmarkPath"), py::arg("delim") = ";");
 
+    m.def("parseIQM", (int (*) (Component *, std::string, int, int)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1);
+    m.def("parseIQM", (int (*) (QuantumBackend *, std::string, int, int, bool)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1, createTopo = true);
+
+    // TODO: QDMI parser logic is missing in src/parsers/qdmi-parser.hpp
+
     m.def("exportToXml", [](Component& root, std::string xmlPath, std::optional<py::function> print_att = std::nullopt, std::optional<py::function> print_catt = std::nullopt) {
         if(print_att)
             print_attributes = *print_att;
         if(print_catt)
             print_complex_attributes = *print_catt;
         exportToXml(&root, xmlPath,print_att ? xmldumper : nullptr,print_catt ? xmldumper_complex : nullptr);
-    },py::arg("root"), py::arg("xmlPath") = "out.xml", py::arg("print_att") = py::none(), py::arg("print_catt") = py::none());
+    // this doesn't match with the signature in xml_dump.hpp
+    //},py::arg("root"), py::arg("xmlPath") = "out.xml", py::arg("print_att") = py::none(), py::arg("print_catt") = py::none());
+    },py::arg("root"), py::arg("xmlPath") = "", py::arg("print_att") = py::none(), py::arg("print_catt") = py::none());
     
     m.def("importFromXml",[](std::string path, std::optional<py::function> search_custom_attrib_key_fcn = std::nullopt, std::optional<py::function> search_custom_complex_attrib_key_fcn = std::nullopt) {
         if(search_custom_attrib_key_fcn)

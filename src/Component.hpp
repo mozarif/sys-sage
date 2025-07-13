@@ -323,7 +323,7 @@ namespace sys_sage {
          *   An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
          *   The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
          */
-        void GetSubcomponentsByType(std::vector<Component*>* outArray, int componentType);
+        void GetSubcomponentsByType(std::vector<Component*>* outArray, ComponentType::type componentType);
 
         /**
          * @brief Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. 

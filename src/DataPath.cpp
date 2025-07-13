@@ -19,33 +19,6 @@ int sys_sage::DataPath::GetDataPathType() const {return dp_type;}
 int sys_sage::DataPath::GetOrientation() const {return ordered;}
 
 
-int sys_sage::Relation::UpdateComponent(int index, Component * _new_component)
-{
-    if (index < 0 || static_cast<size_t>(index) >= components.size())
-    {
-        //TODO ho return an integer; 0=okay, 1=this error?
-        std::cerr << "WARNING: sys_sage::Relation::UpdateComponent index out of bounds -- nothing updated." << std::endl;
-        return 1;
-    }
-    std::vector<Relation*>& component_relation_vector = components[index]->_GetRelations(type);
-    component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
-
-    _new_component->_AddRelation(type, this);
-    components[index] = _new_component;
-    return 0;
-}
-int sys_sage::Relation::UpdateComponent(Component* _old_component, Component * _new_component)
-{
-    auto it = std::find(components.begin(), components.end(), _old_component);
-    if(it == components.end())
-    {
-        std::cerr << "WARNING: sys_sage::Relation::UpdateComponent component not found -- nothing updated." << std::endl;
-        return 1;
-    }
-    int index = it - components.begin();
-    return UpdateComponent(index, _new_component);
-}
-
 int sys_sage::DataPath::UpdateSource(Component * _new_source)
 {
     return UpdateComponent(0, _new_source);

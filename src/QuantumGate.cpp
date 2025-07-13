@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+sys_sage::QuantumGate::QuantumGate(size_t _gate_size, std::string _name, double _fidelity, std::string _unitary) : Relation(sys_sage::RelationType::QuantumGate), gate_size(_gate_size), name(_name), fidelity(_fidelity), unitary(_unitary) {}
 sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits) : QuantumGate(_gate_size, _qubits, "QuantumGate", 0.0, ""){}
 sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, std::string _name, double _fidelity, std::string _unitary) : Relation(sys_sage::RelationType::QuantumGate), gate_size(_gate_size), fidelity(_fidelity), unitary(_unitary) 
 { 
@@ -21,7 +22,6 @@ void sys_sage::QuantumGate::SetGateProperties(std::string _name, double _fidelit
     unitary = _unitary;
     SetQuantumGateType();
 }
-
 
 void sys_sage::QuantumGate::SetQuantumGateType()
 {
@@ -48,6 +48,43 @@ void sys_sage::QuantumGate::SetQuantumGateType()
     {
         gate_type = QuantumGateType::Unknown;
     }
+}
+
+// wouldn't it be better to use `const std::string &` as parameter type?
+// this would allow rvalues to be passed directly to the function.
+// Or maybe an `std::string_view` is the best choice, since we could accept
+// values of type `std::string` or plain C-style strings without needing to copy
+// the data twice.
+void sys_sage::QuantumGate::SetName(std::string _name)
+{
+    name = _name;
+}
+
+void sys_sage::QuantumGate::SetGateSize(size_t gateSize)
+{
+    gate_size = gateSize;
+}
+
+int sys_sage::QuantumGate::GetGateLength() const
+{
+    return gate_length;
+}
+
+void sys_sage::QuantumGate::SetGateLength(int GateLength)
+{
+    gate_length = GateLength;
+}
+
+void sys_sage::QuantumGate::SetFidelity(double gateFidelity)
+{
+    fidelity = gateFidelity;
+}
+
+// again, it would be better to use `std::string_view` instead of
+// `const std::string &`
+void sys_sage::QuantumGate::SetUnitary(const std::string & gateUnitary)
+{
+    unitary = gateUnitary;
 }
 
 sys_sage::QuantumGateType::type sys_sage::QuantumGate::GetQuantumGateType() const { return gate_type; }

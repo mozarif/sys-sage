@@ -201,7 +201,7 @@ xmlNodePtr sys_sage::Qubit::_CreateXmlSubtree()
     xmlNewProp(n, (const unsigned char *)"t2", (const unsigned char *)(std::to_string(t2)).c_str());
     xmlNewProp(n, (const unsigned char *)"readout_fidelity", (const unsigned char *)(std::to_string(readout_fidelity)).c_str());
     xmlNewProp(n, (const unsigned char *)"readout_length", (const unsigned char *)(std::to_string(readout_length)).c_str());
-    xmlNewProp(n, (const unsigned char *)"fequency", (const unsigned char *)(std::to_string(fequency)).c_str());
+    xmlNewProp(n, (const unsigned char *)"frequency", (const unsigned char *)(std::to_string(frequency)).c_str());
     xmlNewProp(n, (const unsigned char *)"calibration_time", (const unsigned char *)(calibration_time).c_str());
     return n;
 }
@@ -210,7 +210,7 @@ xmlNodePtr sys_sage::QuantumBackend::_CreateXmlSubtree()
     //SVTODO deal with gate_types -- can this go into Relations?
     xmlNodePtr n = Component::_CreateXmlSubtree();
     xmlNewProp(n, (const unsigned char *)"num_qubits", (const unsigned char *)(std::to_string(num_qubits)).c_str());
-    xmlNewProp(n, (const unsigned char *)"num_gates", (const unsigned char *)(std::to_string(num_gates)).c_str());
+    //xmlNewProp(n, (const unsigned char *)"num_gates", (const unsigned char *)(std::to_string(num_gates)).c_str());
     // if(gate_types.size() > 0)
     // {
     //     xmlNodePtr xml_gt = xmlNewNode(NULL, (const unsigned char *)"gateTypes");

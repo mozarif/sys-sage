@@ -106,6 +106,9 @@ namespace sys_sage {
          * printing behavior.
          */
         virtual void Print() const;
+
+        // if functions are marked a private by doxygen, then why not mark them
+        // as private in the code?
         /**
          * @private
          * @brief Print all key-value pairs in the attribute map.
