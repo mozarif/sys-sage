@@ -3,6 +3,7 @@
 #include "sys-sage.hpp"
 
 using namespace boost::ut;
+using namespace sys_sage;
 
 #if PROC_CPUINFO
 

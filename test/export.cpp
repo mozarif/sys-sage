@@ -11,6 +11,8 @@
 #include <set>
 #include <string>
 
+using namespace sys_sage;
+
 using XmlStringView = std::basic_string_view<const xmlChar>;
 
 /**
@@ -117,7 +119,13 @@ static suite<"export"> _ = []
 {
     "Minimal topology"_test = []
     {
-        auto topo = new Component{42, "a name", SYS_SAGE_COMPONENT_NONE};
+        // this uses a protected constructor, meaning that it can't be called
+        // from outside of its class or subclasses.
+        //
+        // Luckily, there is a public constructor that is equivalent to it.
+        //
+        //auto topo = new Component{42, "a name", ComponentType::None};
+        auto topo = new Component(42, "a name");
         exportToXml(topo, "test.xml");
         topo->Delete(false);
         validate("test.xml");
@@ -190,11 +198,11 @@ static suite<"export"> _ = []
             Core c1{&node, 1};
             c1.attrib["my_core_info"] = reinterpret_cast<void *>(&attrib);
 
-            auto print_my_attribs = [](string key, void *value, string *ret_value_str) -> int
+            auto print_my_attribs = [](std::string key, void *value, std::string *ret_value_str) -> int
             {
                 if (key == "codename" || key == "info")
                 {
-                    *ret_value_str = *(string *)value;
+                    *ret_value_str = *(std::string *)value;
                     return 1;
                 }
                 else if (key == "rack_no")
@@ -206,7 +214,7 @@ static suite<"export"> _ = []
                 return 0;
             };
 
-            auto print_my_custom_attribs = [](string key, void *value, xmlNode *xml) -> int
+            auto print_my_custom_attribs = [](std::string key, void *value, xmlNode *xml) -> int
             {
                 if (key != "my_core_info")
                 {

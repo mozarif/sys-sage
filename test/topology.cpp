@@ -1,8 +1,11 @@
 #include <boost/ut.hpp>
+#include <string_view>
 
 #include "sys-sage.hpp"
 
 using namespace boost::ut;
+using namespace sys_sage;
+using namespace std::string_view_literals;
 
 static suite<"topology"> _ = []
 {
@@ -10,7 +13,7 @@ static suite<"topology"> _ = []
     {
         Node node{42};
         expect(that % 42 == node.GetId());
-        expect(that % SYS_SAGE_COMPONENT_NODE == node.GetComponentType());
+        expect(that % ComponentType::Node == node.GetComponentType());
         expect(that % "Node"sv == node.GetComponentTypeStr());
         expect(that % nullptr == node.GetParent());
 
@@ -23,7 +26,7 @@ static suite<"topology"> _ = []
     {
         Topology node;
         expect(that % 0 == node.GetId());
-        expect(that % SYS_SAGE_COMPONENT_TOPOLOGY == node.GetComponentType());
+        expect(that % ComponentType::Topology == node.GetComponentType());
         expect(that % "Topology"sv == node.GetComponentTypeStr());
     };
 
@@ -34,8 +37,10 @@ static suite<"topology"> _ = []
         expect(that % &root == node.GetParent());
         expect(that % 42 == node.GetId());
         expect(that % "foo"sv == node.GetName());
-        expect(that % SYS_SAGE_COMPONENT_THREAD == node.GetComponentType());
-        expect(that % "HW_thread"sv == node.GetComponentTypeStr());
+        expect(that % ComponentType::Thread == node.GetComponentType());
+        // failed to to typo
+        //expect(that % "HW_thread"sv == node.GetComponentTypeStr());
+        expect(that % "HW_Thread"sv == node.GetComponentTypeStr());
     };
 
     "Core"_test = []
@@ -45,7 +50,7 @@ static suite<"topology"> _ = []
         expect(that % &root == node.GetParent());
         expect(that % 42 == node.GetId());
         expect(that % "foo"sv == node.GetName());
-        expect(that % SYS_SAGE_COMPONENT_CORE == node.GetComponentType());
+        expect(that % ComponentType::Core == node.GetComponentType());
         expect(that % "Core"sv == node.GetComponentTypeStr());
     };
 
@@ -61,7 +66,7 @@ static suite<"topology"> _ = []
         expect(that % 32 == node.GetCacheSize());
         expect(that % 2 == node.GetCacheAssociativityWays());
         expect(that % 16 == node.GetCacheLineSize());
-        expect(that % SYS_SAGE_COMPONENT_CACHE == node.GetComponentType());
+        expect(that % ComponentType::Cache == node.GetComponentType());
         expect(that % "Cache"sv == node.GetComponentTypeStr());
 
         node.SetCacheSize(16);
@@ -78,7 +83,7 @@ static suite<"topology"> _ = []
         expect(that % &root == node.GetParent());
         expect(that % 42 == node.GetId());
         expect(that % "foo"sv == node.GetName());
-        expect(that % SYS_SAGE_COMPONENT_SUBDIVISION == node.GetComponentType());
+        expect(that % ComponentType::Subdivision == node.GetComponentType());
         expect(that % "Subdivision"sv == node.GetComponentTypeStr());
 
         node.SetSubdivisionType(3);
@@ -92,7 +97,7 @@ static suite<"topology"> _ = []
         expect(that % &root == node.GetParent());
         expect(that % 42 == node.GetId());
         expect(that % "Numa"sv == node.GetName());
-        expect(that % SYS_SAGE_COMPONENT_NUMA == node.GetComponentType());
+        expect(that % ComponentType::Numa == node.GetComponentType());
         expect(that % "NUMA"sv == node.GetComponentTypeStr());
 
         node.SetSubdivisionType(3);
@@ -106,7 +111,7 @@ static suite<"topology"> _ = []
         expect(that % &root == node.GetParent());
         expect(that % 42 == node.GetId());
         expect(that % "foo"sv == node.GetName());
-        expect(that % SYS_SAGE_COMPONENT_CHIP == node.GetComponentType());
+        expect(that % ComponentType::Chip == node.GetComponentType());
         expect(that % "Chip"sv == node.GetComponentTypeStr());
         expect(that % 5 == node.GetChipType());
 
@@ -128,7 +133,7 @@ static suite<"topology"> _ = []
         expect(that % 0 == node.GetId());
         expect(that % "foo"sv == node.GetName());
         expect(that % 32 == node.GetSize());
-        expect(that % SYS_SAGE_COMPONENT_MEMORY == node.GetComponentType());
+        expect(that % ComponentType::Memory == node.GetComponentType());
         expect(that % "Memory"sv == node.GetComponentTypeStr());
 
         node.SetSize(64);
@@ -140,7 +145,7 @@ static suite<"topology"> _ = []
         Node root{0};
         Storage node{&root};
         expect(that % &root == node.GetParent());
-        expect(that % SYS_SAGE_COMPONENT_STORAGE == node.GetComponentType());
+        expect(that % ComponentType::Storage == node.GetComponentType());
         expect(that % "Storage"sv == node.GetComponentTypeStr());
 
         node.SetSize(64);
@@ -157,13 +162,13 @@ static suite<"topology"> _ = []
         a.InsertChild(&b);
         a.InsertChild(&c);
         a.InsertChild(&d);
-        expect(that % 3_u == a.GetChildren()->size());
+        expect(that % 3_u == a.GetChildren().size());
 
         expect(that % 1 == a.RemoveChild(&b));
-        expect(that % (2_u == a.GetChildren()->size()) >> fatal);
-        expect(that % (std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &b) == a.GetChildren()->end()));
-        expect(that % (std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &c) != a.GetChildren()->end()));
-        expect(that % (std::find(a.GetChildren()->begin(), a.GetChildren()->end(), &d) != a.GetChildren()->end()));
+        expect(that % (2_u == a.GetChildren().size()) >> fatal);
+        expect(that % (std::find(a.GetChildren().begin(), a.GetChildren().end(), &b) == a.GetChildren().end()));
+        expect(that % (std::find(a.GetChildren().begin(), a.GetChildren().end(), &c) != a.GetChildren().end()));
+        expect(that % (std::find(a.GetChildren().begin(), a.GetChildren().end(), &d) != a.GetChildren().end()));
     };
 
     "Get child"_test = []
@@ -193,9 +198,9 @@ static suite<"topology"> _ = []
         a.InsertChild(&c);
         a.InsertChild(&d);
 
-        expect(that % a.GetChildByType(SYS_SAGE_COMPONENT_MEMORY) == &b);
-        expect(that % a.GetChildByType(SYS_SAGE_COMPONENT_CHIP) == &d);
-        expect(that % a.GetAllChildrenByType(SYS_SAGE_COMPONENT_MEMORY) == (std::vector<Component *>{&b, &c}));
+        expect(that % a.GetChildByType(ComponentType::Memory) == &b);
+        expect(that % a.GetChildByType(ComponentType::Chip) == &d);
+        expect(that % a.GetAllChildrenByType(ComponentType::Memory) == (std::vector<Component *>{&b, &c}));
     };
 
     "Get parent by type"_test = []
@@ -203,7 +208,7 @@ static suite<"topology"> _ = []
         Cache a;
         Core b{&a};
         Thread c{&b};
-        expect(that % &a == c.FindParentByType(SYS_SAGE_COMPONENT_CACHE));
+        expect(that % &a == c.GetAncestorByType(ComponentType::Cache));
     };
 
     "Component tree consistency"_test = []
@@ -255,7 +260,7 @@ static suite<"topology"> _ = []
         c.InsertChild(&d);
 
         std::vector<Component *> array;
-        a.GetSubcomponentsByType(&array, SYS_SAGE_COMPONENT_CHIP);
+        a.GetSubcomponentsByType(&array, ComponentType::Chip);
         expect(that % 2_u == array.size());
     };
 
@@ -274,7 +279,7 @@ static suite<"topology"> _ = []
         d.InsertChild(&e);
         d.InsertChild(&f);
 
-        expect(that % 3 == a.CountAllSubcomponentsByType(SYS_SAGE_COMPONENT_THREAD));
+        expect(that % 3 == a.CountAllSubcomponentsByType(ComponentType::Thread));
     };
 
     "Linearize subtree"_test = []

@@ -1,8 +1,11 @@
 #include <boost/ut.hpp>
+#include <string_view>
 
 #include "sys-sage.hpp"
 
 using namespace boost::ut;
+using namespace sys_sage;
+using namespace std::string_view_literals;
 
 static suite<"caps-numa-benchmark"> _ = []
 {
@@ -16,25 +19,25 @@ static suite<"caps-numa-benchmark"> _ = []
         << "Parse benchmark CSV file";
 
     std::vector<Component *> numas;
-    node.GetSubcomponentsByType(&numas, SYS_SAGE_COMPONENT_NUMA);
+    node.GetSubcomponentsByType(&numas, ComponentType::Numa);
     expect(that % (4 == numas.size()) >> fatal);
 
     "Number, type, and orientation of data paths"_test = [&]
     {
         for (const auto &numa : numas)
         {
-            expect(that % (4 == numa->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)->size()) >> fatal);
-            for (const auto &dp : *numa->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING))
+            expect(that % (4 == numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming).size()) >> fatal);
+            for (const auto &dp : numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming))
             {
-                expect(that % SYS_SAGE_DATAPATH_TYPE_DATATRANSFER == dp->GetDataPathType());
-                expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp->GetOrientation());
+                expect(that % DataPathType::Datatransfer == dp->GetDataPathType());
+                expect(that % DataPathOrientation::Oriented == dp->GetOrientation());
             }
 
-            expect(that % (4 == numa->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)->size()) >> fatal);
-            for (const auto &dp : *numa->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING))
+            expect(that % (4 == numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing).size()) >> fatal);
+            for (const auto &dp : numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing))
             {
-                expect(that % SYS_SAGE_DATAPATH_TYPE_DATATRANSFER == dp->GetDataPathType());
-                expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp->GetOrientation());
+                expect(that % DataPathType::Datatransfer == dp->GetDataPathType());
+                expect(that % DataPathOrientation::Oriented == dp->GetOrientation());
             }
         }
     };
@@ -45,8 +48,8 @@ static suite<"caps-numa-benchmark"> _ = []
         {
             for (size_t k = 0; k < 4; ++k)
             {
-                auto dp1 = (*numas[i]->GetDataPaths(SYS_SAGE_DATAPATH_INCOMING))[k];
-                auto dp2 = (*numas[k]->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING))[i];
+                auto dp1 = (numas[i]->GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming))[k];
+                auto dp2 = (numas[k]->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing))[i];
                 expect(that % dp1->GetBandwidth() == dp2->GetBandwidth());
                 expect(that % dp1->GetLatency() == dp2->GetLatency());
             }
@@ -57,7 +60,7 @@ static suite<"caps-numa-benchmark"> _ = []
     {
         auto dp = [&numas](size_t i, size_t k)
         {
-            return (*numas[i]->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING))[k];
+            return (numas[i]->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing))[k];
         };
 
         expect(that % 8621 == dp(0, 0)->GetBandwidth());
