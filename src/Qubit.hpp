@@ -65,9 +65,9 @@ namespace sys_sage {
 
         /**
         * @brief Gets the 1Q fidelity of the qubit.
-        * @return 1Q fidelity 
+        * @return Q1 fidelity 
         */
-        double GetQ1Fidelity() const;
+        double Get1QFidelity() const;
 
         /**
         * @brief Gets the readout length of the qubit.
@@ -80,6 +80,12 @@ namespace sys_sage {
         * @return The frequency of the qubit.
         */
         double GetFrequency() const;
+
+        /**
+        * @brief Gets the calibration time of the qubit.
+        * @return calibration time
+        */
+        const std::string& GetCalibrationTime() const;
 
         /**
          * @brief Refreshes the properties of the qubit.

@@ -22,7 +22,7 @@ void calculateQubitWeight(Qubit* q, int tsForHistory = -1, double T1_max = 1, do
     double min_t = q->GetT1() > q->GetT2()? q->GetT2(): q->GetT1();
     double max_t_max = T1_max > T2_max ? T1_max : T2_max;
 
-    double q_weight = min_t/max_t_max + q->GetQ1Fidelity()/q1_fidelity_max + q->GetReadoutFidelity()/readout_fidelity_max ;
+    double q_weight = min_t/max_t_max + q->Get1QFidelity()/q1_fidelity_max + q->GetReadoutFidelity()/readout_fidelity_max ;
 
     double coupling_map_fidelity = 0.0;
     int num_neighbours = 0;

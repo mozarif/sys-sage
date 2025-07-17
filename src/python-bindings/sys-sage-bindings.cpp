@@ -230,7 +230,8 @@ py::object get_attribute(sys_sage::Component &self, const std::string &key) {
     }
 }
 py::object get_attribute(sys_sage::Component &self, int pos){
-    if(pos >= self.attrib.size())
+    //if(pos >= self.attrib.size())
+    if (pos < 0 || static_cast<size_t>(pos) >= self.attrib.size())
         throw py::index_error("Index out of bounds");
     auto it = self.attrib.begin();
     std::advance(it, pos);
@@ -495,11 +496,11 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("Delete", &DataPath::Delete, "Delete the data path");
 
     py::class_<Relation, std::unique_ptr<Relation, py::nodelete>>(m, "Relation")
-        .def(py::init<const std::vector<Component*> &, int, bool>, py::arg("components"), py::arg("id") = 0, py::arg("ordered") = true)
+        .def(py::init<const std::vector<Component*> &, int, bool>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = true)
         .def_property("id", &Relation::GetId, &Relation::SetId)
-        .def_property("type", &Relation::GetType)
-        .def_property("ordered", &Relation::IsOrdered)
-        .def_property("components", &Relation::GetComponents)
+        .def_property_readonly("type", &Relation::GetType)
+        .def_property_readonly("ordered", &Relation::IsOrdered)
+        .def_property_readonly("components", &Relation::GetComponents)
         .def("GetTypeStr", &Relation::GetTypeStr, "Get a string representing the type of the relation")
         .def("ContainsComponent", &Relation::ContainsComponent, py::arg("component"), "Check if a component is part of this relation")
         .def("GetComponent", &Relation::GetComponent, py::arg("index"), "Get a component at a specific position")
@@ -532,10 +533,15 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("Delete", &CouplingMap::Delete, "Delete the coupling map");
 
     py::class_<QuantumBackend, std::unique_ptr<QuantumBackend, py::nodelete>>(m, "QuantumBackend")
-        .def(py::init<>(int, std::string), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
-        .def(py::init<Component *, int, std::string>, py::arg("parent"), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
+        .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
+        .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
         .def_property("num_qubits", &QuantumBackend::GetNumQubits, &QuantumBackend::SetNumQubits)
-        .def_property("gate_types", &QuantumBackend::GetAllGateTypes)
+        // not sure how to expose the quantum gates vector.
+        // defining it as a property is not right, I think, because the "getter"
+        // GetAllGateTypes returns a copy of the quantum gates vector, not a
+        // reference
+        //.def_property("gate_types", &QuantumBackend::GetAllGateTypes)
+        .def("GetAllGateTypes", &QuantumBackend::GetAllGateTypes, "Get a list of the quantum gates in the backend")
         #ifdef QDMI
         .def_property("device", &QuantumBackend::GetQDMIDevice, &QuantumBackend::SetQDMIDevice)
         #endif
@@ -556,22 +562,23 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("gate_length", &QuantumGate::GetGateLength, &QuantumGate::SetGateLength)
         .def_property("gate_type", &QuantumGate::GetQuantumGateType, &QuantumGate::SetQuantumGateType)
         .def_property("fidelity", &QuantumGate::GetFidelity, &QuantumGate::SetFidelity)
-        .def_property("unitary" &QuantumGate::GetUnitary, &QuantumGate::SetUnitary)
-        .def("SetGateProperties", &QuantumGate::SetGateProperties, py::arg("name") py::arg("fidelity"), py::arg("unitary"), "Sets the name, fidelity, unitary and type of the quantum gate")
+        .def_property("unitary", &QuantumGate::GetUnitary, &QuantumGate::SetUnitary)
+        .def("SetGateProperties", &QuantumGate::SetGateProperties, py::arg("name"), py::arg("fidelity"), py::arg("unitary"), "Sets the name, fidelity, unitary and type of the quantum gate")
         // TODO: first implement these functions before exporting them
         //.def("SetGateCouplingMap", &QuantumGate::SetGateCouplingMap)
         //.def("SetAdditionalProperties", &QuantumGate::SetAdditionalProperties)
         .def("Print", &QuantumGate::Print, "Print basic information about the quantum gate to stdout");
 
     py::class_<Qubit, std::unique_ptr<Qubit, py::nodelete>>(m, "Qubit")
-        .def(py::init<int, std::string>, py::arg("id") = 0, py::arg("name") = "Qubit")
-        .def(py::init<Component *, int, std::string>, py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Qubit")
-        .def_property("t1", &Qubit::GetT1)
-        .def_property("t2", &Qubit::GetT2)
-        .def_property("readout_fidelity", &Qubit::GetReadoutFidelity)
-        .def_property("q1_fidelity", &Qubit::GetQ1Fidelity)
-        .def_property("readout_length", &Qubit::GetReadoutLength)
-        .def_property("frequency", &Qubit::GetFrequency)
+        .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "Qubit")
+        .def(py::init<Component *, int, std::string> (), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Qubit")
+        .def_property_readonly("t1", &Qubit::GetT1)
+        .def_property_readonly("t2", &Qubit::GetT2)
+        .def_property_readonly("readout_fidelity", &Qubit::GetReadoutFidelity)
+        .def_property_readonly("q1_fidelity", &Qubit::Get1QFidelity)
+        .def_property_readonly("readout_length", &Qubit::GetReadoutLength)
+        .def_property_readonly("frequency", &Qubit::GetFrequency)
+        .def_property_readonly("calibration_time", &Qubit::GetCalibrationTime)
         .def("SetProperties", &Qubit::SetProperties, py::arg("t1"), py::arg("t2"), py::arg("readout_fidelity"), py::arg("q1_fidelity") = 0, py::arg("readout_length") = 0, "Set properties relevant for quantum error modeling and backend calibration");
 
     m.def("parseMt4gTopo", (int (*) (Node*,std::string,int, std::string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");
@@ -585,7 +592,7 @@ PYBIND11_MODULE(sys_sage, m) {
     m.def("parseCapsNumaBenchmark", &parseCapsNumaBenchmark,  py::arg("root"), py::arg("benchmarkPath"), py::arg("delim") = ";");
 
     m.def("parseIQM", (int (*) (Component *, std::string, int, int)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1);
-    m.def("parseIQM", (int (*) (QuantumBackend *, std::string, int, int, bool)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1, createTopo = true);
+    m.def("parseIQM", (int (*) (QuantumBackend *, std::string, int, int, bool)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1, py::arg("createTopo") = true);
 
     // TODO: QDMI parser logic is missing in src/parsers/qdmi-parser.hpp
 
