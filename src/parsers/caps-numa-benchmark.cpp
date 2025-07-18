@@ -69,7 +69,10 @@ int sys_sage::parseCapsNumaBenchmark(Component* rootComponent, std::string bench
             bw = stoul(benchmarkData[i][bw_idx]);
             ldlat = stoul(benchmarkData[i][ldlat_idx]);
 
-            new DataPath(src, target, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Datatransfer, (double)bw, (double)ldlat);
+            if (src == target) // reflexive relation
+                new DataPath(src, sys_sage::DataPathType::Datatransfer, static_cast<double>(bw), static_cast<double>(ldlat));
+            else
+                new DataPath(src, target, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Datatransfer, (double)bw, (double)ldlat);
 
         }
     }

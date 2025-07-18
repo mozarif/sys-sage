@@ -165,7 +165,7 @@ xmlNodePtr sys_sage::Chip::_CreateXmlSubtree()
         xmlNewProp(n, (const unsigned char *)"vendor", (const unsigned char *)(vendor.c_str()));
     if(!model.empty())
         xmlNewProp(n, (const unsigned char *)"model", (const unsigned char *)(model.c_str()));
-    xmlNewProp(n, (const unsigned char *)"ChipType", (const unsigned char *)(std::to_string(type).c_str()));
+    xmlNewProp(n, (const unsigned char *)"type", (const unsigned char *)(std::to_string(type).c_str()));
     return n;
 }
 xmlNodePtr sys_sage::Cache::_CreateXmlSubtree()

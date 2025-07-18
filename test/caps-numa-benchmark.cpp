@@ -1,5 +1,6 @@
 #include <boost/ut.hpp>
 #include <string_view>
+#include <algorithm>
 
 #include "sys-sage.hpp"
 
@@ -26,18 +27,24 @@ static suite<"caps-numa-benchmark"> _ = []
     {
         for (const auto &numa : numas)
         {
+            // this was failing before, because the component contained a
+            // reflexive relation, which was included twice in the data paths vector.
             expect(that % (4 == numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming).size()) >> fatal);
+            int num_ref_inc = 0;
             for (const auto &dp : numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming))
             {
                 expect(that % DataPathType::Datatransfer == dp->GetDataPathType());
-                expect(that % DataPathOrientation::Oriented == dp->GetOrientation());
+                expect(that % (DataPathOrientation::Oriented == dp->GetOrientation() || (DataPathOrientation::Reflexive == dp->GetOrientation() && ++num_ref_inc == 1)));
             }
 
+            // this was failing before, because the component contained a
+            // reflexive relation, which was included twice in the data paths vector.
             expect(that % (4 == numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing).size()) >> fatal);
+            int num_ref_out = 0;
             for (const auto &dp : numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing))
             {
                 expect(that % DataPathType::Datatransfer == dp->GetDataPathType());
-                expect(that % DataPathOrientation::Oriented == dp->GetOrientation());
+                expect(that % (DataPathOrientation::Oriented == dp->GetOrientation() || (DataPathOrientation::Reflexive == dp->GetOrientation() && ++num_ref_out == 1)));
             }
         }
     };

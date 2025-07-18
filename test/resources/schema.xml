@@ -6,31 +6,15 @@
       <xs:all>
 
         <!-- The component trees -->
-        <xs:element name="components">
+        <xs:element name="Components">
           <xs:complexType>
             <xs:group ref="components"></xs:group>
           </xs:complexType>
         </xs:element>
 
-        <!-- The data paths -->
-        <xs:element name="data-paths">
+        <xs:element name="Relations">
           <xs:complexType>
-            <xs:choice>
-              <xs:element name="datapath" minOccurs="0" maxOccurs="unbounded">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="Attribute" type="attribute" minOccurs="0"
-                      maxOccurs="unbounded" />
-                  </xs:sequence>
-                  <xs:attribute name="source" type="addr" />
-                  <xs:attribute name="target" type="addr" />
-                  <xs:attribute name="oriented" type="xs:integer" />
-                  <xs:attribute name="type" type="xs:integer" />
-                  <xs:attribute name="bw" type="xs:double" />
-                  <xs:attribute name="latency" type="xs:double" />
-                </xs:complexType>
-              </xs:element>
-            </xs:choice>
+            <xs:group ref="relations"></xs:group>
           </xs:complexType>
         </xs:element>
 
@@ -42,8 +26,8 @@
   <xs:group name="components">
     <xs:sequence>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="None" type="none" />
-        <xs:element name="HW_thread" type="hw_thread" />
+        <xs:element name="GenericComponent" type="component" />
+        <xs:element name="HW_Thread" type="hw_thread" />
         <xs:element name="Core" type="core" />
         <xs:element name="Cache" type="cache" />
         <xs:element name="Subdivision" type="subdivision" />
@@ -52,6 +36,9 @@
         <xs:element name="Memory" type="memory" />
         <xs:element name="Storage" type="storage" />
         <xs:element name="Node" type="node" />
+        <xs:element name="QuantumBackend" type="quantum_backend" />
+        <xs:element name="AtomSite" type="atom_site" />
+        <xs:element name="Qubit" type="qubit" />
         <xs:element name="Topology" type="topology" />
         <xs:element name="Attribute" type="attribute" />
       </xs:choice>
@@ -97,7 +84,7 @@
   <xs:complexType name="cache">
     <xs:complexContent>
       <xs:extension base="component">
-        <xs:attribute name="cache_level" type="xs:integer" />
+        <xs:attribute name="cache_type" type="xs:string" />
         <xs:attribute name="cache_size" type="xs:integer" />
         <xs:attribute name="cache_associativity_ways" type="xs:integer" />
         <xs:attribute name="cache_line_size" type="xs:integer" />
@@ -120,6 +107,7 @@
       <xs:extension base="component">
         <xs:attribute name="vendor" type="xs:string" />
         <xs:attribute name="model" type="xs:string" />
+        <xs:attribute name="type" type="xs:integer" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -128,7 +116,7 @@
   <xs:complexType name="subdivision">
     <xs:complexContent>
       <xs:extension base="component">
-        <xs:attribute name="subdivision_type" type="xs:string" />
+        <xs:attribute name="subdivision_type" type="xs:integer" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -151,14 +139,6 @@
   </xs:complexType>
 
   <!-- None component -->
-  <xs:complexType name="none">
-    <xs:complexContent>
-      <xs:extension base="component">
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-
-  <!-- None component -->
   <xs:complexType name="hw_thread">
     <xs:complexContent>
       <xs:extension base="component">
@@ -174,11 +154,85 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="quantum_backend">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <!-- TODO: maybe add num_gates? If so, it must be added back in QuantumBackend.hpp -->
+        <xs:attribute name="num_qubits" type="xs:integer" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="atom_site">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:attribute name="nRows" type="xs:integer" />
+        <xs:attribute name="nColumns" type="xs:integer" />
+        <xs:attribute name="nAods" type="xs:integer" />
+        <xs:attribute name="nAodIntermediateLevels" type="xs:integer" />
+        <xs:attribute name="nAodCoordinates" type="xs:integer" />
+        <xs:attribute name="interQubitDistance" type="xs:double" />
+        <xs:attribute name="interactionRadius" type="xs:double" />
+        <xs:attribute name="blockingFactor" type="xs:double" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="qubit">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:attribute name="q1_fidelity" type="xs:double" />
+        <xs:attribute name="t1" type="xs:double" />
+        <xs:attribute name="t2" type="xs:double" />
+        <xs:attribute name="readout_fidelity" type="xs:double" />
+        <xs:attribute name="readout_length" type="xs:double" />
+        <xs:attribute name="frequency" type="xs:double" />
+        <xs:attribute name="calibration_time" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <!-- A memory address, e.g. 0xff0011234 -->
   <xs:simpleType name="addr">
     <xs:restriction base="xs:string">
       <xs:pattern value="0x[0-9a-fA-F]+"></xs:pattern>
     </xs:restriction>
   </xs:simpleType>
+
+  <xs:group name="relations">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <!-- note: RelationType::Any is not included, since it is also not included in src/xml_dump.cpp -->
+        <xs:element name="Relation" type="relation" />
+        <xs:element name="DataPath" type="data_path" />
+        <xs:element name="QuantumGate" type="quantum_gate" />
+        <xs:element name="CouplingMap" type="coupling_map" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+
+  <!-- TODO: implement the missing classes -->
+
+  <!-- TODO: make this extend the relation base class -->
+  <xs:element name="data_path">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="datapath" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Attribute" type="attribute" minOccurs="0"
+                maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute name="source" type="addr" />
+            <xs:attribute name="target" type="addr" />
+            <xs:attribute name="oriented" type="xs:integer" />
+            <xs:attribute name="type" type="xs:integer" />
+            <xs:attribute name="bw" type="xs:double" />
+            <xs:attribute name="latency" type="xs:double" />
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
 
 </xs:schema>

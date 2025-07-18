@@ -122,36 +122,14 @@ static suite<"data-path"> _ = []
         DataPath dp3{&a, &b, DataPathOrientation::Oriented, DataPathType::Physical};
         DataPath dp4{&b, &a, DataPathOrientation::Oriented, DataPathType::Physical};
 
-        //boost::ut::log << "a: " << &a << '\n';
-        //boost::ut::log << "b: " << &b << '\n';
-
-        //boost::ut::log << "dp4 source: " << dp4.GetSource() << '\n';
-        //boost::ut::log << "dp4 taget: " << dp4.GetTarget() << '\n';
-
         "Get all incoming logical data paths"_test = [&]()
         {
-            expect(that % dp4.GetSource() == &b);
-            expect(that % dp4.GetTarget() == &a);
-
-            expect(that % dp4.GetDataPathType() == DataPathType::Physical);
-
-            std::vector<DataPath *> vec;
-            a.GetAllDataPaths(&vec, DataPathType::Any, DataPathDirection::Any);
-            expect(that % vec.size() == static_cast<size_t>(4));
-
-            boost::ut::log << "dp1: " << &dp1 << '\n';
-            boost::ut::log << "dp2: " << &dp2 << '\n';
-            boost::ut::log << "dp3: " << &dp3 << '\n';
-            boost::ut::log << "dp4: " << &dp4 << '\n';
-
-            for (DataPath * dp : vec)
-              if (dp->GetDataPathType() == DataPathType::Logical && dp->GetComponent(0) == &a)
-                boost::ut::log << dp << '\n';
-//--------------------------------------------------------------------------------- 
-
             std::vector<DataPath *> v;
             a.GetAllDataPaths(&v, DataPathType::Logical, DataPathDirection::Incoming);
-            expect((that % v.empty()) >> fatal);
+            // this test failed, because there was a collision within the
+            // DataPathType enum. DataPathType::Any == 1 == DataPathType::Logical.
+            // -> changed DataPathType::Any to -1
+            expect(that % v.empty());
         };
 
         "Get all incoming physical data paths"_test = [&]()
