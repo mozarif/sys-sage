@@ -57,17 +57,6 @@ namespace sys_sage {
         DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathType::type _dp_type, double _bw, double _latency);
 
         /**
-         * @brief DataPath constructor for reflexive relations.
-         * @param _component Pointer to the component with reflexive relation.
-         * @param _dp_type type of the data path.
-         *        Predefined types: DataPathType::None, DataPathType::Logical, DataPathType::Physical, DataPathType::Datatransfer, DataPathType::L3CAT, DataPathType::MIG, DataPathType::C2C.
-         *        Each user can define an arbitrary type in the DataPathType namespace.
-         * @param _bw bandwidth of the data path.
-         * @param _latency latency of the data path.
-         */
-        DataPath(Component *_component, sys_sage::DataPathType::type _dp_type, double _bw, double _latency);
-
-        /**
          * @brief Retrieves the source Component.
          * @returns Pointer to the source Component
          */

@@ -459,8 +459,9 @@ std::vector<sys_sage::Relation*> sys_sage::Component::GetAllRelationsBy(Relation
 
 void sys_sage::Component::GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type, DataPathDirection::type direction) const
 {
-    // note: this could cause a SEGFAULT, beacause the array and/or vector might
-    // not be initialized
+    if (relations == nullptr || (*relations)[RelationType::DataPath] == nullptr)
+        return;
+
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
         //either unordered -> check; or orientation is any -> check; or orientation is incoming & DP is incoming or the same outgoing

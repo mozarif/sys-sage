@@ -30,21 +30,19 @@ static suite<"caps-numa-benchmark"> _ = []
             // this was failing before, because the component contained a
             // reflexive relation, which was included twice in the data paths vector.
             expect(that % (4 == numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming).size()) >> fatal);
-            int num_ref_inc = 0;
             for (const auto &dp : numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming))
             {
                 expect(that % DataPathType::Datatransfer == dp->GetDataPathType());
-                expect(that % (DataPathOrientation::Oriented == dp->GetOrientation() || (DataPathOrientation::Reflexive == dp->GetOrientation() && ++num_ref_inc == 1)));
+                expect(that % DataPathOrientation::Oriented == dp->GetOrientation());
             }
 
             // this was failing before, because the component contained a
             // reflexive relation, which was included twice in the data paths vector.
             expect(that % (4 == numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing).size()) >> fatal);
-            int num_ref_out = 0;
             for (const auto &dp : numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing))
             {
                 expect(that % DataPathType::Datatransfer == dp->GetDataPathType());
-                expect(that % (DataPathOrientation::Oriented == dp->GetOrientation() || (DataPathOrientation::Reflexive == dp->GetOrientation() && ++num_ref_out == 1)));
+                expect(that % DataPathOrientation::Oriented == dp->GetOrientation());
             }
         }
     };

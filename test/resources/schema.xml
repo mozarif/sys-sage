@@ -40,7 +40,6 @@
         <xs:element name="AtomSite" type="atom_site" />
         <xs:element name="Qubit" type="qubit" />
         <xs:element name="Topology" type="topology" />
-        <xs:element name="Attribute" type="attribute" />
       </xs:choice>
     </xs:sequence>
   </xs:group>
@@ -56,7 +55,10 @@
 
   <!-- Component base class -->
   <xs:complexType name="component">
-    <xs:group ref="components"></xs:group>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:group ref="components"></xs:group>
+      <xs:element name="Attribute" type="attribute" minOccurs="0" maxOccurs="unbounded" />
+    </xs:choice>
     <xs:attribute name="id" type="xs:integer" />
     <xs:attribute name="name" type="xs:string" />
     <xs:attribute name="addr" type="addr" />
@@ -157,7 +159,6 @@
   <xs:complexType name="quantum_backend">
     <xs:complexContent>
       <xs:extension base="component">
-        <!-- TODO: maybe add num_gates? If so, it must be added back in QuantumBackend.hpp -->
         <xs:attribute name="num_qubits" type="xs:integer" />
       </xs:extension>
     </xs:complexContent>
@@ -211,28 +212,49 @@
     </xs:sequence>
   </xs:group>
 
-  <!-- TODO: implement the missing classes -->
+  <xs:simpleType name="component_vector">
+    <xs:list itemType="addr" />
+  </xs:simpleType>
 
-  <!-- TODO: make this extend the relation base class -->
-  <xs:element name="data_path">
-    <xs:complexType>
-      <xs:choice>
-        <xs:element name="datapath" minOccurs="0" maxOccurs="unbounded">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="Attribute" type="attribute" minOccurs="0"
-                maxOccurs="unbounded" />
-            </xs:sequence>
-            <xs:attribute name="source" type="addr" />
-            <xs:attribute name="target" type="addr" />
-            <xs:attribute name="oriented" type="xs:integer" />
-            <xs:attribute name="type" type="xs:integer" />
-            <xs:attribute name="bw" type="xs:double" />
-            <xs:attribute name="latency" type="xs:double" />
-          </xs:complexType>
-        </xs:element>
-      </xs:choice>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="relation">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:group ref="relations"></xs:group>
+      <xs:element name="Attribute" type="attribute" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="components" type="component_vector" />
+    <xs:attribute name="ordered" type="xs:integer" />
+    <xs:attribute name="id" type="xs:integer" />
+  </xs:complexType>
+
+  <xs:complexType name="data_path">
+    <xs:complexContent>
+      <xs:extension base="relation">
+        <xs:attribute name ="DataPathType" type="xs:integer" />
+        <xs:attribute name ="bw" type="xs:double" />
+        <xs:attribute name ="latency" type="xs:double" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="quantum_gate">
+    <xs:complexContent>
+      <xs:extension base="relation">
+        <xs:attribute name="gate_size" type="xs:integer" />
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="gate_length" type="xs:integer" />
+        <xs:attribute name="gate_type" type="xs:integer" />
+        <xs:attribute name="fidelity" type="xs:double" />
+        <xs:attribute name="unitary" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="coupling_map">
+    <xs:complexContent>
+      <xs:extension base="relation">
+        <xs:attribute name="fidelity" type="xs:double" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
 </xs:schema>

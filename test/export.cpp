@@ -158,8 +158,8 @@ static suite<"export"> _ = []
             auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
             expect(that % (pathContext != nullptr) >> fatal);
 
-            xmlNode *topo = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology"), pathContext.get());
-            xmlNode *memory = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Memory"), pathContext.get());
+            xmlNode *topo = getSingleNodeByPath(BAD_CAST("/sys-sage/Components/Topology"), pathContext.get());
+            xmlNode *memory = getSingleNodeByPath(BAD_CAST("/sys-sage/Components/Topology/Memory"), pathContext.get());
 
             for (const auto &[node, xpath, value] : std::vector{
                      std::tuple{topo, "string(@id)", "0"},
@@ -251,8 +251,8 @@ static suite<"export"> _ = []
             auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
             expect(that % (pathContext != nullptr) >> fatal);
 
-            xmlNode *node = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Node"), pathContext.get());
-            xmlNode *core = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Node/Core"), pathContext.get());
+            xmlNode *node = getSingleNodeByPath(BAD_CAST("/sys-sage/Components/Topology/Node"), pathContext.get());
+            xmlNode *core = getSingleNodeByPath(BAD_CAST("/sys-sage/Components/Topology/Node/Core"), pathContext.get());
 
             for (const auto &[node, xpath, value] : std::vector{
                      std::tuple{node, "string(Attribute[1]/@name)", "codename"},

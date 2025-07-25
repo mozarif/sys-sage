@@ -184,7 +184,6 @@ namespace sys_sage {
 
         constexpr type Oriented = 1; /**< DataPath is directed from the source to the target. */
         constexpr type Bidirectional = 2; /**< DataPath has no direction. */
-        constexpr type Reflexive = 3; // should reflexive be an orientation or direction?
     }
     /**
      * @namespace QuantumGateType

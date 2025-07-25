@@ -132,6 +132,8 @@ namespace sys_sage {
          * @param level Number of "  " to print before the component.
          * @see PrintSubtree()
          */
+    // TODO: search for other parts that should be private
+    private:
         void _PrintSubtree(int level) const;
         /**
          * @deprecated Use PrintAllRelationsInSubtree instead. This function will be removed in the future.
@@ -139,7 +141,9 @@ namespace sys_sage {
          * @see PrintAllRelationsInSubtree( RelationType::type RelationType = RelationType::Any)
          * @note This function is deprecated and will be removed in the future. Use PrintAllRelationsInSubtree instead.
          */
+    public:
         [[deprecated("Use PrintAllRelationsInSubtree instead. This function will be removed in the future.")]]
+
         void PrintAllDataPathsInSubtree();
         /**
          * @brief Prints all Relations in the subtree.

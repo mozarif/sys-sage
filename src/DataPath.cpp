@@ -10,12 +10,7 @@ using std::cout;
 using std::endl;
 
 sys_sage::Component * sys_sage::DataPath::GetSource() const {return components[0];}
-sys_sage::Component * sys_sage::DataPath::GetTarget() const
-{
-    if (dp_orientation == sys_sage::DataPathOrientation::Reflexive)
-        return components[0];
-    return components[1];
-}
+sys_sage::Component * sys_sage::DataPath::GetTarget() const { return components[1]; }
 double sys_sage::DataPath::GetBandwidth() const {return bw;}
 void sys_sage::DataPath::SetBandwidth(double _bandwidth) { bw = _bandwidth;}
 double sys_sage::DataPath::GetLatency() const {return latency;}
@@ -30,8 +25,6 @@ int sys_sage::DataPath::UpdateSource(Component * _new_source)
 
 int sys_sage::DataPath::UpdateTarget(Component * _new_target)
 {
-    if (dp_orientation == sys_sage::DataPathOrientation::Reflexive)
-        return UpdateComponent(0, _new_target);
     return UpdateComponent(1, _new_target);
 }
 
@@ -45,14 +38,10 @@ sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::D
         ordered = true;
     
     AddComponent(_source);
-    AddComponent(_target);
-}
-
-// TODO: add a Python binding for it, if this is approved
-sys_sage::DataPath::DataPath(Component *_component, sys_sage::DataPathType::type _dp_type, double _bw, double _latency) : Relation(sys_sage::RelationType::DataPath), dp_type(_dp_type), dp_orientation(DataPathOrientation::Reflexive), bw(_bw), latency(_latency)
-{
-    ordered = false;
-    AddComponent(_component);
+    if (_source != _target)
+        AddComponent(_target);
+    else
+        components.emplace_back(_target);
 }
 
 void sys_sage::DataPath::Delete()

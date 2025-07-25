@@ -340,14 +340,25 @@ xmlNodePtr sys_sage::Relation::_CreateXmlEntry()
 {
     xmlNodePtr r_xml = xmlNewNode(NULL, BAD_CAST GetTypeStr().c_str());
 
-    int c_idx = 0;
-    for(Component* rc : components)
-    {
+    // I didn't find a way to make the schema file recognize attributes of dynamic
+    // names based on the enumeration (e.g. component0, component1...)
+    //
+    //int c_idx = 0;
+    //for(Component* rc : components)
+    //{
+    //    std::ostringstream c_addr;
+    //    c_addr << rc;
+    //    const std::string xmlprop_name = "component" + std::to_string(c_idx);
+    //    xmlNewProp(r_xml, (const unsigned char *)xmlprop_name.c_str(), (const unsigned char *)(c_addr.str().c_str()));
+    //    c_idx++;
+    //}
+
+    if (components.size() > 0) {
         std::ostringstream c_addr;
-        c_addr << rc;
-        const std::string xmlprop_name = "component" + std::to_string(c_idx);
-        xmlNewProp(r_xml, (const unsigned char *)xmlprop_name.c_str(), (const unsigned char *)(c_addr.str().c_str()));
-        c_idx++;
+        c_addr << components[0];
+        for (size_t s = 1; s < components.size(); s++)
+            c_addr << ' ' << components[s];
+        xmlNewProp(r_xml, BAD_CAST "components", BAD_CAST (c_addr.str().c_str()));
     }
 
     xmlNewProp(r_xml, (const unsigned char *)"ordered", (const unsigned char *)(std::to_string(ordered).c_str()));
