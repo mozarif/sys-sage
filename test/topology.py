@@ -25,7 +25,7 @@ class TestComponents(unittest.TestCase):
         self.assertEqual(root, t.parent)
         self.assertEqual(t.id, 42)
         self.assertEqual(t.type, syge.COMPONENT_THREAD)
-        self.assertEqual(t.GetComponentTypeStr(), "HW_thread")
+        self.assertEqual(t.GetComponentTypeStr(), "HW_Thread")
         self.assertEqual(t.name, "foo")
     
     def test_core(self):
@@ -134,9 +134,18 @@ class TestComponents(unittest.TestCase):
     
     def test_get_child(self):
         a = syge.Node()
-        b = syge.Node()
-        c = syge.Node()
-        d = syge.Node()
+
+        # GetChild(<id>) will search for a child with the given <id>
+        # (see src/Component.hpp). Since the default constructor for the nodes
+        # are used, all nodes have the same id, which is 0.
+
+        #b = syge.Node()
+        #c = syge.Node()
+        #d = syge.Node()
+
+        b = syge.Node(0)
+        c = syge.Node(1)
+        d = syge.Node(2)
         a.InsertChild(b)
         a.InsertChild(c)
         a.InsertChild(d)
@@ -235,3 +244,6 @@ class TestComponents(unittest.TestCase):
         a.InsertChild(g)
         
         self.assertEqual(3, a.GetSubtreeDepth())
+
+if __name__ == "__main__":
+    unittest.main()

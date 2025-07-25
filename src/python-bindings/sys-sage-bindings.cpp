@@ -10,11 +10,29 @@
 #include <optional>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 #include <pybind11/attr.h>
 #include <string>
 #include <tuple>
 
 #include "sys-sage.hpp"
+
+// Unfortunately, it is not possible to export C++ functions that modify an
+// STL container via pass-by-reference and expect that it works the same in
+// Python. The problem is that internally, conversions between C++ types and
+// Python types involve a copy operation and hence prevent pass-by-reference
+// semantics. Therefore, calling such functions in Python would result in a
+// modification of a copy of the container, not the container itself.
+//
+// To prevent these copies, we need to disable the automatic type conversions
+// for STL containers with `PYBIND11_MAKE_OPAQUE`. The drawback now is that we
+// need to define our own conversion types.
+//
+// Refer to https://pybind11.readthedocs.io/en/stable/advanced/cast/stl.html
+// for more information.
+PYBIND11_MAKE_OPAQUE(std::vector<sys_sage::Component *>)
+PYBIND11_MAKE_OPAQUE(std::vector<sys_sage::DataPath *>)
+PYBIND11_MAKE_OPAQUE(std::vector<sys_sage::Qubit *>)
 
 namespace py = pybind11;
 
@@ -97,7 +115,9 @@ int xmlloader_complex(xmlNodePtr node, sys_sage::Component *c) {
 
 //TODO: Add dynamic allocation for values
 //TODO: Delete values only after success
-void set_attribute(sys_sage::Component &self, const std::string &key, py::object &value) {
+template <typename T>
+//void set_attribute(sys_sage::Component &self, const std::string &key, py::object &value) {
+void set_attribute(T &self, const std::string &key, py::object &value) {
     //std::cout << "set attribute: " << key << " = " << value << std::endl;
 
     auto val = self.attrib.find(key);
@@ -168,7 +188,8 @@ void set_attribute(sys_sage::Component &self, const std::string &key, py::object
 
 }
 
-py::object get_attribute(sys_sage::Component &self, const std::string &key) {
+template <typename T>
+py::object get_attribute(T &self, const std::string &key) {
     auto val = self.attrib.find(key);
     if (val != self.attrib.end()) {
         if(!key.compare("CATcos") || !key.compare("CATL3mask")){
@@ -229,7 +250,9 @@ py::object get_attribute(sys_sage::Component &self, const std::string &key) {
         throw py::attribute_error("Attribute '" + key + "' not found"); 
     }
 }
-py::object get_attribute(sys_sage::Component &self, int pos){
+
+template <typename T>
+py::object get_attribute(T &self, int pos){
     //if(pos >= self.attrib.size())
     if (pos < 0 || static_cast<size_t>(pos) >= self.attrib.size())
         throw py::index_error("Index out of bounds");
@@ -239,7 +262,8 @@ py::object get_attribute(sys_sage::Component &self, int pos){
 }
 
 
-void remove_attribute(sys_sage::Component &self, const std::string &key) {
+template <typename T>
+void remove_attribute(T &self, const std::string &key) {
     auto val = self.attrib.find(key);
     if (val != self.attrib.end()) {
         delete static_cast<std::shared_ptr<py::object>*>(val->second);
@@ -306,23 +330,26 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("QUANTUMGATE_TYPE_SX") = QuantumGateType::Sx;
     m.attr("QUANTUMGATE_TYPE_TOFFOLI") = QuantumGateType::Toffoli;
 
+    py::bind_vector<std::vector<Component *>>(m, "ComponentList");
+    py::bind_vector<std::vector<DataPath *>>(m, "DataPathList");
+    py::bind_vector<std::vector<Qubit *>>(m, "QubitList");
+
     //bind component class
     // shouldn't we also export the attrib map?
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
         .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "unknown")
         .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown")
-        // TODO: copy these attributes for the relations
         .def("__setitem__", [](Component& self, const std::string& name, py::object value) {
-            set_attribute(self,name, value);
+            set_attribute<Component>(self,name, value);
         })
         .def("__getitem__", [](Component& self, const std::string& name) {
-            return get_attribute(self,name);
+            return get_attribute<Component>(self,name);
         })
         .def("__getitem__", [](Component& self, int pos) {
-            return get_attribute(self,pos);
+            return get_attribute<Component>(self,pos);
         })
         .def("__delitem__", [](Component& self, const std::string& name) {
-            remove_attribute(self,name);
+            remove_attribute<Component>(self,name);
         })
         .def("InsertChild", &Component::InsertChild, py::arg("child"), "Insert a child component")
         .def("InsertBetweenParentAndChild", &Component::InsertBetweenParentAndChild, py::arg("parent"), py::arg("child"), py::arg("alreadyParentsChild"),"Insert a component between parent and child")
@@ -487,7 +514,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("bandwidth", &DataPath::GetBandwidth, &DataPath::SetBandwidth, "The bandwidth of the data path")
         .def_property("latency", &DataPath::GetLatency, &DataPath::SetLatency, "The latency of the data path")
         .def_property_readonly("type", &DataPath::GetDataPathType, "The type of the data path")
-        .def_property_readonly("oriented", &DataPath::GetOrientation, "The orientation of the data path")
+        .def_property_readonly("orientation", &DataPath::GetOrientation, "The orientation of the data path")
         // used the UpdateSource and UpdateTarget functions as the setters of the member variables
         // not sure if thats ok?
         .def_property("source", &DataPath::GetSource, &DataPath::UpdateSource, "The source of the data path")
@@ -502,6 +529,18 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property_readonly("type", &Relation::GetType)
         .def_property_readonly("ordered", &Relation::IsOrdered)
         .def_property_readonly("components", &Relation::GetComponents)
+        .def("__setitem__", [](Relation& self, const std::string& name, py::object value) {
+            set_attribute<Relation>(self,name, value);
+        })
+        .def("__getitem__", [](Relation& self, const std::string& name) {
+            return get_attribute<Relation>(self,name);
+        })
+        .def("__getitem__", [](Relation& self, int pos) {
+            return get_attribute<Relation>(self,pos);
+        })
+        .def("__delitem__", [](Relation& self, const std::string& name) {
+            remove_attribute<Relation>(self,name);
+        })
         .def("GetTypeStr", &Relation::GetTypeStr, "Get a string representing the type of the relation")
         .def("ContainsComponent", &Relation::ContainsComponent, py::arg("component"), "Check if a component is part of this relation")
         .def("GetComponent", &Relation::GetComponent, py::arg("index"), "Get a component at a specific position")
@@ -550,8 +589,9 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetGatesBySize", &QuantumBackend::GetGatesBySize, py::arg("size"), "Get quantum gates by their size")
         .def("GetGatesByType", &QuantumBackend::GetGatesByType, py::arg("type"), "Get quantum gates by their type")
         .def("GetNumberofGates", &QuantumBackend::GetNumberofGates, "Get the number of gates in the backend")
-        .def("GetAllQubits", &QuantumBackend::GetAllQubits, "Get all qubits in the backend")
-        .def("RefreshTopology", &QuantumBackend::RefreshTopology, py::arg("qubit_indices"), "Refresh the topology of the backend");
+        .def("GetAllQubits", &QuantumBackend::GetAllQubits, "Get all qubits in the backend");
+        // TODO: first implement this before exporting
+        //.def("RefreshTopology", &QuantumBackend::RefreshTopology, py::arg("qubit_indices"), "Refresh the topology of the backend")
 
     py::class_<QuantumGate, std::unique_ptr<QuantumGate, py::nodelete>>(m, "QuantumGate")
         .def(py::init<size_t, std::string, double, std::string>(), py::arg("size"), py::arg("name"), py::arg("fidelity"), py::arg("unitary"))

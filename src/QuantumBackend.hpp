@@ -118,6 +118,7 @@ namespace sys_sage {
          * 
          * @param qubit_indices The indices of the qubits that need to be refreshed.
          */
+        // TODO: implement this.
         void RefreshTopology(std::set<int> qubit_indices); // qubit_indices: indices of the qubits that need to be refreshed
 
         /**
