@@ -126,7 +126,7 @@
   <!-- NUMA component -->
   <xs:complexType name="numa">
     <xs:complexContent>
-      <xs:extension base="component">
+      <xs:extension base="subdivision">
         <xs:attribute name="size" type="xs:integer" />
       </xs:extension>
     </xs:complexContent>
@@ -166,7 +166,7 @@
 
   <xs:complexType name="atom_site">
     <xs:complexContent>
-      <xs:extension base="component">
+      <xs:extension base="quantum_backend">
         <xs:attribute name="nRows" type="xs:integer" />
         <xs:attribute name="nColumns" type="xs:integer" />
         <xs:attribute name="nAods" type="xs:integer" />

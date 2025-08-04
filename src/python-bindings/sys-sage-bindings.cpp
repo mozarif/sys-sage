@@ -506,22 +506,53 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<int,std::string>(),py::arg("id") = 0,py::arg("name") = "Thread")
         .def(py::init<Component*,int,std::string>(),py::arg("parent"),py::arg("id") = 0,py::arg("name") = "Thread");
 
-    // why do we allow for dynamic attachements of new members? Why is that needed?
-    py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>>(m,"DataPath",py::dynamic_attr())
-        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = sys_sage::DataPathType::None)
-        .def(py::init<Component*, Component*, DataPathOrientation::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
-        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))
-        .def_property("bandwidth", &DataPath::GetBandwidth, &DataPath::SetBandwidth, "The bandwidth of the data path")
-        .def_property("latency", &DataPath::GetLatency, &DataPath::SetLatency, "The latency of the data path")
-        .def_property_readonly("type", &DataPath::GetDataPathType, "The type of the data path")
-        .def_property_readonly("orientation", &DataPath::GetOrientation, "The orientation of the data path")
-        // used the UpdateSource and UpdateTarget functions as the setters of the member variables
-        // not sure if thats ok?
-        .def_property("source", &DataPath::GetSource, &DataPath::UpdateSource, "The source of the data path")
-        .def_property("target", &DataPath::GetTarget, &DataPath::UpdateTarget, "The target of the data path")
-        // these may be missing?
-        .def("Print", &DataPath::Print, "Print basic information of the data path to stdout")
-        .def("Delete", &DataPath::Delete, "Delete the data path");
+    py::class_<Qubit, std::unique_ptr<Qubit, py::nodelete>, Component>(m, "Qubit")
+        .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "Qubit")
+        .def(py::init<Component *, int, std::string> (), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Qubit")
+        .def_property_readonly("t1", &Qubit::GetT1)
+        .def_property_readonly("t2", &Qubit::GetT2)
+        .def_property_readonly("readout_fidelity", &Qubit::GetReadoutFidelity)
+        .def_property_readonly("q1_fidelity", &Qubit::Get1QFidelity)
+        .def_property_readonly("readout_length", &Qubit::GetReadoutLength)
+        .def_property_readonly("frequency", &Qubit::GetFrequency)
+        .def_property_readonly("calibration_time", &Qubit::GetCalibrationTime)
+        .def("SetProperties", &Qubit::SetProperties, py::arg("t1"), py::arg("t2"), py::arg("readout_fidelity"), py::arg("q1_fidelity") = 0, py::arg("readout_length") = 0, "Set properties relevant for quantum error modeling and backend calibration");
+
+    py::class_<QuantumBackend, std::unique_ptr<QuantumBackend, py::nodelete>, Component>(m, "QuantumBackend")
+        .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
+        .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
+        .def_property("num_qubits", &QuantumBackend::GetNumQubits, &QuantumBackend::SetNumQubits)
+        // not sure how to expose the quantum gates vector.
+        // defining it as a property is not right, I think, because the "getter"
+        // GetAllGateTypes returns a copy of the quantum gates vector, not a
+        // reference
+        //.def_property("gate_types", &QuantumBackend::GetAllGateTypes)
+        .def("GetAllGateTypes", &QuantumBackend::GetAllGateTypes, "Get a list of the quantum gates in the backend")
+        #ifdef QDMI
+        .def_property("device", &QuantumBackend::GetQDMIDevice, &QuantumBackend::SetQDMIDevice)
+        #endif
+        .def("addGate", &QuantumBackend::addGate, py::arg("gate"), "Add this gate to the backend")
+        .def("GetGatesBySize", &QuantumBackend::GetGatesBySize, py::arg("size"), "Get quantum gates by their size")
+        .def("GetGatesByType", &QuantumBackend::GetGatesByType, py::arg("type"), "Get quantum gates by their type")
+        .def("GetNumberofGates", &QuantumBackend::GetNumberofGates, "Get the number of gates in the backend")
+        .def("GetAllQubits", &QuantumBackend::GetAllQubits, "Get all qubits in the backend");
+        // TODO: first implement this before exporting
+        //.def("RefreshTopology", &QuantumBackend::RefreshTopology, py::arg("qubit_indices"), "Refresh the topology of the backend")
+
+    py::class_<AtomSite::SiteProperties>(m, "SiteProperties")
+        .def_readwrite("nRows", &AtomSite::SiteProperties::nRows)
+        .def_readwrite("nColumns", &AtomSite::SiteProperties::nColumns)
+        .def_readwrite("nAods", &AtomSite::SiteProperties::nAods)
+        .def_readwrite("nAodIntermediateLevels", &AtomSite::SiteProperties::nAodIntermediateLevels)
+        .def_readwrite("nAodCoordinates", &AtomSite::SiteProperties::nAodCoordinates)
+        .def_readwrite("interQubitDistance", &AtomSite::SiteProperties::interQubitDistance)
+        .def_readwrite("interactionRadius", &AtomSite::SiteProperties::interactionRadius)
+        .def_readwrite("blockingFactor", &AtomSite::SiteProperties::blockingFactor);
+    py::class_<AtomSite, std::unique_ptr<AtomSite, py::nodelete>, QuantumBackend>(m, "AtomSite")
+        .def(py::init<>())
+        .def_readwrite("properties", &AtomSite::properties)
+        .def_readwrite("shuttlingTimes", &AtomSite::shuttlingTimes)
+        .def_readwrite("shuttlingAverageFidelities", &AtomSite::shuttlingAverageFidelities);
 
     py::class_<Relation, std::unique_ptr<Relation, py::nodelete>>(m, "Relation")
         .def(py::init<const std::vector<Component*> &, int, bool>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = true)
@@ -550,51 +581,32 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("UpdateComponent", (int (Relation::*) (Component *, Component *)) &Relation::UpdateComponent, py::arg("old_component"), py::arg("new_component"), "Tries to find the old component to replace it with the new component")
         .def("Delte", &Relation::Delete, "Delete this relation");
 
-    py::class_<AtomSite::SiteProperties>(m, "SiteProperties")
-        .def_readwrite("nRows", &AtomSite::SiteProperties::nRows)
-        .def_readwrite("nColumns", &AtomSite::SiteProperties::nColumns)
-        .def_readwrite("nAods", &AtomSite::SiteProperties::nAods)
-        .def_readwrite("nAodIntermediateLevels", &AtomSite::SiteProperties::nAodIntermediateLevels)
-        .def_readwrite("nAodCoordinates", &AtomSite::SiteProperties::nAodCoordinates)
-        .def_readwrite("interQubitDistance", &AtomSite::SiteProperties::interQubitDistance)
-        .def_readwrite("interactionRadius", &AtomSite::SiteProperties::interactionRadius)
-        .def_readwrite("blockingFactor", &AtomSite::SiteProperties::blockingFactor);
-    py::class_<AtomSite, std::unique_ptr<AtomSite, py::nodelete>>(m, "AtomSite")
-        .def(py::init<>())
-        .def_readwrite("properties", &AtomSite::properties)
-        .def_readwrite("shuttlingTimes", &AtomSite::shuttlingTimes)
-        .def_readwrite("shuttlingAverageFidelities", &AtomSite::shuttlingAverageFidelities);
+    // why do we allow for dynamic attachements of new members? Why is that needed?
+    py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>, Relation>(m,"DataPath",py::dynamic_attr())
+        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = sys_sage::DataPathType::None)
+        .def(py::init<Component*, Component*, DataPathOrientation::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
+        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))
+        .def_property("bandwidth", &DataPath::GetBandwidth, &DataPath::SetBandwidth, "The bandwidth of the data path")
+        .def_property("latency", &DataPath::GetLatency, &DataPath::SetLatency, "The latency of the data path")
+        .def_property_readonly("type", &DataPath::GetDataPathType, "The type of the data path")
+        .def_property_readonly("orientation", &DataPath::GetOrientation, "The orientation of the data path")
+        // used the UpdateSource and UpdateTarget functions as the setters of the member variables
+        // not sure if thats ok?
+        .def_property("source", &DataPath::GetSource, &DataPath::UpdateSource, "The source of the data path")
+        .def_property("target", &DataPath::GetTarget, &DataPath::UpdateTarget, "The target of the data path")
+        // these may be missing?
+        .def("Print", &DataPath::Print, "Print basic information of the data path to stdout")
+        .def("Delete", &DataPath::Delete, "Delete the data path");
 
     // what about the delete functions?
-    py::class_<CouplingMap, std::unique_ptr<CouplingMap, py::nodelete>>(m, "CouplingMap")
+    py::class_<CouplingMap, std::unique_ptr<CouplingMap, py::nodelete>, Relation>(m, "CouplingMap")
         .def(py::init<Qubit *, Qubit *>(), py::arg("q1"), py::arg("q2"))
         .def(py::init<const std::vector<Component*>&, int, bool>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = false)
         .def_property("fidelity", &CouplingMap::GetFidelity, &CouplingMap::SetFidelity)
         .def("Delete", &CouplingMap::Delete, "Delete the coupling map");
 
-    py::class_<QuantumBackend, std::unique_ptr<QuantumBackend, py::nodelete>>(m, "QuantumBackend")
-        .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
-        .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
-        .def_property("num_qubits", &QuantumBackend::GetNumQubits, &QuantumBackend::SetNumQubits)
-        // not sure how to expose the quantum gates vector.
-        // defining it as a property is not right, I think, because the "getter"
-        // GetAllGateTypes returns a copy of the quantum gates vector, not a
-        // reference
-        //.def_property("gate_types", &QuantumBackend::GetAllGateTypes)
-        .def("GetAllGateTypes", &QuantumBackend::GetAllGateTypes, "Get a list of the quantum gates in the backend")
-        #ifdef QDMI
-        .def_property("device", &QuantumBackend::GetQDMIDevice, &QuantumBackend::SetQDMIDevice)
-        #endif
-        .def("addGate", &QuantumBackend::addGate, py::arg("gate"), "Add this gate to the backend")
-        .def("GetGatesBySize", &QuantumBackend::GetGatesBySize, py::arg("size"), "Get quantum gates by their size")
-        .def("GetGatesByType", &QuantumBackend::GetGatesByType, py::arg("type"), "Get quantum gates by their type")
-        .def("GetNumberofGates", &QuantumBackend::GetNumberofGates, "Get the number of gates in the backend")
-        .def("GetAllQubits", &QuantumBackend::GetAllQubits, "Get all qubits in the backend");
-        // TODO: first implement this before exporting
-        //.def("RefreshTopology", &QuantumBackend::RefreshTopology, py::arg("qubit_indices"), "Refresh the topology of the backend")
-
-    py::class_<QuantumGate, std::unique_ptr<QuantumGate, py::nodelete>>(m, "QuantumGate")
-        .def(py::init<size_t, std::string, double, std::string>(), py::arg("size"), py::arg("name"), py::arg("fidelity"), py::arg("unitary"))
+    py::class_<QuantumGate, std::unique_ptr<QuantumGate, py::nodelete>, Relation>(m, "QuantumGate")
+        .def(py::init<size_t, std::string, double, std::string>(), py::arg("size") = 0, py::arg("name") = "", py::arg("fidelity") = 0.0, py::arg("unitary") = "")
         .def(py::init<size_t, const std::vector<Qubit *> &>(), py::arg("size"), py::arg("qubits"))
         .def(py::init<size_t, const std::vector<Qubit *> &, std::string, double, std::string>(), py::arg("size"), py::arg("qubits"), py::arg("name"), py::arg("fidelity"), py::arg("unitary"))
         .def(py::init<const std::vector<Component *> &, int, bool, size_t, std::string, int, QuantumGateType::type, double, std::string>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = true, py::arg("size") = 0, py::arg("name") = "", py::arg("length") = 0, py::arg("type") = QuantumGateType::Unknown, py::arg("fidelity") = 0, py::arg("unitary") = "")
@@ -609,18 +621,6 @@ PYBIND11_MODULE(sys_sage, m) {
         //.def("SetGateCouplingMap", &QuantumGate::SetGateCouplingMap)
         //.def("SetAdditionalProperties", &QuantumGate::SetAdditionalProperties)
         .def("Print", &QuantumGate::Print, "Print basic information about the quantum gate to stdout");
-
-    py::class_<Qubit, std::unique_ptr<Qubit, py::nodelete>>(m, "Qubit")
-        .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "Qubit")
-        .def(py::init<Component *, int, std::string> (), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Qubit")
-        .def_property_readonly("t1", &Qubit::GetT1)
-        .def_property_readonly("t2", &Qubit::GetT2)
-        .def_property_readonly("readout_fidelity", &Qubit::GetReadoutFidelity)
-        .def_property_readonly("q1_fidelity", &Qubit::Get1QFidelity)
-        .def_property_readonly("readout_length", &Qubit::GetReadoutLength)
-        .def_property_readonly("frequency", &Qubit::GetFrequency)
-        .def_property_readonly("calibration_time", &Qubit::GetCalibrationTime)
-        .def("SetProperties", &Qubit::SetProperties, py::arg("t1"), py::arg("t2"), py::arg("readout_fidelity"), py::arg("q1_fidelity") = 0, py::arg("readout_length") = 0, "Set properties relevant for quantum error modeling and backend calibration");
 
     m.def("parseMt4gTopo", (int (*) (Node*,std::string,int, std::string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");
     m.def("parseMt4gTopo", (int (*) (Component*,std::string,int, std::string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");

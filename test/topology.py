@@ -116,6 +116,40 @@ class TestComponents(unittest.TestCase):
         
         s.size = 64
         self.assertEqual(s.size, 64)    
+
+    def test_qubit(self):
+        q = syge.Qubit()
+        q.SetProperties(1.0, 2.0, 3.0, 4.0, 5.0);
+        self.assertEqual(q.t1, 1.0)
+        self.assertEqual(q.t2, 2.0)
+        self.assertEqual(q.readout_fidelity, 3.0);
+        self.assertEqual(q.q1_fidelity, 4.0);
+        self.assertEqual(q.readout_length, 5.0);
+        self.assertEqual(q.GetComponentTypeStr(), "Qubit")
+
+    def test_quantum_backend(self):
+        qb = syge.QuantumBackend();
+        s = 3
+        gates = [syge.QuantumGate()] * s
+        for gate in gates:
+            qb.addGate(gate)
+
+        self.assertEqual(qb.GetNumberofGates(), s)
+        self.assertEqual(qb.GetAllGateTypes(), gates)
+        self.assertEqual(qb.GetGatesBySize(0), gates)
+        self.assertEqual(qb.GetComponentTypeStr(), "QuantumBackend")
+
+    def test_atom_site(self):
+        a = syge.AtomSite()
+        # test if we can access the struct
+        a.properties.nRows = 1
+        a.properties.nColumns = 2
+        a.properties.nAods = 3
+        a.properties.nAodIntermediateLevels = 4
+        a.properties.nAodCoordinates = 5
+        a.properties.interQubitDistance = 6.0
+        a.properties.interactionRadius = 7.0
+        a.properties.blockingFactor = 8.0
         
     def test_children_insertion_and_removal(self):
         a = syge.Node()
@@ -244,6 +278,19 @@ class TestComponents(unittest.TestCase):
         a.InsertChild(g)
         
         self.assertEqual(3, a.GetSubtreeDepth())
+
+    def test_attrib(self):
+        c = syge.Component()
+        c["foo"] = 1
+        c["bar"] = 2.0
+        c["foobar"] = "test"
+        self.assertEqual(c["foo"], 1)
+        self.assertEqual(c["bar"], 2.0)
+        self.assertEqual(c["foobar"], "test")
+        with self.assertRaises(AttributeError):
+            c["fail"]
+        with self.assertRaises(TypeError):
+            c[1] = 2
 
 if __name__ == "__main__":
     unittest.main()

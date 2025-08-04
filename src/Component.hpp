@@ -569,6 +569,8 @@ namespace sys_sage {
         * - Type safety is not enforced, so it is important to cast pointers to the correct
         *   type when retrieving values from the map.
         */
+
+        // NOTE: SHOULDN'T THIS BE AN UNORDERED MAP FOR BETTER PERFORMANCE?
         std::map<std::string, void*> attrib;
         
     protected:

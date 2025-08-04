@@ -152,6 +152,36 @@ static suite<"topology"> _ = []
         expect(that % 64 == node.GetSize());
     };
 
+    "Qubit"_test = []
+    {
+        Qubit q;
+        q.SetProperties(1.0, 2.0, 3.0, 4.0, 5.0);
+        expect(that % q.GetT1() == 1.0);
+        expect(that % q.GetT2() == 2.0);
+        expect(that % q.GetReadoutFidelity() == 3.0);
+        expect(that % q.Get1QFidelity() == 4.0);
+        expect(that % q.GetReadoutLength() == 5.0);
+        expect(that % "Qubit"sv == q.GetComponentTypeStr());
+    };
+
+    "QuantumBackend"_test = []
+    {
+        QuantumBackend qb;
+        size_t s = 3;
+        QuantumGate gates[s];
+        for (size_t i = 0; i < s; i++)
+          qb.addGate(gates + i);
+
+        expect(that % qb.GetNumberofGates() == s);
+
+        std::vector<QuantumGate *> qg = qb.GetAllGateTypes();
+        for (size_t i = 0; i < s; i++)
+          expect(that % qg[i] == gates + i);
+
+        expect(that % qb.GetGatesBySize(0) == qg);
+        expect(that % "QuantumBackend"sv == qb.GetComponentTypeStr());
+    };
+
     "Children insertion and removal"_test = []
     {
         Node a;

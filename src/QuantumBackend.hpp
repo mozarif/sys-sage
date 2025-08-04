@@ -104,7 +104,7 @@ namespace sys_sage {
         * 
         * @return The number of quantum gates.
         */
-        int GetNumberofGates() const;
+        size_t GetNumberofGates() const;
 
         /**
         * @brief Gets all qubits in the quantum backend.
