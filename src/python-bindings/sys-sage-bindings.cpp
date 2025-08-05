@@ -579,7 +579,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("AddComponent", &Relation::AddComponent, py::arg("component"), "Add this component to the relation")
         .def("UpdateComponent", (int (Relation::*) (int, Component *)) &Relation::UpdateComponent, py::arg("index"), py::arg("new_component"), "Tries to replace the component at the given index with the new component")
         .def("UpdateComponent", (int (Relation::*) (Component *, Component *)) &Relation::UpdateComponent, py::arg("old_component"), py::arg("new_component"), "Tries to find the old component to replace it with the new component")
-        .def("Delte", &Relation::Delete, "Delete this relation");
+        .def("Delete", &Relation::Delete, "Delete this relation");
 
     // why do we allow for dynamic attachements of new members? Why is that needed?
     py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>, Relation>(m,"DataPath",py::dynamic_attr())
@@ -588,7 +588,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))
         .def_property("bandwidth", &DataPath::GetBandwidth, &DataPath::SetBandwidth, "The bandwidth of the data path")
         .def_property("latency", &DataPath::GetLatency, &DataPath::SetLatency, "The latency of the data path")
-        .def_property_readonly("type", &DataPath::GetDataPathType, "The type of the data path")
+        .def_property_readonly("dp_type", &DataPath::GetDataPathType, "The type of the data path")
         .def_property_readonly("orientation", &DataPath::GetOrientation, "The orientation of the data path")
         // used the UpdateSource and UpdateTarget functions as the setters of the member variables
         // not sure if thats ok?

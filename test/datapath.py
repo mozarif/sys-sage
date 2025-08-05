@@ -9,7 +9,7 @@ class TestDatapaths(unittest.TestCase):
         self.assertEqual(a, dp.source)
         self.assertEqual(b, dp.target)
         self.assertEqual(syge.DATAPATH_ORIENTATION_ORIENTED, dp.orientation)
-        self.assertEqual(syge.DATAPATH_TYPE_PHYSICAL, dp.type)
+        self.assertEqual(syge.DATAPATH_TYPE_PHYSICAL, dp.dp_type)
     def test_constructor_2(self):
         a = syge.Component()
         b = syge.Component()
@@ -17,7 +17,7 @@ class TestDatapaths(unittest.TestCase):
         self.assertEqual(a, dp.source)
         self.assertEqual(b, dp.target)
         self.assertEqual(syge.DATAPATH_ORIENTATION_ORIENTED, dp.orientation)
-        self.assertEqual(syge.DATAPATH_TYPE_NONE, dp.type)
+        self.assertEqual(syge.DATAPATH_TYPE_NONE, dp.dp_type)
         self.assertEqual(5.0, dp.bandwidth)
         self.assertEqual(42.0, dp.latency)
     def test_constructor_3(self):
@@ -27,7 +27,7 @@ class TestDatapaths(unittest.TestCase):
         self.assertEqual(a, dp.source)
         self.assertEqual(b, dp.target)
         self.assertEqual(syge.DATAPATH_ORIENTATION_ORIENTED, dp.orientation)
-        self.assertEqual(syge.DATAPATH_TYPE_PHYSICAL, dp.type)
+        self.assertEqual(syge.DATAPATH_TYPE_PHYSICAL, dp.dp_type)
         self.assertEqual(5.0, dp.bandwidth)
         self.assertEqual(42.0, dp.latency)
     def test_unidirectional_data_path(self):

@@ -52,19 +52,19 @@ ut::suite<"relation"> _ = []
     ut::expect(ut::that % bar.GetRelations(RelationType::Relation).size() == 0U);
   };
 
-  ut::test("getters") = []
+  ut::test("getters & setters") = []
   {
-    Component foo (0, "foo");
-    Component bar (1, "bar");
-    std::vector<Component *> v {&foo, &bar};
-    Relation r (v, 2, false);
+    std::vector<Component *> v;
+    Relation r (v);
 
-    ut::expect(ut::that % r.GetId() == 2);
     ut::expect(ut::that % r.GetType() == RelationType::Relation);
-    ut::expect(ut::that % !r.IsOrdered());
+
+    r.SetId(2);
+    ut::expect(ut::that % r.GetId() == 2);
+    ut::expect(ut::that % r.IsOrdered());
   };
 
-  ut::test("adding and updating components") = []
+  ut::test("adding & updating components") = []
   {
     std::vector<Component *> v;
     Relation r (v);

@@ -410,7 +410,9 @@ int sys_sage::exportToXml(
                 //print only if this component has index 0 => print each Relation once only
                 if(r->GetComponent(0) == cPtr)
                 {
-                    xmlNodePtr r_xml;
+                    // NOTE: compiler complained that `r_xml` may be used uninitialized
+                    // after the switch statement
+                    xmlNodePtr r_xml = nullptr;
                     switch(r->GetType()) //not all necessarily have their specific implementation; if not, it will just call the default Relation->_CreateXmlEntry 
                     {
                         case RelationType::Relation:

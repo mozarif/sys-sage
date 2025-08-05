@@ -19,7 +19,9 @@ sys_sage::CccbenchParser::CccbenchParser(const char *csv_path)
     string line, token;
     vector <std::string>ltokens;
     vector <std::string>columns;
-    int i=0, metric_i=-1, xcore_i=-1, ycore_i=-1, elements_per_line;
+    // NOTE: compiler complained that `elements_per_line` may be used uninitialized
+    // in the for loop at the end of the function
+    int i=0, metric_i=-1, xcore_i=-1, ycore_i=-1, elements_per_line = -1;
 
     //c2cDatapoints;
     this->firstCore = INT_MAX;
@@ -38,6 +40,7 @@ sys_sage::CccbenchParser::CccbenchParser(const char *csv_path)
         int within_line_i = 0;
         unsigned int tok_int=0;
         std::stringstream linestream(line);
+        // NOTE: what's the purpose of this if-statement?
         if(0 == i++)
         {
             while(std::getline(linestream, token, ','))

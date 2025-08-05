@@ -128,8 +128,8 @@ int MusaParser::ParseData() {
 Memory* MusaParser::ParseMemory() {
     // parsing memory size from the
 	std::string input = mapping["RAMULATOR"]["org"];
-	int pos1 = input.find("_");
-	int pos2 = input.find("_", pos1+1);
+	size_t pos1 = input.find("_");
+	size_t pos2 = input.find("_", pos1+1);
 	std::string output;
     if(pos2 == std::string::npos) {//no second underscore
         output = input.substr(pos1 + 1);

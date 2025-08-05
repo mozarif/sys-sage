@@ -69,6 +69,10 @@ int imp_search_complex(xmlNodePtr n, Component *c) {
     v = xmlGetProp(n, (const unsigned char *)"value");
     int* value = new int(std::stoi(reinterpret_cast<char const *>(v)));
     c->attrib[key] = (void*) value;
+    // NOTE: compiler complained that there is no return here, but I'm not sure
+    // what the return value should be here, since the function isn't used at all
+    // in the rest of the code. Maybe 1?
+    return 1;
   } else {
     return 0;
   }
@@ -138,7 +142,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < 1000000; i++) {
         t_start = high_resolution_clock::now();
-        int* l = new int(1);
+        [[ maybe_unused ]] int* l = new int(1);
         if (n->attrib.find("test") != n->attrib.end()) {
         int* oldValue = static_cast<int*>(n->attrib["test"]);
         delete oldValue;  // Free the old value
@@ -159,7 +163,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < 1000000; i++) {
         t_start = high_resolution_clock::now();
-        int* l = static_cast<int*>(n->attrib["test"]);
+        [[ maybe_unused ]] int* l = static_cast<int*>(n->attrib["test"]);
         t_end = high_resolution_clock::now();
         uint64_t time = t_end.time_since_epoch().count() -
                         t_start.time_since_epoch().count() - timer_overhead;
@@ -293,7 +297,7 @@ int main(int argc, char *argv[])
         uint64_t time = t_end.time_since_epoch().count() - t_start.time_since_epoch().count() - timer_overhead;
         if (time < time_GetAllComponentsList) {
             time_GetAllComponentsList = time;
-            uint64_t time_GetAllComponentsList = t_end.time_since_epoch().count()-t_start.time_since_epoch().count()-timer_overhead;
+            [[ maybe_unused ]] uint64_t time_GetAllComponentsList = t_end.time_since_epoch().count()-t_start.time_since_epoch().count()-timer_overhead;
         }
     }
     //get num mt4g DataPaths
