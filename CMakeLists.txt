@@ -29,7 +29,8 @@ link_libraries(${LIBXML2_LIBRARY})
 link_libraries(${LIBXML2_LIBRARIES})
 
 # Find nlohmann_json package
-find_package(nlohmann_json 3.11 REQUIRED)
+# TODO: choose a version for the packages
+find_package(nlohmann_json REQUIRED)
 
 if(NVIDIA_MIG)
   find_package(CUDAToolkit 10.0 REQUIRED)
@@ -42,7 +43,8 @@ if(DATA_SOURCES OR DS_HWLOC)
 endif()
 
 if(PY_SYS_SAGE)
-  find_package(Python 3.13 COMPONENTS Interpreter Development REQUIRED)
+  # TODO: choose a version for the packages
+  find_package(Python COMPONENTS Interpreter Development REQUIRED)
   find_package(pybind11 CONFIG REQUIRED)
 endif()
 

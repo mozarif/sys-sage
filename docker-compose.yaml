@@ -12,6 +12,6 @@ services:
         cmake -S /sys-sage -B /build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/inst-dir -DPY_SYS_SAGE=ON -DTEST=ON -GNinja
         cmake --build build --target all install test
         ./build/test/test
-        PYTHONPATH=/inst-dir/lib/python3.13/site-packages/ python3 /sys-sage/test/topology.py
-        PYTHONPATH=/inst-dir/lib/python3.13/site-packages/ python3 /sys-sage/test/datapath.py
-        PYTHONPATH=/inst-dir/lib/python3.13/site-packages/ python3 /sys-sage/test/relation.py
+        PYTHONPATH=/inst-dir/lib/ python3 /sys-sage/test/topology.py
+        PYTHONPATH=/inst-dir/lib/ python3 /sys-sage/test/datapath.py
+        PYTHONPATH=/inst-dir/lib/ python3 /sys-sage/test/relation.py

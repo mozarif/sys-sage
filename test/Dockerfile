@@ -1,4 +1,4 @@
-FROM ubuntu:25.04
+FROM ubuntu:22.04
 
 RUN apt-get update
 
@@ -6,4 +6,4 @@ RUN apt-get update
 RUN apt-get install -yy g++ cmake ninja-build git
 
 # Install dependencies
-RUN apt-get install -yy libxml2-dev nlohmann-json3-dev python3 pybind11-dev
+RUN apt-get install -yy libxml2-dev nlohmann-json3-dev python3-dev pybind11-dev
