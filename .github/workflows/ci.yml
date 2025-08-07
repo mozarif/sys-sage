@@ -1,4 +1,10 @@
-on: [push,pull_request]
+on:
+  push:
+    branches:
+      - '**'       # matches any branch
+  pull_request:
+    branches:
+      - '**'       # matches any PR target branch
 jobs:
   test:
     name: Unit Tests
