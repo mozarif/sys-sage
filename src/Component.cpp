@@ -20,6 +20,8 @@
 
 #include <algorithm>
 #include <csignal>
+//#include <memory>
+//#include <utility>
 
 // Component::~Component() { 
 //     DeleteAllDataPaths();
@@ -668,6 +670,7 @@ void sys_sage::Component::DeleteAllRelations(RelationType::type relationType)
                     break;
             }
         }
+        //delete (*this->relations)[rt];
     }
 }
 
@@ -688,6 +691,67 @@ void sys_sage::Component::DeleteSubtree() const
     }
     return;
 }
+
+// the destructor frees all resources that it owns.
+// The component is always a root of its own subtree. We make the assumption,
+// that the root always owns every component in the subtree.
+//sys_sage::Component::~Component()
+//{
+//  if (relations != nullptr) {
+//      DeleteAllRelations();
+//      delete relations;
+//  }
+//
+//  // this may be easier with `std::any`. Take a look at `Component.hpp`
+//  for (auto &pair : attrib)
+//    delete pair.second;
+//
+//  // children will automatically be removed recursively through `std::unique_ptr`
+//}
+
+//// TODO: maybe use a predicate as an argument to enable conditional moves
+//int sys_sage::Component::MoveChildrenToParent()
+//{
+//  if (!parent)
+//    return 1;
+//
+//  for (std::unique_ptr<Component> &c : children) {
+//    parent->children.push_back(std::move(c));
+//    c->parent = parent;
+//  }
+//
+//  children.clear();
+//
+//  return 0;
+//}
+
+//int sys_sage::Component::RemoveFromTree(bool withSubtree)
+//{
+//  if (!parent) {
+//    if (!withSubtree)
+//      return 1; // don't allow this, since this could create multiple roots
+//
+//    children.clear();
+//    return 0;
+//  }
+//
+//  std::unique_ptr<Component>::iterator it = std::find_if(
+//    parent->children.begin(),
+//    parent->children.end(),
+//    [this] (const std::unique_ptr<Component> &c) { return c.get() == this };
+//  );
+//
+//  if (it == parent->children.end())
+//    return 1; // tree is corrupted
+//
+//  if (!withSubtree)
+//    MoveChildrenToParent()
+//
+//  parent->children.erase(it); // this will destroy the entire subtree
+//
+//  return 0;
+//}
+
 void sys_sage::Component::Delete(bool withSubtree)
 {
     // Delete subtree and all data paths
@@ -696,6 +760,10 @@ void sys_sage::Component::Delete(bool withSubtree)
         DeleteSubtree();
     }
 
+    //if (relations != nullptr) {
+    //    DeleteAllRelations();
+    //    delete relations;
+    //}
     DeleteAllRelations();
     
     //Free all the children
