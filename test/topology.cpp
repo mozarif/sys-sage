@@ -38,8 +38,6 @@ static suite<"topology"> _ = []
         expect(that % 42 == node.GetId());
         expect(that % "foo"sv == node.GetName());
         expect(that % ComponentType::Thread == node.GetComponentType());
-        // failed to to typo
-        //expect(that % "HW_thread"sv == node.GetComponentTypeStr());
         expect(that % "HW_Thread"sv == node.GetComponentTypeStr());
     };
 

@@ -210,7 +210,6 @@ xmlNodePtr sys_sage::QuantumBackend::_CreateXmlSubtree()
     //SVTODO deal with gate_types -- can this go into Relations?
     xmlNodePtr n = Component::_CreateXmlSubtree();
     xmlNewProp(n, (const unsigned char *)"num_qubits", (const unsigned char *)(std::to_string(num_qubits)).c_str());
-    //xmlNewProp(n, (const unsigned char *)"num_gates", (const unsigned char *)(std::to_string(num_gates)).c_str());
     // if(gate_types.size() > 0)
     // {
     //     xmlNodePtr xml_gt = xmlNewNode(NULL, (const unsigned char *)"gateTypes");
@@ -340,19 +339,6 @@ xmlNodePtr sys_sage::Relation::_CreateXmlEntry()
 {
     xmlNodePtr r_xml = xmlNewNode(NULL, BAD_CAST GetTypeStr().c_str());
 
-    // I didn't find a way to make the schema file recognize attributes of dynamic
-    // names based on the enumeration (e.g. component0, component1...)
-    //
-    //int c_idx = 0;
-    //for(Component* rc : components)
-    //{
-    //    std::ostringstream c_addr;
-    //    c_addr << rc;
-    //    const std::string xmlprop_name = "component" + std::to_string(c_idx);
-    //    xmlNewProp(r_xml, (const unsigned char *)xmlprop_name.c_str(), (const unsigned char *)(c_addr.str().c_str()));
-    //    c_idx++;
-    //}
-
     if (components.size() > 0) {
         std::ostringstream c_addr;
         c_addr << components[0];
@@ -410,8 +396,6 @@ int sys_sage::exportToXml(
                 //print only if this component has index 0 => print each Relation once only
                 if(r->GetComponent(0) == cPtr)
                 {
-                    // NOTE: compiler complained that `r_xml` may be used uninitialized
-                    // after the switch statement
                     xmlNodePtr r_xml = nullptr;
                     switch(r->GetType()) //not all necessarily have their specific implementation; if not, it will just call the default Relation->_CreateXmlEntry 
                     {

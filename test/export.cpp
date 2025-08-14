@@ -119,12 +119,6 @@ static suite<"export"> _ = []
 {
     "Minimal topology"_test = []
     {
-        // this uses a protected constructor, meaning that it can't be called
-        // from outside of its class or subclasses.
-        //
-        // Luckily, there is a public constructor that is equivalent to it.
-        //
-        //auto topo = new Component{42, "a name", ComponentType::None};
         auto topo = new Component(42, "a name");
         exportToXml(topo, "test.xml");
         topo->Delete(false);

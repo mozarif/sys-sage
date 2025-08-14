@@ -69,9 +69,6 @@ int imp_search_complex(xmlNodePtr n, Component *c) {
     v = xmlGetProp(n, (const unsigned char *)"value");
     int* value = new int(std::stoi(reinterpret_cast<char const *>(v)));
     c->attrib[key] = (void*) value;
-    // NOTE: compiler complained that there is no return here, but I'm not sure
-    // what the return value should be here, since the function isn't used at all
-    // in the rest of the code. Maybe 1?
     return 1;
   } else {
     return 0;

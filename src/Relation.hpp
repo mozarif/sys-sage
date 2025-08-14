@@ -106,9 +106,6 @@ namespace sys_sage {
          * printing behavior.
          */
         virtual void Print() const;
-
-        // if functions are marked a private by doxygen, then why not mark them
-        // as private in the code?
         /**
          * @private
          * @brief Print all key-value pairs in the attribute map.
@@ -159,32 +156,12 @@ namespace sys_sage {
          *
          * Should be overridden in subclasses if custom destruction logic is needed.
          */
-
-        // int RemoveComponent();
-
-        // TODO: Use a similar approach as described in `Component.hpp`.
-        // Generally, when the user wants to remove a relation from the relations
-        // graph, he should first call "RemoveFromGraph" to make the relation
-        // decouple itself from every component it connects. Then the destructor
-        // is responsible for cleaning up every resource that it used (e.g. the
-        // attributes map). The destructor can be invoked implicitely when cleaning
-        // up stack variables or explicitely by the user through a delete call for
-        // heap-allocated relations.
-        //
-        // More fine grained control over the connected components within a
-        // relation should be handeled through `UpdateComponent()`, `AddComponent()`
-        // and `RemoveComponent()`.
-        //
-        // int RemoveFromGraph();
-
         virtual void Delete();//TODO
-
         /**
          * @brief Destructor for the Relation class.
          * 
          * This is a virtual destructor to ensure proper cleanup of derived classes.
          */
-        //virtual ~Relation();
         virtual ~Relation() = default;
     protected:
         /**
@@ -300,8 +277,6 @@ namespace sys_sage {
         * - Type safety is not enforced, so it is important to cast pointers to the correct
         *   type when retrieving values from the map.
         */
-
-        // NOTE: SHOULDN'T THIS BE AN UNORDERED MAP FOR BETTER PERFORMANCE?
         std::map<std::string, void*> attrib;
     };
 

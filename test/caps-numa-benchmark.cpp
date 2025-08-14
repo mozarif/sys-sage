@@ -27,8 +27,6 @@ static suite<"caps-numa-benchmark"> _ = []
     {
         for (const auto &numa : numas)
         {
-            // this was failing before, because the component contained a
-            // reflexive relation, which was included twice in the data paths vector.
             expect(that % (4 == numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming).size()) >> fatal);
             for (const auto &dp : numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming))
             {
@@ -36,8 +34,6 @@ static suite<"caps-numa-benchmark"> _ = []
                 expect(that % DataPathOrientation::Oriented == dp->GetOrientation());
             }
 
-            // this was failing before, because the component contained a
-            // reflexive relation, which was included twice in the data paths vector.
             expect(that % (4 == numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing).size()) >> fatal);
             for (const auto &dp : numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing))
             {

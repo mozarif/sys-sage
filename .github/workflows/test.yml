@@ -28,6 +28,6 @@ jobs:
         run: ./build/test/test
       - name: Python tests
         run:  |
-              PYTHONPATH=./inst-dir/lib/ python3 test/topology.py
-              PYTHONPATH=./inst-dir/lib/ python3 test/datapath.py
-              PYTHONPATH=./inst-dir/lib/ python3 test/relation.py
+              PYTHONPATH=$(echo ./inst-dir/lib/python*/site-packages) python3 test/topology.py
+              PYTHONPATH=$(echo ./inst-dir/lib/python*/site-packages) python3 test/datapath.py
+              PYTHONPATH=$(echo ./inst-dir/lib/python*/site-packages) python3 test/relation.py

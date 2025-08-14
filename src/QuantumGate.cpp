@@ -50,11 +50,6 @@ void sys_sage::QuantumGate::SetQuantumGateType()
     }
 }
 
-// wouldn't it be better to use `const std::string &` as parameter type?
-// this would allow rvalues to be passed directly to the function.
-// Or maybe an `std::string_view` is the best choice, since we could accept
-// values of type `std::string` or plain C-style strings without needing to copy
-// the data twice.
 void sys_sage::QuantumGate::SetName(std::string _name)
 {
     name = _name;
@@ -80,8 +75,6 @@ void sys_sage::QuantumGate::SetFidelity(double gateFidelity)
     fidelity = gateFidelity;
 }
 
-// again, it would be better to use `std::string_view` instead of
-// `const std::string &`
 void sys_sage::QuantumGate::SetUnitary(const std::string & gateUnitary)
 {
     unitary = gateUnitary;

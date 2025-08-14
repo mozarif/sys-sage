@@ -17,19 +17,6 @@
 
 #include "sys-sage.hpp"
 
-// Unfortunately, it is not possible to export C++ functions that modify an
-// STL container via pass-by-reference and expect that it works the same in
-// Python. The problem is that internally, conversions between C++ types and
-// Python types involve a copy operation and hence prevent pass-by-reference
-// semantics. Therefore, calling such functions in Python would result in a
-// modification of a copy of the container, not the container itself.
-//
-// To prevent these copies, we need to disable the automatic type conversions
-// for STL containers with `PYBIND11_MAKE_OPAQUE`. The drawback now is that we
-// need to define our own conversion types.
-//
-// Refer to https://pybind11.readthedocs.io/en/stable/advanced/cast/stl.html
-// for more information.
 PYBIND11_MAKE_OPAQUE(std::vector<sys_sage::Component *>)
 PYBIND11_MAKE_OPAQUE(std::vector<sys_sage::DataPath *>)
 PYBIND11_MAKE_OPAQUE(std::vector<sys_sage::Qubit *>)
@@ -116,7 +103,6 @@ int xmlloader_complex(xmlNodePtr node, sys_sage::Component *c) {
 //TODO: Add dynamic allocation for values
 //TODO: Delete values only after success
 template <typename T>
-//void set_attribute(sys_sage::Component &self, const std::string &key, py::object &value) {
 void set_attribute(T &self, const std::string &key, py::object &value) {
     //std::cout << "set attribute: " << key << " = " << value << std::endl;
 
@@ -253,7 +239,6 @@ py::object get_attribute(T &self, const std::string &key) {
 
 template <typename T>
 py::object get_attribute(T &self, int pos){
-    //if(pos >= self.attrib.size())
     if (pos < 0 || static_cast<size_t>(pos) >= self.attrib.size())
         throw py::index_error("Index out of bounds");
     auto it = self.attrib.begin();
@@ -335,7 +320,6 @@ PYBIND11_MODULE(sys_sage, m) {
     py::bind_vector<std::vector<Qubit *>>(m, "QubitList");
 
     //bind component class
-    // shouldn't we also export the attrib map?
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
         .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "unknown")
         .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown")
@@ -358,8 +342,6 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("parent", &Component::GetParent, &Component::SetParent, "The parent of the component")
         .def("SetParent", &Component::SetParent, py::arg("parent"), "Set the parent of the component")
         .def("PrintSubtree", (void (Component::*)()) &Component::PrintSubtree, "Print the subtree of the component up to level 0")
-        // why do we want to expose a helper function?
-        //.def("_PrintSubtree", (void (Component::*)(int)) &Component::PrintSubtree, "Print the subtree of the component with a maximum depth of <level>")
         .def("PrintAllRelationsInSubtree", &Component::PrintAllRelationsInSubtree, py::arg("relationType") = RelationType::Any, "Print all relations in the subtree")
         .def_property("name", &Component::GetName, &Component::SetName, "The name of the component")
         .def_property_readonly("id", &Component::GetId, "The id of the component")
@@ -372,8 +354,6 @@ PYBIND11_MODULE(sys_sage, m) {
         //vector<Component*> as input doesnt work
         .def("GetAllChildrenByType", (void (Component::*)(std::vector<Component*> *, int) const) &Component::GetAllChildrenByType, py::arg("children"), py::arg("type"), "Get all child components by type")
         .def("GetAllChildrenByType", (std::vector<Component*> (Component::*)(int) const)(&Component::GetAllChildrenByType), py::arg("type"), "Get all child components by type")
-        // This doesn't exist anymore
-        //.def("GetSubcomponentById", &Component::GetSubcomponentById, "Get the first sub component by id")
         .def("GetAllSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, ComponentType::type))(&Component::GetAllSubcomponentsByType), py::arg("subcomponents"), py::arg("type"), "Get the first sub component by type")
         .def("GetAllSubcomponentsByType", (std::vector<Component*> (Component::*)(ComponentType::type))(&Component::GetAllSubcomponentsByType),py::arg("type") ,"Get all sub components by type")
         .def("CountAllSubcomponents", &Component::CountAllSubcomponents, "Count all sub components")
@@ -389,24 +369,15 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetComponentsInSubtree", (void (Component::*)(std::vector<Component*> *))&Component::GetComponentsInSubtree,py::arg("components"),"Get all the components in the subtree of the component")
         .def("GetComponentsInSubtree", (std::vector<Component*> (Component::*)())&Component::GetComponentsInSubtree,"Get all the components in the subtree of the component")
         .def("GetSubcomponentById", &Component::GetSubcomponentById, py::arg("id"),py::arg("type"),"Get the first sub component by id and type")
-        // .def("GetDataPaths", &Component::GetDataPaths,py::arg("orientation"),"Get all the data paths associated with the component")
         .def("GetRelations", &Component::GetRelations, py::arg("type"), "Get all relations of that type")
         .def("GetAllRelationsBy", &Component::GetAllRelationsBy, py::arg("type") = RelationType::Any, py::arg("position") = -1, "Get all relations of that type and position")
-        // .def("AddDataPath", &Component::AddDataPath,py::arg("datapath"), py::arg("orientation"),"Add a data path to the component")
         .def("GetDataPathByType", &Component::GetDataPathByType, py::arg("type"), py::arg("direction") = DataPathDirection::Any,"Get the first data path associated with the component by type")
-        // .def("GetAllDataPathsByType", (void (Component::*)(std::vector<DataPath*> *, int, int))&Component::GetAllDataPathsByType, py::arg("datapaths"), py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
-        // .def("GetAllDataPathsByType", (std::vector<DataPath*> (Component::*)(int, int)) &Component::GetAllDataPathsByType,py::arg("type"), py::arg("orientation"),"Get all the data paths associated with the component by type")
         .def("GetAllDataPaths", (void (Component::*)(std::vector<DataPath *> *, DataPathType::type, DataPathDirection::type) const)&Component::GetAllDataPaths, py::arg("datapaths"), py::arg("type") = DataPathType::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that type and direction")
         .def("GetAllDataPaths", (std::vector<DataPath *> (Component::*)(DataPathType::type, DataPathDirection::type) const)&Component::GetAllDataPaths, py::arg("type") = DataPathType::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that type and direction")
         .def("CheckComponentTreeConsistency", &Component::CheckComponentTreeConsistency,"Check if the component tree is consistent")
-        //this isn't overloaded anymore
-        //.def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),"Get the size of the topology")
         .def("GetTopologySize", &Component::GetTopologySize,py::arg("components_size"),py::arg("datapaths_size"),"Get the size of the topology")
-        //doesn't exist anymore
-        //.def("GetTopologySize", (int (Component::*)(unsigned*, unsigned*, std::set<DataPath*>*)) (&Component::GetTopologySize),py::arg("components_size"),py::arg("datapaths_size"),py::arg("datapaths_counted"),"Get the size of the topology")
         .def("GetDepth", &Component::GetDepth,py::arg("refresh"),"Get the depth of the component, if refresh is true it will update the depth")
         .def("DeleteRelation", &Component::DeleteRelation, py::arg("relation"), "Delete the given relation from the component")
-        //.def("DeleteAllDataPaths", &Component::DeleteAllDataPaths,"Delete all the data paths from the component")
         .def("DeleteAllRelations", &Component::DeleteAllRelations, py::arg("type") = RelationType::Any,"Delete all relations of that type from the component")
         .def("DeleteSubtree", &Component::DeleteSubtree,"Delete the subtree of the component")
         .def("Delete", &Component::Delete,py::arg("withSubtree") = true,"Delete the component")
@@ -424,8 +395,6 @@ PYBIND11_MODULE(sys_sage, m) {
 
     py::class_<Node, std::unique_ptr<Node, py::nodelete>, Component>(m, "Node")
         #ifdef INTEL_PQOS
-        // this function signature does not match with the one specified in Node.hpp
-        //.def("UpdateL3CATCoreCOS", &Node::UpdateL3CATCoreCOS, py::arg("core"), py::arg("cos"))
         .def("UpdateL3CATCoreCOS", &Node::UpdateL3CATCoreCOS, "Create new data paths between all cores of the node and the L3 cache to reflect new L3 cache settings")
         #endif
         #ifdef PROC_CPUINFO
@@ -454,8 +423,6 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetMIGNumSMs", &Chip::GetMIGNumSMs, py::arg("uuid"))
         .def("UpdateMIGSettings", &Chip::UpdateMIGSettings, py::arg("uuid"))
         #endif
-        // why do we want to return a reference of an object when creating it in the constructor? Isn't that dangerous?
-        //.def(py::init<int,std::string,int,std::string,std::string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= 1, py::arg("vendor") = "", py::arg("model") = "", py::return_value_policy::reference)
         .def(py::init<int,std::string,ChipType::type,std::string,std::string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= ChipType::None, py::arg("vendor") = "", py::arg("model") = "")
         .def(py::init<Component*,int,std::string,ChipType::type,std::string,std::string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = ChipType::None, py::arg("vendor") = "", py::arg("model") = "")
         .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
@@ -499,8 +466,6 @@ PYBIND11_MODULE(sys_sage, m) {
         #endif
         #ifdef PROC_CPUINFO
         .def("RefreshFreq", &Thread::RefreshFreq,py::arg("keep_history") = false,"Refresh the frequency of the component")
-        // not part of the Macro
-        //.def("GetCATAwareL3Size", &Thread::GetCATAwareL3Size, "Get L3 size of this thread")
         .def_property_readonly("freq", &Thread::GetFreq, "Get Frequency of this thread")
         #endif
         .def(py::init<int,std::string>(),py::arg("id") = 0,py::arg("name") = "Thread")
@@ -522,22 +487,17 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
         .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "QuantumBackend")
         .def_property("num_qubits", &QuantumBackend::GetNumQubits, &QuantumBackend::SetNumQubits)
-        // not sure how to expose the quantum gates vector.
-        // defining it as a property is not right, I think, because the "getter"
-        // GetAllGateTypes returns a copy of the quantum gates vector, not a
-        // reference
-        //.def_property("gate_types", &QuantumBackend::GetAllGateTypes)
         .def("GetAllGateTypes", &QuantumBackend::GetAllGateTypes, "Get a list of the quantum gates in the backend")
         #ifdef QDMI
         .def_property("device", &QuantumBackend::GetQDMIDevice, &QuantumBackend::SetQDMIDevice)
         #endif
+        // TODO: first implement this before exporting
+        //.def("RefreshTopology", &QuantumBackend::RefreshTopology, py::arg("qubit_indices"), "Refresh the topology of the backend")
         .def("addGate", &QuantumBackend::addGate, py::arg("gate"), "Add this gate to the backend")
         .def("GetGatesBySize", &QuantumBackend::GetGatesBySize, py::arg("size"), "Get quantum gates by their size")
         .def("GetGatesByType", &QuantumBackend::GetGatesByType, py::arg("type"), "Get quantum gates by their type")
         .def("GetNumberofGates", &QuantumBackend::GetNumberofGates, "Get the number of gates in the backend")
         .def("GetAllQubits", &QuantumBackend::GetAllQubits, "Get all qubits in the backend");
-        // TODO: first implement this before exporting
-        //.def("RefreshTopology", &QuantumBackend::RefreshTopology, py::arg("qubit_indices"), "Refresh the topology of the backend")
 
     py::class_<AtomSite::SiteProperties>(m, "SiteProperties")
         .def_readwrite("nRows", &AtomSite::SiteProperties::nRows)
@@ -581,7 +541,6 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("UpdateComponent", (int (Relation::*) (Component *, Component *)) &Relation::UpdateComponent, py::arg("old_component"), py::arg("new_component"), "Tries to find the old component to replace it with the new component")
         .def("Delete", &Relation::Delete, "Delete this relation");
 
-    // why do we allow for dynamic attachements of new members? Why is that needed?
     py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>, Relation>(m,"DataPath",py::dynamic_attr())
         .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = sys_sage::DataPathType::None)
         .def(py::init<Component*, Component*, DataPathOrientation::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
@@ -590,15 +549,11 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("latency", &DataPath::GetLatency, &DataPath::SetLatency, "The latency of the data path")
         .def_property_readonly("dp_type", &DataPath::GetDataPathType, "The type of the data path")
         .def_property_readonly("orientation", &DataPath::GetOrientation, "The orientation of the data path")
-        // used the UpdateSource and UpdateTarget functions as the setters of the member variables
-        // not sure if thats ok?
         .def_property("source", &DataPath::GetSource, &DataPath::UpdateSource, "The source of the data path")
         .def_property("target", &DataPath::GetTarget, &DataPath::UpdateTarget, "The target of the data path")
-        // these may be missing?
         .def("Print", &DataPath::Print, "Print basic information of the data path to stdout")
         .def("Delete", &DataPath::Delete, "Delete the data path");
 
-    // what about the delete functions?
     py::class_<CouplingMap, std::unique_ptr<CouplingMap, py::nodelete>, Relation>(m, "CouplingMap")
         .def(py::init<Qubit *, Qubit *>(), py::arg("q1"), py::arg("q2"))
         .def(py::init<const std::vector<Component*>&, int, bool>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = false)
@@ -643,8 +598,6 @@ PYBIND11_MODULE(sys_sage, m) {
         if(print_catt)
             print_complex_attributes = *print_catt;
         exportToXml(&root, xmlPath,print_att ? xmldumper : nullptr,print_catt ? xmldumper_complex : nullptr);
-    // this doesn't match with the signature in xml_dump.hpp
-    //},py::arg("root"), py::arg("xmlPath") = "out.xml", py::arg("print_att") = py::none(), py::arg("print_catt") = py::none());
     },py::arg("root"), py::arg("xmlPath") = "", py::arg("print_att") = py::none(), py::arg("print_catt") = py::none());
     
     m.def("importFromXml",[](std::string path, std::optional<py::function> search_custom_attrib_key_fcn = std::nullopt, std::optional<py::function> search_custom_complex_attrib_key_fcn = std::nullopt) {

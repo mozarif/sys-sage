@@ -51,8 +51,6 @@ int main(int argc, char *argv[])
     cout << "----------------                     ----------------" << endl;
 
     cout << "---------------- Printing all DataPaths ----------------" << endl;
-    // NOTE: deprecated
-    //topo->PrintAllDataPathsInSubtree();
     topo->PrintAllRelationsInSubtree();
     cout << "----------------                        ----------------" << endl;
 

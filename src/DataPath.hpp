@@ -135,7 +135,6 @@ namespace sys_sage {
 
     private:
         DataPathType::type dp_type; /**< type of the datapath */
-        DataPathOrientation::type dp_orientation;
 
         double bw; /**< Bandwidth from the source(provides the data) to the target(requests the data) */
         double latency; /**< Data load latency from the source(provides the data) to the target(requests the data) */

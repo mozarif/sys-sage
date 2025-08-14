@@ -353,18 +353,6 @@ int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 		std::string childName(reinterpret_cast<const char *>(xml_child->name));
 		// cout << "_CreateRelations childName = " << childName << endl;
 
-    // same problem as in xml_dump.cpp
-    //
-		//int component_index = 0;
-		//std::vector<Component*> components;
-		//while(xmlHasProp(xml_child, (const xmlChar *)("component" + std::to_string(component_index)).c_str()))
-		//{
-		//	std::string c_str = _getStringFromProp(xml_child, "component" + std::to_string(component_index));
-		//	Component *c = addr_to_component[c_str];
-		//	components.push_back(c);
-		//	component_index++;
-		//}
-
     std::vector<Component *> components;
 		xmlChar *str = xmlGetProp(xml_child, BAD_CAST "components");
     if (str != nullptr) {

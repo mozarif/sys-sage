@@ -89,22 +89,18 @@ if(PY_SYS_SAGE)
     )
 
     #set install directory of the python library
-    #if(CMAKE_INSTALL_PREFIX STREQUAL "")
-    #    # use install prefix if result is empty
-    #    if(PYTHON_SITE STREQUAL "")
-    #        set(PYTHON_SITE "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
-    #        message(WARNING "PYTHON_SITE was empty, falling back to: ${PYTHON_SITE}")
-    #    # else()
-    #        # message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
-    #    endif()
-    #else()
-    #    set(PYTHON_SITE "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
-    #    # message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
-    #endif()
-
-    # simplified this logic for temporary ease of use
-    set(PYTHON_SITE "${CMAKE_INSTALL_PREFIX}/lib")
-
+    if(CMAKE_INSTALL_PREFIX STREQUAL "")
+        # use install prefix if result is empty
+        if(PYTHON_SITE STREQUAL "")
+            set(PYTHON_SITE "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
+            message(WARNING "PYTHON_SITE was empty, falling back to: ${PYTHON_SITE}")
+        # else()
+            # message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
+        endif()
+    else()
+        set(PYTHON_SITE "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
+        # message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
+    endif()
 
     # set(PY_BINDS ${CMAKE_SOURCE_DIR}/src/python-bindings)
     message(STATUS "PY_BINDS=${PY_BINDS}")

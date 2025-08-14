@@ -45,7 +45,6 @@ ut::suite<"relation"> _ = []
     Component foo, bar;
     std::vector<Component *> v {&foo, &bar};
     Relation *r = new Relation (v);
-    // NOTE: this only works if r doesn't live on the stack
     r->Delete();
 
     ut::expect(ut::that % foo.GetRelations(RelationType::Relation).size() == 0U);
@@ -122,8 +121,6 @@ ut::suite<"relation"> _ = []
     {
       Qubit foo, bar;
       std::vector<Qubit *> v {&foo, &bar};
-      // why do I need to pass in the number of qubits (i.e. v.size()) and also v?
-      // can't the number of qubits be inferred by just passing in the vector of qubits?
       Relation *r = new QuantumGate(v.size(), v);
 
       ut::expect(ut::that % r->GetType() == RelationType::QuantumGate);

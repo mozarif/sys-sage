@@ -65,7 +65,7 @@ namespace sys_sage {
 
         /**
         * @brief Gets the 1Q fidelity of the qubit.
-        * @return Q1 fidelity 
+        * @return 1Q fidelity 
         */
         double Get1QFidelity() const;
 

@@ -6,12 +6,13 @@
 #include <vector>
 #include <map>
 #include <set>
-//#include <memory>
 
 #include "defines.hpp"
 #include "enums.hpp"
 #include "DataPath.hpp"
 #include <libxml/parser.h>
+
+
 
 namespace sys_sage { //forward declaration
     class Topology;
@@ -59,10 +60,7 @@ namespace sys_sage {
          * @private
          * @brief Use Delete() or DeleteSubtree() for deleting and deallocating the components.
          */
-
-        //virtual ~Component();
         virtual ~Component() = default;
-
         /**
          * @brief Inserts a child component to this component (in the Component Tree).
          * The child pointer will be inserted at the end of the children vector.
@@ -102,10 +100,6 @@ namespace sys_sage {
         */
         int InsertBetweenParentAndChildren(Component* parent, std::vector<Component*> children, bool alreadyParentsChild);
 
-
-        // TODO: maybe use a predicate for conditional moves?
-        //int MoveChildrenToParent()
-        
         /**
         Removes the passed component from the list of children, without completely deleting (and deallocating) the child itself
         @param child - child to remove
@@ -117,7 +111,6 @@ namespace sys_sage {
          * @return Number of elements deleted (normally 0 or 1)
          */
         int RemoveChild(Component * child);
-
         /**
          * @brief Set a parent to the component.
          * This is usually used when inserting a component in the tree (by calling InsertChild on the parent, and calling SetParent on the child).
@@ -150,7 +143,6 @@ namespace sys_sage {
          */
     public:
         [[deprecated("Use PrintAllRelationsInSubtree instead. This function will be removed in the future.")]]
-
         void PrintAllDataPathsInSubtree();
         /**
          * @brief Prints all Relations in the subtree.
@@ -502,8 +494,6 @@ namespace sys_sage {
          * If only the component itself is deleted, its children are inserted into its parent's children list.
          * @param withSubtree If true, the whole subtree is deleted; otherwise only the component itself.
          */
-
-        //void RemoveFromTree(bool withSubtree = true);
         void Delete(bool withSubtree = true);
 
         /**
@@ -578,13 +568,6 @@ namespace sys_sage {
         * - Type safety is not enforced, so it is important to cast pointers to the correct
         *   type when retrieving values from the map.
         */
-
-        // NOTE: SHOULDN'T THIS BE AN UNORDERED MAP FOR BETTER PERFORMANCE?
-        //
-        // ADDITIONAL NOTE: maybe it would be better to use `std::any` instead of
-        // `void *`. It would give us type safety, since a bad cast would result
-        // in throwing an exception (although this results in more runtime cost)
-        // and we don't have to manually delete the values.
         std::map<std::string, void*> attrib;
         
     protected:
@@ -614,35 +597,7 @@ namespace sys_sage {
         Component type is constant, set by constructor, readonly. 
         It can be of types as listed in ComponentType::type (which is user-extensible).*/
         const ComponentType::type componentType;
-
-        // NOTE: Through the usage of `std::unique_ptr`, we create an ownership
-        // model where every parent owns its children. That way we can have a clear
-        // seperation of concerns where we split the logical removal from the
-        // component tree through `Component::RemoveFromTree` and the deallocation
-        // of resources owned by the component through the destructor, thus
-        // avoiding memory leaks. The user can for example call
-        // `component->RemoveFromTree(true)` to easilly remove and delete the
-        // entire subtree without any additional responsibilities. The disadvantage
-        // now is that every component of the component tree must be allocated on
-        // the heap (except for the root), since `std::unique_ptr` isn't allowed
-        // to handle stack variables.
-        //
-        // Another approach would be to remove the ownership model and let the
-        // user be responsible for explicitely deleting the components when they
-        // are allocated on the heap. Specifically, when we only want to delete a
-        // component while keeping the subtree, we simply "move" the children to
-        // the parent of the component and erase `this` from the parent's children
-        // vector, thus decoupling `this` component from the components tree. The
-        // user must then manually delete it when it was allocated on the heap. On
-        // the other hand, if we want to remove the entire subtree, we only erase
-        // `this` from the parents children vector and the user has to manually
-        // delete all subcomponents recursively. That way we are more flexible
-        // in terms of stack-allocated and heap-allocated components while pushing
-        // the responsibilities on to the user.
-        //
-        //std::vector<std::unique_ptr<Component>> children;
         std::vector<Component*> children; /**< Contains the list (std::vector) of pointers to children of the component in the component tree. */
-
         Component* parent { nullptr }; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be nullptr.*/
         
         /**

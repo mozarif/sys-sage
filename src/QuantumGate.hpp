@@ -17,22 +17,6 @@ namespace sys_sage {
     class QuantumGate : public Relation {
 
     public:
-        // combined the 2 constructors below into the "third" one with default
-        // parameters
-        ////SVTODO do the constructors without Components make sense?
-        ///**
-        // * @brief Default constructor for QuantumGate.
-        // * 
-        // * Initializes a quantum gate with default properties.
-        // */
-        //QuantumGate();
-
-        ///**
-        // * @brief Constructor that initializes a quantum gate with a specified size.
-        // * @param _gate_size The number of qubits this gate operates on.
-        // */
-        //QuantumGate(size_t _gate_size);
-
         /**
          * @brief Constructor that initializes a quantum gate with specific properties.
          * @param _gate_size The number of qubits this gate operates on.
@@ -118,9 +102,6 @@ namespace sys_sage {
          * @brief Sets the fidelity of the quantum gate.
          * @param The fidelity of the quantum gate.
          */
-        // TODO: settle for a unified naming convention:
-        //       The parameter names are either camel case, snake_case or start
-        //       with an underscore -> choose one and stick with it
         void SetFidelity(double gateFidelity);
 
         /**
