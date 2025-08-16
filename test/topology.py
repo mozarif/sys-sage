@@ -168,15 +168,6 @@ class TestComponents(unittest.TestCase):
     
     def test_get_child(self):
         a = syge.Node()
-
-        # GetChild(<id>) will search for a child with the given <id>
-        # (see src/Component.hpp). Since the default constructor for the nodes
-        # are used, all nodes have the same id, which is 0.
-
-        #b = syge.Node()
-        #c = syge.Node()
-        #d = syge.Node()
-
         b = syge.Node(0)
         c = syge.Node(1)
         d = syge.Node(2)

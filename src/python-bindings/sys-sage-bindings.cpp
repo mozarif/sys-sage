@@ -341,7 +341,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("RemoveChild", &Component::RemoveChild, py::arg("child"),"Remove a child component")
         .def_property("parent", &Component::GetParent, &Component::SetParent, "The parent of the component")
         .def("SetParent", &Component::SetParent, py::arg("parent"), "Set the parent of the component")
-        .def("PrintSubtree", (void (Component::*)()) &Component::PrintSubtree, "Print the subtree of the component up to level 0")
+        .def("PrintSubtree", &Component::PrintSubtree, "Print the subtree of the component up to level 0")
         .def("PrintAllRelationsInSubtree", &Component::PrintAllRelationsInSubtree, py::arg("relationType") = RelationType::Any, "Print all relations in the subtree")
         .def_property("name", &Component::GetName, &Component::SetName, "The name of the component")
         .def_property_readonly("id", &Component::GetId, "The id of the component")
@@ -352,8 +352,8 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetChildById", &Component::GetChildById, py::arg("id"), "Get the first child component by id")
         .def("GetChildByType", &Component::GetChildByType, py::arg("type"), "Get the first child component by type")
         //vector<Component*> as input doesnt work
-        .def("GetAllChildrenByType", (void (Component::*)(std::vector<Component*> *, int) const) &Component::GetAllChildrenByType, py::arg("children"), py::arg("type"), "Get all child components by type")
-        .def("GetAllChildrenByType", (std::vector<Component*> (Component::*)(int) const)(&Component::GetAllChildrenByType), py::arg("type"), "Get all child components by type")
+        .def("GetAllChildrenByType", (void (Component::*)(std::vector<Component*> *, ComponentType::type) const) &Component::GetAllChildrenByType, py::arg("children"), py::arg("type"), "Get all child components by type")
+        .def("GetAllChildrenByType", (std::vector<Component*> (Component::*)(ComponentType::type) const)(&Component::GetAllChildrenByType), py::arg("type"), "Get all child components by type")
         .def("GetAllSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, ComponentType::type))(&Component::GetAllSubcomponentsByType), py::arg("subcomponents"), py::arg("type"), "Get the first sub component by type")
         .def("GetAllSubcomponentsByType", (std::vector<Component*> (Component::*)(ComponentType::type))(&Component::GetAllSubcomponentsByType),py::arg("type") ,"Get all sub components by type")
         .def("CountAllSubcomponents", &Component::CountAllSubcomponents, "Count all sub components")
@@ -491,8 +491,6 @@ PYBIND11_MODULE(sys_sage, m) {
         #ifdef QDMI
         .def_property("device", &QuantumBackend::GetQDMIDevice, &QuantumBackend::SetQDMIDevice)
         #endif
-        // TODO: first implement this before exporting
-        //.def("RefreshTopology", &QuantumBackend::RefreshTopology, py::arg("qubit_indices"), "Refresh the topology of the backend")
         .def("addGate", &QuantumBackend::addGate, py::arg("gate"), "Add this gate to the backend")
         .def("GetGatesBySize", &QuantumBackend::GetGatesBySize, py::arg("size"), "Get quantum gates by their size")
         .def("GetGatesByType", &QuantumBackend::GetGatesByType, py::arg("type"), "Get quantum gates by their type")
@@ -572,9 +570,6 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property("fidelity", &QuantumGate::GetFidelity, &QuantumGate::SetFidelity)
         .def_property("unitary", &QuantumGate::GetUnitary, &QuantumGate::SetUnitary)
         .def("SetGateProperties", &QuantumGate::SetGateProperties, py::arg("name"), py::arg("fidelity"), py::arg("unitary"), "Sets the name, fidelity, unitary and type of the quantum gate")
-        // TODO: first implement these functions before exporting them
-        //.def("SetGateCouplingMap", &QuantumGate::SetGateCouplingMap)
-        //.def("SetAdditionalProperties", &QuantumGate::SetAdditionalProperties)
         .def("Print", &QuantumGate::Print, "Print basic information about the quantum gate to stdout");
 
     m.def("parseMt4gTopo", (int (*) (Node*,std::string,int, std::string)) &parseMt4gTopo, "parseMt4gTopo", py::arg("parent"), py::arg("dataSourcePath"), py::arg("gpuID"), py::arg("delim") = ";");

@@ -266,7 +266,7 @@ std::vector<sys_sage::Component*> sys_sage::Component::GetNthDescendents(int dep
     return outArray;
 }
 
-void sys_sage::Component::GetSubcomponentsByType(std::vector<Component*>* outArray, int _componentType)
+void sys_sage::Component::GetSubcomponentsByType(std::vector<Component*>* outArray, sys_sage::ComponentType::type _componentType)
 {
     if(_componentType == componentType){
         outArray->push_back(this);
@@ -277,7 +277,7 @@ void sys_sage::Component::GetSubcomponentsByType(std::vector<Component*>* outArr
     }
 }
 
-std::vector<sys_sage::Component*> sys_sage::Component::GetSubcomponentsByType(int _componentType)
+std::vector<sys_sage::Component*> sys_sage::Component::GetSubcomponentsByType(sys_sage::ComponentType::type _componentType)
 {
     vector<Component*> outArray;
     GetSubcomponentsByType(&outArray, _componentType);
