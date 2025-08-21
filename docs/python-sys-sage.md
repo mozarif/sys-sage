@@ -1,28 +1,34 @@
-# sys-sage Python version documentation
+# sys-sage Python API documentation
 
-The sys-sage module is the Python version of the sys-sage library, which was already implemented for C++. This documentation focuses on the Python version of the sys-sage library, here called the sys-sage module. It does not contain a list of all functions, choosing instead to focus more on the key aspects and avoiding redundancy.
+The _sys-sage_ library provides bindings for the Python programming language through the _sys-sage_ module. This documenation offers a brief introduction.
 
 ## Installation
 
-To install the ```sys_sage``` module from source, ensure that Python and Pybind11 are already installed on your system. You can then use CMake for the installation by setting the flag ```-DPYBIND=ON```.
+First make sure that `python` (>= 3.10) and `pybind11` are already installed on your system. You can then pass the `-DPY_SYS_SAGE=ON` flag to CMake when compiling the
+library to also build the module. The following command can be executed at the root of the repo
+
+```
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DPY_SYS_SAGE=ON .
+```
 
 ## Module Import
 
 After installation the module can now be imported:
-```python
+
+```Python
 import sys_sage
 ```
 
 ## Object initialistaion
 
-To create Component and Datapath objects, you can utilize the provided initialization functions. For instance, a Component object can be instantiated as follows:
+To create Component and Relation objects, you can utilize the provided initialization functions. For instance, a Component object can be instantiated as follows:
 
-```Python
+```python
 c = sys_sage.Component(parent, 0, "Generic Component")
 ```
-The sys-sage library exposes all known constructors for ```Component``` and its subclasses as Python initialization functions, complete with their default values. In the example above, if the component type is not explicitly provided, it will automatically be assigned ```None``` during initialization.
+The _sys-sage_ library exposes all known constructors for `Component` and its subclasses as Python initialization functions, complete with their default values. In the example above, if the component type is not explicitly provided, it will automatically be assigned ```None``` during initialization.
 
-Throughout this documentation, c will consistently refer to a Component object, and d will refer to a Datapath object in all given examples.
+Throughout this documentation, `c` will consistently refer to a Component object.
 
 ## Methods
 
@@ -31,23 +37,11 @@ Calling class methods in Python is very similar to the C++ version:
 ```Python
 c.InsertChild(child)
 ```
-However, some methods require a workaround. For instance, directly passing a list as an argument to be populated will not work:
-
-```Python
-c.GetAllChildrenByType(children_list, type) # This will not work as expected
-```
-Instead, for methods that take a list of Component or Datapath objects as arguments (which are currently not working as direct in-place modifications), an alternative approach is provided. You should append the results to an existing list, as shown below:
-
-```Python
-children_list += c.GetAllChildrenByType(type)
-```
-In general, for all methods that expect a list of Component or Datapath objects as arguments to be modified in-place, you should use the alternative method of appending the returned list to your existing list.
-
-Finally, certain attributes, such as id and name, are not accessible via standard getters and setters. The specific methods for reading and writing these attributes are detailed in the "Attributes" section of this documentation.
+However, certain attributes, such as id and name, are not accessible via standard getters and setters. The specific methods for reading and writing these attributes are detailed in the "Attributes" section of this documentation.
 
 ## Module functions
 
-All of the parsers, that provided by sys-sage library are also included in the Python module:
+All the default parsers of the _sys-sage_ library are also included in the Python module:
 
 ```python
 sys_sage.parseCapsNumaBenchmark(root,"benchmark.csv",";")
@@ -55,16 +49,66 @@ sys_sage.parseCapsNumaBenchmark(root,"benchmark.csv",";")
 
 ## Attributes
 
-### Makros / Module Attributes
+### Module Attributes
 
-In the C++ version of the sys-sage library, macros like SYS_SAGE_COMPONENT_NONE are used to represent specific integer values. The Python module provides an analogous way to access these values for use with functions:
+The Python module provides a one-to-one correspondance to the known _sys-sage_ constants.
+
+|                C++                 |                Python              |
+| ---------------------------------- | ---------------------------------- |
+| ComponentType::None                | COMPONENT_NONE                     |
+| ComponentType::Thread              | COMPONENT_THREAD                   |
+| ComponentType::Core                | COMPONENT_CORE                     |
+| ComponentType::Cache               | COMPONENT_CACHE                    |
+| ComponentType::Subdivision         | COMPONENT_SUBDIVISION              |
+| ComponentType::Numa                | COMPONENT_NUMA                     |
+| ComponentType::Chip                | COMPONENT_CHIP                     |
+| ComponentType::Memory              | COMPONENT_MEMORY                   |
+| ComponentType::Storage             | COMPONENT_STORAGE                  |
+| ComponentType::Node                | COMPONENT_NODE                     |
+| ComponentType::QuantumBackend      | COMPONENT_QUANTUMBACKEND           |
+| ComponentType::AtomSite            | COMPONENT_ATOMSITE                 |
+| ComponentType::Qubit               | COMPONENT_QUBIT                    |
+| ComponentType::Topology            | COMPONENT_TOPOLOGY                 |
+| SubdivisionType::None              | SUBDIVISION_TYPE_NONE              |
+| SubdivisionType::GpuSM             | SUBDIVISION_TYPE_GPU_SM            |
+| ChipType::None                     | CHIP_TYPE_NONE                     |
+| ChipType::Cpu                      | CHIP_TYPE_CPU                      |
+| ChipType::CpuSocket                | CHIP_TYPE_CPU_SOCKET               |
+| ChipType::Gpu                      | CHIP_TYPE_GPU                      |
+| RelationType::Any                  | RELATION_TYPE_ANY                  |
+| RelationType::Relation             | RELATION_TYPE_RELATION             |
+| RelationType::DataPath             | RELATION_TYPE_DATAPATH             |
+| RelationType::QuantumGate          | RELATION_TYPE_QUANTUMGATE          |
+| RelationType::CouplingMap          | RELATION_TYPE_COUPLINGMAP          |
+| DataPathType::Any                  | DATAPATH_TYPE_ANY                  |
+| DataPathType::None                 | DATAPATH_TYPE_NONE                 |
+| DataPathType::Logical              | DATAPATH_TYPE_LOGICAL              |
+| DataPathType::Physical             | DATAPATH_TYPE_PHYSICAL             |
+| DataPathType::Datatransfer         | DATAPATH_TYPE_DATATRANSFER         |
+| DataPathType::L3CAT                | DATAPATH_TYPE_L3CAT                |
+| DataPathType::MIG                  | DATAPATH_TYPE_MIG                  |
+| DataPathType::C2C                  | DATAPATH_TYPE_C2C                  |
+| DataPathDirection::Any             | DATAPATH_DIRECTION_ANY             |
+| DataPathDirection::Outgoing        | DATAPATH_DIRECTION_OUTGOING        |
+| DataPathDirection::Incoming        | DATAPATH_DIRECTION_INCOMING        |
+| DataPathOrientation::Oriented      | DATAPATH_ORIENTATION_ORIENTED      |
+| DataPathOrientation::Bidirectional | DATAPATH_ORIENTATION_BIDIRECTIONAL |
+| QuantumGateType::Unknown           | QUANTUMGATE_TYPE_UNKNOWN           |
+| QuantumGateType::Id                | QUANTUMGATE_TYPE_ID                |
+| QuantumGateType::X                 | QUANTUMGATE_TYPE_X                 |
+| QuantumGateType::Rz                | QUANTUMGATE_TYPE_RZ                |
+| QuantumGateType::Cnot              | QUANTUMGATE_TYPE_CNOT              |
+| QuantumGateType::Sx                | QUANTUMGATE_TYPE_SX                |
+| QuantumGateType::Toffoli           | QUANTUMGATE_TYPE_TOFFOLI           |
+
+An example would be:
 
 ```Python
 c.CountAllSubcomponentsByType(sys_sage.COMPONENT_NONE)
 ```
 
 ### Properties
-As previously mentioned, some attributes aren't accessed using traditional getters or setters. Instead, ```sys_sage``` offers a more Pythonic approach to access them:
+As previously mentioned, some attributes aren't accessed using traditional getters or setters. Instead, `sys-sage` offers a more pythonic approach to access them:
 
 ```Python
 name = c.name
@@ -73,28 +117,22 @@ c.name = "name"
 
 ### Dynamic Attributes
 
-Similar to the core sys-sage library, users can define their own custom attributes.
-
-For the Component class, dynamic attributes are accessed using the [] operator:
+Similar to the core _sys-sage_ library, users can define their own custom attributes.
+The usage resembles that of dictionaries.
 
 ```Python
 c["dynamic"] = "attribute"
-c["dynamic"] # Returns "attribute"
-c[0]         # Returns "attribute" (assuming 0 is the index assigned to "dynamic")
+print(c["dynamic"])
+c["integer"] = 1 # values can be arbitrary
 ```
-For Datapath objects, dynamic attributes are treated like basic attributes, allowing direct access:
-
-```Python
-d.dynamic = "attribute"
-d.dynamic # Returns "attribute"
-```
+The same holds for relations.
 
 ## XML I/O
 
 XML import and export is enabled, however there are some difference to the original library functions.
 
 ### XML Export
-When exporting data in sys-sage, users can define custom functions to parse component attributes. Two distinct functions can be specified: one for simple attributes and another for complex attributes.
+When exporting data in _sys-sage_, users can define custom functions to parse component attributes. Two distinct functions can be specified: one for simple attributes and another for complex attributes.
 
 For simple attributes, the custom function must return either a string or None. The processing of the key-value pair is entirely at the user's discretion. Here's an example:
 
@@ -131,7 +169,7 @@ def import_search_simple(x):
     return None
 ```
 
-Similarly, for complex attributes, the XML node as a string is forwarded. However, unlike the simple attribute function, the custom function for complex attributes also gains access to the respective Component object (c). This allows for more profound modifications to the component's attributes. This function is expected to return only a success status (e.g., 1 for success, 0 for failure).
+Similarly, for complex attributes, the XML node as a string is forwarded. However, unlike the simple attribute function, the custom function for complex attributes also gains access to the respective Component object (`c`). This allows for more profound modifications to the component's attributes. This function is expected to return only a success status (e.g., 1 for success, 0 for failure).
 
 ```Python
 def import_search_complex(x, c):

@@ -34,19 +34,19 @@ class TestDatapaths(unittest.TestCase):
         a = syge.Component()
         b = syge.Component()
         dp = syge.DataPath(a,b, syge.DATAPATH_ORIENTATION_ORIENTED, syge.DATAPATH_TYPE_PHYSICAL)
-        self.assertEqual([], list(a.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_INCOMING)))
-        self.assertEqual([dp], list(a.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_OUTGOING)))
+        self.assertEqual([], a.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_INCOMING))
+        self.assertEqual([dp], a.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_OUTGOING))
         
-        self.assertEqual([dp], list(b.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_INCOMING)))
-        self.assertEqual([], list(b.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_OUTGOING)))
+        self.assertEqual([dp], b.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_INCOMING))
+        self.assertEqual([], b.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_OUTGOING))
     def test_bidirectional_data_path(self):
         a = syge.Component()
         b = syge.Component()
         dp = syge.DataPath(a,b, syge.DATAPATH_ORIENTATION_BIDIRECTIONAL, syge.DATAPATH_TYPE_PHYSICAL)
-        self.assertEqual([dp], list(a.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_INCOMING)))
-        self.assertEqual([dp], list(a.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_OUTGOING)))
-        self.assertEqual([dp], list(b.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_INCOMING)))
-        self.assertEqual([dp], list(b.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_OUTGOING)))
+        self.assertEqual([dp], a.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_INCOMING))
+        self.assertEqual([dp], a.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_OUTGOING))
+        self.assertEqual([dp], b.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_INCOMING))
+        self.assertEqual([dp], b.GetAllDataPaths(syge.DATAPATH_TYPE_ANY, syge.DATAPATH_DIRECTION_OUTGOING))
         
     def test_get_data_path_by_type(self):
         a = syge.Component()
@@ -72,19 +72,19 @@ class TestDatapaths(unittest.TestCase):
         dp4 = syge.DataPath(b, a, syge.DATAPATH_ORIENTATION_ORIENTED, syge.DATAPATH_TYPE_PHYSICAL)
 
         v = a.GetAllDataPaths(syge.DATAPATH_TYPE_LOGICAL, syge.DATAPATH_DIRECTION_INCOMING)
-        self.assertEqual([], list(v))
+        self.assertEqual([], v)
 
         v = a.GetAllDataPaths(syge.DATAPATH_TYPE_PHYSICAL, syge.DATAPATH_DIRECTION_INCOMING)
-        self.assertEqual([dp4], list(v))
+        self.assertEqual([dp4], v)
 
         v = a.GetAllDataPaths(syge.DATAPATH_TYPE_LOGICAL, syge.DATAPATH_DIRECTION_OUTGOING)
-        self.assertEqual([dp1], list(v))
+        self.assertEqual([dp1], v)
 
         v = a.GetAllDataPaths(syge.DATAPATH_TYPE_PHYSICAL, syge.DATAPATH_DIRECTION_OUTGOING)
-        self.assertEqual([dp2, dp3], list(v))
+        self.assertEqual([dp2, dp3], v)
 
         v = a.GetAllDataPaths(syge.DATAPATH_TYPE_PHYSICAL, syge.DATAPATH_DIRECTION_ANY)
-        self.assertEqual([dp2, dp3, dp4], list(v))
+        self.assertEqual([dp2, dp3, dp4], v)
 
 if __name__ == "__main__":
     unittest.main()

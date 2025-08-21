@@ -10,16 +10,11 @@
 #include <optional>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
 #include <pybind11/attr.h>
 #include <string>
 #include <tuple>
 
 #include "sys-sage.hpp"
-
-PYBIND11_MAKE_OPAQUE(std::vector<sys_sage::Component *>)
-PYBIND11_MAKE_OPAQUE(std::vector<sys_sage::DataPath *>)
-PYBIND11_MAKE_OPAQUE(std::vector<sys_sage::Qubit *>)
 
 namespace py = pybind11;
 
@@ -315,12 +310,8 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("QUANTUMGATE_TYPE_SX") = QuantumGateType::Sx;
     m.attr("QUANTUMGATE_TYPE_TOFFOLI") = QuantumGateType::Toffoli;
 
-    py::bind_vector<std::vector<Component *>>(m, "ComponentList");
-    py::bind_vector<std::vector<DataPath *>>(m, "DataPathList");
-    py::bind_vector<std::vector<Qubit *>>(m, "QubitList");
-
     //bind component class
-    py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component", py::dynamic_attr(),"Generic Component")
+    py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component")
         .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "unknown")
         .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown")
         .def("__setitem__", [](Component& self, const std::string& name, py::object value) {
@@ -352,9 +343,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetChildById", &Component::GetChildById, py::arg("id"), "Get the first child component by id")
         .def("GetChildByType", &Component::GetChildByType, py::arg("type"), "Get the first child component by type")
         //vector<Component*> as input doesnt work
-        .def("GetAllChildrenByType", (void (Component::*)(std::vector<Component*> *, ComponentType::type) const) &Component::GetAllChildrenByType, py::arg("children"), py::arg("type"), "Get all child components by type")
         .def("GetAllChildrenByType", (std::vector<Component*> (Component::*)(ComponentType::type) const)(&Component::GetAllChildrenByType), py::arg("type"), "Get all child components by type")
-        .def("GetAllSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, ComponentType::type))(&Component::GetAllSubcomponentsByType), py::arg("subcomponents"), py::arg("type"), "Get the first sub component by type")
         .def("GetAllSubcomponentsByType", (std::vector<Component*> (Component::*)(ComponentType::type))(&Component::GetAllSubcomponentsByType),py::arg("type") ,"Get all sub components by type")
         .def("CountAllSubcomponents", &Component::CountAllSubcomponents, "Count all sub components")
         .def("CountAllSubcomponentsByType", &Component::CountAllSubcomponentsByType, py::arg("type"),"Count sub components by type")
@@ -362,20 +351,23 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetAncestorByType", &Component::GetAncestorByType, py::arg("type"),"Get the first ancestor component by type")
         .def("GetSubtreeDepth", &Component::GetSubtreeDepth, "Get the depth of the subtree")
         .def("GetNthAncestor", &Component::GetNthAncestor, py::arg("n"),"Get the nth ancestor of the component")
-        .def("GetNthDescendents", (void (Component::*)(std::vector<Component*> *, int))&Component::GetNthDescendents,py::arg("descendents"), py::arg("n"),"Get all the nth descendents of the component")
         .def("GetNthDescendents", (std::vector<Component*> (Component::*)(int))&Component::GetNthDescendents,py::arg("n"),"Get all the nth descendents of the component")
-        .def("GetSubcomponentsByType", (void (Component::*)(std::vector<Component*> *, ComponentType::type))&Component::GetSubcomponentsByType,py::arg("subcomponents"), py::arg("type"),"Get all the sub components of the component by type")
         .def("GetSubcomponentsByType", (std::vector<Component*> (Component::*)(ComponentType::type))&Component::GetSubcomponentsByType,py::arg("type"),"Get all the sub components of the component by type")
-        .def("GetComponentsInSubtree", (void (Component::*)(std::vector<Component*> *))&Component::GetComponentsInSubtree,py::arg("components"),"Get all the components in the subtree of the component")
         .def("GetComponentsInSubtree", (std::vector<Component*> (Component::*)())&Component::GetComponentsInSubtree,"Get all the components in the subtree of the component")
         .def("GetSubcomponentById", &Component::GetSubcomponentById, py::arg("id"),py::arg("type"),"Get the first sub component by id and type")
         .def("GetRelations", &Component::GetRelations, py::arg("type"), "Get all relations of that type")
         .def("GetAllRelationsBy", &Component::GetAllRelationsBy, py::arg("type") = RelationType::Any, py::arg("position") = -1, "Get all relations of that type and position")
         .def("GetDataPathByType", &Component::GetDataPathByType, py::arg("type"), py::arg("direction") = DataPathDirection::Any,"Get the first data path associated with the component by type")
-        .def("GetAllDataPaths", (void (Component::*)(std::vector<DataPath *> *, DataPathType::type, DataPathDirection::type) const)&Component::GetAllDataPaths, py::arg("datapaths"), py::arg("type") = DataPathType::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that type and direction")
         .def("GetAllDataPaths", (std::vector<DataPath *> (Component::*)(DataPathType::type, DataPathDirection::type) const)&Component::GetAllDataPaths, py::arg("type") = DataPathType::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that type and direction")
         .def("CheckComponentTreeConsistency", &Component::CheckComponentTreeConsistency,"Check if the component tree is consistent")
-        .def("GetTopologySize", &Component::GetTopologySize,py::arg("components_size"),py::arg("datapaths_size"),"Get the size of the topology")
+        // pybind11 doesn't support pass-by-reference or pass-by-pointer of primitive types.
+        // -> use a tuple instead of output parameters
+        .def("GetTopologySize", [] (Component &self) {
+            unsigned out_component_size = 0;
+            unsigned out_dataPathSize = 0;
+            int total_bytes = self.GetTopologySize(&out_component_size, &out_dataPathSize);
+            return std::make_tuple(total_bytes, out_component_size, out_dataPathSize);
+        }, "Get the size of the topology")
         .def("GetDepth", &Component::GetDepth,py::arg("refresh"),"Get the depth of the component, if refresh is true it will update the depth")
         .def("DeleteRelation", &Component::DeleteRelation, py::arg("relation"), "Delete the given relation from the component")
         .def("DeleteAllRelations", &Component::DeleteAllRelations, py::arg("type") = RelationType::Any,"Delete all relations of that type from the component")
@@ -539,7 +531,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("UpdateComponent", (int (Relation::*) (Component *, Component *)) &Relation::UpdateComponent, py::arg("old_component"), py::arg("new_component"), "Tries to find the old component to replace it with the new component")
         .def("Delete", &Relation::Delete, "Delete this relation");
 
-    py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>, Relation>(m,"DataPath",py::dynamic_attr())
+    py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>, Relation>(m,"DataPath")
         .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = sys_sage::DataPathType::None)
         .def(py::init<Component*, Component*, DataPathOrientation::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
         .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))

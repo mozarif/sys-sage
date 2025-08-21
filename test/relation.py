@@ -20,7 +20,7 @@ class TestRelations(unittest.TestCase):
     def test_interconnection(self):
         foo = sys_sage.Component()
         bar = sys_sage.Component()
-        v = sys_sage.ComponentList([foo, bar])
+        v = [foo, bar]
         r = sys_sage.Relation(v)
         self.assertEqual(r.GetComponent(0), foo)
         self.assertEqual(r.GetComponent(1), bar)
@@ -34,7 +34,7 @@ class TestRelations(unittest.TestCase):
     def test_deletion(self):
         foo = sys_sage.Component()
         bar = sys_sage.Component()
-        v = sys_sage.ComponentList([foo, bar])
+        v = [foo, bar]
         r = sys_sage.Relation(v)
         r.Delete()
         
@@ -42,8 +42,7 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(len(bar.GetRelations(sys_sage.RELATION_TYPE_RELATION)), 0)
 
     def test_getters_and_setters(self):
-        v = sys_sage.ComponentList()
-        r = sys_sage.Relation(v)
+        r = sys_sage.Relation([])
 
         self.assertEqual(r.type, sys_sage.RELATION_TYPE_RELATION)
 
@@ -52,8 +51,7 @@ class TestRelations(unittest.TestCase):
         self.assertTrue(r.ordered)
 
     def test_adding_and_updating_components(self):
-        v = sys_sage.ComponentList()
-        r = sys_sage.Relation(v)
+        r = sys_sage.Relation([])
         self.assertEqual(len(r.components), 0)
 
         foo = sys_sage.Component()
@@ -66,7 +64,7 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(r.UpdateComponent(bar, bar), 1)
 
         r.UpdateComponent(foo, bar)
-        self.assertEqual(r.components, sys_sage.ComponentList([bar]))
+        self.assertEqual(r.components, [bar])
 
         foobar = sys_sage.Component()
         #with stream_suppressor("stderr"):
@@ -74,11 +72,10 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(r.UpdateComponent(1, foobar), 1)
 
         r.UpdateComponent(0, foobar)
-        self.assertEqual(r.components, sys_sage.ComponentList([foobar]))
+        self.assertEqual(r.components, [foobar])
 
     def test_attributes(self):
-        v = sys_sage.ComponentList()
-        r = sys_sage.Relation(v)
+        r = sys_sage.Relation([])
 
         r["foo"] = 1
         r["bar"] = 2.0
@@ -102,7 +99,7 @@ class TestRelations(unittest.TestCase):
     def test_inheritance_quantum_gate(self):
         foo = sys_sage.Qubit()
         bar = sys_sage.Qubit()
-        v = sys_sage.QubitList([foo, bar])
+        v = [foo, bar]
         r = sys_sage.QuantumGate(len(v), v)
 
         self.assertEqual(r.type, sys_sage.RELATION_TYPE_QUANTUMGATE)
