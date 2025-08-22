@@ -21,7 +21,7 @@ While sys-sage is deeply rooted in HPC and classical hardware, it’s built to b
 - **Extensible:** Add new 3rd-party data sources or APIs, or attach custom metadata, without changing the core.
 - **Easy traversal and queries:** Find all GPUs, all data paths, or all components with a certain property.
 - **Serialization:** Import/export your system topology (with all metadata) to XML, with hooks for custom attributes -- and recreate the exact system representation, including all internal information, on a different machine or at a different time.
-- **Python API:** (Experimental) Use sys-sage from Python for rapid prototyping, data science, or integration with other tools.
+- **Python API:** Use sys-sage from Python for rapid prototyping, data science, or integration with other tools.
 
 ### Where sys-sage Shines
 
@@ -36,6 +36,7 @@ While sys-sage is deeply rooted in HPC and classical hardware, it’s built to b
 - [Detailed Concepts and Architecture](Concept.md)
 - [Installation Guide](Installation_Guide.md)
 - [Data Parsers](Data_Parsers.md)
+- [**Python API**](python-sys-sage.md)
 
 - **API documentation**
     - [Component](class_component.html)
@@ -67,16 +68,16 @@ While sys-sage is deeply rooted in HPC and classical hardware, it’s built to b
         - iqm
         - mt4g
         - qdmi
-
     - Data Sources
         - caps-numa-benchmark
         - [**hwloc**](hwloc-output_8cpp.html)
         - mt4g
-    - [XML import/export](xmlio.md) <!-- TODO: is this API or concept? -->
-    - [**Python API**](python-sys-sage.md)
+    - [XML import/export](xmlio.md)
+    <!-- TODO: is XML import/export API or concept? -->
+    
 
 
-## Python API (Experimental)
+## Python API
 
 sys-sage now offers a Python API for rapid prototyping and integration with Python-based tools. You can:
 
@@ -132,7 +133,11 @@ for gpu in root.get_all_subcomponents_by_type("Gpu"):
     print(gpu.name, gpu.get_attribute("bandwidth"))
 ```
 
+### Documentation Versioning
 
+- [latest](https://stepanvanecek.github.io/sys-sage/latest/html/index.html)
+- [1.0.0](https://stepanvanecek.github.io/sys-sage/1.0.0/html/index.html)
+- [0.5.2](https://stepanvanecek.github.io/sys-sage/0.5.2/html/index.html)
 
 ## About
 
