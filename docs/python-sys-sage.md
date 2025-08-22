@@ -121,9 +121,10 @@ Similar to the core _sys-sage_ library, users can define their own custom attrib
 The usage resembles that of dictionaries.
 
 ```Python
-c["dynamic"] = "attribute"
-print(c["dynamic"])
-c["integer"] = 1 # values can be arbitrary
+c["foo"] = "test"
+c["foo"]            # returns "test"
+c["bar"] = 1        # values can be arbitrary
+c[0]                # returns 1, since key-value pairs are ordered in lexicographical order of the keys
 ```
 The same holds for relations.
 

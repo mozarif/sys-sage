@@ -85,6 +85,10 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(r["foobar"], "test")
         with self.assertRaises(AttributeError):
             r["fail"]
+        # indexing follows lexicographical order of keys
+        self.assertEqual(r[0], 2.0)
+        self.assertEqual(r[1], 1)
+        self.assertEqual(r[2], "test")
         with self.assertRaises(TypeError):
             r[1] = 2
 

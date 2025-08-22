@@ -280,6 +280,10 @@ class TestComponents(unittest.TestCase):
         self.assertEqual(c["foobar"], "test")
         with self.assertRaises(AttributeError):
             c["fail"]
+        # indexing follows lexicographical order of keys
+        self.assertEqual(c[0], 2.0)
+        self.assertEqual(c[1], 1)
+        self.assertEqual(c[2], "test")
         with self.assertRaises(TypeError):
             c[1] = 2
 
