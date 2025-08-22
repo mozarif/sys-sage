@@ -1,6 +1,8 @@
-<img src="docs/images/logo-white.png" alt="sys-sage logo" style="float: right;" width="200"/>
+
 
 # sys-sage
+
+<img src="docs/images/logo-white.jpeg" alt="sys-sage logo" style="float: right;" width="200"/>
 
 **sys-sage** is a C++ library and toolkit for capturing, representing, and analyzing the hardware topology of compute systems.
 It provides a unified, extensible interface to query, store, and manipulate hardware information from diverse sources, supporting both classical HPC and emerging quantum computing environments.
