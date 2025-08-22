@@ -87,7 +87,7 @@ void* sys_sage::_search_default_attrib_key(xmlNodePtr n) {
 	}
 
 	// Handle attributes with double values
-	else if (!key.compare("Clock_Frequency")) 
+	else if (!key.compare("Clock_Frequency") || !key.compare("GPU_Clock_Rate")) 
 	{
 		return new double(std::stod(value));
 	}
@@ -144,24 +144,24 @@ int sys_sage::_search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
 		c->attrib[key] = (void*) val;
 		return 1;
 	} 
-	else if (!key.compare("GPU_Clock_Rate"))
-	{
-		// GPU_Clock_Rate is a vector of tuples containing the frequency and the unit
-		xmlNodePtr attr = n->children;
-		if(attr->type == XML_TEXT_NODE)
-			attr = attr->next;
+	//else if (!key.compare("GPU_Clock_Rate"))
+	//{
+	//	// GPU_Clock_Rate is a vector of tuples containing the frequency and the unit
+	//	xmlNodePtr attr = n->children;
+	//	if(attr->type == XML_TEXT_NODE)
+	//		attr = attr->next;
 
-		std::string unit = _getStringFromProp(attr, "unit");
-		std::string freq = _getStringFromProp(attr, "frequency");
+	//	std::string unit = _getStringFromProp(attr, "unit");
+	//	std::string freq = _getStringFromProp(attr, "frequency");
 
-		double freq_d = std::stod(freq);
+	//	double freq_d = std::stod(freq);
 
-		auto val = new std::tuple<double, std::string>(freq_d, unit); 
-		void *value = (void *)val;
-		c->attrib[key] = value;
+	//	auto val = new std::tuple<double, std::string>(freq_d, unit); 
+	//	void *value = (void *)val;
+	//	c->attrib[key] = value;
 
-		return 1;
-	}
+	//	return 1;
+	//}
 
 	return 0;
 }
@@ -353,15 +353,15 @@ int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 		std::string childName(reinterpret_cast<const char *>(xml_child->name));
 		// cout << "_CreateRelations childName = " << childName << endl;
 
-		int component_index = 0;
-		std::vector<Component*> components;
-		while(xmlHasProp(xml_child, (const xmlChar *)("component" + std::to_string(component_index)).c_str()))
-		{
-			std::string c_str = _getStringFromProp(xml_child, "component" + std::to_string(component_index));
-			Component *c = addr_to_component[c_str];
-			components.push_back(c);
-			component_index++;
-		}
+    std::vector<Component *> components;
+		xmlChar *str = xmlGetProp(xml_child, BAD_CAST "components");
+    if (str != nullptr) {
+        std::istringstream stream (reinterpret_cast<const char *>(str));
+        std::string component;
+        while (std::getline(stream, component, ' '))
+          components.push_back(addr_to_component[component]);
+    }
+
 		std::string ordered_str = _getStringFromProp(xml_child, "ordered");
 		bool ordered = (ordered_str == "1");
 		int id = std::stoi(_getStringFromProp(xml_child, "id"));
@@ -376,7 +376,7 @@ int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 			int dataPathType = std::stoi(_getStringFromProp(xml_child, "DataPathType"));
 			double bw = std::stod(_getStringFromProp(xml_child, "bw"));
 			double latency = std::stod(_getStringFromProp(xml_child, "latency"));
-			DataPathOrientation::type dpo = (ordered ? DataPathOrientation::Oriented : DataPathOrientation::NotOriented);
+			DataPathOrientation::type dpo = (ordered ? DataPathOrientation::Oriented : DataPathOrientation::Bidirectional);
 
 			new DataPath(components[0], components[1], dpo, dataPathType, bw, latency);
 		}
@@ -415,8 +415,6 @@ sys_sage::Component* sys_sage::importFromXml(
 	xmlDocPtr doc = xmlReadFile(path.c_str(), NULL, 0);
 	xmlNodePtr sys_sage_root = xmlDocGetRootElement(doc);
 	// cout << "sys_sage_root->name = " << sys_sage_root->name << endl;
-
-	xmlNodePtr n = sys_sage_root->children;
 
 	Component *c = NULL;
 	for (xmlNodePtr n = sys_sage_root->children; n != NULL; n = n->next) {

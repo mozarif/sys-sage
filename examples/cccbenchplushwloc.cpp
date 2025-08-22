@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
             cout << endl << c0->GetId() << " " << c1->GetId() << endl;
 
     cout << "---------------- Printing all DataPaths ----------------" << endl;
-    n->PrintAllDataPathsInSubtree();
+    n->PrintAllRelationsInSubtree();
     cout << "----------------                        ----------------" << endl;
     delete topo;
     delete n;

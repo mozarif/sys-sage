@@ -19,7 +19,7 @@ sys_sage::CccbenchParser::CccbenchParser(const char *csv_path)
     string line, token;
     vector <std::string>ltokens;
     vector <std::string>columns;
-    int i=0, metric_i=-1, xcore_i=-1, ycore_i=-1, elements_per_line;
+    int i=0, metric_i=-1, xcore_i=-1, ycore_i=-1, elements_per_line = -1;
 
     //c2cDatapoints;
     this->firstCore = INT_MAX;

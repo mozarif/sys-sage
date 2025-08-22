@@ -65,7 +65,7 @@ int sys_sage::IQMParser::CreateQcTopo()
 
     for(int i=0; i<numQubits; i++)
     {
-        Qubit* q = new Qubit(backend, i);
+        new Qubit(backend, i);
     }
     
     std::map<std::string, std::string> two_q_fidelity = jsonData["two_q_fidelity"];
@@ -74,7 +74,7 @@ int sys_sage::IQMParser::CreateQcTopo()
         auto [q1_id, q2_id] = parse_pair(cm_str);
         Qubit* q1 = static_cast<Qubit*>(backend->GetChild(q1_id));
         Qubit* q2 = static_cast<Qubit*>(backend->GetChild(q2_id));
-        CouplingMap* cm = new CouplingMap(q1,q2);
+        new CouplingMap(q1,q2);
     }
 
     //create attrib keys "T1_max", "T2_max", "q1_fidelity_max", "readout_fidelity_max", "two_q_fidelity_max"

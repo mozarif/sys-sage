@@ -17,6 +17,7 @@
 // TODO: Add more tests
 
 using namespace boost::ut;
+using namespace sys_sage;
 
 static suite<"import"> _ = [] {
   
@@ -25,27 +26,27 @@ static suite<"import"> _ = [] {
                                                "/sys-sage_sample_output.xml");
     expect(topo != nullptr);
     expect(topo->GetId() == 0);
-    Node* node = (Node*)topo->GetChildren()->at(0);
+    Node* node = (Node*)topo->GetChildren().at(0);
     expect(node != nullptr);
     expect(node->GetId()==1);
     //size of node children must be 2
-    expect(node->GetChildren()->size()==2);
+    expect(node->GetChildren().size()==2);
     Chip* chip = (Chip*)node->GetChildById(0);
     expect(chip != nullptr);
     expect(chip->GetModel() == "Intel(R) Xeon(R) Silver 4116 CPU @ 2.10GHz");
-    expect (nullptr != (Thread *)chip->GetSubcomponentById(0, SYS_SAGE_COMPONENT_THREAD));
+    expect (nullptr != (Thread *)chip->GetSubcomponentById(0, ComponentType::Thread));
 
     Chip* chip2 = (Chip*)node->GetChildById(1);
     expect(chip2 != nullptr);
-    Numa* numa = (Numa*)chip2->GetSubcomponentById(2, SYS_SAGE_COMPONENT_NUMA);
+    Numa* numa = (Numa*)chip2->GetSubcomponentById(2, ComponentType::Numa);
     expect(numa != nullptr);
-    vector<DataPath*>* dp_out = numa->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
-    expect(dp_out->size() == 4);
+    std::vector<DataPath*> dp_out = numa->GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing);
+    expect(dp_out.size() == 4);
     //find a all datapaths where target is other Numa
     std::set<int> found;
-    for(DataPath* dp : *dp_out){
+    for(DataPath* dp : dp_out){
         Component* target = dp->GetTarget();
-        if(target->GetComponentType() == SYS_SAGE_COMPONENT_NUMA){
+        if(target->GetComponentType() == ComponentType::Numa){
             found.insert(target->GetId());
         }
     }

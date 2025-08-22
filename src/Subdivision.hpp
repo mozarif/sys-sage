@@ -36,12 +36,12 @@ namespace sys_sage {
          * Sets the type of the subdivision
         @param subdivisionType = type 
         */
-        void SetSubdivisionType(int subdivisionType);
+        void SetSubdivisionType(SubdivisionType::type subdivisionType);
         /**
         @returns the type of subdivision
         @see type
         */
-        int GetSubdivisionType() const;
+        SubdivisionType::type GetSubdivisionType() const;
         /**
         @private
         !!Should normally not be used!! Helper function of XML dump generation.

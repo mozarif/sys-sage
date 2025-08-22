@@ -13,7 +13,15 @@
 
 namespace sys_sage {
 
-
+    /**
+     * @class QuantumBackend
+     * @brief Represents a quantum backend device (e.g., quantum processor or simulator).
+     *
+     * Inherits from Component and provides a unified abstraction for quantum hardware backends.
+     * This class manages qubits, quantum gates, and their relations, and supports integration with
+     * external quantum device interfaces (e.g., QDMI). It is designed to be extensible for new
+     * quantum architectures and data sources.
+     */
     class QuantumBackend : public Component {
     public:
         /**
@@ -82,7 +90,7 @@ namespace sys_sage {
         * @param _gate_type The type of the gates to retrieve.
         * @return A vector of quantum gates with the specified type.
         */
-        std::vector<QuantumGate*> GetGatesByType(size_t _gate_type) const;
+        std::vector<QuantumGate*> GetGatesByType(QuantumGateType::type _gate_type) const;
 
         /**
         * @brief Gets all types of quantum gates in the quantum backend.
@@ -96,7 +104,7 @@ namespace sys_sage {
         * 
         * @return The number of quantum gates.
         */
-        int GetNumberofGates() const;
+        size_t GetNumberofGates() const;
 
         /**
         * @brief Gets all qubits in the quantum backend.
@@ -110,6 +118,7 @@ namespace sys_sage {
          * 
          * @param qubit_indices The indices of the qubits that need to be refreshed.
          */
+        // TODO: implement this.
         void RefreshTopology(std::set<int> qubit_indices); // qubit_indices: indices of the qubits that need to be refreshed
 
         /**
@@ -119,11 +128,11 @@ namespace sys_sage {
         */
         xmlNodePtr _CreateXmlSubtree() override;
 
+        /** Destructor for QuantumBackend. */
         ~QuantumBackend() override = default;
 
     private:
         int num_qubits;
-        int num_gates;
         //SVTODO deal with gate_types -- can this go into Relations?
         std::vector <QuantumGate*> gate_types;
     #ifdef QDMI

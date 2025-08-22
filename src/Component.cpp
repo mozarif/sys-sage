@@ -19,6 +19,23 @@
 #include "CouplingMap.hpp"
 
 #include <algorithm>
+#include <csignal>
+
+// Component::~Component() { 
+//     DeleteAllDataPaths();
+//     if(GetParent() != NULL)
+//         GetParent()->RemoveChild(this);
+//     else{
+//         while(children.size() > 0)
+//         {
+//             RemoveChild(children[0]);
+//             children[0]->SetParent(NULL);
+//         }
+//     }
+//     for(auto& pair : this->attrib){
+//         //TODO: delete attribs somehow
+//     }
+//  }
 
 using std::string;
 using std::vector;
@@ -80,7 +97,7 @@ void sys_sage::Component::InsertChild(Component * child)
 int sys_sage::Component::InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild)
 {
     //consistency check
-    vector<Component*> p_children = parent->_GetChildren();
+    vector<Component*>& p_children = parent->_GetChildren();
     if(child->GetParent() != parent){
         if(std::find(p_children.begin(), p_children.end(), child) != p_children.end())
             return 1; //child and parent are not child and parent in the component tree
@@ -108,7 +125,7 @@ int sys_sage::Component::InsertBetweenParentAndChild(Component* parent, Componen
 }
 int sys_sage::Component::InsertBetweenParentAndChildren(Component* parent, std::vector<Component*> children, bool alreadyParentsChild)
 {
-    vector<Component*> p_children = parent->_GetChildren();
+    vector<Component*>& p_children = parent->_GetChildren();
     for(Component* child: children) //first just check for consistency
     {
         bool isParent = (child->GetParent() == parent);      
@@ -249,7 +266,7 @@ std::vector<sys_sage::Component*> sys_sage::Component::GetNthDescendents(int dep
     return outArray;
 }
 
-void sys_sage::Component::GetSubcomponentsByType(std::vector<Component*>* outArray, int _componentType)
+void sys_sage::Component::GetSubcomponentsByType(std::vector<Component*>* outArray, sys_sage::ComponentType::type _componentType)
 {
     if(_componentType == componentType){
         outArray->push_back(this);
@@ -260,7 +277,7 @@ void sys_sage::Component::GetSubcomponentsByType(std::vector<Component*>* outArr
     }
 }
 
-std::vector<sys_sage::Component*> sys_sage::Component::GetSubcomponentsByType(int _componentType)
+std::vector<sys_sage::Component*> sys_sage::Component::GetSubcomponentsByType(sys_sage::ComponentType::type _componentType)
 {
     vector<Component*> outArray;
     GetSubcomponentsByType(&outArray, _componentType);
@@ -430,7 +447,7 @@ std::vector<sys_sage::Relation*> sys_sage::Component::GetAllRelationsBy(Relation
         {
             for(Relation* r : *(*relations)[curr_rt])
             {
-                if(!r->IsOrdered() || (r->IsOrdered() && r->GetComponent(thisComponentPosition) == this))
+                if(!r->IsOrdered() || (r->IsOrdered() && (thisComponentPosition==-1 || r->GetComponent(thisComponentPosition) == this)))
                 {
                     out_vector.push_back(r);
                 }
@@ -442,6 +459,9 @@ std::vector<sys_sage::Relation*> sys_sage::Component::GetAllRelationsBy(Relation
 
 void sys_sage::Component::GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type, DataPathDirection::type direction) const
 {
+    if (relations == nullptr || (*relations)[RelationType::DataPath] == nullptr)
+        return;
+
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
         //either unordered -> check; or orientation is any -> check; or orientation is incoming & DP is incoming or the same outgoing
@@ -665,9 +685,10 @@ void sys_sage::Component::DeleteSubtree() const
     while(children.size() > 0)
     {       
         children[0]->Delete(true); // Recursively free children
-    }    
+    }
     return;
 }
+
 void sys_sage::Component::Delete(bool withSubtree)
 {
     // Delete subtree and all data paths

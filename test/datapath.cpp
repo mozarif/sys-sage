@@ -3,6 +3,7 @@
 #include "sys-sage.hpp"
 
 using namespace boost::ut;
+using namespace sys_sage;
 
 static suite<"data-path"> _ = []
 {
@@ -11,31 +12,31 @@ static suite<"data-path"> _ = []
         "Constructor #1"_test = []
         {
             Component a, b;
-            DataPath dp{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
+            DataPath dp{&a, &b, DataPathOrientation::Oriented, DataPathType::Physical};
             expect(that % &a == dp.GetSource());
             expect(that % &b == dp.GetTarget());
-            expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp.GetOrientation());
-            expect(that % SYS_SAGE_DATAPATH_TYPE_PHYSICAL == dp.GetDataPathType());
+            expect(that % DataPathOrientation::Oriented == dp.GetOrientation());
+            expect(that % DataPathType::Physical == dp.GetDataPathType());
         };
         "Constructor #2"_test = []
         {
             Component a, b;
-            DataPath dp{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, 5.0, 42.0};
+            DataPath dp{&a, &b, DataPathOrientation::Oriented, 5.0, 42.0};
             expect(that % &a == dp.GetSource());
             expect(that % &b == dp.GetTarget());
-            expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp.GetOrientation());
-            expect(that % SYS_SAGE_DATAPATH_TYPE_NONE == dp.GetDataPathType());
+            expect(that % DataPathOrientation::Oriented == dp.GetOrientation());
+            expect(that % DataPathType::None == dp.GetDataPathType());
             expect(that % 5.0 == dp.GetBandwidth());
             expect(that % 42.0 == dp.GetLatency());
         };
         "Constructor #3"_test = []
         {
             Component a, b;
-            DataPath dp{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL, 5.0, 42.0};
+            DataPath dp{&a, &b, DataPathOrientation::Oriented, DataPathType::Physical, 5.0, 42.0};
             expect(that % &a == dp.GetSource());
             expect(that % &b == dp.GetTarget());
-            expect(that % SYS_SAGE_DATAPATH_ORIENTED == dp.GetOrientation());
-            expect(that % SYS_SAGE_DATAPATH_TYPE_PHYSICAL == dp.GetDataPathType());
+            expect(that % DataPathOrientation::Oriented == dp.GetOrientation());
+            expect(that % DataPathType::Physical == dp.GetDataPathType());
             expect(that % 5.0 == dp.GetBandwidth());
             expect(that % 42.0 == dp.GetLatency());
         };
@@ -44,92 +45,84 @@ static suite<"data-path"> _ = []
     "Unidirectional data path"_test = []
     {
         Component a, b;
-        DataPath dp{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
+        DataPath dp{&a, &b, DataPathOrientation::Oriented, DataPathType::Physical};
 
-        expect(that % (nullptr != a.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)) >> fatal);
-        expect(that % (nullptr != a.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)) >> fatal);
-        expect(that % a.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)->empty());
-        expect(that % (std::vector{&dp}) == *a.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING));
+        expect(that % a.GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming).empty());
+        expect(that % std::vector{&dp} == a.GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing));
 
-        expect(that % (nullptr != b.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)) >> fatal);
-        expect(that % (nullptr != b.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)) >> fatal);
-        expect(that % (std::vector{&dp}) == *b.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING));
-        expect(that % b.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)->empty());
+        expect(that % b.GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing).empty());
+        expect(that % std::vector{&dp} == b.GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming));
     };
 
     "Bidirectional data path"_test = []
     {
         Component a, b;
-        DataPath dp{&a, &b, SYS_SAGE_DATAPATH_BIDIRECTIONAL, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
+        DataPath dp{&a, &b, DataPathOrientation::Bidirectional, DataPathType::Physical};
 
-        expect(that % (nullptr != a.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)) >> fatal);
-        expect(that % (nullptr != a.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)) >> fatal);
-        expect(that % (std::vector{&dp}) == *a.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING));
-        expect(that % (std::vector{&dp}) == *a.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING));
+        expect(that % std::vector{&dp} == a.GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming));
+        expect(that % std::vector{&dp} == a.GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing));
 
-        expect(that % (nullptr != b.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING)) >> fatal);
-        expect(that % (nullptr != b.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING)) >> fatal);
-        expect(that % (std::vector{&dp}) == *b.GetDataPaths(SYS_SAGE_DATAPATH_INCOMING));
-        expect(that % (std::vector{&dp}) == *b.GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING));
+        expect(that % std::vector{&dp} == b.GetAllDataPaths(DataPathType::Any, DataPathDirection::Incoming));
+        expect(that % std::vector{&dp} == b.GetAllDataPaths(DataPathType::Any, DataPathDirection::Outgoing));
     };
 
     "Get data path by type"_test = []
     {
         Component a, b;
-        DataPath dp1{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL};
-        DataPath dp2{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
-        DataPath dp3{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
-        DataPath dp4{&b, &a, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
+        DataPath dp1{&a, &b, DataPathOrientation::Oriented, DataPathType::Logical};
+        DataPath dp2{&a, &b, DataPathOrientation::Oriented, DataPathType::Physical};
+        DataPath dp3{&a, &b, DataPathOrientation::Oriented, DataPathType::Physical};
+        DataPath dp4{&b, &a, DataPathOrientation::Oriented, DataPathType::Physical};
 
-        expect(that % &dp1 == a.GetDataPathByType(SYS_SAGE_DATAPATH_TYPE_LOGICAL, SYS_SAGE_DATAPATH_OUTGOING));
-        expect(that % &dp2 == a.GetDataPathByType(SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_OUTGOING));
-        expect(that % nullptr == a.GetDataPathByType(SYS_SAGE_DATAPATH_TYPE_L3CAT, SYS_SAGE_DATAPATH_OUTGOING));
-        expect(that % &dp4 == a.GetDataPathByType(SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_INCOMING));
-        expect(that % &dp4 == b.GetDataPathByType(SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_OUTGOING));
-        expect(that % &dp4 == b.GetDataPathByType(SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_INCOMING | SYS_SAGE_DATAPATH_OUTGOING));
+        expect(that % &dp1 == a.GetDataPathByType(DataPathType::Logical, DataPathDirection::Outgoing));
+        expect(that % &dp2 == a.GetDataPathByType(DataPathType::Physical, DataPathDirection::Outgoing));
+        expect(that % nullptr == a.GetDataPathByType(DataPathType::L3CAT, DataPathDirection::Outgoing));
+        expect(that % &dp4 == a.GetDataPathByType(DataPathType::Physical, DataPathDirection::Incoming));
+        expect(that % &dp4 == b.GetDataPathByType(DataPathType::Physical, DataPathDirection::Outgoing));
+        expect(that % &dp2 == b.GetDataPathByType(DataPathType::Physical, DataPathDirection::Any));
     };
 
     "Get all data paths by type"_test = []
     {
         Component a, b;
-        DataPath dp1{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_LOGICAL};
-        DataPath dp2{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
-        DataPath dp3{&a, &b, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
-        DataPath dp4{&b, &a, SYS_SAGE_DATAPATH_ORIENTED, SYS_SAGE_DATAPATH_TYPE_PHYSICAL};
-
-        std::vector<DataPath *> v;
+        DataPath dp1{&a, &b, DataPathOrientation::Oriented, DataPathType::Logical};
+        DataPath dp2{&a, &b, DataPathOrientation::Oriented, DataPathType::Physical};
+        DataPath dp3{&a, &b, DataPathOrientation::Oriented, DataPathType::Physical};
+        DataPath dp4{&b, &a, DataPathOrientation::Oriented, DataPathType::Physical};
 
         "Get all incoming logical data paths"_test = [&]()
         {
-            a.GetAllDataPathsByType(&v, SYS_SAGE_DATAPATH_TYPE_LOGICAL, SYS_SAGE_DATAPATH_INCOMING);
+            std::vector<DataPath *> v;
+            a.GetAllDataPaths(&v, DataPathType::Logical, DataPathDirection::Incoming);
             expect(that % v.empty());
         };
 
         "Get all incoming physical data paths"_test = [&]()
         {
             std::vector<DataPath *> v;
-            a.GetAllDataPathsByType(&v, SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_INCOMING);
+            a.GetAllDataPaths(&v, DataPathType::Physical, DataPathDirection::Incoming);
             expect(std::vector{&dp4} == v);
         };
 
         "Get all outgoing logical data paths"_test = [&]()
         {
             std::vector<DataPath *> v;
-            a.GetAllDataPathsByType(&v, SYS_SAGE_DATAPATH_TYPE_LOGICAL, SYS_SAGE_DATAPATH_OUTGOING);
+            a.GetAllDataPaths(&v, DataPathType::Logical, DataPathDirection::Outgoing);
             expect(that % std::vector{&dp1} == v);
         };
 
         "Get all outgoing physical data paths"_test = [&]()
         {
             std::vector<DataPath *> v;
-            a.GetAllDataPathsByType(&v, SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_OUTGOING);
+            a.GetAllDataPaths(&v, DataPathType::Physical, DataPathDirection::Outgoing);
             expect(that % std::vector{&dp2, &dp3} == v);
         };
 
         "Get all physical data paths"_test = [&]()
         {
             std::vector<DataPath *> v;
-            a.GetAllDataPathsByType(&v, SYS_SAGE_DATAPATH_TYPE_PHYSICAL, SYS_SAGE_DATAPATH_INCOMING | SYS_SAGE_DATAPATH_OUTGOING);
+
+            a.GetAllDataPaths(&v, DataPathType::Physical, DataPathDirection::Any);
             expect(that % std::vector{&dp2, &dp3, &dp4} == v);
         };
     };

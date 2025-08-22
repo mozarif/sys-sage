@@ -12,23 +12,11 @@ namespace sys_sage {
      * This class extends the Relation class to model quantum gates. 
      * It includes various properties specific to quantum gates, such as gate size, fidelity, and unitary matrix.
      * The class also handles the coupling map and additional properties related to quantum gate operations.
+     * QuantumGate objects can represent both single- and multi-qubit gates, and are used to describe the logical operations that can be performed on a quantum backend.
      */
     class QuantumGate : public Relation {
 
     public:
-        /**
-         * @brief Default constructor for QuantumGate.
-         * 
-         * Initializes a quantum gate with default properties.
-         */
-        QuantumGate();
-
-        /**
-         * @brief Constructor that initializes a quantum gate with a specified size.
-         * @param _gate_size The number of qubits this gate operates on.
-         */
-        QuantumGate(size_t _gate_size);
-
         /**
          * @brief Constructor that initializes a quantum gate with specific properties.
          * @param _gate_size The number of qubits this gate operates on.
@@ -36,7 +24,7 @@ namespace sys_sage {
          * @param _fidelity The fidelity of the quantum gate.
          * @param _unitary The unitary matrix representing the quantum gate operation.
          */
-        QuantumGate(size_t _gate_size, std::string _name, double _fidelity, std::string _unitary);
+        QuantumGate(size_t _gate_size = 0, std::string _name = "", double _fidelity = 0.0, std::string _unitary = "");
 
         /**
          * @brief Constructor that initializes a quantum gate with a list of qubits.
@@ -55,9 +43,18 @@ namespace sys_sage {
          */
         QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, std::string _name, double _fidelity, std::string _unitary);
 
-        // //SVDOCTODO
-        // QuantumGate(std::initializer_list<Component*> components, int _id = 0, bool _ordered = true);
-        //SVDOCTODO
+        /**
+         * @brief Constructor for advanced initialization, including all properties and components.
+         * @param components Vector of pointers to components (qubits) the gate acts on.
+         * @param _id Optional relation ID (default 0).
+         * @param _ordered Whether the gate is ordered (default true).
+         * @param _gate_size The number of qubits this gate operates on.
+         * @param _name The name of the quantum gate.
+         * @param _gate_length The length of the gate operation (e.g., in time or circuit depth).
+         * @param _gate_type The type of the quantum gate (see QuantumGateType::type).
+         * @param _fidelity The fidelity of the quantum gate.
+         * @param _unitary The unitary matrix representing the quantum gate operation.
+         */
         QuantumGate(const std::vector<Component*>& components, int _id = 0, bool _ordered = true, size_t _gate_size = 0, std::string _name = "", int _gate_length = 0, QuantumGateType::type _gate_type = QuantumGateType::Unknown, double _fidelity = 0, std::string _unitary = "");
         /**
          * @brief Sets the properties of the quantum gate.
@@ -71,6 +68,7 @@ namespace sys_sage {
          * @brief Sets the coupling map for the quantum gate.
          * @param _coupling_mapping A vector of vectors of pointers to Qubit objects representing the coupling map.
          */
+        // TODO: this needs an implementation
         void SetGateCouplingMap(std::vector<std::vector<Qubit*>> _coupling_mapping);
 
         /**
@@ -78,6 +76,7 @@ namespace sys_sage {
          * 
          * This function allows setting properties that are not part of the core quantum gate attributes.
          */
+        // TODO: this needs an implementation
         void SetAdditionalProperties();
 
         /**
@@ -100,21 +99,46 @@ namespace sys_sage {
         double GetFidelity() const;
 
         /**
+         * @brief Sets the fidelity of the quantum gate.
+         * @param The fidelity of the quantum gate.
+         */
+        void SetFidelity(double gateFidelity);
+
+        /**
          * @brief Gets the size of the quantum gate.
          * @return The number of qubits this gate operates on.
          */
         size_t GetGateSize() const;
-        //SVDOCTODO
-        void SetGateSize(size_t gateSize);
-        //SVDOCTODO
-        void SetGateLength(int GateLength);
 
+        /**
+         * @brief Sets the size of the quantum gate.
+         * @param gateSize The number of qubits this gate operates on.
+         */
+        void SetGateSize(size_t gateSize);
+
+        /**
+         * @brief Gets the length of the quantum gate.
+         * @return The time duration or circuit depth of the quantum operation.
+         */
+        int GetGateLength() const;
+
+        /**
+         * @brief Sets the length of the quantum gate operation (e.g., in time or circuit depth).
+         * @param GateLength The length of the gate operation.
+         */
+        void SetGateLength(int GateLength);
 
         /**
          * @brief Gets the unitary matrix of the quantum gate.
          * @return A string representing the unitary matrix of the quantum gate.
          */
         const std::string& GetUnitary() const;
+
+        /**
+         * @brief Sets the unitary matrix of the quantum gate.
+         * @param gateUnitary A string representing the unitary matrix of the quantum gate.
+         */
+        void SetUnitary(const std::string & gateUnitary);
 
         /**
          * @brief Sets the name of the relationship.
@@ -134,7 +158,13 @@ namespace sys_sage {
          * This method overrides the Print function in the Relation class to provide specific printing behavior for quantum gates.
          */
         void Print() const override;
-        //SVDOCTODO private
+        /**
+         * @private
+         * @brief Helper function for XML export.
+         *
+         * Should normally not be used directly. Used internally for exporting the quantum gate to XML.
+         * @return Pointer to the created XML entry node.
+         */
         xmlNodePtr _CreateXmlEntry() override;
 
     private:
@@ -156,7 +186,9 @@ namespace sys_sage {
          */
         int gate_length;
 
-
+        /**
+         * @brief The type of the quantum gate (see QuantumGateType::type).
+         */
         QuantumGateType::type gate_type;
         /**
          * @brief The fidelity of the quantum gate, indicating its accuracy or performance.

@@ -1,15 +1,13 @@
-
+#include <algorithm>
 #include "Relation.hpp"
-
 #include <iostream>
-
 #include "Component.hpp"
 
 using std::cout;
 using std::endl;
 
-sys_sage::Relation::Relation(int _relation_type): type(_relation_type) {}
-sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id, bool _ordered, int _relation_type): id(_id), ordered(_ordered), type(_relation_type)
+sys_sage::Relation::Relation(RelationType::type _relation_type): type(_relation_type) {}
+sys_sage::Relation::Relation(const std::vector<Component*>& components, int _id, bool _ordered, RelationType::type _relation_type): ordered(_ordered), id(_id), type(_relation_type)
 {
     for (Component* c : components) {
         AddComponent(c);
@@ -83,9 +81,37 @@ void sys_sage::Relation::Delete()
     }
     delete this;
 }
-int sys_sage::Relation::GetType() const{ return type;}
+sys_sage::RelationType::type sys_sage::Relation::GetType() const{ return type;}
 std::string sys_sage::Relation::GetTypeStr() const
 {
     std::string ret(sys_sage::RelationType::ToString(type));
     return ret;
+}
+
+int sys_sage::Relation::UpdateComponent(int index, Component * _new_component)
+{
+    if (index < 0 || static_cast<size_t>(index) >= components.size())
+    {
+        //TODO ho return an integer; 0=okay, 1=this error?
+        std::cerr << "WARNING: sys_sage::Relation::UpdateComponent index out of bounds -- nothing updated." << std::endl;
+        return 1;
+    }
+    std::vector<Relation*>& component_relation_vector = components[index]->_GetRelations(type);
+    component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
+
+    _new_component->_AddRelation(type, this);
+    components[index] = _new_component;
+    return 0;
+}
+
+int sys_sage::Relation::UpdateComponent(Component* _old_component, Component * _new_component)
+{
+    auto it = std::find(components.begin(), components.end(), _old_component);
+    if(it == components.end())
+    {
+        std::cerr << "WARNING: sys_sage::Relation::UpdateComponent component not found -- nothing updated." << std::endl;
+        return 1;
+    }
+    int index = it - components.begin();
+    return UpdateComponent(index, _new_component);
 }

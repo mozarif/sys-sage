@@ -1,4 +1,10 @@
-on: [push]
+on:
+  push:
+    branches:
+      - '**'       # matches any branch
+  pull_request:
+    branches:
+      - '**'       # matches any PR target branch
 jobs:
   test:
     name: Unit Tests
@@ -34,6 +40,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: true
+
+      - name: Sync packages
+        run: sudo apt-get update
 
       - name: Install Doxygen
         run: sudo apt-get install -y doxygen

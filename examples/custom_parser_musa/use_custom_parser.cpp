@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     cout << "----------------                     ----------------" << endl;
 
     cout << "---------------- Printing all DataPaths ----------------" << endl;
-    topo->PrintAllDataPathsInSubtree();
+    topo->PrintAllRelationsInSubtree();
     cout << "----------------                        ----------------" << endl;
 
     std::string output_name = "custom_data_parser_musa_sample_output.xml";

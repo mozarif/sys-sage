@@ -11,8 +11,16 @@ namespace sys_sage {
 ////////////////////// COMPONENT ENUMS //////////////////////
 /////////////////////////////////////////////////////////////
 
+    /**
+     * @namespace ComponentType
+     * @brief Enumerates all supported component types in sys-sage.
+     *
+     * Used to distinguish between different hardware and logical components in the topology.
+     * The type alias 'type' is always int32_t for consistency and extensibility.
+     * Use ComponentType::type for all component type variables and arguments.
+     */
     namespace ComponentType{
-        using type = int32_t;
+        using type = int32_t; /**< ComponentType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type None = 1; /**< class Component (do not use normally)*/
         constexpr type Thread = 2; /**< class Thread */
@@ -47,6 +55,14 @@ namespace sys_sage {
             {Topology, "Topology"}
         };
 
+        /**
+         * @private
+         * @brief Converts a ComponentType value to a human-readable string.
+         * Use Component::GetComponentTypeStr() for a more convenient way to get the string representation.
+         * @param rt ComponentType value
+         * @return String representation of the component type
+         * 
+         */
         inline const char* ToString(type rt) {
             auto it = names.find(rt);
             if (it != names.end()) return it->second;
@@ -54,15 +70,23 @@ namespace sys_sage {
         }
     }
 
+    /**
+     * @namespace SubdivisionType
+     * @brief Enumerates subdivision types for components (e.g., GPU SMs).
+     */
     namespace SubdivisionType {
-        using type = int32_t;
+        using type = int32_t; /**< SubdivisionType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type None = 1; /**< Generic Subdivision type. */
         constexpr type GpuSM = 2; /**< Subdivision type for GPU SMs */
     }
 
+    /**
+     * @namespace ChipType
+     * @brief Enumerates chip types (CPU, GPU, etc.).
+     */
     namespace ChipType {
-        using type = int32_t;
+        using type = int32_t; /**< ChipType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type None = 1; /**< Generic Chip type. */
         constexpr type Cpu = 2; /**< Chip type used for a CPU. */
@@ -74,8 +98,14 @@ namespace sys_sage {
 ////////////////////// RELATION ENUMS //////////////////////
 ////////////////////////////////////////////////////////////
 
+    /**
+     * @namespace RelationType
+     * @brief Enumerates all supported relation types in sys-sage.
+     *
+     * Used to distinguish between different types of relations (edges) in the topology graph.
+     */
     namespace RelationType{
-        using type = int32_t;
+        using type = int32_t; /**< RelationType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type Any = -1;
         constexpr type Relation = 0;
@@ -100,6 +130,13 @@ namespace sys_sage {
             {CouplingMap, "CouplingMap"}
         };
 
+        /**
+         * @private
+         * @brief Converts a RelationType value to a human-readable string.
+         * Use Relation::GetRelationTypeStr() for a more convenient way to get the string representation.
+         * @param rt RelationType value
+         * @return String representation of the relation type
+         */
         inline const char* ToString(type rt) {
             auto it = names.find(rt);
             if (it != names.end()) return it->second;
@@ -107,10 +144,16 @@ namespace sys_sage {
         }
     }
 
+    /**
+     * @namespace DataPathType
+     * @brief Enumerates types of DataPaths (logical, physical, etc.).
+     *
+     * Used to specify the semantics of a DataPath between components.
+     */
     namespace DataPathType{
-        using type = int32_t;
+        using type = int32_t; /**< DataPathType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
-        constexpr type Any = 1;
+        constexpr type Any = -1;
         constexpr type None = 0; /**< Generic type of DataPath */
         constexpr type Logical = 1; /**< DataPath describes a logical connection/relation of two Components. */
         constexpr type Physical = 2; /**< DataPath describes a physical/hardware connection/relation of two Components. */
@@ -119,22 +162,35 @@ namespace sys_sage {
         constexpr type MIG = 5; /**< DataPath type describing GPU partitioning settings. */
         constexpr type C2C = 6; /**< DataPath type describing cache-to-cache latencies (cccbench data source). */
     }
+    /**
+     * @namespace DataPathDirection
+     * @brief Enumerates directionality for DataPaths.
+     */
     namespace DataPathDirection{
-        using type = int32_t;
+        using type = int32_t; /**< DataPathDirection datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type Any = 1;
         constexpr type Outgoing = 2; /**< This Component is the source DataPath. */
         constexpr type Incoming = 3; /**< This Component is the target DataPath. */
     }
 
+    //SVTODO rename this to RelationOrientation? oriented x not oriented and include this also into general Relation, rather than just DataPath?
+    /**
+     * @namespace DataPathOrientation
+     * @brief Enumerates orientation (directed/bidirectional) for DataPaths.
+     */
     namespace DataPathOrientation{
-        using type = int32_t;
+        using type = int32_t; /**< DataPathOrientation datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type Oriented = 1; /**< DataPath is directed from the source to the target. */
-        constexpr type NotOriented = 2; /**< DataPath has no direction. */
+        constexpr type Bidirectional = 2; /**< DataPath has no direction. */
     }
+    /**
+     * @namespace QuantumGateType
+     * @brief Enumerates quantum gate types.
+     */
     namespace QuantumGateType{
-        using type = int32_t;
+        using type = int32_t; /**< QuantumGateType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
         constexpr type Unknown = 0; /**< Unknown Gate */
         constexpr type Id = 1; /**< Identity Gate */
@@ -155,6 +211,12 @@ namespace sys_sage {
             {Toffoli, "Toffoli"}
         };
 
+        /**
+         * @brief Converts a QuantumGateType value to a human-readable string.
+         * //TODO: Use QuantumGate::GetQuantumGateTypeStr() for a more convenient way to get the string representation.
+         * @param rt QuantumGateType value
+         * @return String representation of the quantum gate type
+         */
         inline const char* ToString(type rt) {
             auto it = names.find(rt);
             if (it != names.end()) return it->second;
