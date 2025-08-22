@@ -8,5 +8,5 @@ sys_sage::Subdivision::Subdivision(Component * parent, int _id, std::string _nam
 
 
 //SVTODO should Subdivisiontype be settable?
-void sys_sage::Subdivision::SetSubdivisionType(int subdivisionType){type = subdivisionType;}
-int sys_sage::Subdivision::GetSubdivisionType() const {return type;}
+void sys_sage::Subdivision::SetSubdivisionType(sys_sage::SubdivisionType::type subdivisionType){type = subdivisionType;}
+sys_sage::SubdivisionType::type sys_sage::Subdivision::GetSubdivisionType() const {return type;}

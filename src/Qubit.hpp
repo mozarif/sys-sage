@@ -82,8 +82,15 @@ namespace sys_sage {
         double GetFrequency() const;
 
         /**
+        * @brief Gets the calibration time of the qubit.
+        * @return calibration time
+        */
+        const std::string& GetCalibrationTime() const;
+
+        /**
          * @brief Refreshes the properties of the qubit.
          */
+        // TODO: this needs an implementation
         void RefreshProperties();
 
         /**
@@ -105,7 +112,7 @@ namespace sys_sage {
         double t2;               ///< T2 dephasing time
         double readout_fidelity; ///< Readout fidelity
         double readout_length;   ///< Readout length
-        double fequency;         ///< Qubit frequency (note: spelling should be 'frequency')
+        double frequency;         ///< Qubit frequency
         std::string calibration_time; ///< Last calibration time or timestamp
     };
 

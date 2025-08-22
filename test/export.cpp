@@ -11,6 +11,8 @@
 #include <set>
 #include <string>
 
+using namespace sys_sage;
+
 using XmlStringView = std::basic_string_view<const xmlChar>;
 
 /**
@@ -117,7 +119,7 @@ static suite<"export"> _ = []
 {
     "Minimal topology"_test = []
     {
-        auto topo = new Component{42, "a name", SYS_SAGE_COMPONENT_NONE};
+        auto topo = new Component(42, "a name");
         exportToXml(topo, "test.xml");
         topo->Delete(false);
         validate("test.xml");
@@ -150,8 +152,8 @@ static suite<"export"> _ = []
             auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
             expect(that % (pathContext != nullptr) >> fatal);
 
-            xmlNode *topo = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology"), pathContext.get());
-            xmlNode *memory = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Memory"), pathContext.get());
+            xmlNode *topo = getSingleNodeByPath(BAD_CAST("/sys-sage/Components/Topology"), pathContext.get());
+            xmlNode *memory = getSingleNodeByPath(BAD_CAST("/sys-sage/Components/Topology/Memory"), pathContext.get());
 
             for (const auto &[node, xpath, value] : std::vector{
                      std::tuple{topo, "string(@id)", "0"},
@@ -190,11 +192,11 @@ static suite<"export"> _ = []
             Core c1{&node, 1};
             c1.attrib["my_core_info"] = reinterpret_cast<void *>(&attrib);
 
-            auto print_my_attribs = [](string key, void *value, string *ret_value_str) -> int
+            auto print_my_attribs = [](std::string key, void *value, std::string *ret_value_str) -> int
             {
                 if (key == "codename" || key == "info")
                 {
-                    *ret_value_str = *(string *)value;
+                    *ret_value_str = *(std::string *)value;
                     return 1;
                 }
                 else if (key == "rack_no")
@@ -206,7 +208,7 @@ static suite<"export"> _ = []
                 return 0;
             };
 
-            auto print_my_custom_attribs = [](string key, void *value, xmlNode *xml) -> int
+            auto print_my_custom_attribs = [](std::string key, void *value, xmlNode *xml) -> int
             {
                 if (key != "my_core_info")
                 {
@@ -243,8 +245,8 @@ static suite<"export"> _ = []
             auto pathContext = raii<xmlXPathContext>{xmlXPathNewContext(doc.get()), xmlXPathFreeContext};
             expect(that % (pathContext != nullptr) >> fatal);
 
-            xmlNode *node = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Node"), pathContext.get());
-            xmlNode *core = getSingleNodeByPath(BAD_CAST("/sys-sage/components/Topology/Node/Core"), pathContext.get());
+            xmlNode *node = getSingleNodeByPath(BAD_CAST("/sys-sage/Components/Topology/Node"), pathContext.get());
+            xmlNode *core = getSingleNodeByPath(BAD_CAST("/sys-sage/Components/Topology/Node/Core"), pathContext.get());
 
             for (const auto &[node, xpath, value] : std::vector{
                      std::tuple{node, "string(Attribute[1]/@name)", "codename"},

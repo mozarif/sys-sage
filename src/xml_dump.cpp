@@ -165,7 +165,7 @@ xmlNodePtr sys_sage::Chip::_CreateXmlSubtree()
         xmlNewProp(n, (const unsigned char *)"vendor", (const unsigned char *)(vendor.c_str()));
     if(!model.empty())
         xmlNewProp(n, (const unsigned char *)"model", (const unsigned char *)(model.c_str()));
-    xmlNewProp(n, (const unsigned char *)"ChipType", (const unsigned char *)(std::to_string(type).c_str()));
+    xmlNewProp(n, (const unsigned char *)"type", (const unsigned char *)(std::to_string(type).c_str()));
     return n;
 }
 xmlNodePtr sys_sage::Cache::_CreateXmlSubtree()
@@ -201,7 +201,7 @@ xmlNodePtr sys_sage::Qubit::_CreateXmlSubtree()
     xmlNewProp(n, (const unsigned char *)"t2", (const unsigned char *)(std::to_string(t2)).c_str());
     xmlNewProp(n, (const unsigned char *)"readout_fidelity", (const unsigned char *)(std::to_string(readout_fidelity)).c_str());
     xmlNewProp(n, (const unsigned char *)"readout_length", (const unsigned char *)(std::to_string(readout_length)).c_str());
-    xmlNewProp(n, (const unsigned char *)"fequency", (const unsigned char *)(std::to_string(fequency)).c_str());
+    xmlNewProp(n, (const unsigned char *)"frequency", (const unsigned char *)(std::to_string(frequency)).c_str());
     xmlNewProp(n, (const unsigned char *)"calibration_time", (const unsigned char *)(calibration_time).c_str());
     return n;
 }
@@ -210,7 +210,6 @@ xmlNodePtr sys_sage::QuantumBackend::_CreateXmlSubtree()
     //SVTODO deal with gate_types -- can this go into Relations?
     xmlNodePtr n = Component::_CreateXmlSubtree();
     xmlNewProp(n, (const unsigned char *)"num_qubits", (const unsigned char *)(std::to_string(num_qubits)).c_str());
-    xmlNewProp(n, (const unsigned char *)"num_gates", (const unsigned char *)(std::to_string(num_gates)).c_str());
     // if(gate_types.size() > 0)
     // {
     //     xmlNodePtr xml_gt = xmlNewNode(NULL, (const unsigned char *)"gateTypes");
@@ -340,14 +339,12 @@ xmlNodePtr sys_sage::Relation::_CreateXmlEntry()
 {
     xmlNodePtr r_xml = xmlNewNode(NULL, BAD_CAST GetTypeStr().c_str());
 
-    int c_idx = 0;
-    for(Component* rc : components)
-    {
+    if (components.size() > 0) {
         std::ostringstream c_addr;
-        c_addr << rc;
-        const std::string xmlprop_name = "component" + std::to_string(c_idx);
-        xmlNewProp(r_xml, (const unsigned char *)xmlprop_name.c_str(), (const unsigned char *)(c_addr.str().c_str()));
-        c_idx++;
+        c_addr << components[0];
+        for (size_t s = 1; s < components.size(); s++)
+            c_addr << ' ' << components[s];
+        xmlNewProp(r_xml, BAD_CAST "components", BAD_CAST (c_addr.str().c_str()));
     }
 
     xmlNewProp(r_xml, (const unsigned char *)"ordered", (const unsigned char *)(std::to_string(ordered).c_str()));
@@ -399,7 +396,7 @@ int sys_sage::exportToXml(
                 //print only if this component has index 0 => print each Relation once only
                 if(r->GetComponent(0) == cPtr)
                 {
-                    xmlNodePtr r_xml;
+                    xmlNodePtr r_xml = nullptr;
                     switch(r->GetType()) //not all necessarily have their specific implementation; if not, it will just call the default Relation->_CreateXmlEntry 
                     {
                         case RelationType::Relation:

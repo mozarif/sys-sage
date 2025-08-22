@@ -266,7 +266,7 @@ std::vector<sys_sage::Component*> sys_sage::Component::GetNthDescendents(int dep
     return outArray;
 }
 
-void sys_sage::Component::GetSubcomponentsByType(std::vector<Component*>* outArray, int _componentType)
+void sys_sage::Component::GetSubcomponentsByType(std::vector<Component*>* outArray, sys_sage::ComponentType::type _componentType)
 {
     if(_componentType == componentType){
         outArray->push_back(this);
@@ -277,7 +277,7 @@ void sys_sage::Component::GetSubcomponentsByType(std::vector<Component*>* outArr
     }
 }
 
-std::vector<sys_sage::Component*> sys_sage::Component::GetSubcomponentsByType(int _componentType)
+std::vector<sys_sage::Component*> sys_sage::Component::GetSubcomponentsByType(sys_sage::ComponentType::type _componentType)
 {
     vector<Component*> outArray;
     GetSubcomponentsByType(&outArray, _componentType);
@@ -459,6 +459,9 @@ std::vector<sys_sage::Relation*> sys_sage::Component::GetAllRelationsBy(Relation
 
 void sys_sage::Component::GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type, DataPathDirection::type direction) const
 {
+    if (relations == nullptr || (*relations)[RelationType::DataPath] == nullptr)
+        return;
+
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
         //either unordered -> check; or orientation is any -> check; or orientation is incoming & DP is incoming or the same outgoing
@@ -685,6 +688,7 @@ void sys_sage::Component::DeleteSubtree() const
     }
     return;
 }
+
 void sys_sage::Component::Delete(bool withSubtree)
 {
     // Delete subtree and all data paths

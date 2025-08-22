@@ -106,14 +106,14 @@ namespace sys_sage {
          * @returns Type of the Data Path (DataPathType). Do not mix with RelationType!
          * @see type
          */
-        int GetDataPathType() const;
+        DataPathType::type GetDataPathType() const;
 
         /**
          * @brief Retrieves the orientation of the DataPath (DataPathOrientation::Oriented or DataPathOrientation::Bidirectional).
          * @returns orientation 
          * @see oriented
          */
-        int GetOrientation() const;
+        DataPathOrientation::type GetOrientation() const;
 
         /**
          * @brief Prints basic information about the Data Path to stdout.

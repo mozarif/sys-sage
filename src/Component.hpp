@@ -99,7 +99,7 @@ namespace sys_sage {
          *        \n 3 on corrupt component tree (parent is NOT a parent of child but child is in children list of parent)
         */
         int InsertBetweenParentAndChildren(Component* parent, std::vector<Component*> children, bool alreadyParentsChild);
-        
+
         /**
         Removes the passed component from the list of children, without completely deleting (and deallocating) the child itself
         @param child - child to remove
@@ -132,6 +132,8 @@ namespace sys_sage {
          * @param level Number of "  " to print before the component.
          * @see PrintSubtree()
          */
+    // TODO: search for other parts that should be private
+    private:
         void _PrintSubtree(int level) const;
         /**
          * @deprecated Use PrintAllRelationsInSubtree instead. This function will be removed in the future.
@@ -139,6 +141,7 @@ namespace sys_sage {
          * @see PrintAllRelationsInSubtree( RelationType::type RelationType = RelationType::Any)
          * @note This function is deprecated and will be removed in the future. Use PrintAllRelationsInSubtree instead.
          */
+    public:
         [[deprecated("Use PrintAllRelationsInSubtree instead. This function will be removed in the future.")]]
         void PrintAllDataPathsInSubtree();
         /**
@@ -323,7 +326,7 @@ namespace sys_sage {
          *   An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
          *   The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
          */
-        void GetSubcomponentsByType(std::vector<Component*>* outArray, int componentType);
+        void GetSubcomponentsByType(std::vector<Component*>* outArray, ComponentType::type componentType);
 
         /**
          * @brief Retrieves a std::vector of Component pointers, which reside in the subtree and have a matching type. 

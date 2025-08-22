@@ -153,7 +153,7 @@ namespace sys_sage {
     namespace DataPathType{
         using type = int32_t; /**< DataPathType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
-        constexpr type Any = 1;
+        constexpr type Any = -1;
         constexpr type None = 0; /**< Generic type of DataPath */
         constexpr type Logical = 1; /**< DataPath describes a logical connection/relation of two Components. */
         constexpr type Physical = 2; /**< DataPath describes a physical/hardware connection/relation of two Components. */

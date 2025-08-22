@@ -104,7 +104,7 @@ namespace sys_sage {
         * 
         * @return The number of quantum gates.
         */
-        int GetNumberofGates() const;
+        size_t GetNumberofGates() const;
 
         /**
         * @brief Gets all qubits in the quantum backend.
@@ -118,6 +118,7 @@ namespace sys_sage {
          * 
          * @param qubit_indices The indices of the qubits that need to be refreshed.
          */
+        // TODO: implement this.
         void RefreshTopology(std::set<int> qubit_indices); // qubit_indices: indices of the qubits that need to be refreshed
 
         /**
@@ -132,7 +133,6 @@ namespace sys_sage {
 
     private:
         int num_qubits;
-        int num_gates;
         //SVTODO deal with gate_types -- can this go into Relations?
         std::vector <QuantumGate*> gate_types;
     #ifdef QDMI

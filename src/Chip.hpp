@@ -75,14 +75,14 @@ namespace sys_sage {
          * @brief Sets the type of the chip.
          * @param chipType The chip type to set.
          */
-        void SetChipType(int chipType);
+        void SetChipType(ChipType::type chipType);
         
         /**
          * @brief Gets the type of the chip.
          * @return The chip type.
          * @see type
          */
-        int GetChipType() const;
+        ChipType::type GetChipType() const;
         
         /**
          * @private

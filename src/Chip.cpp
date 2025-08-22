@@ -9,5 +9,5 @@ const std::string& sys_sage::Chip::GetVendor() const{return vendor;}
 void sys_sage::Chip::SetVendor(std::string _vendor){vendor = _vendor;}
 const std::string& sys_sage::Chip::GetModel() const{return model;}
 void sys_sage::Chip::SetModel(std::string _model){model = _model;}
-void sys_sage::Chip::SetChipType(int chipType){type = chipType;}
-int sys_sage::Chip::GetChipType() const{return type;}
+void sys_sage::Chip::SetChipType(sys_sage::ChipType::type chipType){type = chipType;}
+sys_sage::ChipType::type sys_sage::Chip::GetChipType() const{return type;}

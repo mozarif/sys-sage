@@ -15,36 +15,8 @@ double sys_sage::DataPath::GetBandwidth() const {return bw;}
 void sys_sage::DataPath::SetBandwidth(double _bandwidth) { bw = _bandwidth;}
 double sys_sage::DataPath::GetLatency() const {return latency;}
 void sys_sage::DataPath::SetLatency(double _latency) { latency = _latency; }
-int sys_sage::DataPath::GetDataPathType() const {return dp_type;}
-int sys_sage::DataPath::GetOrientation() const {return ordered;}
-
-
-int sys_sage::Relation::UpdateComponent(int index, Component * _new_component)
-{
-    if (index < 0 || static_cast<size_t>(index) >= components.size())
-    {
-        //TODO ho return an integer; 0=okay, 1=this error?
-        std::cerr << "WARNING: sys_sage::Relation::UpdateComponent index out of bounds -- nothing updated." << std::endl;
-        return 1;
-    }
-    std::vector<Relation*>& component_relation_vector = components[index]->_GetRelations(type);
-    component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
-
-    _new_component->_AddRelation(type, this);
-    components[index] = _new_component;
-    return 0;
-}
-int sys_sage::Relation::UpdateComponent(Component* _old_component, Component * _new_component)
-{
-    auto it = std::find(components.begin(), components.end(), _old_component);
-    if(it == components.end())
-    {
-        std::cerr << "WARNING: sys_sage::Relation::UpdateComponent component not found -- nothing updated." << std::endl;
-        return 1;
-    }
-    int index = it - components.begin();
-    return UpdateComponent(index, _new_component);
-}
+sys_sage::DataPathType::type sys_sage::DataPath::GetDataPathType() const {return dp_type;}
+sys_sage::DataPathOrientation::type sys_sage::DataPath::GetOrientation() const {return ordered ? sys_sage::DataPathOrientation::Oriented : sys_sage::DataPathOrientation::Bidirectional;}
 
 int sys_sage::DataPath::UpdateSource(Component * _new_source)
 {
@@ -65,9 +37,11 @@ sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::D
     else
         ordered = true;
     
-    
     AddComponent(_source);
-    AddComponent(_target);
+    if (_source != _target)
+        AddComponent(_target);
+    else
+        components.emplace_back(_target);
 }
 
 void sys_sage::DataPath::Delete()

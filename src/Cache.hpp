@@ -40,7 +40,7 @@ namespace sys_sage {
          *
          * Sets componentType to sys_sage::ComponentType::Cache.
          */
-        Cache(Component * parent, int _id, std::string _cache_type, long long _cache_size = 0, int _associativity = -1, int _cache_line_size = -1);
+        Cache(Component * parent, int _id, std::string _cache_type, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
 
         /**
          * @brief Cache constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component).

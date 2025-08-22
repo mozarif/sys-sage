@@ -21,3 +21,5 @@ double sys_sage::Qubit::GetT2() const { return t2; }
 double sys_sage::Qubit::GetReadoutFidelity() const { return readout_fidelity; }
 double sys_sage::Qubit::Get1QFidelity() const { return q1_fidelity;}
 double sys_sage::Qubit::GetReadoutLength() const { return readout_length; }
+double sys_sage::Qubit::GetFrequency() const { return frequency; }
+const std::string& sys_sage::Qubit::GetCalibrationTime() const { return calibration_time; }
