@@ -508,14 +508,12 @@ int sys_sage::Component::CheckComponentTreeConsistency() const
 
 int sys_sage::Component::GetTopologySize(unsigned * out_component_size, unsigned * out_RelationSize) const
 {
-    return _GetTopologySize(out_component_size, out_RelationSize, NULL);
+    std::set<Relation *> countedRelations;
+    return _GetTopologySize(out_component_size, out_RelationSize, &countedRelations);
 }
 
 int sys_sage::Component::_GetTopologySize(unsigned * out_component_size, unsigned * out_RelationSize, std::set<Relation*>* countedRelations) const
 {
-    if(countedRelations == NULL)
-        countedRelations = new std::set<Relation*>();
-
     int component_size = 0;
     switch(componentType)
     {
@@ -610,8 +608,6 @@ int sys_sage::Component::_GetTopologySize(unsigned * out_component_size, unsigne
         subtreeSize += c->_GetTopologySize(out_component_size, out_RelationSize, countedRelations);
     }
 
-    if(countedRelations != NULL)
-        delete countedRelations;
     return component_size + relationsSize + subtreeSize;
 }
 
