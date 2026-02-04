@@ -113,7 +113,7 @@ int sys_sage::Node::RefreshCpuCoreFrequency(bool keep_history)
     for(Component * socket : sockets)
     {
         if(static_cast<Chip*>(socket)->GetChipType() == ChipType::CpuSocket || static_cast<Chip*>(socket)->GetChipType() == ChipType::Cpu)
-            socket->FindDescendantsByType(reinterpret_cast<std::vector<Component*>*>(&cpu_hw_threads), ComponentType::Thread);
+            socket->FindDescendantsByType(*reinterpret_cast<std::vector<Component*>*>(&cpu_hw_threads), ComponentType::Thread);
     }
 
     //remove duplicate threads of the same core (hyperthreading -- 2 threads on the same core have the same freq)

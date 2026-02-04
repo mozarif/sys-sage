@@ -389,7 +389,7 @@ PYBIND11_MODULE(sys_sage, m) {
 // -- DEPRECATED GetComponentsInSubtree (used up until version 1.0.0)
         .def("GetComponentsInSubtree", [] (Component &self) {
             std::vector<Component *> v;
-            self.FindDescendantsByType(&v, ComponentType::Any);
+            self.FindDescendantsByType(v, ComponentType::Any);
             return v;
         }, "Get all the components in the subtree of the component")
 // --
