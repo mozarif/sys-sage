@@ -20,7 +20,7 @@ static suite<"caps-numa-benchmark"> _ = []
         << "Parse benchmark CSV file";
 
     std::vector<Component *> numas;
-    node.FindDescendantsByType(&numas, ComponentType::Numa);
+    node.FindDescendantsByType(numas, ComponentType::Numa);
     expect(that % (4 == numas.size()) >> fatal);
 
     "Number, type, and orientation of data paths"_test = [&]

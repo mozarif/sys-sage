@@ -451,7 +451,7 @@ int Mt4gParser::parseMemory(std::string header_name, std::string memory_name)
         }
 
         std::vector<Component*> parents;
-        root->FindDescendantsByType(&parents, sys_sage::ComponentType::Subdivision);
+        root->FindDescendantsByType(parents, sys_sage::ComponentType::Subdivision);
         for(Component * parent : parents)
         {
             if(static_cast<Subdivision*>(parent)->GetSubdivisionType() == sys_sage::SubdivisionType::GpuSM)

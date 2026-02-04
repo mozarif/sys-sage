@@ -93,28 +93,28 @@ static suite<"data-path"> _ = []
         "Get all incoming logical data paths"_test = [&]()
         {
             std::vector<DataPath *> v;
-            a.FindDataPaths(&v, DataPathType::Logical, DataPathDirection::Incoming);
+            a.FindDataPaths(v, DataPathType::Logical, DataPathDirection::Incoming);
             expect(that % v.empty());
         };
 
         "Get all incoming physical data paths"_test = [&]()
         {
             std::vector<DataPath *> v;
-            a.FindDataPaths(&v, DataPathType::Physical, DataPathDirection::Incoming);
+            a.FindDataPaths(v, DataPathType::Physical, DataPathDirection::Incoming);
             expect(std::vector{&dp4} == v);
         };
 
         "Get all outgoing logical data paths"_test = [&]()
         {
             std::vector<DataPath *> v;
-            a.FindDataPaths(&v, DataPathType::Logical, DataPathDirection::Outgoing);
+            a.FindDataPaths(v, DataPathType::Logical, DataPathDirection::Outgoing);
             expect(that % std::vector{&dp1} == v);
         };
 
         "Get all outgoing physical data paths"_test = [&]()
         {
             std::vector<DataPath *> v;
-            a.FindDataPaths(&v, DataPathType::Physical, DataPathDirection::Outgoing);
+            a.FindDataPaths(v, DataPathType::Physical, DataPathDirection::Outgoing);
             expect(that % std::vector{&dp2, &dp3} == v);
         };
 
@@ -122,7 +122,7 @@ static suite<"data-path"> _ = []
         {
             std::vector<DataPath *> v;
 
-            a.FindDataPaths(&v, DataPathType::Physical, DataPathDirection::Any);
+            a.FindDataPaths(v, DataPathType::Physical, DataPathDirection::Any);
             expect(that % std::vector{&dp2, &dp3, &dp4} == v);
         };
     };

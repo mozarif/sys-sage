@@ -382,7 +382,7 @@ int sys_sage::exportToXml(
 
     //scan all Components for their relations
     std::vector<Component*> components;
-    root->FindDescendantsByType(&components, ComponentType::Any);
+    root->FindDescendantsByType(components, ComponentType::Any);
     std::cout << "Number of components to export: " << components.size() << std::endl;
     for(Component* cPtr : components)
     {
