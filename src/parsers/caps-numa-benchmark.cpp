@@ -6,7 +6,7 @@
 #include <vector>
 
 
-int sys_sage::parseCapsNumaBenchmark(Component* rootComponent, std::string benchmarkPath, std::string delim)
+int sys_sage::parseCapsNumaBenchmark(Component* rootComponent, const std::string &benchmarkPath, const std::string &delim)
 {
     CSVReader reader(benchmarkPath, delim);
     std::vector<std::vector<std::string> > benchmarkData;

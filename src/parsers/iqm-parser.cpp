@@ -7,7 +7,7 @@
 #include <sstream>
 
 
-int sys_sage::parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForHistory)
+int sys_sage::parseIQM(Component* parent, const std::string &dataSourcePath, int qcId, int tsForHistory)
 {
     if(parent == NULL){
         std::cerr << "parseIQM: parent is null" << std::endl;
@@ -17,7 +17,7 @@ int sys_sage::parseIQM(Component* parent, std::string dataSourcePath, int qcId, 
     return parseIQM(qc, dataSourcePath, qcId, tsForHistory, true);   
 }
 
-int sys_sage::parseIQM(QuantumBackend* qc, std::string dataSourcePath, int qcId, int tsForHistory, bool createTopo)
+int sys_sage::parseIQM(QuantumBackend* qc, const std::string &dataSourcePath, int qcId, int tsForHistory, bool createTopo)
 {
     IQMParser iqm(qc,dataSourcePath);
     int ret;
@@ -34,7 +34,7 @@ int sys_sage::parseIQM(QuantumBackend* qc, std::string dataSourcePath, int qcId,
     return ret;
 }
 
-sys_sage::IQMParser::IQMParser(QuantumBackend* _qc,std::string filepath)
+sys_sage::IQMParser::IQMParser(QuantumBackend* _qc, const std::string &filepath)
 { 
     backend = _qc;
 

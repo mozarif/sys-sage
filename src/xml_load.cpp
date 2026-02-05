@@ -403,7 +403,7 @@ int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 }
 
 sys_sage::Component* sys_sage::importFromXml(
-	std::string path,
+	const std::string &path,
 	std::function<void*(xmlNodePtr)> _load_custom_attrib_fcn,
 	std::function<int(xmlNodePtr, Component *)> _load_custom_complex_attrib_fcn) 
 {

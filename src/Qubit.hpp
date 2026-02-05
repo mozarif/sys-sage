@@ -22,7 +22,7 @@ namespace sys_sage {
          *
          * Sets componentType to sys_sage::ComponentType::Qubit.
          */
-        Qubit(int _id = 0, std::string _name = "Qubit");
+        Qubit(int _id = 0, const std::string &_name = "Qubit");
 
         /**
          * @brief Qubit constructor with insertion into the Component Tree as the parent's child (as long as parent is an existing Component).
@@ -32,7 +32,7 @@ namespace sys_sage {
          *
          * Sets componentType to sys_sage::ComponentType::Qubit.
          */
-        Qubit(Component * parent, int _id = 0, std::string _name = "Qubit");
+        Qubit(Component * parent, int _id = 0, const std::string &_name = "Qubit");
 
         /**
          * @brief Sets the properties of the qubit.

@@ -359,7 +359,7 @@ xmlNodePtr sys_sage::Relation::_CreateXmlEntry()
 
 int sys_sage::exportToXml(
     Component* root, 
-    std::string path, 
+    const std::string &path, 
     std::function<int(std::string,void*,std::string*)> _store_custom_attrib_fcn, 
     std::function<int(std::string,void*,xmlNodePtr)> _store_custom_complex_attrib_fcn)
 {

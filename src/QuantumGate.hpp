@@ -24,7 +24,7 @@ namespace sys_sage {
          * @param _fidelity The fidelity of the quantum gate.
          * @param _unitary The unitary matrix representing the quantum gate operation.
          */
-        QuantumGate(size_t _gate_size = 0, std::string _name = "", double _fidelity = 0.0, std::string _unitary = "");
+        QuantumGate(size_t _gate_size = 0, const std::string &_name = "", double _fidelity = 0.0, const std::string &_unitary = "");
 
         /**
          * @brief Constructor that initializes a quantum gate with a list of qubits.
@@ -41,7 +41,7 @@ namespace sys_sage {
          * @param _fidelity The fidelity of the quantum gate.
          * @param _unitary The unitary matrix representing the quantum gate operation.
          */
-        QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, std::string _name, double _fidelity, std::string _unitary);
+        QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, const std::string &_name, double _fidelity, const std::string &_unitary);
 
         /**
          * @brief Constructor for advanced initialization, including all properties and components.
@@ -55,14 +55,14 @@ namespace sys_sage {
          * @param _fidelity The fidelity of the quantum gate.
          * @param _unitary The unitary matrix representing the quantum gate operation.
          */
-        QuantumGate(const std::vector<Component*>& components, int _id = 0, bool _ordered = true, size_t _gate_size = 0, std::string _name = "", int _gate_length = 0, QuantumGateType::type _gate_type = QuantumGateType::Unknown, double _fidelity = 0, std::string _unitary = "");
+        QuantumGate(const std::vector<Component*>& components, int _id = 0, bool _ordered = true, size_t _gate_size = 0, const std::string &_name = "", int _gate_length = 0, QuantumGateType::type _gate_type = QuantumGateType::Unknown, double _fidelity = 0, const std::string &_unitary = "");
         /**
          * @brief Sets the properties of the quantum gate.
          * @param _name The name of the quantum gate.
          * @param _fidelity The fidelity of the quantum gate.
          * @param _unitary The unitary matrix representing the quantum gate operation.
          */
-        void SetGateProperties(std::string _name, double _fidelity, std::string _unitary);
+        void SetGateProperties(const std::string &_name, double _fidelity, const std::string &_unitary);
 
         /**
          * @brief Sets the coupling map for the quantum gate.
@@ -144,13 +144,13 @@ namespace sys_sage {
          * @brief Sets the name of the relationship.
          * @param _name The name of the relationship to set.
          */
-        void SetName(std::string _name);
+        void SetName(const std::string &_name);
 
         /**
          * @brief Gets the name of the relationship.
          * @return The current name of the relationship.
          */
-        std::string GetName() const;
+        const std::string &GetName() const;
 
         /**
          * @brief Prints the details of the quantum gate.

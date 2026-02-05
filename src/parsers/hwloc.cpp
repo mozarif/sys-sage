@@ -220,7 +220,7 @@ int sys_sage::removeUnknownCompoents(Component* c){
 }
 
 //parses a hwloc output and adds it to topology
-int sys_sage::parseHwlocOutput(Node* n, string xmlPath)
+int sys_sage::parseHwlocOutput(Node* n, const string &xmlPath)
 {
     xmlDoc *document = xmlReadFile(xmlPath.c_str(), NULL, 0);
     if (document == NULL) {

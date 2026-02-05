@@ -12,7 +12,7 @@
 
 using namespace std;
 
-sys_sage::CccbenchParser::CccbenchParser(const char *csv_path)
+sys_sage::CccbenchParser::CccbenchParser(const std::string &csv_path)
     : c2cDatapoints((Vec2DArray<float> *)0)
 {
     fstream fs;
@@ -114,10 +114,9 @@ void sys_sage::CccbenchParser::applyDataPaths(Component *root)
     }
 }
 
-int sys_sage::parseCccbenchOutput(Node* n, std::string cccPath)
+int sys_sage::parseCccbenchOutput(Node* n, const std::string &cccPath)
 {
-    const char *cstr_path = cccPath.c_str();
-    auto cccparser = new CccbenchParser(cstr_path);
+    auto cccparser = new CccbenchParser(cccPath);
     cccparser->applyDataPaths(n);
     delete cccparser;
     return 0;

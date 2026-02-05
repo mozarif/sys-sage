@@ -30,7 +30,7 @@ namespace sys_sage {
         @param _name = name, default "QuantumBackend"
         @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
         */
-        QuantumBackend(int _id = 0, std::string _name = "QuantumBackend");
+        QuantumBackend(int _id = 0, const std::string &_name = "QuantumBackend");
         /**
         QuantumBackend constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -38,7 +38,7 @@ namespace sys_sage {
         @param _name = name, default "QuantumBackend"
         @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
         */
-        QuantumBackend(Component * parent, int _id = 0, std::string _name = "QuantumBackend");
+        QuantumBackend(Component * parent, int _id = 0, const std::string &_name = "QuantumBackend");
 
         /**
         * @brief Sets the number of qubits in the quantum backend.

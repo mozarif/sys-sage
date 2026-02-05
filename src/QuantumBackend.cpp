@@ -4,8 +4,8 @@
 
 
 
-sys_sage::QuantumBackend::QuantumBackend(int _id, std::string _name):Component(_id, _name, sys_sage::ComponentType::QuantumBackend){}
-sys_sage::QuantumBackend::QuantumBackend(Component * _parent, int _id, std::string _name):Component(_parent, _id, _name, sys_sage::ComponentType::QuantumBackend){}
+sys_sage::QuantumBackend::QuantumBackend(int _id, const std::string &_name):Component(_id, _name, sys_sage::ComponentType::QuantumBackend){}
+sys_sage::QuantumBackend::QuantumBackend(Component * _parent, int _id, const std::string &_name):Component(_parent, _id, _name, sys_sage::ComponentType::QuantumBackend){}
 
 void sys_sage::QuantumBackend::SetNumQubits(int _num_qubits) { num_qubits = _num_qubits; }
 

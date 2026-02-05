@@ -12,7 +12,7 @@
 
 
 namespace sys_sage {
-    int parseCccbenchOutput(Node* , std::string );
+    int parseCccbenchOutput(Node* , const std::string &);
 
     template <typename T>class Vec2DArray
     {
@@ -50,7 +50,7 @@ namespace sys_sage {
         virtual ~CccbenchParser(){if(this->c2cDatapoints) {delete [] c2cDatapoints;}}
         unsigned int xtoi(unsigned int _x){return _x - this->firstCore;}
         unsigned int ytoi(unsigned int _y){return _y - this->firstCore;}
-        CccbenchParser(const char *csv_path);
+        CccbenchParser(const std::string &csv_path);
         void applyDataPaths(Component *root);
     };
 

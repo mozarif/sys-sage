@@ -127,7 +127,7 @@ namespace sys_sage {
         };
 
         //SVTODO this should remain private???
-        static const std::unordered_map<type, const char*> names = {
+        static const std::unordered_map<type, const std::string> names = {
             {Any, "Any"},
             {Relation, "Relation"},
             {DataPath, "DataPath"},
@@ -142,10 +142,12 @@ namespace sys_sage {
          * @param rt RelationType value
          * @return String representation of the relation type
          */
-        inline const char* ToString(type rt) {
+        inline const std::string &ToString(type rt) {
+            static const std::string unknown ("Unknown");
+          
             auto it = names.find(rt);
             if (it != names.end()) return it->second;
-            return "Unknown";
+            return unknown;
         }
     }
 
