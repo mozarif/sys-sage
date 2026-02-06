@@ -694,7 +694,17 @@ namespace sys_sage {
          *
          * @return 0 on success, 1 otherwise.
          */
-        int DumpJson(std::filesystem::path path = "") const;
+        int DumpJson(const std::filesystem::path &path = "") const;
+
+        /**
+         * @brief Loads the component tree from JSON.
+         *
+         * @param path The path to the JSON file.
+         *
+         * @return A pointer to the root of the component tree. May return
+         *         `nullptr` in case of an error.
+         */
+        static Component *LoadJson(const std::filesystem::path &path);
         
         /**
          * @brief Deletes a Relation from this component as well as the Relation itself.

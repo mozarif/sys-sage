@@ -20,7 +20,7 @@ static void CollectComponentsInSubtree(const Component *root, std::unordered_set
         CollectComponentsInSubtree(child, components);
 }
 
-int sys_sage::Component::DumpJson(std::filesystem::path path) const
+int sys_sage::Component::DumpJson(const std::filesystem::path &path) const
 {
     json componentSubtree = SubtreeToJson();
 

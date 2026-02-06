@@ -30,6 +30,7 @@ set(SOURCES
     xml_dump.cpp
     xml_load.cpp
     json_dump.cpp
+    json_load.cpp
     ${EXT_INTF}/intel_pqos.cpp
     ${EXT_INTF}/proc_cpuinfo.cpp
     ${EXT_INTF}/nvidia_mig.cpp
