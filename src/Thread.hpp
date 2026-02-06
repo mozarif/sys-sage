@@ -2,6 +2,7 @@
 #define THREAD_HPP
 
 #include "Component.hpp"
+#include <nlohmann/json.hpp>
 
 namespace sys_sage {
 
@@ -27,6 +28,14 @@ namespace sys_sage {
         @param componentType=>SYS_SAGE_COMPONENT_THREAD
         */    
         Thread(Component * parent, int _id = 0, std::string _name = "Thread");
+
+        /**
+         * @brief Creates a JSON object of this component.
+         *
+         * @return The JSON object. The returned JSON may be empty if an error occurs.
+         */
+        nlohmann::json ToJson() const override;
+
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 

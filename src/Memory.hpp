@@ -3,6 +3,7 @@
 #define MEMORY_HPP
 
 #include "Component.hpp"
+#include <nlohmann/json.hpp>
 
 namespace sys_sage {
 
@@ -64,6 +65,14 @@ namespace sys_sage {
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
         xmlNodePtr _CreateXmlSubtree() override;
+
+        /**
+         * @brief Creates a JSON object of this component.
+         *
+         * @return The JSON object. The returned JSON may be empty if an error occurs.
+         */
+        nlohmann::json ToJson() const override;
+
     private:
         long long size; /**< size/capacity of the memory element*/
         bool is_volatile; /**< is volatile? */

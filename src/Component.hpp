@@ -11,8 +11,8 @@
 #include "enums.hpp"
 #include "DataPath.hpp"
 #include <libxml/parser.h>
-
-
+#include <nlohmann/json.hpp>
+#include <filesystem>
 
 namespace sys_sage { //forward declaration
     class Topology;
@@ -672,6 +672,29 @@ namespace sys_sage {
          * @return Pointer to the created XML subtree node.
          */
         virtual xmlNodePtr _CreateXmlSubtree();
+
+        /**
+         * @brief Creates a JSON object of this component.
+         *
+         * @return The JSON object.
+         */
+        virtual nlohmann::json ToJson() const;
+
+        /**
+         * @brief Creates a JSON object of the entire subtree spanned by this component.
+         *
+         * @return The JSON object.
+         */
+        nlohmann::json SubtreeToJson() const;
+
+        /**
+         * @brief Dumps the entire subtree spanned by this component into a JSON file.
+         *
+         * @param path The location of the output JSON file. If the path is empty, the JSON data will be dumped into stdout.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        int DumpJson(std::filesystem::path path = "") const;
         
         /**
          * @brief Deletes a Relation from this component as well as the Relation itself.

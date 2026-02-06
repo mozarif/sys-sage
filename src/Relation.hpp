@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 #include <libxml/parser.h>
+#include <nlohmann/json.hpp>
 
 #include "defines.hpp"
 #include "enums.hpp"
@@ -168,6 +169,14 @@ namespace sys_sage {
          * Should normally not be used directly. Used internally for exporting the relation to XML.
          */
         virtual xmlNodePtr _CreateXmlEntry();
+
+        /**
+         * @brief Creates a JSON object of this component.
+         *
+         * @return The JSON object.
+         */
+        virtual nlohmann::json ToJson() const;
+
         /**
          * @brief Virtual function to delete the relation.
          *

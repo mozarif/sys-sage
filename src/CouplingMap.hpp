@@ -2,6 +2,7 @@
 #define COUPLINGMAP_HPP
 
 #include "Relation.hpp"
+#include <nlohmann/json.hpp>
 
 namespace sys_sage {
 
@@ -60,6 +61,14 @@ namespace sys_sage {
          * @return Pointer to the created XML entry node.
          */
         xmlNodePtr _CreateXmlEntry() override;
+
+        /**
+         * @brief Creates a JSON object of this component.
+         *
+         * @return The JSON object. The returned JSON may be empty if an error occurs.
+         */
+        nlohmann::json ToJson() const override;
+
     private:
         double fidelity; ///< Fidelity of the coupling (e.g., two-qubit gate fidelity)
     };

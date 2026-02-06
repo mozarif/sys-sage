@@ -29,6 +29,7 @@ set(SOURCES
     CouplingMap.cpp
     xml_dump.cpp
     xml_load.cpp
+    json_dump.cpp
     ${EXT_INTF}/intel_pqos.cpp
     ${EXT_INTF}/proc_cpuinfo.cpp
     ${EXT_INTF}/nvidia_mig.cpp

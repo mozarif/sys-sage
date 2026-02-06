@@ -2,6 +2,7 @@
 #define DATAPATH_CPP
 
 #include "Relation.hpp"
+#include <nlohmann/json.hpp>
 
 namespace sys_sage { //forward declaration
     class Component;
@@ -128,6 +129,14 @@ namespace sys_sage {
          * @return Pointer to the created XML entry node.
          */
         xmlNodePtr _CreateXmlEntry() override;
+
+        /**
+         * @brief Creates a JSON object of this component.
+         *
+         * @return The JSON object. The returned JSON may be empty if an error occurs.
+         */
+        nlohmann::json ToJson() const override;
+
         /**
          * @brief Deletes and de-allocates the DataPath pointer from the list (std::vector) of outgoing and incoming DataPaths of source and target Components.
          */

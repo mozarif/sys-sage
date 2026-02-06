@@ -4,6 +4,7 @@
 #include "Component.hpp"
 
 #include "QuantumGate.hpp"
+#include <nlohmann/json.hpp>
 
 
 #ifdef QDMI
@@ -152,6 +153,13 @@ namespace sys_sage {
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
         xmlNodePtr _CreateXmlSubtree() override;
+
+        /**
+         * @brief Creates a JSON object of this component.
+         *
+         * @return The JSON object. The returned JSON may be empty if an error occurs.
+         */
+        nlohmann::json ToJson() const override;
 
         /** Destructor for QuantumBackend. */
         ~QuantumBackend() override = default;
