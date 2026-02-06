@@ -19,10 +19,6 @@ namespace sys_sage {
         \n componentType=>SYS_SAGE_COMPONENT_TOPOLOGY
         */
         Topology();
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
 
         /**
          * @brief Creates a JSON object of this component.
@@ -31,6 +27,10 @@ namespace sys_sage {
          */
         nlohmann::json ToJson() const override;
 
+        /**
+        * @private
+        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
+        */
         ~Topology() override = default;
     private:
     };
