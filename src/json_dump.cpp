@@ -94,16 +94,14 @@ json sys_sage::Relation::ToJson() const
         { "ordered", ordered }
     };
 
-    if (components.size() > 0) {
-        // to get a unique identifier for the component, we take the ComponentTypeStr() and
-        // append the ID of the component to it, like so: "<ComponentTypeStr()>-<ComponentID>"
+    // to get a unique identifier for the component, we take the ComponentTypeStr() and
+    // append the ID of the component to it, like so: "<ComponentTypeStr()>-<ComponentID>"
 
-        std::vector<std::string> uniqueIdentifiers (components.size());
-        for (size_t i = 0; i < uniqueIdentifiers.size(); i++)
-          uniqueIdentifiers[i] = components[i]->GetComponentTypeStr() + ("-" + std::to_string(components[i]->GetId()));
+    std::vector<std::string> uniqueIdentifiers (components.size());
+    for (size_t i = 0; i < uniqueIdentifiers.size(); i++)
+      uniqueIdentifiers[i] = components[i]->GetComponentTypeStr() + ("-" + std::to_string(components[i]->GetId()));
 
-        obj["components"] = uniqueIdentifiers;
-    }
+    obj["components"] = uniqueIdentifiers;
 
     DumpAttributes(obj);
 
@@ -247,8 +245,6 @@ json sys_sage::Qubit::ToJson() const
     obj["t2"] = t2;
     obj["readoutFidelity"] = readout_fidelity;
     obj["readoutLength"] = readout_length;
-    obj["frequency"] = frequency;
-    obj["calibrationTime"] = calibration_time;
 
     return obj;
 }
