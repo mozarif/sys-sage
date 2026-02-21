@@ -49,6 +49,16 @@ namespace sys_sage {
     class Relation {
     public:
         /**
+         * @brief Default-initializes a new Relation object.
+         * @param _id Optional unique ID for the relation.
+         * @param _ordered Whether the order of components carries semantic meaning.
+         *
+         * The type of the relation is set to sys_sage::RelationType::Relation.
+         */
+        Relation(int _id = 0, bool _ordered = true,
+                 RelationCategory::type _category = RelationCategory::Default);
+        
+        /**
          * @brief Construct a new Relation object.
          * @param components List of pointers to participating Components.
          * @param _id Optional unique ID for the relation.
@@ -57,7 +67,7 @@ namespace sys_sage {
          * The type of the relation is set to sys_sage::RelationType::Relation.
          */
         Relation(const std::vector<Component*>& components, int _id = 0, bool _ordered = true,
-                 RelationCategory::type category = RelationCategory::Default);
+                 RelationCategory::type _category = RelationCategory::Default);
         /**
          * @brief Sets the id of the relationship.
          * @param _id The id of the relationship to set.
@@ -171,11 +181,20 @@ namespace sys_sage {
         virtual xmlNodePtr _CreateXmlEntry();
 
         /**
-         * @brief Creates a JSON object of this component.
+         * @brief Initializes a JSON object that represents this relation.
          *
-         * @return The JSON object.
+         * @param obj The JSON object to be initialized.
          */
-        virtual nlohmann::json ToJson() const;
+        virtual void ToJson(nlohmann::json &obj) const;
+
+        /**
+         * @brief Initializes this relation through JSON.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        virtual int FromJson(const nlohmann::json &obj, Component *root);
 
         /**
          * @brief Virtual function to delete the relation.
@@ -307,6 +326,15 @@ namespace sys_sage {
          * @param _relation_type The type of the relation (see RelationType::type).
          */
         Relation(const std::vector<Component*>& components, int _id, bool _ordered, RelationType::type _relation_type, RelationCategory::type _relation_category);
+
+        /**
+         * @private
+         * @brief Protected constructor for internal use. Makes sure that the relation type is set correctly.
+         * @param _id Optional unique ID for the relation.
+         * @param _ordered Whether the order of components carries semantic meaning.
+         * @param _relation_type The type of the relation (see RelationType::type).
+         */
+        Relation(int _id, bool _ordered, RelationType::type _relation_type, RelationCategory::type _relation_category);
 
         /**
          * @brief Whether order in the component list is meaningful.

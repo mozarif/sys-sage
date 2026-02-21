@@ -2,7 +2,6 @@
 #define COUPLINGMAP_HPP
 
 #include "Relation.hpp"
-#include <nlohmann/json.hpp>
 
 namespace sys_sage {
 
@@ -27,6 +26,16 @@ namespace sys_sage {
          * This constructor is typically used for pairwise couplings in quantum hardware.
          */
         CouplingMap(Qubit* q1, Qubit*q2);
+
+        /**
+         * @brief Default-intitilizes a CouplingMap.
+         * @param _id Optional relation ID (default 0).
+         * @param _ordered Whether the coupling is ordered/directed (default true).
+         *
+         * This constructor allows for more general coupling relations, including multi-qubit couplings.
+         */
+        CouplingMap(int _id = 0, bool _ordered = true);
+
         /**
          * @brief Constructs a CouplingMap between a set of components.
          * @param components Vector of pointers to components (e.g., qubits) involved in the coupling.
@@ -63,11 +72,20 @@ namespace sys_sage {
         xmlNodePtr _CreateXmlEntry() override;
 
         /**
-         * @brief Creates a JSON object of this component.
+         * @brief Initializes a JSON object that represents this relation.
          *
-         * @return The JSON object. The returned JSON may be empty if an error occurs.
+         * @param obj The JSON object to be initialized.
          */
-        nlohmann::json ToJson() const override;
+        void ToJson(nlohmann::json &obj) const override;
+
+        /**
+         * @brief Initializes this relation through JSON.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        int FromJson(const nlohmann::json &obj, Component *root) override;
 
     private:
         double fidelity; ///< Fidelity of the coupling (e.g., two-qubit gate fidelity)

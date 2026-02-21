@@ -12,7 +12,6 @@
 #include "DataPath.hpp"
 #include <libxml/parser.h>
 #include <nlohmann/json.hpp>
-#include <filesystem>
 
 namespace sys_sage { //forward declaration
     class Topology;
@@ -674,38 +673,21 @@ namespace sys_sage {
         virtual xmlNodePtr _CreateXmlSubtree();
 
         /**
-         * @brief Creates a JSON object of this component.
+         * @brief Initializes a JSON object that represents this component.
          *
-         * @return The JSON object.
+         * @param obj The JSON object to be initialized.
          */
-        virtual nlohmann::json ToJson() const;
+        virtual void ToJson(nlohmann::json &obj) const;
 
         /**
-         * @brief Creates a JSON object of the entire subtree spanned by this component.
+         * @brief Initializes this component through JSON.
          *
-         * @return The JSON object.
-         */
-        nlohmann::json SubtreeToJson() const;
-
-        /**
-         * @brief Dumps the entire subtree spanned by this component into a JSON file.
-         *
-         * @param path The location of the output JSON file. If the path is empty, the JSON data will be dumped into stdout.
+         * @param obj The JSON object containing the data.
          *
          * @return 0 on success, 1 otherwise.
          */
-        int DumpJson(const std::filesystem::path &path = "") const;
+        virtual int FromJson(const nlohmann::json &obj);
 
-        /**
-         * @brief Loads the component tree from JSON.
-         *
-         * @param path The path to the JSON file.
-         *
-         * @return A pointer to the root of the component tree. May return
-         *         `nullptr` in case of an error.
-         */
-        static Component *LoadJson(const std::filesystem::path &path);
-        
         /**
          * @brief Deletes a Relation from this component as well as the Relation itself.
          * @param r Pointer to the relation to delete

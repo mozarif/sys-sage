@@ -2,7 +2,6 @@
 #define CORE_HPP
 
 #include "Component.hpp"
-#include <nlohmann/json.hpp>
 
 namespace sys_sage {
 
@@ -34,11 +33,20 @@ namespace sys_sage {
         ~Core() override = default;
 
         /**
-         * @brief Creates a JSON object of this component.
+         * @brief Initializes a JSON object that represents this component.
          *
-         * @return The JSON object. The returned JSON may be empty if an error occurs.
+         * @param obj The JSON object to be initialized.
          */
-        nlohmann::json ToJson() const override;
+        void ToJson(nlohmann::json &obj) const override;
+
+        /**
+         * @brief Initializes this component through JSON.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        int FromJson(const nlohmann::json &obj) override;
 
     private:
 

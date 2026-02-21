@@ -2,7 +2,6 @@
 #define DATAPATH_CPP
 
 #include "Relation.hpp"
-#include <nlohmann/json.hpp>
 
 namespace sys_sage { //forward declaration
     class Component;
@@ -24,6 +23,14 @@ namespace sys_sage {
     class DataPath : public Relation {
 
     public:
+        /**
+         * @brief DataPath default constructor.
+         * @param _dp_type Type of the DataPath.
+         * @param _bw Bandwidth from the source (provides the data) to the target (requests the data)
+         * @param _latency Data load latency from the source (provides the data) to the target (requests the data)
+         */
+        DataPath(DataPathType::type _dp_type = DataPathType::None, double _bw = -1, double _latency = -1);
+
         /**
          * @brief DataPath constructor.
          * @param _source Pointer to the source Component. (If _oriented == DataPathOrientation::Bidirectional, there is no difference between _source and _target)
@@ -131,11 +138,20 @@ namespace sys_sage {
         xmlNodePtr _CreateXmlEntry() override;
 
         /**
-         * @brief Creates a JSON object of this component.
+         * @brief Initializes a JSON object that represents this relation.
          *
-         * @return The JSON object. The returned JSON may be empty if an error occurs.
+         * @param obj The JSON object to be initialized.
          */
-        nlohmann::json ToJson() const override;
+        void ToJson(nlohmann::json &obj) const override;
+
+        /**
+         * @brief Initializes this relation through JSON.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        int FromJson(const nlohmann::json &obj, Component *root) override;
 
         /**
          * @brief Deletes and de-allocates the DataPath pointer from the list (std::vector) of outgoing and incoming DataPaths of source and target Components.

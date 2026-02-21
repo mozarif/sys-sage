@@ -29,8 +29,7 @@ set(SOURCES
     CouplingMap.cpp
     xml_dump.cpp
     xml_load.cpp
-    json_dump.cpp
-    json_load.cpp
+    json_serialization.cpp
     ${EXT_INTF}/intel_pqos.cpp
     ${EXT_INTF}/proc_cpuinfo.cpp
     ${EXT_INTF}/nvidia_mig.cpp
@@ -68,6 +67,7 @@ set(HEADERS
     CouplingMap.hpp
     xml_dump.hpp
     xml_load.hpp
+    json_serialization.hpp
     parsers/hwloc.hpp
     parsers/caps-numa-benchmark.hpp
     parsers/mt4g.hpp
