@@ -673,20 +673,26 @@ namespace sys_sage {
         virtual xmlNodePtr _CreateXmlSubtree();
 
         /**
+         * @private
+         *
          * @brief Initializes a JSON object that represents this component.
+         *        Intended for internal use.
          *
          * @param obj The JSON object to be initialized.
          */
-        virtual void ToJson(nlohmann::json &obj) const;
+        virtual void _ToJson(nlohmann::json &obj) const;
 
         /**
-         * @brief Initializes this component through JSON.
+         * @private
+         *
+         * @brief Initializes this component through JSON. Intended for
+         *        internal use.
          *
          * @param obj The JSON object containing the data.
          *
          * @return 0 on success, 1 otherwise.
          */
-        virtual int FromJson(const nlohmann::json &obj);
+        virtual int _FromJson(const nlohmann::json &obj);
 
         /**
          * @brief Deletes a Relation from this component as well as the Relation itself.

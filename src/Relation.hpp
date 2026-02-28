@@ -17,6 +17,8 @@
 #include <string>
 #include <libxml/parser.h>
 #include <nlohmann/json.hpp>
+#include <unordered_map>
+#include <stdint.h>
 
 #include "defines.hpp"
 #include "enums.hpp"
@@ -181,20 +183,28 @@ namespace sys_sage {
         virtual xmlNodePtr _CreateXmlEntry();
 
         /**
+         * @private
+         *
          * @brief Initializes a JSON object that represents this relation.
+         *        Intended for internal use.
          *
          * @param obj The JSON object to be initialized.
          */
-        virtual void ToJson(nlohmann::json &obj) const;
+        virtual void _ToJson(nlohmann::json &obj) const;
 
         /**
-         * @brief Initializes this relation through JSON.
+         * @private
+         *
+         * @brief Initializes this relation through JSON. Intended for internal
+         *        use.
          *
          * @param obj The JSON object containing the data.
+         * @param componentMap A map used for the relation graph.
          *
          * @return 0 on success, 1 otherwise.
          */
-        virtual int FromJson(const nlohmann::json &obj, Component *root);
+        virtual int _FromJson(const nlohmann::json &obj,
+                              const std::unordered_map<uintptr_t, Component *> &componentMap);
 
         /**
          * @brief Virtual function to delete the relation.

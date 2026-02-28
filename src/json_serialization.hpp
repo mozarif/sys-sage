@@ -5,41 +5,57 @@
 #include "Relation.hpp"
 #include <nlohmann/json.hpp>
 #include <filesystem>
+#include <unordered_map>
+#include <stdint.h>
 
 namespace sys_sage {
     /**
      * @brief Dumps the entire subtree and the corresponding relation graph
+     *        spanned by the provided component into a JSON object.
+     *
+     * @param component The component spanning the subtree.
+     * @param obj The JSON object to contain the data.
+     */
+    void DumpJson(const Component *component, nlohmann::json &obj);
+
+    /**
+     * @brief Dumps the entire subtree and the corresponding relation graph
      *        spanned by the provided component into a JSON file.
      *
-     * @param component The component of interest.
-     *
-     * @param path The location of the output JSON file. If the path is empty,
+     * @param component The component spanning the subtree.
+     * @param path The path of the output JSON file. If the path is empty,
      *             the JSON data will be dumped into stdout.
      *
-     * @return 0 on success, 1 otherwise.
+     * @return 0 on success, 1 on failure to write to the file.
      */
     int DumpJson(const Component *component, const std::filesystem::path &path = "");
 
     /**
-     * @brief Loads the component tree from JSON.
+     * @brief Loads the component tree and the relation graph from a JSON
+     *        object.
+     *
+     * @param obj The JSON object containing the data.
+     *
+     * @return A pointer to the root of the component tree. May return
+     *         `nullptr` on failure.
+     */
+    Component *LoadJson(const nlohmann::json &obj);
+
+    /**
+     * @brief Loads the component tree and the relation graph from a JSON file.
      *
      * @param path The path to the JSON file.
      *
      * @return A pointer to the root of the component tree. May return
-     *         `nullptr` in case of an error.
+     *         `nullptr` on failure.
      */
     Component *LoadJson(const std::filesystem::path &path);
 
     /**
-     * @brief Provides idiomatic JSON serialization for all components.
+     * @private
      *
-     * @param obj The JSON object to be initialized.
-     * @param component The component of interest.
-     */
-    void to_json(nlohmann::json &obj, const Component &component);
-
-    /**
-     * @brief Provides idiomatic JSON serialization for all components.
+     * @brief Provides idiomatic JSON serialization for all components. Used
+     *        internally by `nlohmann::json`.
      *
      * @param obj The JSON object to be initialized.
      * @param component The component of interest.
@@ -47,65 +63,27 @@ namespace sys_sage {
     void to_json(nlohmann::json &obj, const Component *component);
 
     /**
-     * @brief Provides idiomatic JSON deserialization for all components.
+     * @private
+     *
+     * @brief Provides idiomatic JSON deserialization for all components. Used
+     *        internally by `nlohmann::json`.
      *
      * @param obj The JSON object containing the data.
-     * @param component The component to be initialized.
-     */
-    void from_json(const nlohmann::json &obj, Component &component);
-
-    /**
-     * @brief Provides idiomatic JSON deserialization for all components.
-     *        This function allocates the object on the heap and returns a pointer.
-     *
-     * @param obj The JSON object containing the data.
-     * @param component The component to be initialized.
+     * @param component A pointer referencing the initialized component. Will
+     *                  be set to `nullptr` on failure.
      */
     void from_json(const nlohmann::json &obj, Component *&component);
 
     /**
-     * @brief Provides idiomatic JSON serialization for all relations.
+     * @private
      *
-     * @param obj The JSON object to be initialized.
-     * @param relation The relation of interest.
-     */
-    void to_json(nlohmann::json &obj, const Relation &relation);
-
-    /**
-     * @brief Provides idiomatic JSON serialization for all relations.
+     * @brief Provides idiomatic JSON serialization for all relations. Used
+     *        internally by `nlohmann::json`.
      *
      * @param obj The JSON object to be initialized.
      * @param relation The relation of interest.
      */
     void to_json(nlohmann::json &obj, const Relation *relation);
-
-    /**
-     * @brief Provides custom JSON deserialization for all relations.
-     *
-     * @param obj The JSON object containing the data.
-     * @param root The root of the component tree.
-     *
-     * @return The initialized relation.
-     */
-    template <typename T>
-    T GetRelation(const nlohmann::json &obj, Component *root)
-    {
-        T relation;
-        relation.FromJson(obj, root);
-        return relation; // rely on RVO
-    }
-
-    /**
-     * @brief Provides custom JSON deserialization for all relations. This
-     *        function allocates the object on the heap and returns a pointer.
-     *
-     * @param obj The JSON object containing the data.
-     * @param root The root of the component tree.
-     *
-     * @return A pointer to the initialized relation.
-     */
-    template <>
-    Relation *GetRelation<Relation *>(const nlohmann::json &obj, Component *root);
 }
 
 #endif

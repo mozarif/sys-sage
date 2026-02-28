@@ -20,20 +20,26 @@ namespace sys_sage {
         Topology();
 
         /**
+         * @private
+         *
          * @brief Initializes a JSON object that represents this component.
+         *        Intended for internal use.
          *
          * @param obj The JSON object to be initialized.
          */
-        void ToJson(nlohmann::json &obj) const override;
+        void _ToJson(nlohmann::json &obj) const override;
 
         /**
-         * @brief Initializes this component through JSON.
+         * @private
+         *
+         * @brief Initializes this component through JSON. Intended for
+         *        internal use.
          *
          * @param obj The JSON object containing the data.
          *
          * @return 0 on success, 1 otherwise.
          */
-        int FromJson(const nlohmann::json &obj) override;
+        int _FromJson(const nlohmann::json &obj) override;
 
         /**
         * @private
