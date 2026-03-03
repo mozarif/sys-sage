@@ -134,7 +134,7 @@ Component *sys_sage::LoadJson(const nlohmann::json &obj)
 {
     std::unordered_map<uintptr_t, Component *> componentMap;
 
-    auto root = ComponentFromJson(obj, componentMap);
+    auto root = ComponentFromJson(obj["componentTree"], componentMap);
     if (root == nullptr)
         return nullptr;
 

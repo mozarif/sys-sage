@@ -52,6 +52,21 @@ namespace sys_sage {
     Component *LoadJson(const std::filesystem::path &path);
 
     /**
+     * @brief Loads the component tree and the relation graph from a JSON file.
+     *        Directs string literals to filesystem paths and avoids ambiguous
+     *        overloaded function calls.
+     *
+     * @param path The path to the JSON file.
+     *
+     * @return A pointer to the root of the component tree. May return
+     *         `nullptr` on failure.
+     */
+    inline Component *LoadJson(const char *path)
+    {
+        return LoadJson(std::filesystem::path(path));
+    }
+
+    /**
      * @private
      *
      * @brief Provides idiomatic JSON serialization for all components. Used
