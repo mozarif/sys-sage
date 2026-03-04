@@ -10,6 +10,7 @@
 namespace ut = boost::ut;
 using namespace sys_sage;
 using namespace std::string_view_literals;
+using json = nlohmann::ordered_json;
 
 static ut::suite<"json"> _ = []
 {
@@ -21,19 +22,19 @@ static ut::suite<"json"> _ = []
         Node node;
         parseHwlocOutput(&node, SYS_SAGE_TEST_RESOURCE_DIR "/skylake_hwloc.xml");
 
-        const nlohmann::json topoJson = nlohmann::json(&node);
+        const json topoJson = json(&node);
 
         ut::expect(ut::that % topoJson["type"].get<std::string>() == "Node"sv);
         ut::expect(ut::that % topoJson["children"].size() == 2U);
 
-        for (const nlohmann::json &chip : topoJson["children"]) {
+        for (const json &chip : topoJson["children"]) {
             ut::expect(ut::that % chip["type"].get<std::string>() == "Chip"sv);
             ut::expect(ut::that % chip["vendor"].get<std::string>() == "GenuineIntel"sv);
             ut::expect(ut::that % chip["model"].get<std::string>() == "Intel(R) Xeon(R) Silver 4116 CPU @ 2.10GHz"sv);
             ut::expect(ut::that % chip["chipType"].get<ChipType::type>() == ChipType::CpuSocket);
             ut::expect(ut::that % chip["children"].size() == 1U);
 
-            const nlohmann::json &l3Cache = chip["children"][0];
+            const json &l3Cache = chip["children"][0];
             ut::expect(ut::that % l3Cache["type"].get<std::string>() == "Cache"sv);
             ut::expect(ut::that % l3Cache["cacheType"].get<std::string>() == "3"sv);
             ut::expect(ut::that % l3Cache["cacheSize"].get<long long>() == 17301504);
@@ -41,13 +42,13 @@ static ut::suite<"json"> _ = []
             ut::expect(ut::that % l3Cache["cacheAssociativityWays"].get<int>() == 11);
             ut::expect(ut::that % l3Cache["children"].size() == 2U);
 
-            for (const nlohmann::json &numa : l3Cache["children"]) {
+            for (const json &numa : l3Cache["children"]) {
                 ut::expect(ut::that % numa["type"].get<std::string>() == "NUMA"sv);
                 ut::expect(ut::that % numa["size"].get<long long>() == numaSizes[numaSizeIdx++]);
                 ut::expect(ut::that % numa["subdivisionType"].get<SubdivisionType::type>() == SubdivisionType::None);
                 ut::expect(ut::that % numa["children"].size() == 6U);
 
-                for (const nlohmann::json &l2Cache : numa["children"]) {
+                for (const json &l2Cache : numa["children"]) {
                     ut::expect(ut::that % l2Cache["type"].get<std::string>() == "Cache"sv);
                     ut::expect(ut::that % l2Cache["cacheType"].get<std::string>() == "2"sv);
                     ut::expect(ut::that % l2Cache["cacheSize"].get<long long>() == 1048576);
@@ -55,7 +56,7 @@ static ut::suite<"json"> _ = []
                     ut::expect(ut::that % l2Cache["cacheAssociativityWays"].get<int>() == 16);
                     ut::expect(ut::that % l2Cache["children"].size() == 1U);
 
-                    const nlohmann::json &l1Cache = l2Cache["children"][0];
+                    const json &l1Cache = l2Cache["children"][0];
                     ut::expect(ut::that % l1Cache["type"].get<std::string>() == "Cache"sv);
                     ut::expect(ut::that % l1Cache["cacheType"].get<std::string>() == "1"sv);
                     ut::expect(ut::that % l1Cache["cacheSize"].get<long long>() == 32768);
@@ -63,11 +64,11 @@ static ut::suite<"json"> _ = []
                     ut::expect(ut::that % l1Cache["cacheAssociativityWays"].get<int>() == 8);
                     ut::expect(ut::that % l1Cache["children"].size() == 1U);
 
-                    const nlohmann::json &core = l1Cache["children"][0];
+                    const json &core = l1Cache["children"][0];
                     ut::expect(ut::that % core["type"].get<std::string>() == "Core"sv);
                     ut::expect(ut::that % core["children"].size() == 1U);
 
-                    const nlohmann::json &hwThread = core["children"][0];
+                    const json &hwThread = core["children"][0];
                     ut::expect(ut::that % hwThread["type"].get<std::string>() == "HW_Thread"sv);
                 }
             }
@@ -83,16 +84,16 @@ static ut::suite<"json"> _ = []
         Component *node2 = LoadJson("topo.json");
         ut::expect(ut::that % node2 != nullptr) ;
 
-        nlohmann::json topo1 = nlohmann::json(node1);
-        nlohmann::json topo2 = nlohmann::json(node2);
+        json topo1 = json(node1);
+        json topo2 = json(node2);
 
         ut::expect(ut::that % topo1["type"].get<std::string>() == topo2["type"].get<std::string>());
         ut::expect(ut::that % topo1["children"].size() == 2U);
         ut::expect(ut::that % topo2["children"].size() == 2U);
 
         for (size_t sChip = 0; sChip < topo1["children"].size(); sChip++) {
-            const nlohmann::json &chip1 = topo1["children"][sChip];
-            const nlohmann::json &chip2 = topo2["children"][sChip];
+            const json &chip1 = topo1["children"][sChip];
+            const json &chip2 = topo2["children"][sChip];
 
             ut::expect(ut::that % chip1["type"].get<std::string>() == chip2["type"].get<std::string>());
             ut::expect(ut::that % chip1["vendor"].get<std::string>() == chip2["vendor"].get<std::string>());
@@ -101,8 +102,8 @@ static ut::suite<"json"> _ = []
             ut::expect(ut::that % chip1["children"].size() == 1U);
             ut::expect(ut::that % chip2["children"].size() == 1U);
 
-            const nlohmann::json &l3Cache1 = chip1["children"][0];
-            const nlohmann::json &l3Cache2 = chip2["children"][0];
+            const json &l3Cache1 = chip1["children"][0];
+            const json &l3Cache2 = chip2["children"][0];
 
             ut::expect(ut::that % l3Cache1["type"].get<std::string>() == l3Cache2["type"].get<std::string>());
             ut::expect(ut::that % l3Cache1["cacheType"].get<std::string>() == l3Cache2["cacheType"].get<std::string>());
@@ -113,8 +114,8 @@ static ut::suite<"json"> _ = []
             ut::expect(ut::that % l3Cache2["children"].size() == 2U);
 
             for (size_t sNuma = 0; sNuma < l3Cache1["children"].size(); sNuma++) {
-                const nlohmann::json &numa1 = l3Cache1["children"][sNuma];
-                const nlohmann::json &numa2 = l3Cache2["children"][sNuma];
+                const json &numa1 = l3Cache1["children"][sNuma];
+                const json &numa2 = l3Cache2["children"][sNuma];
 
                 ut::expect(ut::that % numa1["type"].get<std::string>() == numa2["type"].get<std::string>());
                 ut::expect(ut::that % numa1["size"].get<long long>() == numa2["size"].get<long long>());
@@ -123,8 +124,8 @@ static ut::suite<"json"> _ = []
                 ut::expect(ut::that % numa2["children"].size() == 6U);
 
                 for (size_t sL2Cache = 0; sL2Cache < numa1["children"].size(); sL2Cache++) {
-                    const nlohmann::json &l2Cache1 = numa1["children"][sL2Cache];
-                    const nlohmann::json &l2Cache2 = numa2["children"][sL2Cache];
+                    const json &l2Cache1 = numa1["children"][sL2Cache];
+                    const json &l2Cache2 = numa2["children"][sL2Cache];
 
                     ut::expect(ut::that % l2Cache1["type"].get<std::string>() == l2Cache2["type"].get<std::string>());
                     ut::expect(ut::that % l2Cache1["cacheType"].get<std::string>() == l2Cache2["cacheType"].get<std::string>());
@@ -134,8 +135,8 @@ static ut::suite<"json"> _ = []
                     ut::expect(ut::that % l2Cache1["children"].size() == 1U);
                     ut::expect(ut::that % l2Cache2["children"].size() == 1U);
 
-                    const nlohmann::json &l1Cache1 = l2Cache1["children"][0];
-                    const nlohmann::json &l1Cache2 = l2Cache2["children"][0];
+                    const json &l1Cache1 = l2Cache1["children"][0];
+                    const json &l1Cache2 = l2Cache2["children"][0];
 
                     ut::expect(ut::that % l1Cache1["type"].get<std::string>() == l1Cache2["type"].get<std::string>());
                     ut::expect(ut::that % l1Cache1["cacheType"].get<std::string>() == l1Cache2["cacheType"].get<std::string>());
@@ -145,15 +146,15 @@ static ut::suite<"json"> _ = []
                     ut::expect(ut::that % l1Cache1["children"].size() == 1U);
                     ut::expect(ut::that % l1Cache2["children"].size() == 1U);
 
-                    const nlohmann::json &core1 = l1Cache1["children"][0];
-                    const nlohmann::json &core2 = l1Cache2["children"][0];
+                    const json &core1 = l1Cache1["children"][0];
+                    const json &core2 = l1Cache2["children"][0];
 
                     ut::expect(ut::that % core1["type"].get<std::string>() == core2["type"].get<std::string>());
                     ut::expect(ut::that % core1["children"].size() == 1U);
                     ut::expect(ut::that % core2["children"].size() == 1U);
 
-                    const nlohmann::json &hwThread1 = core1["children"][0];
-                    const nlohmann::json &hwThread2 = core2["children"][0];
+                    const json &hwThread1 = core1["children"][0];
+                    const json &hwThread2 = core2["children"][0];
 
                     ut::expect(ut::that % hwThread1["type"].get<std::string>() == hwThread2["type"].get<std::string>());
                 }
@@ -175,7 +176,7 @@ static ut::suite<"json"> _ = []
         rel.AddComponent(&comp1);
         rel.AddComponent(&comp2);
 
-        nlohmann::json relJson = nlohmann::json(&rel);
+        json relJson = json(&rel);
         ut::expect(ut::that % relJson["type"].get<std::string>() == "Relation"sv);
         ut::expect(ut::that % relJson["category"].get<RelationCategory::type>() == RelationCategory::Default);
         ut::expect(ut::that % relJson["ordered"].get<bool>() == true);

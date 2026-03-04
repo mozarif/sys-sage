@@ -11,11 +11,12 @@
 #include <queue>
 
 using namespace sys_sage;
+using json = nlohmann::ordered_json;
 
 static void DumpAttributes(const json &obj) { /* TODO */ }
 static void LoadAttributes(const json &obj) { /* TODO */ }
 
-static Component *ComponentFromJson(const nlohmann::json &obj,
+static Component *ComponentFromJson(const json &obj,
                                     std::unordered_map<uintptr_t, Component *> &componentMap)
 {
     Component *component;
@@ -30,7 +31,7 @@ static Component *ComponentFromJson(const nlohmann::json &obj,
     return component;
 }
 
-static Relation *RelationFromJson(const nlohmann::json &obj,
+static Relation *RelationFromJson(const json &obj,
                                   const std::unordered_map<uintptr_t, Component *> &componentMap)
 {
     Relation *relation;
@@ -75,14 +76,14 @@ static void CollectComponentsInSubtree(const Component *root,
     } while (queue.empty());
 }
 
-void sys_sage::DumpJson(const Component *component, nlohmann::json &obj)
+void sys_sage::DumpJson(const Component *component, json &obj)
 {
     obj["componentTree"] = component;
 
     std::unordered_set<const Component *> componentsInSubtree;
     CollectComponentsInSubtree(component, componentsInSubtree);
 
-    std::vector<nlohmann::json> relationSubgraph;
+    std::vector<json> relationSubgraph;
 
     for (auto comp : componentsInSubtree) {
         for (auto relationType : RelationType::RelationTypeList) {
@@ -113,7 +114,7 @@ void sys_sage::DumpJson(const Component *component, nlohmann::json &obj)
 int sys_sage::DumpJson(const Component *component,
                        const std::filesystem::path &path)
 {
-    nlohmann::json obj;
+    json obj;
     DumpJson(component, obj);
 
     if (path.empty()) {
@@ -130,7 +131,7 @@ int sys_sage::DumpJson(const Component *component,
     return 0;
 }
 
-Component *sys_sage::LoadJson(const nlohmann::json &obj)
+Component *sys_sage::LoadJson(const json &obj)
 {
     std::unordered_map<uintptr_t, Component *> componentMap;
 
@@ -162,12 +163,12 @@ Component *sys_sage::LoadJson(const std::filesystem::path &path)
     return LoadJson(obj);
 }
 
-void sys_sage::to_json(nlohmann::json &obj, const Component *component)
+void sys_sage::to_json(json &obj, const Component *component)
 {
     component->_ToJson(obj);
 }
 
-void sys_sage::from_json(const nlohmann::json &obj, Component *&component)
+void sys_sage::from_json(const json &obj, Component *&component)
 {
     std::string componentType = obj["type"].get<std::string>();
     if (componentType == "GenericComponent") {
@@ -210,18 +211,16 @@ void sys_sage::from_json(const nlohmann::json &obj, Component *&component)
     }
 }
 
-void sys_sage::to_json(nlohmann::json &obj, const Relation *relation)
+void sys_sage::to_json(json &obj, const Relation *relation)
 {
     relation->_ToJson(obj);
 }
 
 void sys_sage::Component::_ToJson(json &obj) const
 {
-    obj = json{
-        { "type", GetComponentTypeStr() },
-        { "id", id },
-        { "address", reinterpret_cast<uintptr_t>(this) }
-    };
+    obj["type"] = GetComponentTypeStr();
+    obj["id"] = id;
+    obj["address"] = reinterpret_cast<uintptr_t>(this);
 
     DumpAttributes(obj);
 
@@ -236,7 +235,7 @@ void sys_sage::Component::_ToJson(json &obj) const
     }
 }
 
-int sys_sage::Component::_FromJson(const nlohmann::json &obj)
+int sys_sage::Component::_FromJson(const json &obj)
 {
     obj["id"].get_to<int>(id);
 
@@ -258,12 +257,10 @@ int sys_sage::Component::_FromJson(const nlohmann::json &obj)
 
 void sys_sage::Relation::_ToJson(json &obj) const
 {
-    obj = json{
-        { "type", GetTypeStr() },
-        { "category", category },
-        { "id", id },
-        { "ordered", ordered }
-    };
+    obj["type"] = GetTypeStr();
+    obj["category"] = category;
+    obj["id"] = id;
+    obj["ordered"] = ordered;
 
     // use the memory addresses for unique identification
     std::vector<uintptr_t> addresses (components.size());
@@ -276,7 +273,7 @@ void sys_sage::Relation::_ToJson(json &obj) const
     DumpAttributes(obj);
 }
 
-int sys_sage::Relation::_FromJson(const nlohmann::json &obj,
+int sys_sage::Relation::_FromJson(const json &obj,
                                   const std::unordered_map<uintptr_t, Component *> &componentMap)
 {
     components.clear();
@@ -303,8 +300,6 @@ int sys_sage::Relation::_FromJson(const nlohmann::json &obj,
 
 void sys_sage::AtomSite::_ToJson(json &obj) const
 {
-    QuantumBackend::_ToJson(obj);
-
     obj["SiteProperties"] = {
         { "nRows", properties.nRows },
         { "nColumns", properties.nColumns },
@@ -315,14 +310,12 @@ void sys_sage::AtomSite::_ToJson(json &obj) const
         { "interactionRadius", properties.interactionRadius },
         { "blockingFactor", properties.blockingFactor }
     };
+
+    QuantumBackend::_ToJson(obj);
 }
 
 int sys_sage::AtomSite::_FromJson(const json &obj)
 {
-    int rval = QuantumBackend::_FromJson(obj);
-    if (rval)
-        return 1;
-
     obj["SiteProperties"]["nRows"].get_to<int>(properties.nRows);
     obj["SiteProperties"]["nColumns"].get_to<int>(properties.nColumns);
     obj["SiteProperties"]["nAods"].get_to<int>(properties.nAods);
@@ -332,13 +325,16 @@ int sys_sage::AtomSite::_FromJson(const json &obj)
     obj["SiteProperties"]["interactionRadius"].get_to<double>(properties.interactionRadius);
     obj["SiteProperties"]["blockingFactor"].get_to<double>(properties.blockingFactor);
 
+    int rval = QuantumBackend::_FromJson(obj);
+    if (rval)
+        return 1;
+
+
     return 0;
 }
 
 void sys_sage::Cache::_ToJson(json &obj) const
 {
-    Component::_ToJson(obj);
-
     obj["cacheType"] = cache_type;
     if (cache_size > 0)
         obj["cacheSize"] = cache_size;
@@ -346,14 +342,12 @@ void sys_sage::Cache::_ToJson(json &obj) const
         obj["cacheAssociativityWays"] = cache_associativity_ways;
     if (cache_line_size > 0)
         obj["cacheLineSize"] = cache_line_size;
+
+    Component::_ToJson(obj);
 }
 
 int sys_sage::Cache::_FromJson(const json &obj)
 {
-    int rval = Component::_FromJson(obj);
-    if (rval)
-        return 1;
-
     obj["cacheType"].get_to<std::string>(cache_type);
     if (auto it = obj.find("cacheSize"); it != obj.end())
         it->get_to<long long>(cache_size);
@@ -362,120 +356,124 @@ int sys_sage::Cache::_FromJson(const json &obj)
     if (auto it = obj.find("cacheLineSize"); it != obj.end())
         it->get_to<int>(cache_line_size);
 
+    int rval = Component::_FromJson(obj);
+    if (rval)
+        return 1;
+
     return 0;
 }
 
 void sys_sage::Chip::_ToJson(json &obj) const
 {
-    Component::_ToJson(obj);
-
     obj["chipType"] = type;
     if (!vendor.empty())
         obj["vendor"] = vendor;
     if (!model.empty())
         obj["model"] = model;
+
+    Component::_ToJson(obj);
 }
 
 int sys_sage::Chip::_FromJson(const json &obj)
 {
-    int rval = Component::_FromJson(obj);
-    if (rval)
-        return 1;
-
     obj["chipType"].get_to<ChipType::type>(type);
     if (auto it = obj.find("vendor"); it != obj.end())
         it->get_to<std::string>(vendor);
     if (auto it = obj.find("model"); it != obj.end())
         it->get_to<std::string>(model);
 
+    int rval = Component::_FromJson(obj);
+    if (rval)
+        return 1;
+
     return 0;
 }
 
 void sys_sage::Core::_ToJson(json &obj) const
 {
-    Component::_ToJson(obj);
-
 #ifdef PROC_CPUINFO
     obj["frequency"] = freq;
 #endif
+
+    Component::_ToJson(obj);
 }
 
 int sys_sage::Core::_FromJson(const json &obj)
 {
-    int rval = Component::_FromJson(obj);
-    if (rval)
-        return 1;
-
 #ifdef PROC_CPUINFO
     if (auto it = obj.find("frequency"); it != obj.end())
       it->get_to<double>(freq);
 #endif
+
+    int rval = Component::_FromJson(obj);
+    if (rval)
+        return 1;
 
     return 0;
 }
 
 void sys_sage::CouplingMap::_ToJson(json &obj) const
 {
-    Relation::_ToJson(obj);
-
     obj["fidelity"] = fidelity;
+
+    Relation::_ToJson(obj);
 }
 
 int sys_sage::CouplingMap::_FromJson(const json &obj,
                                      const std::unordered_map<uintptr_t, Component *> &componentMap)
 {
+    obj["fidelity"].get_to<double>(fidelity);
+
     int rval = Relation::_FromJson(obj, componentMap);
     if (rval)
         return 1;
-
-    obj["fidelity"].get_to<double>(fidelity);
 
     return 0;
 }
 
 void sys_sage::DataPath::_ToJson(json &obj) const
 {
-    Relation::_ToJson(obj);
-
     obj["dataPathType"] = dp_type;
     obj["bandwidth"] = bw;
     obj["latency"] = latency;
+
+    Relation::_ToJson(obj);
 }
 
 int sys_sage::DataPath::_FromJson(const json &obj,
                                   const std::unordered_map<uintptr_t, Component *> &componentMap)
 {
-    int rval = Relation::_FromJson(obj, componentMap);
-    if (rval)
-        return 1;
-
     obj["dataPathType"].get_to<DataPathType::type>(dp_type);
     obj["bandwidth"].get_to<double>(bw);
     obj["latency"].get_to<double>(latency);
+
+    int rval = Relation::_FromJson(obj, componentMap);
+    if (rval)
+        return 1;
 
     return 0;
 }
 
 void sys_sage::Memory::_ToJson(json &obj) const
 {
-    Component::_ToJson(obj);
-
     obj["volatile"] = is_volatile;
     if (size > 0)
         obj["size"] = size;
+
+    Component::_ToJson(obj);
 }
 
 int sys_sage::Memory::_FromJson(const json &obj)
 {
-    int rval = Component::_FromJson(obj);
-    if (rval)
-        return 1;
-    
     obj["volatile"].get_to<bool>(is_volatile);
 
     if (auto it = obj.find("size"); it != obj.end())
         it->get_to<long long>(size);
 
+    int rval = Component::_FromJson(obj);
+    if (rval)
+        return 1;
+    
     return 0;
 }
 
@@ -491,61 +489,57 @@ int sys_sage::Node::_FromJson(const json &obj)
 
 void sys_sage::Numa::_ToJson(json &obj) const
 {
-    Subdivision::_ToJson(obj);
-
     if (size > 0)
         obj["size"] = size;
+
+    Subdivision::_ToJson(obj);
 }
 
 int sys_sage::Numa::_FromJson(const json &obj)
 {
+    if (auto it = obj.find("size"); it != obj.end())
+        it->get_to<long long>(size);
+
     int rval = Subdivision::_FromJson(obj);
     if (rval)
         return 1;
-
-    if (auto it = obj.find("size"); it != obj.end())
-        it->get_to<long long>(size);
 
     return 0;
 }
 
 void sys_sage::QuantumBackend::_ToJson(json &obj) const
 {
-    Component::_ToJson(obj);
-
     obj["numQubits"] = num_qubits;
+
+    Component::_ToJson(obj);
 }
 
 int sys_sage::QuantumBackend::_FromJson(const json &obj)
 {
+    obj["numQubits"].get_to<int>(num_qubits);
+
     int rval = Component::_FromJson(obj);
     if (rval)
         return 1;
-
-    obj["numQubits"].get_to<int>(num_qubits);
 
     return 0;
 }
 
 void sys_sage::QuantumGate::_ToJson(json &obj) const
 {
-    Relation::_ToJson(obj);
-
     obj["gateSize"] = gate_size;
     obj["name"] = name;
     obj["gateLength"] = gate_length;
     obj["gateType"] = gate_type;
     obj["fidelity"] = fidelity;
     obj["unitary"] = unitary;
+
+    Relation::_ToJson(obj);
 }
 
 int sys_sage::QuantumGate::_FromJson(const json &obj,
                                      const std::unordered_map<uintptr_t, Component *> &componentMap)
 {
-    int rval = Relation::_FromJson(obj, componentMap);
-    if (rval)
-        return 1;
-
     obj["gateSize"].get_to<size_t>(gate_size);
     obj["name"].get_to<std::string>(name);
     obj["gateLength"].get_to<int>(gate_length);
@@ -553,69 +547,73 @@ int sys_sage::QuantumGate::_FromJson(const json &obj,
     obj["fidelity"].get_to<double>(fidelity);
     obj["unitary"].get_to<std::string>(unitary);
 
+    int rval = Relation::_FromJson(obj, componentMap);
+    if (rval)
+        return 1;
+
     return 0;
 }
 
 void sys_sage::Qubit::_ToJson(json &obj) const
 {
-    Component::_ToJson(obj);
-
     obj["q1Fidelity"] = q1_fidelity;
     obj["t1"] = t1;
     obj["t2"] = t2;
     obj["readoutFidelity"] = readout_fidelity;
     obj["readoutLength"] = readout_length;
+
+    Component::_ToJson(obj);
 }
 
 int sys_sage::Qubit::_FromJson(const json &obj)
 {
-    int rval = Component::_FromJson(obj);
-    if (rval)
-        return 1;
-
     obj["q1Fidelity"].get_to<double>(q1_fidelity);
     obj["t1"].get_to<double>(t1);
     obj["t2"].get_to<double>(t2);
     obj["readoutFidelity"].get_to<double>(readout_fidelity);
     obj["readoutLength"].get_to<double>(readout_length);
 
+    int rval = Component::_FromJson(obj);
+    if (rval)
+        return 1;
+
     return 0;
 }
 
 void sys_sage::Storage::_ToJson(json &obj) const
 {
-    Component::_ToJson(obj);
-
     if (size > 0)
         obj["size"] = size;
+
+    Component::_ToJson(obj);
 }
 
 int sys_sage::Storage::_FromJson(const json &obj)
 {
+    if (auto it = obj.find("size"); it != obj.end())
+        it->get_to<long long>(size);
+
     int rval = Component::_FromJson(obj);
     if (rval)
         return 1;
-
-    if (auto it = obj.find("size"); it != obj.end())
-        it->get_to<long long>(size);
 
     return 0;
 }
 
 void sys_sage::Subdivision::_ToJson(json &obj) const
 {
-    Component::_ToJson(obj);
-
     obj["subdivisionType"] = type;
+
+    Component::_ToJson(obj);
 }
 
 int sys_sage::Subdivision::_FromJson(const json &obj)
 {
+    obj["subdivisionType"].get_to<SubdivisionType::type>(type);
+
     int rval = Component::_FromJson(obj);
     if (rval)
         return 1;
-
-    obj["subdivisionType"].get_to<SubdivisionType::type>(type);
 
     return 0;
 }

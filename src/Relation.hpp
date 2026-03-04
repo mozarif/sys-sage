@@ -190,7 +190,7 @@ namespace sys_sage {
          *
          * @param obj The JSON object to be initialized.
          */
-        virtual void _ToJson(nlohmann::json &obj) const;
+        virtual void _ToJson(nlohmann::ordered_json &obj) const;
 
         /**
          * @private
@@ -203,7 +203,7 @@ namespace sys_sage {
          *
          * @return 0 on success, 1 otherwise.
          */
-        virtual int _FromJson(const nlohmann::json &obj,
+        virtual int _FromJson(const nlohmann::ordered_json &obj,
                               const std::unordered_map<uintptr_t, Component *> &componentMap);
 
         /**
