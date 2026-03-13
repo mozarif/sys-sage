@@ -103,9 +103,11 @@ namespace sys_sage {
 
     /**
      * @namespace RelationType
-     * @brief Enumerates all supported relation types in sys-sage.
+     * @brief Enumerates all supported relation types (different data types) in sys-sage.
      *
-     * Used to distinguish between different types of relations (edges) in the topology graph.
+     * It marks the data type of the relation (e.g. sys_sage::Relation,
+     * sys_sage::DataPath, sys_sage::CouplingMap, ...) -- each relation type has
+     * different attributes, functionalities and API.
      */
     namespace RelationType{
         using type = int32_t; /**< RelationType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
@@ -148,7 +150,18 @@ namespace sys_sage {
     }
 
     /**
-     * @brief Enumerates all supported relation categories in sys-sage.
+     * @brief Enumerates all supported relation categories (standalone attribute,
+     *        not to confuse with `RelationType`) in sys-sage.
+     *
+     * Due to the high versatility of the `Relation` class and the numerous ways
+     * in which components can be related to one another, sys-sage provides the
+     * means for distingishing different information carried and represented by
+     * relations (e.g. performance metrics collection). As opposed to
+     * `RelationType`, `RelationCategory` has no connection to the data type,
+     * but instead expresses what information this object carries.
+     *
+     * Users can extend the `RelationCategoty` namespace to define their own
+     * categories, reflecting the various use-case-specific objects.
      */
     namespace RelationCategory {
         using type = int32_t; /**< RelationCategory datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
