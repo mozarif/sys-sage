@@ -849,3 +849,43 @@ sys_sage::Component::Component(Component * parent, int _id, std::string _name, C
 }
 sys_sage::Component::Component(int _id, std::string _name): Component(_id, _name, sys_sage::ComponentType::Generic) {}
 sys_sage::Component::Component(Component * parent, int _id, std::string _name): Component(parent, _id, _name, sys_sage::ComponentType::Generic) {}
+
+sys_sage::Component::attribSizeType sys_sage::Component::AttributesSize() const
+{
+    return attributes.size();
+}
+
+sys_sage::Component::attribIterator sys_sage::Component::AttributesBegin()
+{
+    return attributes.begin();
+}
+
+sys_sage::Component::constAttribIterator sys_sage::Component::AttributesBegin() const
+{
+    return attributes.begin();
+}
+
+sys_sage::Component::attribIterator sys_sage::Component::AttributesEnd()
+{
+    return attributes.end();
+}
+
+sys_sage::Component::constAttribIterator sys_sage::Component::AttributesEnd() const
+{
+    return attributes.end();
+}
+
+void sys_sage::Component::EraseAttribute(const std::string &key)
+{
+    attributes.erase(key);
+}
+
+sys_sage::Component::attribIterator sys_sage::Component::EraseAttribute(Component::attribIterator it)
+{
+    return attributes.erase(it);
+}
+
+void sys_sage::Component::ClearAttributes()
+{
+    attributes.clear();
+}

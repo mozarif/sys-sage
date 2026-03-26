@@ -3,13 +3,19 @@
 
 #include <array>
 #include <iostream>
-#include <vector>
 #include <map>
+#include <memory>
 #include <set>
+#include <string>
+#include <typeinfo>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 #include "defines.hpp"
 #include "enums.hpp"
 #include "DataPath.hpp"
+#include "attribute.hpp"
 #include <libxml/parser.h>
 
 
@@ -744,6 +750,36 @@ namespace sys_sage {
         void FindPAPIrelationsInSubtree(std::vector<Relation *> &papiRelations) const;
 #endif
 
+        using attribIterator = std::map<std::string, std::unique_ptr<IAttribute>>::iterator;
+        using constAttribIterator = std::map<std::string, std::unique_ptr<IAttribute>>::const_iterator;
+        using attribSizeType = std::map<std::string, std::unique_ptr<IAttribute>>::size_type;
+
+        template <typename T>
+        void SetAttribute(const std::string &key, T &&value);
+
+        template <typename T>
+        T *GetAttribute(const std::string &key);
+        template <typename T>
+        const T *GetAttribute(const std::string &key) const;
+
+        template <typename T>
+        T *GetAttribute(attribIterator it);
+        template <typename T>
+        const T *GetAttribute(constAttribIterator it) const;
+
+        attribSizeType AttributesSize() const;
+
+        attribIterator AttributesBegin();
+        constAttribIterator AttributesBegin() const;
+
+        attribIterator AttributesEnd();
+        constAttribIterator AttributesEnd() const;
+
+        void EraseAttribute(const std::string &key);
+        attribIterator EraseAttribute(attribIterator it);
+
+        void ClearAttributes();
+
         /**
         * A map for storing arbitrary pieces of information or data.
         * - The `key` denotes the name of the attribute.
@@ -855,7 +891,15 @@ namespace sys_sage {
          * Each element of the array is a pointer to a std::vector<Relation*> that contains all Relations of that type. (also lazy-allocated)
          */
         std::array<std::vector<Relation*>*, RelationType::_num_relation_types>* relations = nullptr;
+
+        /**
+         * The attributes map.
+         */
+        std::map<std::string, std::unique_ptr<IAttribute>> attributes;
     };
 
 } //namespace sys_sage 
+
+#include "Component.inl"
+
 #endif //COMPONENT_HPP

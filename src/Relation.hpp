@@ -15,10 +15,18 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <string>
+#include <memory>
+#include <string>
+#include <typeinfo>
+#include <type_traits>
+#include <map>
+#include <utility>
 #include <libxml/parser.h>
 
 #include "defines.hpp"
 #include "enums.hpp"
+#include "attribute.hpp"
 
 namespace sys_sage { //forward declaration
     class Component;
@@ -282,6 +290,36 @@ namespace sys_sage {
         int GetLatestCpuNum() const;
 #endif
 
+        using attribIterator = std::map<std::string, std::unique_ptr<IAttribute>>::iterator;
+        using constAttribIterator = std::map<std::string, std::unique_ptr<IAttribute>>::const_iterator;
+        using attribSizeType = std::map<std::string, std::unique_ptr<IAttribute>>::size_type;
+
+        template <typename T>
+        void SetAttribute(const std::string &key, T &&value);
+
+        template <typename T>
+        T *GetAttribute(const std::string &key);
+        template <typename T>
+        const T *GetAttribute(const std::string &key) const;
+
+        template <typename T>
+        T *GetAttribute(attribIterator it);
+        template <typename T>
+        const T *GetAttribute(constAttribIterator it) const;
+
+        attribSizeType AttributesSize() const;
+
+        attribIterator AttributesBegin();
+        constAttribIterator AttributesBegin() const;
+
+        attribIterator AttributesEnd();
+        constAttribIterator AttributesEnd() const;
+
+        void EraseAttribute(const std::string &key);
+        attribIterator EraseAttribute(attribIterator it);
+
+        void ClearAttributes();
+
     protected:
         /**
          * @private
@@ -328,6 +366,11 @@ namespace sys_sage {
          * the relationship.
          */
         std::vector<Component*> components;
+
+        /**
+         * @brief The attributes map.
+         */
+        std::map<std::string, std::unique_ptr<IAttribute>> attributes;
 
     public:
         /**
@@ -406,4 +449,7 @@ namespace sys_sage {
     };
 
 }
+
+#include "Relation.inl"
+
 #endif //RELATION_HPP

@@ -130,3 +130,43 @@ int sys_sage::Relation::RemoveComponent(size_t index)
 
     return 0;
 }
+
+sys_sage::Relation::attribSizeType sys_sage::Relation::AttributesSize() const
+{
+    return attributes.size();
+}
+
+sys_sage::Relation::attribIterator sys_sage::Relation::AttributesBegin()
+{
+    return attributes.begin();
+}
+
+sys_sage::Relation::constAttribIterator sys_sage::Relation::AttributesBegin() const
+{
+    return attributes.begin();
+}
+
+sys_sage::Relation::attribIterator sys_sage::Relation::AttributesEnd()
+{
+    return attributes.end();
+}
+
+sys_sage::Relation::constAttribIterator sys_sage::Relation::AttributesEnd() const
+{
+    return attributes.end();
+}
+
+void sys_sage::Relation::EraseAttribute(const std::string &key)
+{
+    attributes.erase(key);
+}
+
+sys_sage::Relation::attribIterator sys_sage::Relation::EraseAttribute(Relation::attribIterator it)
+{
+    return attributes.erase(it);
+}
+
+void sys_sage::Relation::ClearAttributes()
+{
+    attributes.clear();
+}
