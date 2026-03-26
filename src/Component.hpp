@@ -750,34 +750,139 @@ namespace sys_sage {
         void FindPAPIrelationsInSubtree(std::vector<Relation *> &papiRelations) const;
 #endif
 
+        /**
+         * @brief Iterator type for attributes iteration.
+         */
         using attribIterator = std::map<std::string, std::unique_ptr<IAttribute>>::iterator;
+
+        /**
+         * @brief Constant iterator type for attributes iteration.
+         */
         using constAttribIterator = std::map<std::string, std::unique_ptr<IAttribute>>::const_iterator;
+
+        /**
+         * @brief Size type for estimating the number of stored attributes.
+         */
         using attribSizeType = std::map<std::string, std::unique_ptr<IAttribute>>::size_type;
 
+        /**
+         * @brief Inserts an attribute using a key-value-pair.
+         *
+         * @param key The key that is associated to the attribute.
+         * @param value The value of the attribute.
+         */
         template <typename T>
         void SetAttribute(const std::string &key, T &&value);
 
+        /**
+         * @brief Retrieves the stored value of the attribute that is being
+         *        associated to the given key.
+         *
+         * @param key The key that is associated to the attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         attribute. May be `nullptr` if no attribute is associated to
+         *         the given key or the requested type doesn't match the stored
+         *         type.
+         */
         template <typename T>
         T *GetAttribute(const std::string &key);
+
+        /**
+         * @brief Retrieves the stored value of the constant attribute that is
+         *        being associated to the given key.
+         *
+         * @param key The key that is associated to the constant attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         constant attribute. May be `nullptr` if no attribute is
+         *         associated to the given key or the requested type doesn't
+         *         match the stored type.
+         */
         template <typename T>
         const T *GetAttribute(const std::string &key) const;
 
+        /**
+         * @brief Retrieves the stored value of the attribute iterator.
+         *
+         * @param key The iterator of the attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         attribute. May be `nullptr` if no attribute is associated to
+         *         the given key or the requested type doesn't match the stored
+         *         type.
+         */
         template <typename T>
         T *GetAttribute(attribIterator it);
+
+        /**
+         * @brief Retrieves the stored value of the constant attribute iterator.
+         *
+         * @param key The iterator of the constant attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         constant attribute. May be `nullptr` if no attribute is
+         *         associated to the given key or the requested type doesn't
+         *         match the stored type.
+         */
         template <typename T>
         const T *GetAttribute(constAttribIterator it) const;
 
+        /**
+         * @brief Returns the number of stored attributes.
+         *
+         * @return The respective size.
+         */
         attribSizeType AttributesSize() const;
 
+        /**
+         * @brief Returns an iterator to the beginning of the attributes.
+         *
+         * @return The iterator of the first attribute.
+         */
         attribIterator AttributesBegin();
+
+        /**
+         * @brief Returns an iterator to the beginning of the constant
+         *        attributes.
+         *
+         * @return The iterator of the first constant attribute.
+         */
         constAttribIterator AttributesBegin() const;
 
+        /**
+         * @brief Returns an iterator to the end of the attributes.
+         *
+         * @return The iterator of the last attribute.
+         */
         attribIterator AttributesEnd();
+
+        /**
+         * @brief Returns an iterator to the end of the constant attributes.
+         *
+         * @return The iterator of the last constant attribute.
+         */
         constAttribIterator AttributesEnd() const;
 
+        /**
+         * @brief Removes the attribute that is associated to the given key.
+         *
+         * @param key The key that is associated to the attribute.
+         */
         void EraseAttribute(const std::string &key);
+
+        /**
+         * @brief Removes the attribute of the given iterator.
+         *
+         * @param key The iterator of the attribute.
+         *
+         * @return The iterator to the next attribute.
+         */
         attribIterator EraseAttribute(attribIterator it);
 
+        /**
+         * @brief Removes all attributes.
+         */
         void ClearAttributes();
 
         /**
