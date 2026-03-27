@@ -51,7 +51,7 @@ sys_sage::Component* sys_sage::createChildC(string type, xmlNode* node)
     {
         s = xmlGetPropStr(node, "os_index");
         int id = stoi(s.empty()?"0":s);
-        c = new Chip(id, "socket", sys_sage::ChipType::CpuSocket);
+        c = new Chip(id, "socket", sys_sage::ChipCategory::CpuSocket);
     }
     else if(!type.compare("Cache") || !type.compare("L3Cache") || !type.compare("L2Cache") || !type.compare("L1Cache"))
     {

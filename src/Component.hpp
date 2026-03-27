@@ -528,13 +528,13 @@ namespace sys_sage {
         void _AddRelation(RelationType::type relationType, Relation* r);
 
         /**
-         * @brief Retrieves a DataPath* from the list of this component's data paths with matching DataPathType and DataPathDirection.
+         * @brief Retrieves a DataPath* from the list of this component's data paths with matching DataPathCategory and DataPathDirection.
          * The first match is returned.
          * @param dp_type DataPath type to search for
          * @param direction Orientation (default: Any)
          * @return Pointer to the found DataPath, or nullptr if not found
          */
-        DataPath* GetDataPathByType(DataPathType::type dp_type, DataPathDirection::type direction = DataPathDirection::Any) const;
+        DataPath* GetDataPathByType(DataPathCategory::type dp_type, DataPathDirection::type direction = DataPathDirection::Any) const;
         
         /**
          * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation.
@@ -546,7 +546,7 @@ namespace sys_sage {
          * @param direction Orientation/direction of a DataPath (default: Any)
          */
         [[ deprecated("Use FindDataPaths instead. This function will be removed in the future (used up until version 1.0.0).") ]]
-        void GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        void GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathCategory::type dp_type = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
          * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation.
@@ -557,7 +557,7 @@ namespace sys_sage {
          * @param dp_type DataPath type to search for (default: Any)
          * @param direction Orientation/direction of a DataPath (default: Any)
          */
-        void FindDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        void FindDataPaths(std::vector<DataPath*>* outDpArr, DataPathCategory::type dp_type = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
          * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation/direction.
@@ -567,7 +567,7 @@ namespace sys_sage {
          * @return Vector of matching DataPaths
          */
         [[ deprecated("Use FindDataPaths instead. This function will be removed in the future (used up until version 1.0.0).") ]]
-        std::vector<DataPath*> GetAllDataPaths(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        std::vector<DataPath*> GetAllDataPaths(DataPathCategory::type dp_type = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
          * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation/direction.
@@ -576,7 +576,7 @@ namespace sys_sage {
          * @param direction Orientation (default: Any)
          * @return Vector of matching DataPaths
          */
-        std::vector<DataPath*> FindDataPaths(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        std::vector<DataPath*> FindDataPaths(DataPathCategory::type dp_type = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
         @brief Checks the consistency of the component tree starting from this component.

@@ -7,6 +7,6 @@ sys_sage::Subdivision::Subdivision(int _id, std::string _name): Component(_id, _
 sys_sage::Subdivision::Subdivision(Component * parent, int _id, std::string _name): Component(parent, _id, _name, sys_sage::ComponentType::Subdivision) { }
 
 
-//SVTODO should Subdivisiontype be settable?
-void sys_sage::Subdivision::SetSubdivisionType(sys_sage::SubdivisionType::type subdivisionType){type = subdivisionType;}
-sys_sage::SubdivisionType::type sys_sage::Subdivision::GetSubdivisionType() const {return type;}
+//SVTODO should SubdivisionCategory be settable?
+void sys_sage::Subdivision::SetSubdivisionCategory(sys_sage::SubdivisionCategory::type subdivisionCategory){category = subdivisionCategory;}
+sys_sage::SubdivisionCategory::type sys_sage::Subdivision::GetSubdivisionCategory() const {return category;}
