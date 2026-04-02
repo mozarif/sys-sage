@@ -61,6 +61,18 @@ namespace sys_sage {
          * Sets componentType to sys_sage::ComponentType::Generic.
          */
         Component(Component * parent, int _id = 0, std::string _name = "unknown");
+
+        /**
+         * @brief Prohibit shallow copies by deleting the implicit copy constructor.
+         */
+        Component(const Component &) = delete;
+
+        /**
+         * @brief Prohibit shallow copies by deleting the implicit copy
+         *        assignment operator.
+         */
+        Component &operator=(const Component &) = delete;
+
         //SVTODO reevaluate the delete vs destructor
         /**
          * @private

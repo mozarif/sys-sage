@@ -65,6 +65,18 @@ namespace sys_sage {
          */
         Relation(const std::vector<Component*>& components, int _id = 0, bool _ordered = true,
                  RelationCategory::type category = RelationCategory::Default);
+
+        /**
+         * @brief Prohibit shallow copies by deleting the implicit copy constructor.
+         */
+        Relation(const Relation &) = delete;
+
+        /**
+         * @brief Prohibit shallow copies by deleting the implicit copy
+         *        assignment operator.
+         */
+        Relation &operator=(const Relation &) = delete;
+
         /**
          * @brief Sets the id of the relationship.
          * @param _id The id of the relationship to set.
