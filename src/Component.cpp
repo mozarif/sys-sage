@@ -21,22 +21,6 @@
 #include <algorithm>
 #include <csignal>
 
-// Component::~Component() { 
-//     DeleteAllDataPaths();
-//     if(GetParent() != NULL)
-//         GetParent()->RemoveChild(this);
-//     else{
-//         while(children.size() > 0)
-//         {
-//             RemoveChild(children[0]);
-//             children[0]->SetParent(NULL);
-//         }
-//     }
-//     for(auto& pair : this->attrib){
-//         //TODO: delete attribs somehow
-//     }
-//  }
-
 using std::string;
 using std::vector;
 using std::cout;
@@ -725,23 +709,9 @@ int sys_sage::Component::CalcDepth(bool refresh)
 
 void sys_sage::Component::DeleteRelation(Relation * r)
 {
-    int32_t rt = r->GetType();
-    if(rt == RelationType::Relation)
-        r->Delete();
-    else if(rt == RelationType::DataPath){
-        DataPath* dp = reinterpret_cast<DataPath*>(r);
-        dp->Delete();
-    } else if(rt == RelationType::QuantumGate){
-        QuantumGate* qg = reinterpret_cast<QuantumGate*>(r);
-        qg->Delete();
-    } else if(rt == RelationType::CouplingMap){
-        CouplingMap* cm = reinterpret_cast<CouplingMap*>(r);
-        cm->Delete();
-    } else{ //this should never happen
-        std::cout << "ERROR void sys_sage::Component::DeleteRelation(Relation * r)" << std::endl;
-        exit(1);
-    }    
+    delete r; // maybe remove this method?
 }
+
 
 void sys_sage::Component::DeleteAllRelations(RelationType::type relationType)
 {
@@ -750,20 +720,24 @@ void sys_sage::Component::DeleteAllRelations(RelationType::type relationType)
 
 void sys_sage::Component::DeleteRelations(RelationType::type relationType)
 {
+    if (!relations) // no relations
+        return;
+
     for(RelationType::type rt : RelationType::RelationTypeList)
     {
         if(relationType == RelationType::Any || relationType == rt)
         {
-            while(true)
+            std::vector<Relation *> *rel = (*relations)[rt];
+            if(!rel) // no relation of that specific type
+                continue;
+
+            while(rel->size() > 0)
             {
-                vector<Relation*> vec_r = GetRelationsByType(rt);
-                if(vec_r.size() > 0)
-                {
-                    DeleteRelation(vec_r[0]);
-                }
-                else
-                    break;
+                delete rel->back(); // it might be faster to remove from behind
             }
+
+            delete rel;
+            (*relations)[rt] = nullptr; // mark as deleted
         }
     }
 }
@@ -779,49 +753,27 @@ void sys_sage::Component::DeleteAllDataPaths()
     DeleteRelations(RelationType::DataPath);
 }
 
-void sys_sage::Component::DeleteSubtree() const
+void sys_sage::Component::DeleteSubtree()
 {
     while(children.size() > 0)
     {       
-        children[0]->Delete(true); // Recursively free children
+        children.back()->DeleteSubtree(); // it might be faster to remove from behind
     }
-    return;
+
+    delete this;
 }
 
-void sys_sage::Component::Delete(bool withSubtree)
+sys_sage::Component::~Component()
 {
-    // Delete subtree and all data paths
-    if (withSubtree)
-    {
-        DeleteSubtree();
-    }
+    if (parent)
+        parent->RemoveChild(this);
+    for (auto child : children)
+        child->SetParent(nullptr);
 
-    DeleteRelations();
-    
-    //Free all the children
-    if(GetParent()!= NULL) 
-    {
-        Component *myParent = GetParent();
-        myParent->RemoveChild(this);
-        if (!withSubtree)
-        {
-            for(Component* child: children)
-            {   
-                child->SetParent(myParent);
-                myParent->InsertChild(child);
-            }
-        }    
+    if (relations) {
+        DeleteRelations();
+        delete relations;
     }
-    else //if(GetParent() == NULL && !withSubtree)
-    {
-        while(children.size() > 0)
-        {       
-            RemoveChild(children[0]); // Recursively free children
-            children[0]->SetParent(NULL);
-        }
-    }
-    // Delete the component itself
-    delete this;
 }
 
 const std::string& sys_sage::Component::GetName() const {return name;}

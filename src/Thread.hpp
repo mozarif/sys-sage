@@ -27,11 +27,6 @@ namespace sys_sage {
         @param componentType=>SYS_SAGE_COMPONENT_THREAD
         */    
         Thread(Component * parent, int _id = 0, std::string _name = "Thread");
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Thread() override = default;
 
     #ifdef PROC_CPUINFO //defined in proc_cpuinfo.cpp
     public:
@@ -127,7 +122,6 @@ namespace sys_sage {
         void FindPAPIeventSets(std::vector<int> &) const;
 
 #endif
-    private:
     };
 
 }

@@ -153,13 +153,10 @@ namespace sys_sage {
         */
         xmlNodePtr _CreateXmlSubtree() override;
 
-        /** Destructor for QuantumBackend. */
-        ~QuantumBackend() override = default;
-
     private:
         int num_qubits;
         //SVTODO deal with gate_types -- can this go into Relations?
-        std::vector <QuantumGate*> gate_types;
+        std::vector <QuantumGate*> gate_types; // TODO: maybe free the gates in the destructor?
     #ifdef QDMI
         QDMI_Device device; // For refreshing the topology
     #endif

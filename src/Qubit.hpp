@@ -104,9 +104,6 @@ namespace sys_sage {
          */
         xmlNodePtr _CreateXmlSubtree() override;
 
-        /** Destructor for Qubir. */
-        ~Qubit() override = default;
-
     private:
         double q1_fidelity;      ///< 1Q (single-qubit gate) fidelity
         double t1;               ///< T1 relaxation time

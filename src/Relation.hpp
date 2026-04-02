@@ -57,6 +57,13 @@ namespace sys_sage {
          */
         Relation(const std::vector<Component*>& components, int _id = 0, bool _ordered = true,
                  RelationCategory::type category = RelationCategory::Default);
+
+        /**
+         * @brief Destructor for relations. Unlinks this relation from its
+         *        components and frees resources.
+         */
+        virtual ~Relation();
+
         /**
          * @brief Sets the id of the relationship.
          * @param _id The id of the relationship to set.
@@ -168,18 +175,6 @@ namespace sys_sage {
          * Should normally not be used directly. Used internally for exporting the relation to XML.
          */
         virtual xmlNodePtr _CreateXmlEntry();
-        /**
-         * @brief Virtual function to delete the relation.
-         *
-         * Should be overridden in subclasses if custom destruction logic is needed.
-         */
-        virtual void Delete();//TODO
-        /**
-         * @brief Destructor for the Relation class.
-         * 
-         * This is a virtual destructor to ensure proper cleanup of derived classes.
-         */
-        virtual ~Relation() = default;
 
 #ifdef SS_PAPI
         /**

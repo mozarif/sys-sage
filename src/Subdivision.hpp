@@ -27,11 +27,7 @@ namespace sys_sage {
         */
         //SVDOCTODO check all the API documentation. where there is SYS_SAGE_COMPONENT_xxx, replace it by matching sys_sage::ComponentType::xxx
         Subdivision(Component * parent, int _id = 0, std::string _name = "Subdivision");
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Subdivision() override = default;
+
         /**
          * Sets the type of the subdivision
         @param subdivisionType = type 

@@ -70,6 +70,6 @@ int main(int argc, char *argv[])
     exportToXml(topo, output_name);
 
     cout << "--------Clearing up the tree--------" << endl;
-    topo->Delete(true);
+    topo->DeleteSubtree();
     return 0;
 }

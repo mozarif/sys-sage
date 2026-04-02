@@ -26,11 +26,7 @@ namespace sys_sage {
         @param componentType=>sys_sage::ComponentType::Node
         */
         Node(Component * parent, int _id = 0, std::string _name = "Node");
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Node() override = default;
+
     #ifdef PROC_CPUINFO
     public:
         /**
@@ -49,8 +45,6 @@ namespace sys_sage {
         */
         int UpdateL3CATCoreCOS();
     #endif
-
-    private:
     };
 
 }

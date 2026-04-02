@@ -26,12 +26,6 @@ namespace sys_sage {
         @param componentType=>SYS_SAGE_COMPONENT_CORE
         */
         Core(Component * parent, int _id = 0, std::string _name = "Core");
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Core() override = default;
-    private:
 
     #ifdef PROC_CPUINFO
     public:

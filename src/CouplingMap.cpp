@@ -12,7 +12,3 @@ sys_sage::CouplingMap::CouplingMap(const std::vector<Component*>& components, in
 
 void sys_sage::CouplingMap::SetFidelity(double _fidelity){fidelity = _fidelity;}
 double sys_sage::CouplingMap::GetFidelity() const {return fidelity;}
-void sys_sage::CouplingMap::Delete()
-{
-    Relation::Delete();
-}

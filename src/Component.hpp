@@ -55,12 +55,15 @@ namespace sys_sage {
          * Sets componentType to sys_sage::ComponentType::Generic.
          */
         Component(Component * parent, int _id = 0, std::string _name = "unknown");
-        //SVTODO reevaluate the delete vs destructor
+
         /**
-         * @private
-         * @brief Use Delete() or DeleteSubtree() for deleting and deallocating the components.
+         * @brief Destructor for components. Unlinks this component from its
+         *        parent and children, frees resources and deletes associated
+         *        relations. The destructor does not delete the entire subtree.
+         *        Refer to `Component::DeleteSubtree()` for the latter.
          */
-        virtual ~Component() = default;
+        virtual ~Component();
+
         /**
          * @brief Inserts a child component to this component (in the Component Tree).
          * The child pointer will be inserted at the end of the children vector.
@@ -706,16 +709,12 @@ namespace sys_sage {
          */
         [[ deprecated("Use DeleteRelations instead. This function will be removed in the future (used up until version 1.0.0).") ]]
         void DeleteAllDataPaths();
+
         /**
-        Deletes the whole subtree (all the children) of the component.
-        */
-        void DeleteSubtree() const;
-        /**
-         * @brief Deletes a component, its children (if withSubtree = true), and all associated Relations.
-         * If only the component itself is deleted, its children are inserted into its parent's children list.
-         * @param withSubtree If true, the whole subtree is deleted; otherwise only the component itself.
+         * @brief Deletes the whole subtree spanned by this component and this
+         *        component itself.
          */
-        void Delete(bool withSubtree = true);
+        void DeleteSubtree();
 
 #ifdef SS_PAPI
         /**

@@ -41,11 +41,7 @@ namespace sys_sage {
          * Sets componentType to sys_sage::ComponentType::Chip.
          */
         Chip(Component * parent, int _id = 0, std::string _name = "Chip", ChipType::type _type = ChipType::None, std::string _vendor = "", std::string _model = "");
-        /**
-         * @private
-         * Use Delete() or DeleteSubtree() for deleting and deallocating the components.
-         */
-        ~Chip() override = default;
+
         /**
          * @brief Sets the vendor of the chip.
          * @param _vendor The name of the vendor to set.

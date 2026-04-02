@@ -28,11 +28,7 @@ namespace sys_sage {
         @param _size = size/capacity of the storage device, default -1
         */
         Storage(Component * parent, long long _size = -1);
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Storage() override = default;
+
         /**
          * Retrieves size/capacity of the storage device
          * @return size

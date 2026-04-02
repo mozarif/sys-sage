@@ -202,16 +202,14 @@ int sys_sage::removeUnknownCompoents(Component* c){
             vector<Component*> grandchildren = child->GetChildren();
             int num_grandchildren = grandchildren.size();
             if(num_grandchildren >= 1) {
-                c->RemoveChild(child);
+                delete child;
                 for(Component * grandchild : grandchildren){
                     c->InsertChild(grandchild);
                     grandchild->SetParent(c);
                 }
-                delete child;
                 ret += num_grandchildren - 1;
             }
             else {
-                c->RemoveChild(child);
                 delete child;
             }
         }

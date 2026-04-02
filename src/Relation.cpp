@@ -73,15 +73,15 @@ void sys_sage::Relation::Print() const
     cout << endl;
 }
 
-void sys_sage::Relation::Delete()
+sys_sage::Relation::~Relation()
 {
     for(Component* c : components)
     {
         std::vector<Relation*>& component_relation_vector = c->_GetRelationsByType(type);
         component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
     }
-    delete this;
 }
+
 sys_sage::RelationType::type sys_sage::Relation::GetType() const{ return type;}
 sys_sage::RelationCategory::type sys_sage::Relation::GetCategory() const{ return category;}
 std::string sys_sage::Relation::GetTypeStr() const

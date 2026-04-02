@@ -128,10 +128,6 @@ namespace sys_sage {
          * @return Pointer to the created XML entry node.
          */
         xmlNodePtr _CreateXmlEntry() override;
-        /**
-         * @brief Deletes and de-allocates the DataPath pointer from the list (std::vector) of outgoing and incoming DataPaths of source and target Components.
-         */
-        void Delete() override;
 
     private:
         DataPathType::type dp_type; /**< type of the datapath */

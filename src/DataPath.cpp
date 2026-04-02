@@ -44,12 +44,6 @@ sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::D
         components.emplace_back(_target);
 }
 
-void sys_sage::DataPath::Delete()
-{
-    Relation::Delete();
-}
-
-
 void sys_sage::DataPath::Print() const
 {
     std::cout << GetTypeStr() << " (" << (ordered?"ordered":"unordered") << ")";

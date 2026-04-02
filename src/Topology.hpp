@@ -18,12 +18,6 @@ namespace sys_sage {
         \n componentType=>SYS_SAGE_COMPONENT_TOPOLOGY
         */
         Topology();
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Topology() override = default;
-    private:
     };
 }
 

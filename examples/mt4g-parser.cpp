@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     //topo->DeleteSubtree();
     exportToXml(topo, output_name);
     
-    topo->Delete(true);
+    topo->DeleteSubtree();
 
     return 0;
 }
