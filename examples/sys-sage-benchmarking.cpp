@@ -67,8 +67,7 @@ int imp_search_complex(xmlNodePtr n, Component *c) {
     const unsigned char *v = xmlGetProp(n, (const unsigned char *)"key");
     std::string key(reinterpret_cast<char const *>(v));
     v = xmlGetProp(n, (const unsigned char *)"value");
-    int* value = new int(std::stoi(reinterpret_cast<char const *>(v)));
-    c->attrib[key] = (void*) value;
+    c->SetAttribute(key, std::stoi(reinterpret_cast<char const *>(v)));
     return 1;
   } else {
     return 0;
@@ -139,13 +138,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < 1000000; i++) {
         t_start = high_resolution_clock::now();
-        [[ maybe_unused ]] int* l = new int(1);
-        if (n->attrib.find("test") != n->attrib.end()) {
-        int* oldValue = static_cast<int*>(n->attrib["test"]);
-        delete oldValue;  // Free the old value
-        }
-        int* newValue = new int(100);  // Allocate new value
-        n->attrib["test"] = static_cast<void*>(newValue);  // Update the map
+        n->UpdateAttribute("test", 100);
         t_end = high_resolution_clock::now();
         uint64_t time = t_end.time_since_epoch().count() -
                         t_start.time_since_epoch().count() - timer_overhead;
@@ -160,7 +153,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < 1000000; i++) {
         t_start = high_resolution_clock::now();
-        [[ maybe_unused ]] int* l = static_cast<int*>(n->attrib["test"]);
+        [[ maybe_unused ]] int* l = n->GetAttribute<int>("test");
         t_end = high_resolution_clock::now();
         uint64_t time = t_end.time_since_epoch().count() -
                         t_start.time_since_epoch().count() - timer_overhead;

@@ -642,8 +642,11 @@ int sys_sage::Component::_CalcSubtreeSize(unsigned * out_component_size, unsigne
             component_size += sizeof(Topology);
         break;
     }
-    component_size += attrib.size()*(sizeof(std::string)+sizeof(void*)); //TODO improve
-    component_size += children.size()*sizeof(Component*);
+    // Only consider the keys of the attributes. We can not measure the size of
+    // arbitrary values. Maybe remove the size measurement of the attributes or
+    // remove this function entirely?
+    component_size += sizeof(attributes) + attributes.size() * sizeof(std::string);
+    component_size += sizeof(children) + children.size()*sizeof(Component*);
     //relations -- only counting the vector/array sizes
     if(relations)
     {
@@ -668,23 +671,21 @@ int sys_sage::Component::_CalcSubtreeSize(unsigned * out_component_size, unsigne
         {
             if(countedRelations->find(r) == countedRelations->end())
             {
+
+                relationsSize += r->AttributesSize() * sizeof(std::string);
                 switch(rt)
                 {
                     case RelationType::Relation:
                         relationsSize += sizeof(Relation);
-                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
                         break;
                     case RelationType::DataPath:
                         relationsSize += sizeof(DataPath);
-                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
                         break;
                     case RelationType::QuantumGate:
                         relationsSize += sizeof(QuantumGate);
-                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
                         break;
                     case RelationType::CouplingMap:
                         relationsSize += sizeof(CouplingMap);
-                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
                         break;
                 }
                 countedRelations->insert(r);

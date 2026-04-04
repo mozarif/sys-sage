@@ -165,18 +165,18 @@ static inline void RemoveCpu(Relation *metrics, int cpuNum)
 
 static void DeleteEntries(Relation *metrics)
 {
-    auto meta = reinterpret_cast<MetaData *>( metrics->attrib[metaKey] );
+    auto meta = metrics->GetAttribute<MetaData>(metaKey);
 
     int code;
 
-    auto it = metrics->attrib.begin();
-    while (it != metrics->attrib.end()) {
+    auto it = metrics->AttributesBegin();
+    while (it != metrics->AttributesEnd()) {
         if (PAPI_event_name_to_code(it->first.c_str(), &code) != PAPI_OK) { // check if attribute is a PAPI event
             it++;
             continue;
         }
 
-        auto *eventMetrics = reinterpret_cast<std::vector<CpuMetrics> *>( it->second );
+        auto *eventMetrics = metrics->GetAttribute<std::vector<CpuMetrics>>(it);
 
         auto cpuMetricsIt = eventMetrics->begin();
         while (cpuMetricsIt != eventMetrics->end()) { // iterate over the CPUs
@@ -203,8 +203,7 @@ static void DeleteEntries(Relation *metrics)
         }
 
         if (eventMetrics->size() == 0) { // no entries left for the event
-            delete eventMetrics;
-            it = metrics->attrib.erase(it);
+            it = metrics->EraseAttribute(it);
         } else {
             it++;
         }
@@ -215,7 +214,7 @@ static int StorePerfCounters(Relation *metrics, const int *events, int numEvents
                              const long long *counters, Thread *cpu,
                              bool permanent, unsigned long long *timestamp)
 {
-    auto meta = reinterpret_cast<MetaData *>( metrics->attrib.find(metaKey)->second );
+    auto meta = metrics->GetAttribute<MetaData>(metaKey);
 
     int rval;
 
@@ -237,18 +236,14 @@ static int StorePerfCounters(Relation *metrics, const int *events, int numEvents
         if (rval != PAPI_OK)
             return rval;
 
-        std::vector<CpuMetrics> *eventMetrics;
-
-        auto eventMetricsIt = metrics->attrib.find(buf);
-        if (eventMetricsIt == metrics->attrib.end()) {
-            eventMetrics = new std::vector<CpuMetrics>;
-            AppendNewCpuMetrics(eventMetrics, meta->cpuReferenceCounters, ts, counters[i], permanent, cpu->GetId());
-            metrics->attrib[buf] = reinterpret_cast<void *>( eventMetrics );
+        auto *eventMetrics = metrics->GetAttribute<std::vector<CpuMetrics>>(buf);
+        if (!eventMetrics) {
+            std::vector<CpuMetrics> tmpEventMetrics;
+            AppendNewCpuMetrics(&tmpEventMetrics, meta->cpuReferenceCounters, ts, counters[i], permanent, cpu->GetId());
+            metrics->SetAttribute(buf, std::move(tmpEventMetrics));
 
             continue;
         }
-        
-        eventMetrics = reinterpret_cast<std::vector<CpuMetrics> *>( eventMetricsIt->second );
 
         long long sum = 0;
         auto cpuMetricsIt = eventMetrics->end();
@@ -296,7 +291,7 @@ static int AccumPerfCounters(Relation *metrics, const int *events, int numEvents
                              const long long *counters,  Thread *cpu,
                              bool permanent, unsigned long long *timestamp)
 {
-    auto meta = reinterpret_cast<MetaData *>( metrics->attrib.find(metaKey)->second );
+    auto meta = metrics->GetAttribute<MetaData>(metaKey);
 
     int rval;
 
@@ -315,18 +310,14 @@ static int AccumPerfCounters(Relation *metrics, const int *events, int numEvents
         if (rval != PAPI_OK)
             return rval;
 
-        std::vector<CpuMetrics> *eventMetrics;
-
-        auto eventMetricsIt = metrics->attrib.find(buf);
-        if (eventMetricsIt == metrics->attrib.end()) {
-            eventMetrics = new std::vector<CpuMetrics>;
-            AppendNewCpuMetrics(eventMetrics, meta->cpuReferenceCounters, ts, counters[i], permanent, cpu->GetId());
-            metrics->attrib[buf] = reinterpret_cast<void *>( eventMetrics );
+        auto *eventMetrics = metrics->GetAttribute<std::vector<CpuMetrics>>(buf);
+        if (!eventMetrics) {
+            std::vector<CpuMetrics> tmpEventMetrics;
+            AppendNewCpuMetrics(&tmpEventMetrics, meta->cpuReferenceCounters, ts, counters[i], permanent, cpu->GetId());
+            metrics->SetAttribute(buf, std::move(tmpEventMetrics));
 
             continue;
         }
-        
-        eventMetrics = reinterpret_cast<std::vector<CpuMetrics> *>( eventMetricsIt->second );
 
         long long sum = 0;
         auto cpuMetricsIt = eventMetrics->end();
@@ -389,12 +380,12 @@ int sys_sage::SS_PAPI_start(int eventSet, Relation **metrics)
         std::vector<Component *> empty {};
         *metrics = new Relation(empty, 0, false, RelationCategory::PAPI_Metrics);
 
-        (*metrics)->attrib[metaKey] = reinterpret_cast<void *>( new MetaData{ .startTimestamp = TIME(), .eventSet = eventSet } );
+        (*metrics)->SetAttribute(metaKey, MetaData{ .startTimestamp = TIME(), .eventSet = eventSet });
     } else {
         if ((*metrics)->GetCategory() != RelationCategory::PAPI_Metrics)
             return PAPI_EINVAL;
 
-        auto meta = reinterpret_cast<MetaData *>((*metrics)->attrib[metaKey]);
+        auto meta = (*metrics)->GetAttribute<MetaData>(metaKey);
         meta->startTimestamp = TIME();
         meta->eventSet = eventSet;
         meta->reset = true; // PAPI_start will reset the counters
@@ -408,7 +399,7 @@ int sys_sage::SS_PAPI_reset(Relation *metrics)
     if (!metrics || metrics->GetCategory() != RelationCategory::PAPI_Metrics)
         return PAPI_EINVAL;
 
-    auto meta = reinterpret_cast<MetaData *>( metrics->attrib[metaKey] );
+    auto meta = metrics->GetAttribute<MetaData>(metaKey);
 
     int rval;
 
@@ -427,7 +418,7 @@ int sys_sage::SS_PAPI_read(Relation *metrics, Component *root, bool permanent,
     if (!metrics || metrics->GetCategory() != RelationCategory::PAPI_Metrics || !root)
         return PAPI_EINVAL;
 
-    auto meta = reinterpret_cast<MetaData *>( metrics->attrib[metaKey] );
+    auto meta = metrics->GetAttribute<MetaData>(metaKey);
 
     int rval;
 
@@ -460,7 +451,7 @@ int sys_sage::SS_PAPI_accum(Relation *metrics, Component *root, bool permanent,
     if (!metrics || metrics->GetCategory() != RelationCategory::PAPI_Metrics || !root)
         return PAPI_EINVAL;
 
-    auto meta = reinterpret_cast<MetaData *>( metrics->attrib[metaKey] );
+    auto meta = metrics->GetAttribute<MetaData>(metaKey);
 
     int rval;
 
@@ -493,7 +484,7 @@ int sys_sage::SS_PAPI_stop(Relation *metrics, Component *root, bool permanent,
     if (!metrics || metrics->GetCategory() != RelationCategory::PAPI_Metrics || !root)
         return PAPI_EINVAL;
 
-    auto meta = reinterpret_cast<MetaData *>( metrics->attrib[metaKey] );
+    auto meta = metrics->GetAttribute<MetaData>(metaKey);
 
     int rval;
 
@@ -526,8 +517,6 @@ long long sys_sage::Relation::GetPAPImetric(int eventCode, int cpuNum,
     if (category != RelationCategory::PAPI_Metrics)
         return 0;
 
-    auto meta = reinterpret_cast<MetaData *>( attrib.find(metaKey)->second );
-
     int rval;
 
     char buf[PAPI_MAX_STR_LEN];
@@ -535,11 +524,12 @@ long long sys_sage::Relation::GetPAPImetric(int eventCode, int cpuNum,
     if (rval != PAPI_OK)
         return 0;
 
-    auto eventMetricsIt = attrib.find(buf);
-    if (eventMetricsIt == attrib.end())
+    auto meta = GetAttribute<MetaData>(metaKey);
+
+    auto *eventMetrics = GetAttribute<std::vector<CpuMetrics>>(buf);
+    if (!eventMetrics)
         return 0;
 
-    auto *eventMetrics = reinterpret_cast<std::vector<CpuMetrics> *>( eventMetricsIt->second );
     unsigned long long targetTimestamp = timestamp == 0 ? meta->latestTimestamp : timestamp;
     long long value = 0;
 
@@ -576,11 +566,9 @@ const CpuMetrics *sys_sage::Relation::GetAllPAPImetrics(int eventCode, int cpuNu
     if (rval != PAPI_OK)
         return nullptr;
 
-    auto eventMetricsIt = attrib.find(buf);
-    if (eventMetricsIt == attrib.end())
+    auto *eventMetrics = GetAttribute<std::vector<CpuMetrics>>(buf);
+    if (!eventMetrics)
         return nullptr;
-
-    auto *eventMetrics = reinterpret_cast<std::vector<CpuMetrics> *>( eventMetricsIt->second );
 
     auto cpuMetricsIt = std::find_if(eventMetrics->begin(), eventMetrics->end(),
                                      [cpuNum](const CpuMetrics &cpuMetrics)
@@ -608,13 +596,14 @@ void sys_sage::Relation::PrintPAPImetrics(int cpuNum) const
 
         std::cout << "metrics on CPU " << cpu->GetId() << ":\n";
 
-        for (auto &[key, val] : attrib) {
+        for (auto it = AttributesBegin(); it != AttributesEnd(); it++) {
+            auto &key = it->first;
             if (PAPI_event_name_to_code(key.c_str(), &code) != PAPI_OK) // check if attribute is a PAPI event
                 continue;
 
             std::cout << "  " << key << ":\n";
-            
-            auto eventMetrics = reinterpret_cast<std::vector<CpuMetrics> *>( val );
+
+            auto *eventMetrics = GetAttribute<std::vector<CpuMetrics>>(it);
             auto cpuMetricsIt = std::find_if(eventMetrics->begin(), eventMetrics->end(),
                                              [cpu](const CpuMetrics &cpuMetrics)
                                              {
@@ -622,7 +611,7 @@ void sys_sage::Relation::PrintPAPImetrics(int cpuNum) const
                                              }
                                 );
 
-            for (Metric &metric : cpuMetricsIt->entries)
+            for (const Metric &metric : cpuMetricsIt->entries)
                 std::cout << "    " << metric << '\n';
         }
     }
@@ -638,8 +627,8 @@ std::vector<int> sys_sage::Relation::FindPAPIevents() const
 void sys_sage::Relation::FindPAPIevents(std::vector<int> &events) const
 {
     int eventCode;
-    for (auto &[key, _] : attrib) {
-        if (PAPI_event_name_to_code(key.c_str(), &eventCode) == PAPI_OK)
+    for (auto it = AttributesBegin(); it != AttributesEnd(); it++) {
+        if (PAPI_event_name_to_code(it->first.c_str(), &eventCode) == PAPI_OK)
             events.push_back(eventCode);
     }
 }
@@ -649,7 +638,7 @@ int sys_sage::Relation::GetCurrentEventSet() const
     if (category != RelationCategory::PAPI_Metrics)
         return PAPI_NULL;
 
-    auto meta = reinterpret_cast<MetaData *>( attrib.find(metaKey)->second );
+    auto meta = GetAttribute<MetaData>(metaKey);
 
     return meta->eventSet;
 }
@@ -659,7 +648,7 @@ unsigned long long sys_sage::Relation::GetElapsedTime(unsigned long long timesta
     if (category != RelationCategory::PAPI_Metrics)
         return 0;
 
-    auto meta = reinterpret_cast<MetaData *>( attrib.find(metaKey)->second );
+    auto meta = GetAttribute<MetaData>(metaKey);
 
     return timestamp - meta->startTimestamp;
 }
@@ -669,7 +658,7 @@ int sys_sage::Relation::GetLatestCpuNum() const
     if (category != RelationCategory::PAPI_Metrics)
         return -1;
 
-    auto meta = reinterpret_cast<MetaData *>( attrib.find(metaKey)->second );
+    auto meta = GetAttribute<MetaData>(metaKey);
 
     return meta->latestCpuNum;
 }
@@ -690,7 +679,7 @@ long long sys_sage::Thread::GetPAPImetric(int eventCode, int eventSet, unsigned 
         if ((*relationIt)->GetCategory() != RelationCategory::PAPI_Metrics)
             continue;
 
-        auto meta = reinterpret_cast<MetaData *>( (*relationIt)->attrib[metaKey] );
+        auto meta = (*relationIt)->GetAttribute<MetaData>(metaKey);
         if (meta->eventSet == eventSet) {
             targetTimestamp = timestamp == 0 ? meta->latestTimestamp : timestamp;
             break;
@@ -700,10 +689,9 @@ long long sys_sage::Thread::GetPAPImetric(int eventCode, int eventSet, unsigned 
     if (relationIt == (*relations)[RelationType::Relation]->end())
         return 0;
 
-    auto eventMetricsIt = (*relationIt)->attrib.find(buf);
-    if (eventMetricsIt == (*relationIt)->attrib.end())
+    auto *eventMetrics = (*relationIt)->GetAttribute<std::vector<CpuMetrics>>(buf);
+    if (!eventMetrics)
         return 0;
-    auto eventMetrics = reinterpret_cast<std::vector<CpuMetrics> *>( eventMetricsIt->second );
 
     auto cpuMetricsIt = std::find_if(eventMetrics->begin(), eventMetrics->end(),
                                      [this](const CpuMetrics &cpuMetrics)
@@ -739,20 +727,22 @@ void sys_sage::Thread::PrintPAPImetrics(int eventSet) const
         if (relation->GetCategory() != RelationCategory::PAPI_Metrics)
             continue;
 
-        auto meta = reinterpret_cast<MetaData *>( relation->attrib[metaKey] );
+        auto meta = relation->GetAttribute<MetaData>(metaKey);
 
         if (eventSet != PAPI_NULL && eventSet != meta->eventSet)
             continue;
 
         std::cout << "metrics on CPU " << this->id << " of event set " << meta->eventSet << ":\n";
 
-        for (auto &[key, value] : relation->attrib) {
+        for (auto it = relation->AttributesBegin(); it != relation->AttributesEnd(); it++) {
+            auto &key = it->first;
+
             if (PAPI_event_name_to_code(key.c_str(), &buf) != PAPI_OK)
                 continue;
 
             std::cout << "  " << key << ":\n";
 
-            auto eventMetrics = reinterpret_cast<std::vector<CpuMetrics> *>( value );
+            auto *eventMetrics = relation->GetAttribute<std::vector<CpuMetrics>>(it);
 
             auto cpuMetricsIt = std::find_if(eventMetrics->begin(), eventMetrics->end(),
                                              [this](const CpuMetrics &cpuMetrics)
@@ -780,7 +770,7 @@ Relation *sys_sage::Thread::GetPAPIrelation(int eventSet) const
         if (relation->GetCategory() == RelationCategory::PAPI_Metrics)
             continue;
 
-        auto meta = reinterpret_cast<MetaData *>( relation->attrib[metaKey] );
+        auto meta = relation->GetAttribute<MetaData>(metaKey);
         if (meta->eventSet == eventSet)
             return relation;
     }
@@ -819,7 +809,7 @@ void sys_sage::Thread::FindPAPIeventSets(std::vector<int> &eventSets) const
 
     for (auto relation : *((*relations)[RelationType::Relation]))
         if (relation->GetCategory() == RelationCategory::PAPI_Metrics) {
-            auto meta = reinterpret_cast<MetaData *>( relation->attrib[metaKey] );
+            auto meta = relation->GetAttribute<MetaData>(metaKey);
             eventSets.push_back(meta->eventSet);
         }
 }

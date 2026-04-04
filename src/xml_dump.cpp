@@ -256,7 +256,9 @@ xmlNodePtr sys_sage::Component::_CreateXmlSubtree()
     addr << this;
     xmlNewProp(n, reinterpret_cast<const unsigned char *>("addr"), reinterpret_cast<const unsigned char *>(addr.str().c_str()));
 
-    _print_attrib(attrib, n);
+    // The new attributes map is built with JSON support and without XML.
+    // Remove XML support in the future.
+    //_print_attrib(attrib, n);
 
     for(Component * c : children)
     {
@@ -352,7 +354,7 @@ xmlNodePtr sys_sage::Relation::_CreateXmlEntry()
     //xmlNewProp(r_xml, (const unsigned char *)"RelationType", (const unsigned char *)(std::to_string(type).c_str()));
     //RelationType provided through the xml node name
 
-    _print_attrib(attrib, r_xml);
+    //_print_attrib(attrib, r_xml);
 
     return r_xml;
 }

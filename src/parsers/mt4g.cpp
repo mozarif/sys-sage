@@ -26,56 +26,43 @@ static void ParseGeneral(const json &general, Chip *gpu)
   gpu->SetModel(general["name"].get<std::string>());
   gpu->SetVendor(general["vendor"].get<std::string>());
 
-  gpu->attrib["computeCapability"] = reinterpret_cast<void *>(
-    new std::pair<int, int> {
-          general["computeCapability"]["major"].get<int>(),
-          general["computeCapability"]["minor"].get<int>()
-        }
-  );
+  gpu->SetAttribute("computeCapability", std::make_pair<int, int>(
+                      general["computeCapability"]["major"].get<int>(),
+                      general["computeCapability"]["minor"].get<int>()
+                   ));
 
-  gpu->attrib["clockRate"] = reinterpret_cast<void *>(
-    // the clockRate field is actually of type `int`, but due to the conversion
-    // from [kHz] to [Hz], it might be better to use `long long` to avoid
-    // overflows
-    new long long( kHz_to_Hz(general["clockRate"]["value"].get<int>()) )
-  );
+  // the clockRate field is actually of type `int`, but due to the conversion
+  // from [kHz] to [Hz], it might be better to use `long long` to avoid
+  // overflows
+  gpu->SetAttribute("clockRate", kHz_to_Hz(general["clockRate"]["value"].get<int>()));
 }
 
 static std::tuple<int, uint32_t> ParseCompute(const json &compute, Chip *gpu)
 {
-  auto multiProcessorCount = new int( compute["multiProcessorCount"].get<int>() );
-  gpu->attrib["multiProcessorCount"] = reinterpret_cast<void *>( multiProcessorCount );
+  int multiProcessorCount = compute["multiProcessorCount"].get<int>();
+  gpu->SetAttribute("multiProcessorCount", multiProcessorCount);
 
-  auto numberOfCoresPerMultiProcessor = new uint32_t( compute["numberOfCoresPerMultiProcessor"].get<uint32_t>() );
-  gpu->attrib["numberOfCoresPerMultiProcessor"] = reinterpret_cast<void *>( numberOfCoresPerMultiProcessor );
+  uint32_t numberOfCoresPerMultiProcessor = compute["numberOfCoresPerMultiProcessor"].get<uint32_t>();
+  gpu->SetAttribute("numberOfCoresPerMultiProcessor", numberOfCoresPerMultiProcessor);
 
-  gpu->attrib["maxThreadsPerBlock"] = reinterpret_cast<void *>(
-    new int( compute["maxThreadsPerBlock"].get<int>() )
-  );
+  gpu->SetAttribute("maxThreadsPerBlock", compute["maxThreadsPerBlock"].get<int>());
 
   // TODO: maybe parse register info?
 
-  gpu->attrib["warpSize"] = reinterpret_cast<void *>(
-    new int( compute["warpSize"].get<int>() )
-  );
-  gpu->attrib["maxThreadsPerMultiProcessor"] = reinterpret_cast<void *>(
-    new int( compute["maxThreadsPerMultiProcessor"].get<int>() )
-  );
-  gpu->attrib["maxBlocksPerMultiProcessor"] = reinterpret_cast<void *>(
-    new int( compute["maxBlocksPerMultiProcessor"].get<int>() )
-  );
+  gpu->SetAttribute("warpSize", compute["warpSize"].get<int>());
+  gpu->SetAttribute("maxThreadsPerMultiProcessor", compute["maxThreadsPerMultiProcessor"].get<int>());
+  gpu->SetAttribute("maxBlocksPerMultiProcessor", compute["maxBlocksPerMultiProcessor"].get<int>());
 
   if (auto it = compute.find("numXDCDs"); it != compute.end())
-    gpu->attrib["numXDCDs"] = reinterpret_cast<void *>( new uint32_t(it->get<uint32_t>()) );
+    gpu->SetAttribute<uint32_t>("numXDCDs", it->get<uint32_t>());
 
   if (auto it = compute.find("computeUnitsPerDie"); it != compute.end())
-    gpu->attrib["computeUnitsPerDie"] = reinterpret_cast<void *>( new uint32_t(it->get<uint32_t>()) );
+    gpu->SetAttribute<uint32_t>("computeUnitsPerDie", it->get<uint32_t>());
 
   if (auto it = compute.find("numSIMDsPerCu"); it != compute.end())
-    gpu->attrib["numSIMDsPerCu"] = reinterpret_cast<void *>( new uint32_t(it->get<uint32_t>()) );
+    gpu->SetAttribute<uint32_t>("numSIMDsPerCu", it->get<uint32_t>());
 
-
-  return { *multiProcessorCount, *numberOfCoresPerMultiProcessor };
+  return { multiProcessorCount, numberOfCoresPerMultiProcessor };
 }
 
 // assumes `leafs` only contains the GPU
@@ -86,12 +73,8 @@ static void ParseMainMemory(const json &main, std::vector<Component *> &cores,
 
   auto mainMem = new Memory(leafs[0], 0, "GPU Main Memory", size);
 
-  mainMem->attrib["clockRate"] = reinterpret_cast<void *>(
-    new long long ( kHz_to_Hz(main["memoryClockRate"]["value"].get<int>()) )
-  );
-  mainMem->attrib["busWidth"] = reinterpret_cast<void *>(
-    new int ( main["memoryBusWidth"]["value"].get<int>() )
-  );
+  mainMem->SetAttribute("clockRate", kHz_to_Hz(main["memoryClockRate"]["value"].get<int>()));
+  mainMem->SetAttribute("busWidth", main["memoryBusWidth"]["value"].get<int>());
 
   // the existence of `latency` implies the existence of `readBandwidth` and `writeBandwidth`
   if (auto it = main.find("latency"); it != main.end()) {
@@ -103,8 +86,8 @@ static void ParseMainMemory(const json &main, std::vector<Component *> &cores,
       // bidirectional, because we have read & write bandwidth
       auto dp = new DataPath(mainMem, core, DataPathOrientation::Bidirectional,
                              DataPathType::Logical, -1, latency);
-      dp->attrib["readBandwidth"] = reinterpret_cast<void *>( new double (readBandwidth) );
-      dp->attrib["writeBandwidth"] = reinterpret_cast<void *>( new double (writeBandwidth) );
+      dp->SetAttribute("readBandwidth", readBandwidth);
+      dp->SetAttribute("writeBandwidth", writeBandwidth);
     }
   }
 
@@ -143,8 +126,8 @@ static void ParseL3Caches(const json &l3, std::vector<Component *> &cores,
       for (auto core : cores) {
         auto dp = new DataPath(l3Cache, core, DataPathOrientation::Bidirectional,
                                DataPathType::Logical, -1, -1);
-        dp->attrib["readBandwidth"] = reinterpret_cast<void *>( new double (readBandwidth) );
-        dp->attrib["writeBandwidth"] = reinterpret_cast<void *>( new double (writeBandwidth) );
+        dp->SetAttribute("readBandwidth", readBandwidth);
+        dp->SetAttribute("writeBandwidth", writeBandwidth);
       }
     }
   }
@@ -183,9 +166,9 @@ static void ParseL2Caches(const json &l2, std::vector<Component *> &cores,
       l2Caches[id] = new Cache(leaf, id, "L2", size, -1, lineSize);
 
       if (fetchGranularity > 0)
-        l2Caches[id]->attrib["fetchGranularity"] = reinterpret_cast<void *>( new size_t(fetchGranularity) );
+        l2Caches[id]->SetAttribute("fetchGranularity", fetchGranularity);
       if (segmentSize > 0)
-        l2Caches[id]->attrib["segmentSize"] = reinterpret_cast<void *>( new size_t(segmentSize) );
+        l2Caches[id]->SetAttribute("segmentSize", segmentSize);
     }
   }
 
@@ -201,10 +184,10 @@ static void ParseL2Caches(const json &l2, std::vector<Component *> &cores,
       for (auto core : cores) {
         auto dp = new DataPath(l2Cache, core, DataPathOrientation::Bidirectional,
                                DataPathType::Logical, -1, latency);
-        dp->attrib["readBandwidth"] = reinterpret_cast<void *>( new double (readBandwidth) );
-        dp->attrib["writeBandwidth"] = reinterpret_cast<void *>( new double (writeBandwidth) );
+        dp->SetAttribute("readBandwidth", readBandwidth);
+        dp->SetAttribute("writeBandwidth", writeBandwidth);
         if (missPenalty > 0)
-          dp->attrib["missPenalty"] = reinterpret_cast<void *>( new double (missPenalty) );
+          dp->SetAttribute("missPenalty", missPenalty);
       }
     }
   }
@@ -240,9 +223,7 @@ static bool ParseScalarL1Caches(const json &scalarL1,
     for (size_t i = 0; i < amountPerLeaf; i++, id++) {
       scalarL1Caches[id] = new Cache(leaf, id, "Scalar L1", size, -1, lineSize);
 
-      scalarL1Caches[id]->attrib["fetchGranularity"] = reinterpret_cast<void *>(
-        new size_t (fetchGranularity)
-      );
+      scalarL1Caches[id]->SetAttribute("fetchGranularity", fetchGranularity);
 
       if (insertMPs) {
         for (const auto &elem : (*sharedBetweenIt)[id]) {
@@ -273,7 +254,7 @@ static bool ParseScalarL1Caches(const json &scalarL1,
       auto dp = new DataPath(scalarL1Cache, *coreIt, DataPathOrientation::Oriented,
                              DataPathType::Logical, -1, latency);
       if (missPenalty > 0)
-        dp->attrib["missPenalty"] = reinterpret_cast<void *>( new double (missPenalty) );
+        dp->SetAttribute("missPenalty", missPenalty);
     }
   }
 
@@ -326,11 +307,7 @@ static void ParseConstantCaches(const json &constant,
 
   for (auto mp : mps) {
     cL1_5Caches[cL1_5Id] = new Cache(mp, cL1_5Id, "Constant L1.5", cL1_5Size, -1, cL1_5LineSize);
-
-    cL1_5Caches[cL1_5Id]->attrib["fetchGranularity"] = reinterpret_cast<void *>(
-      new size_t (cL1_5FetchGranularity)
-    );
-
+    cL1_5Caches[cL1_5Id]->SetAttribute("fetchGranularity", cL1_5FetchGranularity);
     cL1_5Id++;
   }
 
@@ -365,7 +342,7 @@ static void ParseConstantCaches(const json &constant,
   for (auto cL1_5Cache : cL1_5Caches) {
     for (uint32_t i = 0; i < amountPerMP; i++, cL1Id++) {
       cL1Caches[cL1Id] = new Cache(cL1_5Cache, cL1Id, "Constant L1", cL1LineSize, -1, cL1Size);
-      cL1Caches[cL1Id]->attrib["fetchGranularity"] = reinterpret_cast<void *>( new size_t (cL1FetchGranularity) );
+      cL1Caches[cL1Id]->SetAttribute("fetchGranularity", cL1FetchGranularity);
     }
   }
 
@@ -381,7 +358,7 @@ static void ParseConstantCaches(const json &constant,
         auto dp = new DataPath(cL1Caches[k + i * amountPerMP], cores[j + i * numCoresPerMP], DataPathOrientation::Oriented, DataPathType::Logical, -1, cL1Latency);
 
         if (cL1MissPenalty > 0)
-          dp->attrib["missPenalty"] = reinterpret_cast<void *>( new double (cL1MissPenalty) );
+          dp->SetAttribute("missPenalty", cL1MissPenalty);
       }
     }
   }
@@ -407,7 +384,7 @@ static void ParseSharedMemory(const json &shared, std::vector<Component *> &mps,
   for (auto mp : mps) {
     auto sharedMem = new Memory(mp, id++, "Shared Memory", memPerMultiProcessor);
 
-    sharedMem->attrib["memPerBlock"] = reinterpret_cast<void *>( new long long (memPerBlock) );
+    sharedMem->SetAttribute("memPerBlock", memPerBlock);
 
     if (latency > 0)
       for (size_t i = 0; i < numCoresPerMP; i++, coreIt++)
@@ -462,7 +439,7 @@ ParseL1Caches(const json &l1, std::vector<Component *> &mps,
       l1Caches[id] = new Cache(mp, id, name, size, -1, lineSize);
 
       if (fetchGranularity > 0)
-        l1Caches[id]->attrib["fetchGranularity"] = reinterpret_cast<void *>( new double(fetchGranularity) );
+        l1Caches[id]->SetAttribute("fetchGranularity", fetchGranularity);
     }
   }
 
@@ -487,7 +464,7 @@ ParseL1Caches(const json &l1, std::vector<Component *> &mps,
           auto dp = new DataPath(l1Caches[k + i * amountPerMP], cores[j + i * numCoresPerMP], DataPathOrientation::Oriented, DataPathType::Logical, -1, latency);
 
           if (missPenalty > 0)
-            dp->attrib["missPenalty"] = reinterpret_cast<void *>( new double (missPenalty) );
+            dp->SetAttribute("missPenalty", missPenalty);
         }
       }
     }
@@ -531,7 +508,7 @@ static bool ParseTextureCaches(const json &texture, std::vector<Component *> &mp
   for (auto mp : mps) {
     for (uint32_t i = 0; i < amountPerMP; i++, id++) {
       textureCaches[id] = new Cache(mp, id, name, size, -1, lineSize);
-      textureCaches[id]->attrib["fetchGranularity"] = reinterpret_cast<void *>( new int(fetchGranularity) );
+      textureCaches[id]->SetAttribute("fetchGranularity", fetchGranularity);
     }
   }
 
@@ -547,7 +524,7 @@ static bool ParseTextureCaches(const json &texture, std::vector<Component *> &mp
         auto dp = new DataPath(textureCaches[k + i * amountPerMP], cores[j + i * numCoresPerMP], DataPathOrientation::Oriented, DataPathType::Logical, -1, latency);
 
         if (missPenalty > 0)
-          dp->attrib["missPenalty"] = reinterpret_cast<void *>( new double (missPenalty) );
+          dp->SetAttribute("missPenalty", missPenalty);
       }
     }
   }
@@ -579,7 +556,7 @@ static void ParseReadOnlyCaches(const json &readOnly, std::vector<Component *> &
   for (auto mp : mps) {
     for (uint32_t i = 0; i < amountPerMP; i++, id++) {
       readOnlyCaches[id] = new Cache(mp, id, "Read Only", size, -1, lineSize);
-      readOnlyCaches[id]->attrib["fetchGranularity"] = reinterpret_cast<void *>( new int(fetchGranularity) );
+      readOnlyCaches[id]->SetAttribute("fetchGranularity", fetchGranularity);
     }
   }
 
@@ -595,7 +572,7 @@ static void ParseReadOnlyCaches(const json &readOnly, std::vector<Component *> &
         auto dp = new DataPath(readOnlyCaches[k + i * amountPerMP], cores[j + i * numCoresPerMP], DataPathOrientation::Oriented, DataPathType::Logical, -1, latency);
 
         if (missPenalty > 0)
-          dp->attrib["missPenalty"] = reinterpret_cast<void *>( new double (missPenalty) );
+          dp->SetAttribute("missPenalty", missPenalty);
       }
     }
   }
