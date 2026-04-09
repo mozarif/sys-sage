@@ -103,3 +103,6 @@ comp.EraseAttribute("nonLeakingMemory"); // frees the integer
 
 return;
 ```
+
+Apart from that, the destructor of the `Component` and `Relation` class will
+clean up all remaining attributes.
