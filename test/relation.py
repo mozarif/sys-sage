@@ -77,20 +77,19 @@ class TestRelations(unittest.TestCase):
     def test_attributes(self):
         r = sys_sage.Relation([])
 
-        r["foo"] = 1
-        r["bar"] = 2.0
-        r["foobar"] = "test"
-        self.assertEqual(r["foo"], 1)
-        self.assertEqual(r["bar"], 2.0)
-        self.assertEqual(r["foobar"], "test")
-        with self.assertRaises(AttributeError):
-            r["fail"]
-        # indexing follows lexicographical order of keys
-        self.assertEqual(r[0], 2.0)
-        self.assertEqual(r[1], 1)
-        self.assertEqual(r[2], "test")
-        with self.assertRaises(TypeError):
-            r[1] = 2
+        r.SetAttribute("foo", 1)
+        r.SetAttribute("bar", 2.0)
+        r.SetAttribute("foobar", "test")
+
+        self.assertEqual(r.GetAttribute("foo"), 1)
+        self.assertEqual(r.GetAttribute("bar"), 2.0)
+        self.assertEqual(r.GetAttribute("foobar"), "test")
+
+        r.EraseAttribute("foo")
+        self.assertEqual(r.GetAttribute("foo"), None)
+
+        r.ClearAttributes()
+        self.assertEqual(r.AttributesSize(), 0)
 
     def test_inheritance_data_path(self):
         foo = sys_sage.Component()

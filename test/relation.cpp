@@ -97,12 +97,8 @@ ut::suite<"relation"> _ = []
     std::vector<Component *> v (0);
     Relation r (v);
 
-    int *i = new int (3);
-    r.attrib["foo"] = reinterpret_cast<void *>(i);
-    auto it = r.attrib.find("foo");
-    ut::expect(ut::that % (it != r.attrib.end()));
-    ut::expect(ut::that % *reinterpret_cast<int *>(it->second) == 3);
-    delete i;
+    r.SetAttribute("foo", 3);
+    ut::expect(ut::that % *r.GetAttribute<int>("foo") == 3);
   };
 
   ut::test("inheritance") = []

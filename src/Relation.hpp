@@ -382,7 +382,8 @@ namespace sys_sage {
 
         /**
          * @brief Updates an existing attribute that is associated with the
-         *        given key with a new value. If no such attribute exists, the
+         *        given key with a new value. May reuse existing memory and can
+         *        be more resource-efficient. If no such attribute exists, the
          *        key-value pair is used to insert a new one.
          *
          * @param key The key that is associated with the attribute.
@@ -399,7 +400,8 @@ namespace sys_sage {
 
         /**
          * @brief Updates an existing attribute that is associated with the
-         *        given iterator with a new value.
+         *        given iterator with a new value. May reuse existing memory
+         *        and can be more resource-efficient.
          *
          * @param it The iterator that is associated with the attribute.
          * @param value The new value of the attribute.
