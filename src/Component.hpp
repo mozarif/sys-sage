@@ -782,6 +782,9 @@ namespace sys_sage {
          *
          * @param key The key that is associated with the attribute.
          * @param value The value of the attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         new attribute.
          */
         template <typename T>
         std::decay_t<T> *SetAttribute(const std::string &key, T &&value);
