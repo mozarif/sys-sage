@@ -168,6 +168,15 @@ namespace sys_sage {
         int RemoveComponent(size_t index);
 
         /**
+         * @brief Removes the given component from the relation.
+         *
+         * @param The component of interest.
+         *
+         * @return 0 on success, -1 otherwise.
+         */
+        int RemoveComponent(Component *component);
+
+        /**
          * @private
          * @brief Serialize this relation to XML.
          * @return A libxml node representing the relation.

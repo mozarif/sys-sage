@@ -156,7 +156,7 @@ namespace sys_sage {
     private:
         int num_qubits;
         //SVTODO deal with gate_types -- can this go into Relations?
-        std::vector <QuantumGate*> gate_types; // TODO: maybe free the gates in the destructor?
+        std::vector <QuantumGate*> gate_types;
     #ifdef QDMI
         QDMI_Device device; // For refreshing the topology
     #endif
