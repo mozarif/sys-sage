@@ -95,7 +95,7 @@ Relations are generally cleaned up internally by deleting the corresponding
 components in the Component Tree as mentioned above. Nevertheless, a bit more
 care has to be taken here. Consider the following:
 
-```
+```cpp
 #include <sys-sage.hpp>
 
 int main()
