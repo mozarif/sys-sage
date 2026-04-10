@@ -628,7 +628,8 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetComponent", &Relation::GetComponent, py::arg("index"), "Get a component at a specific position")
         .def("Print", &Relation::Print, "Prin basic information about this relation")
         .def("AddComponent", &Relation::AddComponent, py::arg("component"), "Add this component to the relation")
-        .def("RemoveComponent", &Relation::RemoveComponent, py::arg("index"), "Removes the component at the given index")
+        .def("RemoveComponent", (int (Relation::*) (size_t)) &Relation::RemoveComponent, py::arg("index"), "Removes the component at the given index")
+        .def("RemoveComponent", (int (Relation::*) (Component *)) &Relation::RemoveComponent, py::arg("component"), "Removes the given component from the relation")
         .def("UpdateComponent", (int (Relation::*) (int, Component *)) &Relation::UpdateComponent, py::arg("index"), py::arg("new_component"), "Tries to replace the component at the given index with the new component")
         .def("UpdateComponent", (int (Relation::*) (Component *, Component *)) &Relation::UpdateComponent, py::arg("old_component"), py::arg("new_component"), "Tries to find the old component to replace it with the new component");
 
