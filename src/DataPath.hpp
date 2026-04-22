@@ -27,11 +27,11 @@ namespace sys_sage {
          * @private
          *
          * @brief DataPath default constructor.
-         * @param _dp_type Type of the DataPath.
+         * @param _dp_category Type of the DataPath.
          * @param _bw Bandwidth from the source (provides the data) to the target (requests the data)
          * @param _latency Data load latency from the source (provides the data) to the target (requests the data)
          */
-        DataPath(DataPathType::type _dp_type = DataPathType::None, double _bw = -1, double _latency = -1);
+        DataPath(DataPathCategory::type _dp_category = DataPathCategory::None, double _bw = -1, double _latency = -1);
 
         /**
          * @brief DataPath constructor.
