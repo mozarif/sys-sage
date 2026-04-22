@@ -365,7 +365,7 @@ int sys_sage::Cache::_FromJson(const json &obj)
 
 void sys_sage::Chip::_ToJson(json &obj) const
 {
-    obj["chipType"] = type;
+    obj["chipCategory"] = category;
     if (!vendor.empty())
         obj["vendor"] = vendor;
     if (!model.empty())
@@ -376,7 +376,7 @@ void sys_sage::Chip::_ToJson(json &obj) const
 
 int sys_sage::Chip::_FromJson(const json &obj)
 {
-    obj["chipType"].get_to<ChipType::type>(type);
+    obj["chipCategory"].get_to<ChipCategory::type>(category);
     if (auto it = obj.find("vendor"); it != obj.end())
         it->get_to<std::string>(vendor);
     if (auto it = obj.find("model"); it != obj.end())
@@ -433,7 +433,7 @@ int sys_sage::CouplingMap::_FromJson(const json &obj,
 
 void sys_sage::DataPath::_ToJson(json &obj) const
 {
-    obj["dataPathType"] = dp_type;
+    obj["dataPathCategory"] = dp_category;
     obj["bandwidth"] = bw;
     obj["latency"] = latency;
 
@@ -443,7 +443,7 @@ void sys_sage::DataPath::_ToJson(json &obj) const
 int sys_sage::DataPath::_FromJson(const json &obj,
                                   const std::unordered_map<uintptr_t, Component *> &componentMap)
 {
-    obj["dataPathType"].get_to<DataPathType::type>(dp_type);
+    obj["dataPathCategory"].get_to<DataPathCategory::type>(dp_category);
     obj["bandwidth"].get_to<double>(bw);
     obj["latency"].get_to<double>(latency);
 
@@ -530,7 +530,7 @@ void sys_sage::QuantumGate::_ToJson(json &obj) const
     obj["gateSize"] = gate_size;
     obj["name"] = name;
     obj["gateLength"] = gate_length;
-    obj["gateType"] = gate_type;
+    obj["gateCategory"] = gate_category;
     obj["fidelity"] = fidelity;
     obj["unitary"] = unitary;
 
@@ -543,7 +543,7 @@ int sys_sage::QuantumGate::_FromJson(const json &obj,
     obj["gateSize"].get_to<size_t>(gate_size);
     obj["name"].get_to<std::string>(name);
     obj["gateLength"].get_to<int>(gate_length);
-    obj["gateType"].get_to<QuantumGateType::type>(gate_type);
+    obj["gateCategory"].get_to<QuantumGateCategory::type>(gate_category);
     obj["fidelity"].get_to<double>(fidelity);
     obj["unitary"].get_to<std::string>(unitary);
 
@@ -602,14 +602,14 @@ int sys_sage::Storage::_FromJson(const json &obj)
 
 void sys_sage::Subdivision::_ToJson(json &obj) const
 {
-    obj["subdivisionType"] = type;
+    obj["subdivisionCategory"] = category;
 
     Component::_ToJson(obj);
 }
 
 int sys_sage::Subdivision::_FromJson(const json &obj)
 {
-    obj["subdivisionType"].get_to<SubdivisionType::type>(type);
+    obj["subdivisionCategory"].get_to<SubdivisionCategory::type>(category);
 
     int rval = Component::_FromJson(obj);
     if (rval)
