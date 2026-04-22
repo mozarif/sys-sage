@@ -31,7 +31,7 @@ static ut::suite<"json"> _ = []
             ut::expect(ut::that % chip["type"].get<std::string>() == "Chip"sv);
             ut::expect(ut::that % chip["vendor"].get<std::string>() == "GenuineIntel"sv);
             ut::expect(ut::that % chip["model"].get<std::string>() == "Intel(R) Xeon(R) Silver 4116 CPU @ 2.10GHz"sv);
-            ut::expect(ut::that % chip["chipType"].get<ChipType::type>() == ChipType::CpuSocket);
+            ut::expect(ut::that % chip["chipCategory"].get<ChipCategory::type>() == ChipCategory::CpuSocket);
             ut::expect(ut::that % chip["children"].size() == 1U);
 
             const json &l3Cache = chip["children"][0];
@@ -45,7 +45,7 @@ static ut::suite<"json"> _ = []
             for (const json &numa : l3Cache["children"]) {
                 ut::expect(ut::that % numa["type"].get<std::string>() == "NUMA"sv);
                 ut::expect(ut::that % numa["size"].get<long long>() == numaSizes[numaSizeIdx++]);
-                ut::expect(ut::that % numa["subdivisionType"].get<SubdivisionType::type>() == SubdivisionType::None);
+                ut::expect(ut::that % numa["subdivisionCategory"].get<SubdivisionCategory::type>() == SubdivisionCategory::None);
                 ut::expect(ut::that % numa["children"].size() == 6U);
 
                 for (const json &l2Cache : numa["children"]) {
@@ -98,7 +98,7 @@ static ut::suite<"json"> _ = []
             ut::expect(ut::that % chip1["type"].get<std::string>() == chip2["type"].get<std::string>());
             ut::expect(ut::that % chip1["vendor"].get<std::string>() == chip2["vendor"].get<std::string>());
             ut::expect(ut::that % chip1["model"].get<std::string>() == chip2["model"].get<std::string>());
-            ut::expect(ut::that % chip1["chipType"].get<ChipType::type>() == chip2["chipType"].get<ChipType::type>());
+            ut::expect(ut::that % chip1["chipCategory"].get<ChipCategory::type>() == chip2["chipCategory"].get<ChipCategory::type>());
             ut::expect(ut::that % chip1["children"].size() == 1U);
             ut::expect(ut::that % chip2["children"].size() == 1U);
 
@@ -119,7 +119,7 @@ static ut::suite<"json"> _ = []
 
                 ut::expect(ut::that % numa1["type"].get<std::string>() == numa2["type"].get<std::string>());
                 ut::expect(ut::that % numa1["size"].get<long long>() == numa2["size"].get<long long>());
-                ut::expect(ut::that % numa1["subdivisionType"].get<SubdivisionType::type>() == numa2["subdivisionType"].get<SubdivisionType::type>());
+                ut::expect(ut::that % numa1["subdivisionCategory"].get<SubdivisionCategory::type>() == numa2["subdivisionCategory"].get<SubdivisionCategory::type>());
                 ut::expect(ut::that % numa1["children"].size() == 6U);
                 ut::expect(ut::that % numa2["children"].size() == 6U);
 
