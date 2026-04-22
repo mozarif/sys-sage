@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <sstream>
 
+using json = nlohmann::json;
 
 int sys_sage::parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForHistory)
 {

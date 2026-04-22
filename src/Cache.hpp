@@ -127,6 +127,29 @@ namespace sys_sage {
          * @return Pointer to the created XML subtree node.
          */
         xmlNodePtr _CreateXmlSubtree() override;
+
+        /**
+         * @private
+         *
+         * @brief Initializes a JSON object that represents this component.
+         *        Intended for internal use.
+         *
+         * @param obj The JSON object to be initialized.
+         */
+        void _ToJson(nlohmann::ordered_json &obj) const override;
+
+        /**
+         * @private
+         *
+         * @brief Initializes this component through JSON. Intended for
+         *        internal use.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        int _FromJson(const nlohmann::ordered_json &obj) override;
+
     private:
         std::string cache_type;           ///< Cache level or cache type (e.g., "L1", "texture")
         long long cache_size;             ///< Size/capacity of the cache in bytes

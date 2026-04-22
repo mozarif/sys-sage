@@ -28,6 +28,7 @@ int sys_sage::DataPath::UpdateTarget(Component * _new_target)
     return UpdateComponent(1, _new_target);
 }
 
+sys_sage::DataPath::DataPath(DataPathCategory::type _dp_category, double _bw, double _latency) : Relation(sys_sage::RelationType::DataPath, sys_sage::RelationCategory::Default), dp_category(_dp_category), bw(_bw), latency(_latency) {}
 sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathCategory::type _dp_category): DataPath(_source, _target, _oriented, _dp_category, -1, -1) {}
 sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, double _bw, double _latency): DataPath(_source, _target, _oriented, sys_sage::DataPathCategory::None, _bw, _latency) {}
 sys_sage::DataPath::DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathCategory::type _dp_category, double _bw, double _latency) : Relation(sys_sage::RelationType::DataPath, sys_sage::RelationCategory::Default), dp_category(_dp_category), bw(_bw), latency(_latency)

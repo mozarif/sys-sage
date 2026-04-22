@@ -75,6 +75,7 @@ sys_sage::Component* sys_sage::createChildC(string type, xmlNode* node)
         long long size = stol(s.empty()?"0":s);
 
         c = new Numa(id, size);
+        static_cast<Numa *>(c)->SetSubdivisionCategory(SubdivisionCategory::None);
     }
     else if(!type.compare("Core"))
     {

@@ -27,6 +27,29 @@ namespace sys_sage {
         @param componentType=>SYS_SAGE_COMPONENT_THREAD
         */    
         Thread(Component * parent, int _id = 0, std::string _name = "Thread");
+
+        /**
+         * @private
+         *
+         * @brief Initializes a JSON object that represents this component.
+         *        Intended for internal use.
+         *
+         * @param obj The JSON object to be initialized.
+         */
+        void _ToJson(nlohmann::ordered_json &obj) const override;
+
+        /**
+         * @private
+         *
+         * @brief Initializes this component through JSON. Intended for
+         *        internal use.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        int _FromJson(const nlohmann::ordered_json &obj) override;
+
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
