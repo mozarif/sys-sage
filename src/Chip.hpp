@@ -10,7 +10,7 @@ namespace sys_sage {
      * @brief Represents a building block of a node (CPU socket, GPU, NIC, etc.).
      *
      * This class is a child of Component and inherits its attributes and methods.
-     * It provides a unified abstraction for various chip types, allowing for extensible
+     * It provides a unified abstraction for various chip categories, allowing for extensible
      * modeling of CPUs, GPUs, and other accelerators in heterogeneous systems.
      * The chip abstraction is designed to be flexible for new architectures and data sources.
      */
@@ -20,27 +20,27 @@ namespace sys_sage {
          * @brief Chip constructor (no automatic insertion in the Component Tree).
          * @param _id ID of the chip (default 0)
          * @param _name Name of the chip (default "Chip")
-         * @param _type Chip type (default sys_sage::ChipType::None). Defines which chip we are describing.
-         *        Options: sys_sage::ChipType::None (default/generic), sys_sage::ChipType::Cpu, sys_sage::ChipType::CpuSocket, sys_sage::ChipType::Gpu.
+         * @param _category Chip category (default sys_sage::ChipCategory::None). Defines which chip we are describing.
+         *        Options: sys_sage::ChipCategory::None (default/generic), sys_sage::ChipCategory::Cpu, sys_sage::ChipCategory::CpuSocket, sys_sage::ChipCategory::Gpu.
          * @param _vendor Name of the vendor (default "")
          * @param _model Model name (default "")
          *
          * Sets componentType to sys_sage::ComponentType::Chip.
          */
-        Chip(int _id = 0, std::string _name = "Chip", ChipType::type _type = ChipType::None, std::string _vendor = "", std::string _model = "");
+        Chip(int _id = 0, std::string _name = "Chip", ChipCategory::type _category = ChipCategory::None, std::string _vendor = "", std::string _model = "");
         /**
          * @brief Chip constructor with insertion into the Component Tree as the parent's child.
          * @param parent The parent component
          * @param _id ID of the chip (default 0)
          * @param _name Name of the chip (default "Chip")
-         * @param _type Chip type (default sys_sage::ChipType::None). Defines which chip we are describing.
-         *        Options: sys_sage::ChipType::None (default/generic), sys_sage::ChipType::Cpu, sys_sage::ChipType::CpuSocket, sys_sage::ChipType::Gpu.
+         * @param _category Chip category (default sys_sage::ChipCategory::None). Defines which chip we are describing.
+         *        Options: sys_sage::ChipCategory::None (default/generic), sys_sage::ChipCategory::Cpu, sys_sage::ChipCategory::CpuSocket, sys_sage::ChipCategory::Gpu.
          * @param _vendor Name of the vendor (default "")
          * @param _model Model name (default "")
          *
          * Sets componentType to sys_sage::ComponentType::Chip.
          */
-        Chip(Component * parent, int _id = 0, std::string _name = "Chip", ChipType::type _type = ChipType::None, std::string _vendor = "", std::string _model = "");
+        Chip(Component * parent, int _id = 0, std::string _name = "Chip", ChipCategory::type _category = ChipCategory::None, std::string _vendor = "", std::string _model = "");
         /**
          * @private
          * Use Delete() or DeleteSubtree() for deleting and deallocating the components.
@@ -72,17 +72,17 @@ namespace sys_sage {
         const std::string& GetModel() const;
         
         /**
-         * @brief Sets the type of the chip.
-         * @param chipType The chip type to set.
+         * @brief Sets the category of the chip.
+         * @param chipCategory The chip category to set.
          */
-        void SetChipType(ChipType::type chipType);
+        void SetChipCategory(ChipCategory::type chipCategory);
         
         /**
-         * @brief Gets the type of the chip.
-         * @return The chip type.
-         * @see type
+         * @brief Gets the category of the chip.
+         * @return The chip category.
+         * @see category
          */
-        ChipType::type GetChipType() const;
+        ChipCategory::type GetChipCategory() const;
         
         /**
          * @private
@@ -96,7 +96,7 @@ namespace sys_sage {
     private:
         std::string vendor; /**< Vendor of the chip */
         std::string model; /**< Model of the chip */
-        ChipType::type type; /**< Type of the chip, e.g., CPU, GPU */
+        ChipCategory::type category; /**< Category of the chip, e.g., CPU, GPU */
     #ifdef NVIDIA_MIG
     public:
         /**
