@@ -28,6 +28,8 @@ namespace sys_sage {
         CouplingMap(Qubit* q1, Qubit*q2);
 
         /**
+         * @private
+         *
          * @brief Default-intitilizes a CouplingMap.
          * @param _id Optional relation ID (default 0).
          * @param _ordered Whether the coupling is ordered/directed (default true).

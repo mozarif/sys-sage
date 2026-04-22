@@ -51,6 +51,8 @@ namespace sys_sage {
     class Relation {
     public:
         /**
+         * @private
+         *
          * @brief Default-initializes a new Relation object.
          * @param _id Optional unique ID for the relation.
          * @param _ordered Whether the order of components carries semantic meaning.

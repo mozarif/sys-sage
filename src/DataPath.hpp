@@ -24,6 +24,8 @@ namespace sys_sage {
 
     public:
         /**
+         * @private
+         *
          * @brief DataPath default constructor.
          * @param _dp_type Type of the DataPath.
          * @param _bw Bandwidth from the source (provides the data) to the target (requests the data)
