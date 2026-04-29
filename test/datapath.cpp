@@ -74,12 +74,12 @@ static suite<"data-path"> _ = []
         DataPath dp3{&a, &b, DataPathOrientation::Oriented, DataPathCategory::Physical};
         DataPath dp4{&b, &a, DataPathOrientation::Oriented, DataPathCategory::Physical};
 
-        expect(that % &dp1 == a.GetDataPathByType(DataPathCategory::Logical, DataPathDirection::Outgoing));
-        expect(that % &dp2 == a.GetDataPathByType(DataPathCategory::Physical, DataPathDirection::Outgoing));
-        expect(that % nullptr == a.GetDataPathByType(DataPathCategory::L3CAT, DataPathDirection::Outgoing));
-        expect(that % &dp4 == a.GetDataPathByType(DataPathCategory::Physical, DataPathDirection::Incoming));
-        expect(that % &dp4 == b.GetDataPathByType(DataPathCategory::Physical, DataPathDirection::Outgoing));
-        expect(that % &dp2 == b.GetDataPathByType(DataPathCategory::Physical, DataPathDirection::Any));
+        expect(that % &dp1 == a.GetDataPathByCategory(DataPathCategory::Logical, DataPathDirection::Outgoing));
+        expect(that % &dp2 == a.GetDataPathByCategory(DataPathCategory::Physical, DataPathDirection::Outgoing));
+        expect(that % nullptr == a.GetDataPathByCategory(DataPathCategory::L3CAT, DataPathDirection::Outgoing));
+        expect(that % &dp4 == a.GetDataPathByCategory(DataPathCategory::Physical, DataPathDirection::Incoming));
+        expect(that % &dp4 == b.GetDataPathByCategory(DataPathCategory::Physical, DataPathDirection::Outgoing));
+        expect(that % &dp2 == b.GetDataPathByCategory(DataPathCategory::Physical, DataPathDirection::Any));
     };
 
     "Get all data paths by type"_test = []
