@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
     std::vector<DataPath*> capsDataPaths;
     for(Component* gpu_c: hwlocComponentList)
     {
-        capsDataPaths = gpu_c->FindDataPaths(sys_sage::DataPathType::Any, sys_sage::DataPathDirection::Outgoing);
+        capsDataPaths = gpu_c->FindDataPaths(sys_sage::DataPathCategory::Any, sys_sage::DataPathDirection::Outgoing);
         // capsDataPaths = gpu_c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
         caps_dataPaths += capsDataPaths.size();
     }
@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
     unsigned int max_bw = 0;
     Component* max_bw_component = NULL;
     t_start = high_resolution_clock::now();
-    std::vector<DataPath*> dp_vec = numa->FindDataPaths(sys_sage::DataPathType::Any, sys_sage::DataPathDirection::Outgoing);
+    std::vector<DataPath*> dp_vec = numa->FindDataPaths(sys_sage::DataPathCategory::Any, sys_sage::DataPathDirection::Outgoing);
     // vector<DataPath*>* dp = numa->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
     for(DataPath* dp : dp_vec)
     {
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
     std::vector<DataPath*> componentDataPaths;
     for(Component* gpu_c: mt4gComponentList)
     {
-        componentDataPaths = gpu_c->FindDataPaths(sys_sage::DataPathType::Any, sys_sage::DataPathDirection::Outgoing);
+        componentDataPaths = gpu_c->FindDataPaths(sys_sage::DataPathCategory::Any, sys_sage::DataPathDirection::Outgoing);
         // componentDataPaths = gpu_c->GetDataPaths(SYS_SAGE_DATAPATH_OUTGOING);
         mt4g_dataPaths += componentDataPaths.size();
     }

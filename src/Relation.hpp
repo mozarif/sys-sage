@@ -16,6 +16,9 @@
 #include <vector>
 #include <string>
 #include <libxml/parser.h>
+#include <nlohmann/json.hpp>
+#include <unordered_map>
+#include <stdint.h>
 
 #include "defines.hpp"
 #include "enums.hpp"
@@ -48,6 +51,18 @@ namespace sys_sage {
     class Relation {
     public:
         /**
+         * @private
+         *
+         * @brief Default-initializes a new Relation object.
+         * @param _id Optional unique ID for the relation.
+         * @param _ordered Whether the order of components carries semantic meaning.
+         *
+         * The type of the relation is set to sys_sage::RelationType::Relation.
+         */
+        Relation(int _id = 0, bool _ordered = true,
+                 RelationCategory::type _category = RelationCategory::Default);
+        
+        /**
          * @brief Construct a new Relation object.
          * @param components List of pointers to participating Components.
          * @param _id Optional unique ID for the relation.
@@ -56,7 +71,7 @@ namespace sys_sage {
          * The type of the relation is set to sys_sage::RelationType::Relation.
          */
         Relation(const std::vector<Component*>& components, int _id = 0, bool _ordered = true,
-                 RelationCategory::type category = RelationCategory::Default);
+                 RelationCategory::type _category = RelationCategory::Default);
         /**
          * @brief Sets the id of the relationship.
          * @param _id The id of the relationship to set.
@@ -168,6 +183,31 @@ namespace sys_sage {
          * Should normally not be used directly. Used internally for exporting the relation to XML.
          */
         virtual xmlNodePtr _CreateXmlEntry();
+
+        /**
+         * @private
+         *
+         * @brief Initializes a JSON object that represents this relation.
+         *        Intended for internal use.
+         *
+         * @param obj The JSON object to be initialized.
+         */
+        virtual void _ToJson(nlohmann::ordered_json &obj) const;
+
+        /**
+         * @private
+         *
+         * @brief Initializes this relation through JSON. Intended for internal
+         *        use.
+         *
+         * @param obj The JSON object containing the data.
+         * @param componentMap A map used for the relation graph.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        virtual int _FromJson(const nlohmann::ordered_json &obj,
+                              const std::unordered_map<uintptr_t, Component *> &componentMap);
+
         /**
          * @brief Virtual function to delete the relation.
          *
@@ -298,6 +338,15 @@ namespace sys_sage {
          * @param _relation_type The type of the relation (see RelationType::type).
          */
         Relation(const std::vector<Component*>& components, int _id, bool _ordered, RelationType::type _relation_type, RelationCategory::type _relation_category);
+
+        /**
+         * @private
+         * @brief Protected constructor for internal use. Makes sure that the relation type is set correctly.
+         * @param _id Optional unique ID for the relation.
+         * @param _ordered Whether the order of components carries semantic meaning.
+         * @param _relation_type The type of the relation (see RelationType::type).
+         */
+        Relation(int _id, bool _ordered, RelationType::type _relation_type, RelationCategory::type _relation_category);
 
         /**
          * @brief Whether order in the component list is meaningful.

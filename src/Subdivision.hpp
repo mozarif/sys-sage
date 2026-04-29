@@ -33,21 +33,44 @@ namespace sys_sage {
         */
         ~Subdivision() override = default;
         /**
-         * Sets the type of the subdivision
-        @param subdivisionType = type 
+         * Sets the category of the subdivision
+        @param subdivisionCategory = category 
         */
-        void SetSubdivisionType(SubdivisionType::type subdivisionType);
+        void SetSubdivisionCategory(SubdivisionCategory::type subdivisionCategory);
         /**
-        @returns the type of subdivision
-        @see type
+        @returns the category of subdivision
+        @see category
         */
-        SubdivisionType::type GetSubdivisionType() const;
+        SubdivisionCategory::type GetSubdivisionCategory() const;
         /**
         @private
         !!Should normally not be used!! Helper function of XML dump generation.
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
         xmlNodePtr _CreateXmlSubtree() override;
+
+        /**
+         * @private
+         *
+         * @brief Initializes a JSON object that represents this component.
+         *        Intended for internal use.
+         *
+         * @param obj The JSON object to be initialized.
+         */
+        void _ToJson(nlohmann::ordered_json &obj) const override;
+
+        /**
+         * @private
+         *
+         * @brief Initializes this component through JSON. Intended for
+         *        internal use.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        int _FromJson(const nlohmann::ordered_json &obj) override;
+
     protected:
         /**
         Subdivision constructor (no automatic insertion in the Component Tree). Sets:
@@ -67,7 +90,7 @@ namespace sys_sage {
         //SVDOCTODO
         Subdivision(Component * parent, int _id, const std::string &_name, ComponentType::type _componentType);
 
-        SubdivisionType::type type; /**< Type of the subdivision. Each user can have his own numbering, i.e. the type is there to identify different types of subdivisions as the user defines it.*/
+        SubdivisionCategory::type category; /**< Category of the subdivision. Each user can have his own numbering, i.e. the category is there to identify different categories of subdivisions as the user defines it.*/
     };
 }
 

@@ -440,7 +440,7 @@ void sys_sage::Component::_AddRelation(RelationType::type relationType, Relation
     (*relations)[relationType]->push_back(r);
 }
 
-sys_sage::DataPath* sys_sage::Component::GetDataPathByType(DataPathType::type  dp_type, DataPathDirection::type direction) const
+sys_sage::DataPath* sys_sage::Component::GetDataPathByType(DataPathCategory::type  dp_type, DataPathDirection::type direction) const
 {
     for(Relation* r: *(*relations)[RelationType::DataPath])
     {
@@ -451,7 +451,7 @@ sys_sage::DataPath* sys_sage::Component::GetDataPathByType(DataPathType::type  d
             (direction == DataPathDirection::Incoming && r->GetComponent(1) == this))
         {
             DataPath* dp = reinterpret_cast<DataPath*>(r);
-            if(dp->GetDataPathType() == dp_type)
+            if(dp->GetDataPathCategory() == dp_type)
                 return dp;
         }
     }
@@ -520,12 +520,12 @@ std::vector<sys_sage::Relation*> sys_sage::Component::FindRelations(RelationType
     return out_vector;
 }
 
-void sys_sage::Component::GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type, DataPathDirection::type direction) const
+void sys_sage::Component::GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathCategory::type dp_type, DataPathDirection::type direction) const
 {
     FindDataPaths(*outDpArr, dp_type, direction);
 }
 
-void sys_sage::Component::FindDataPaths(std::vector<DataPath*> &outDpArr, DataPathType::type dp_type, DataPathDirection::type direction) const
+void sys_sage::Component::FindDataPaths(std::vector<DataPath*> &outDpArr, DataPathCategory::type dp_type, DataPathDirection::type direction) const
 {
     if (relations == nullptr || (*relations)[RelationType::DataPath] == nullptr)
         return;
@@ -539,21 +539,21 @@ void sys_sage::Component::FindDataPaths(std::vector<DataPath*> &outDpArr, DataPa
             (direction == DataPathDirection::Incoming && r->GetComponent(1) == this))
         {
             DataPath* dp = reinterpret_cast<DataPath*>(r);
-            if(dp_type == DataPathType::Any || dp->GetDataPathType() == dp_type)
-                outDpArr.push_back(dp);
+            if(dp_type == DataPathCategory::Any || dp->GetDataPathCategory() == dp_type)
+                outDpArr->push_back(dp);
         }
     }
     return;
 }
 
-std::vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPaths(DataPathType::type dp_type, DataPathDirection::type direction) const
+std::vector<sys_sage::DataPath*> sys_sage::Component::GetAllDataPaths(DataPathCategory::type dp_type, DataPathDirection::type direction) const
 {
     vector<DataPath*> outDpArr;
     FindDataPaths(outDpArr, dp_type, direction);
     return outDpArr;
 }
 
-std::vector<sys_sage::DataPath*> sys_sage::Component::FindDataPaths(DataPathType::type dp_type, DataPathDirection::type direction) const
+std::vector<sys_sage::DataPath*> sys_sage::Component::FindDataPaths(DataPathCategory::type dp_type, DataPathDirection::type direction) const
 {
     vector<DataPath*> outDpArr;
     FindDataPaths(outDpArr, dp_type, direction);

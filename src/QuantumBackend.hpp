@@ -107,7 +107,7 @@ namespace sys_sage {
         * @return A vector of quantum gates with the specified type.
         */
         [[ deprecated("Use FindGatesByType instead. This function will be removed in the future (used up until version 1.0.0).") ]]
-        std::vector<QuantumGate*> GetGatesByType(QuantumGateType::type _gate_type) const;
+        std::vector<QuantumGate*> GetGatesByType(QuantumGateCategory::type _gate_type) const;
 
         /**
         * @brief Gets the quantum gates by their type.
@@ -115,7 +115,7 @@ namespace sys_sage {
         * @param _gate_type The type of the gates to retrieve.
         * @return A vector of quantum gates with the specified type.
         */
-        std::vector<QuantumGate*> FindGatesByType(QuantumGateType::type _gate_type) const;
+        std::vector<QuantumGate*> FindGatesByType(QuantumGateCategory::type _gate_type) const;
 
         /**
         * @brief Gets all types of quantum gates in the quantum backend.
@@ -152,6 +152,28 @@ namespace sys_sage {
         @see exportToXml(Component* root, string path = "", std::function<int(string,void*,string*)> custom_search_attrib_key_fcn = NULL);
         */
         xmlNodePtr _CreateXmlSubtree() override;
+
+        /**
+         * @private
+         *
+         * @brief Initializes a JSON object that represents this component.
+         *        Intended for internal use.
+         *
+         * @param obj The JSON object to be initialized.
+         */
+        void _ToJson(nlohmann::ordered_json &obj) const override;
+
+        /**
+         * @private
+         *
+         * @brief Initializes this component through JSON. Intended for
+         *        internal use.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        int _FromJson(const nlohmann::ordered_json &obj) override;
 
         /** Destructor for QuantumBackend. */
         ~QuantumBackend() override = default;

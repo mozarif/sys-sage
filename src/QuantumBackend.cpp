@@ -35,19 +35,19 @@ std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::FindGatesBySize(si
     return gates;
 }
 
-std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::GetGatesByType(QuantumGateType::type _gate_type) const 
+std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::GetGatesByType(QuantumGateCategory::type _gate_type) const 
 {
     return FindGatesByType(_gate_type);
 }
 
-std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::FindGatesByType(QuantumGateType::type _gate_type) const 
+std::vector<sys_sage::QuantumGate*> sys_sage::QuantumBackend::FindGatesByType(QuantumGateCategory::type _gate_type) const 
 {
     std::vector<QuantumGate*> gates;
     gates.reserve(gate_types.size());
     
     for (QuantumGate * gate : gate_types)
     {
-        if(_gate_type == gate->GetQuantumGateType())
+        if(_gate_type == gate->GetQuantumGateCategory())
             gates.emplace_back(gate);        
     }
     
