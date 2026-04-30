@@ -18,7 +18,7 @@ namespace sys_sage {
         @param _name = name, default "Thread"
         @param componentType=>SYS_SAGE_COMPONENT_THREAD
         */
-        Thread(int _id = 0, std::string _name = "Thread");
+        Thread(int _id = 0, const std::string &_name = "Thread");
         /**
         Thread constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -26,7 +26,30 @@ namespace sys_sage {
         @param _name = name, default "Thread"
         @param componentType=>SYS_SAGE_COMPONENT_THREAD
         */    
-        Thread(Component * parent, int _id = 0, std::string _name = "Thread");
+        Thread(Component * parent, int _id = 0, const std::string &_name = "Thread");
+
+        /**
+         * @private
+         *
+         * @brief Initializes a JSON object that represents this component.
+         *        Intended for internal use.
+         *
+         * @param obj The JSON object to be initialized.
+         */
+        void _ToJson(nlohmann::ordered_json &obj) const override;
+
+        /**
+         * @private
+         *
+         * @brief Initializes this component through JSON. Intended for
+         *        internal use.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        int _FromJson(const nlohmann::ordered_json &obj) override;
+
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
@@ -109,7 +132,7 @@ namespace sys_sage {
          *
          * @param A vector used for storing the relations.
          */
-        void FindPAPIrelations(std::vector<Relation *> &) const;
+        void FindPAPIrelations(std::vector<Relation *> &papiRelations) const;
 
         /**
          * @brief Retrieve all eventSets that are associated to this component.
@@ -124,7 +147,7 @@ namespace sys_sage {
          *
          * @param A vector used for storing the relations.
          */
-        void FindPAPIeventSets(std::vector<int> &) const;
+        void FindPAPIeventSets(std::vector<int> &eventSets) const;
 
 #endif
     private:

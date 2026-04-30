@@ -22,6 +22,7 @@
 #include "CouplingMap.hpp"
 #include "xml_dump.hpp"
 #include "xml_load.hpp"
+#include "json_serialization.hpp"
 #include "parsers/hwloc.hpp"
 #include "parsers/caps-numa-benchmark.hpp"
 #include "parsers/mt4g.hpp"

@@ -95,7 +95,7 @@ class TestRelations(unittest.TestCase):
         foo = sys_sage.Component()
         bar = sys_sage.Component()
 
-        r = sys_sage.DataPath(foo, bar, sys_sage.DATAPATH_ORIENTATION_ORIENTED, sys_sage.DATAPATH_TYPE_ANY)
+        r = sys_sage.DataPath(foo, bar, sys_sage.DATAPATH_ORIENTATION_ORIENTED, sys_sage.DATAPATH_CATEGORY_ANY)
         # test if inherited class can access members of the base class
         self.assertEqual(r.type, sys_sage.RELATION_TYPE_DATAPATH)
 
@@ -108,7 +108,7 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(r.type, sys_sage.RELATION_TYPE_QUANTUMGATE)
 
         r.SetGateProperties("cx", 1.0, "[1 0 0 0; 0 1 0 0; 0 0 0 1; 0 0 1 0]")
-        self.assertEqual(r.gate_type, sys_sage.QUANTUMGATE_TYPE_CNOT)
+        self.assertEqual(r.gate_type, sys_sage.QUANTUMGATE_CATEGORY_CNOT)
         self.assertEqual(r.fidelity, 1.0)
         self.assertEqual(r.unitary, "[1 0 0 0; 0 1 0 0; 0 0 0 1; 0 0 1 0]")
 

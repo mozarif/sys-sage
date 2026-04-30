@@ -106,7 +106,7 @@ ut::suite<"relation"> _ = []
     ut::test("DataPath") = []
     {
       Component foo, bar;
-      Relation *r = new DataPath(&foo, &bar, DataPathOrientation::Oriented, DataPathType::Any);
+      Relation *r = new DataPath(&foo, &bar, DataPathOrientation::Oriented, DataPathCategory::Any);
       ut::expect(ut::that % r->GetType() == RelationType::DataPath);
       dynamic_cast<DataPath *>(r)->SetBandwidth(1.0);
       dynamic_cast<DataPath *>(r)->SetLatency(2.0);
@@ -121,7 +121,7 @@ ut::suite<"relation"> _ = []
 
       ut::expect(ut::that % r->GetType() == RelationType::QuantumGate);
       dynamic_cast<QuantumGate *>(r)->SetGateProperties("cx", 1.0, "[1 0 0 0; 0 1 0 0; 0 0 0 1; 0 0 1 0]");
-      ut::expect(ut::that % dynamic_cast<QuantumGate *>(r)->GetQuantumGateType() == QuantumGateType::Cnot);
+      ut::expect(ut::that % dynamic_cast<QuantumGate *>(r)->GetQuantumGateCategory() == QuantumGateCategory::Cnot);
       ut::expect(ut::that % dynamic_cast<QuantumGate *>(r)->GetFidelity() == 1.0);
       ut::expect(ut::that % (dynamic_cast<QuantumGate *>(r)->GetUnitary() == "[1 0 0 0; 0 1 0 0; 0 0 0 1; 0 0 1 0]"));
       r->Delete();

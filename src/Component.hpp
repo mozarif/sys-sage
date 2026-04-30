@@ -17,8 +17,7 @@
 #include "DataPath.hpp"
 #include "attribute.hpp"
 #include <libxml/parser.h>
-
-
+#include <nlohmann/json.hpp>
 
 namespace sys_sage { //forward declaration
     class Topology;
@@ -50,7 +49,7 @@ namespace sys_sage {
          *
          * Sets componentType to sys_sage::ComponentType::Generic.
          */
-        Component(int _id = 0, std::string _name = "unknown");
+        Component(int _id = 0, const std::string &_name = "unknown");
         /**
          * @brief Generic Component constructor with insertion into the Component Tree as the parent's child.
          * Usually one of the derived subclasses for different Component Types will be created.
@@ -60,7 +59,7 @@ namespace sys_sage {
          *
          * Sets componentType to sys_sage::ComponentType::Generic.
          */
-        Component(Component * parent, int _id = 0, std::string _name = "unknown");
+        Component(Component * parent, int _id = 0, const std::string &_name = "unknown");
 
         /**
          * @brief Prohibit shallow copies by deleting the implicit copy constructor.
@@ -182,7 +181,7 @@ namespace sys_sage {
          * @param _name Name of the component
          * @see name
          */
-        void SetName(std::string _name);
+        void SetName(const std::string &_name);
         /**
          * @brief Returns id of the component.
          * @return id
@@ -209,15 +208,15 @@ namespace sys_sage {
          * @return String representation of the component type.
          * @see componentType
          */
-        std::string GetComponentTypeStr() const;
+        const std::string &GetComponentTypeStr() const;
         /**
-         * @brief Returns a const reference to std::vector containing all children of the component (empty vector if no children).
+         * @brief Returns a reference to const std::vector containing all children of the component (empty vector if no children).
          * @return const std::vector<Component *> & with children
          */
         const std::vector<Component*>& GetChildren() const;
         /**
          * @private
-         * @brief Returns a non-const reference to the children vector (internal use).
+         * @brief Returns a reference to the non-const children vector (internal use).
          */
         std::vector<Component*>& _GetChildren();
         /**
@@ -279,7 +278,7 @@ namespace sys_sage {
             \n An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
         */
-        void FindChildrenByType(std::vector<Component *> *_outArray, ComponentType::type _componentType) const;
+        void FindChildrenByType(std::vector<Component *> &_outArray, ComponentType::type _componentType) const;
 
         /**
         * @brief Searches the subtree to find a component with a matching id and componentType, i.e. looks for a certain component with a matching ID. The search is a DFS. The search starts with the calling component.
@@ -319,7 +318,7 @@ namespace sys_sage {
             \n An input is pointer to a std::std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
             \n The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
         */
-        void FindDescendantsByType(std::vector<Component*>* outArray, ComponentType::type _componentType);
+        void FindDescendantsByType(std::vector<Component*> &outArray, ComponentType::type _componentType);
 
         /**
          * @brief Searches for all the subcomponents (children, their children and so on) matching the given component type.
@@ -423,7 +422,7 @@ namespace sys_sage {
          *   An input is pointer to a std::vector<Component *>, in which the elements will be pushed. It must be allocated before the call (but does not have to be empty).
          *   The method pushes back the found elements -- i.e. the elements(pointers) can be found in this array after the method returns. (If no found, nothing will be pushed into the vector.)
          */
-        void FindNthDescendants(std::vector<Component*>* outArray, int depth);
+        void FindNthDescendants(std::vector<Component*> &outArray, int depth);
 
         /**
          * @brief Retrieves a std::vector of Component pointers, which reside 'depth' levels deeper. 
@@ -546,13 +545,13 @@ namespace sys_sage {
         void _AddRelation(RelationType::type relationType, Relation* r);
 
         /**
-         * @brief Retrieves a DataPath* from the list of this component's data paths with matching DataPathType and DataPathDirection.
+         * @brief Retrieves a DataPath* from the list of this component's data paths with matching DataPathCategory and DataPathDirection.
          * The first match is returned.
-         * @param dp_type DataPath type to search for
+         * @param dp_category DataPath category to search for
          * @param direction Orientation (default: Any)
          * @return Pointer to the found DataPath, or nullptr if not found
          */
-        DataPath* GetDataPathByType(DataPathType::type dp_type, DataPathDirection::type direction = DataPathDirection::Any) const;
+        DataPath* GetDataPathByCategory(DataPathCategory::type dp_category, DataPathDirection::type direction = DataPathDirection::Any) const;
         
         /**
          * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation.
@@ -560,11 +559,11 @@ namespace sys_sage {
          * @param outDpArr - output parameter (vector with results)
          * An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
          * The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
-         * @param dp_type DataPath type to search for (default: Any)
+         * @param dp_category DataPath category to search for (default: Any)
          * @param direction Orientation/direction of a DataPath (default: Any)
          */
         [[ deprecated("Use FindDataPaths instead. This function will be removed in the future (used up until version 1.0.0).") ]]
-        void GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        void GetAllDataPaths(std::vector<DataPath*>* outDpArr, DataPathCategory::type dp_category = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
          * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation.
@@ -572,29 +571,29 @@ namespace sys_sage {
          * @param outDpArr - output parameter (vector with results)
          * An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
          * The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
-         * @param dp_type DataPath type to search for (default: Any)
+         * @param dp_category DataPath type to search for (default: Any)
          * @param direction Orientation/direction of a DataPath (default: Any)
          */
-        void FindDataPaths(std::vector<DataPath*>* outDpArr, DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        void FindDataPaths(std::vector<DataPath*> &outDpArr, DataPathCategory::type dp_category = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
          * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation/direction.
          * Results are returned in a std::vector<DataPath*>*.
-         * @param dp_type DataPath type to search for (default: Any)
+         * @param dp_category DataPath type to search for (default: Any)
          * @param direction Orientation (default: Any)
          * @return Vector of matching DataPaths
          */
         [[ deprecated("Use FindDataPaths instead. This function will be removed in the future (used up until version 1.0.0).") ]]
-        std::vector<DataPath*> GetAllDataPaths(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        std::vector<DataPath*> GetAllDataPaths(DataPathCategory::type dp_category = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
          * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation/direction.
          * Results are returned in a std::vector<DataPath*>*.
-         * @param dp_type DataPath type to search for (default: Any)
+         * @param dp_category DataPath type to search for (default: Any)
          * @param direction Orientation (default: Any)
          * @return Vector of matching DataPaths
          */
-        std::vector<DataPath*> FindDataPaths(DataPathType::type dp_type = DataPathType::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
+        std::vector<DataPath*> FindDataPaths(DataPathCategory::type dp_category = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
         @brief Checks the consistency of the component tree starting from this component.
@@ -663,7 +662,7 @@ namespace sys_sage {
          * @return The total size in bytes
          * @see GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize);
          */
-        int _CalcSubtreeSize(unsigned * out_component_size, unsigned * out_RelationSize, std::set<Relation*>* countedRelations) const;
+        int _CalcSubtreeSize(unsigned * out_component_size, unsigned * out_RelationSize, std::set<Relation*> &countedRelations) const;
 
         /**
          * @brief Retrieves the depth (level) of a component in the topology.
@@ -690,7 +689,29 @@ namespace sys_sage {
          * @return Pointer to the created XML subtree node.
          */
         virtual xmlNodePtr _CreateXmlSubtree();
-        
+
+        /**
+         * @private
+         *
+         * @brief Initializes a JSON object that represents this component.
+         *        Intended for internal use.
+         *
+         * @param obj The JSON object to be initialized.
+         */
+        virtual void _ToJson(nlohmann::ordered_json &obj) const;
+
+        /**
+         * @private
+         *
+         * @brief Initializes this component through JSON. Intended for
+         *        internal use.
+         *
+         * @param obj The JSON object containing the data.
+         *
+         * @return 0 on success, 1 otherwise.
+         */
+        virtual int _FromJson(const nlohmann::ordered_json &obj);
+
         /**
          * @brief Deletes a Relation from this component as well as the Relation itself.
          * @param r Pointer to the relation to delete
@@ -943,7 +964,7 @@ namespace sys_sage {
          * @param _name Name of the component
          * @param _componentType Component type (of type sys_sage::ComponentType::type)
          */
-        Component(int _id, std::string _name, ComponentType::type _componentType);
+        Component(int _id, const std::string &_name, ComponentType::type _componentType);
 
         /**
          * @brief Protected constructor for derived classes with insertion into the Component Tree.
@@ -952,7 +973,7 @@ namespace sys_sage {
          * @param _name Name of the component
          * @param _componentType Component type (of type sys_sage::ComponentType::type)
          */
-        Component(Component * parent, int _id, std::string _name, ComponentType::type _componentType);
+        Component(Component * parent, int _id, const std::string &_name, ComponentType::type _componentType);
 
         int id; /**< Numeric ID of the component. There is no requirement for uniqueness of the ID, however it is advised to have unique IDs at least in the realm of parent's children (siblings). Some tree search functions, which take the id as a search parameter search for first match, so the user is responsible to manage uniqueness in the realm of the search subtree (or should be aware of the consequences of not doing so). Component's ID is set by the constructor, and is retrieved via int GetId(); */
         int depth; /**< Depth (level) of the Component in the Component Tree */
