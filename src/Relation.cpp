@@ -86,10 +86,9 @@ void sys_sage::Relation::Delete()
 }
 sys_sage::RelationType::type sys_sage::Relation::GetType() const{ return type;}
 sys_sage::RelationCategory::type sys_sage::Relation::GetCategory() const{ return category;}
-std::string sys_sage::Relation::GetTypeStr() const
+const std::string &sys_sage::Relation::GetTypeStr() const
 {
-    std::string ret(sys_sage::RelationType::ToString(type));
-    return ret;
+    return sys_sage::RelationType::ToString(type);
 }
 
 int sys_sage::Relation::UpdateComponent(int index, Component * _new_component)

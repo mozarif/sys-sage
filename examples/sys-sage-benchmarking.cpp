@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 1000; i++) {
         hwlocComponentList.clear();
         t_start = high_resolution_clock::now();
-        n->FindDescendantsByType(&hwlocComponentList, ComponentType::Any);
+        n->FindDescendantsByType(hwlocComponentList, ComponentType::Any);
         t_end = high_resolution_clock::now();
         uint64_t time = t_end.time_since_epoch().count() -
                         t_start.time_since_epoch().count() - timer_overhead;
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 100; i++) {
         mt4gComponentList.clear();
         t_start = high_resolution_clock::now();
-        gpu->FindDescendantsByType(&mt4gComponentList, ComponentType::Any);
+        gpu->FindDescendantsByType(mt4gComponentList, ComponentType::Any);
         t_end = high_resolution_clock::now();
         uint64_t time = t_end.time_since_epoch().count() -
                         t_start.time_since_epoch().count() - timer_overhead;
@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 1000; i++) {
         allComponentList.clear();
         t_start = high_resolution_clock::now();
-        t->FindDescendantsByType(&allComponentList, ComponentType::Any);
+        t->FindDescendantsByType(allComponentList, ComponentType::Any);
         t_end = high_resolution_clock::now();
         uint64_t time = t_end.time_since_epoch().count() - t_start.time_since_epoch().count() - timer_overhead;
         if (time < time_GetAllComponentsList) {

@@ -97,7 +97,7 @@ namespace sys_sage {
          * @brief Return a human-readable name of the relation type.
          * @return A string like "DataPath" or "QuantumGate".
          */
-        std::string GetTypeStr() const;
+        const std::string &GetTypeStr() const;
         /**
          * @brief Check if this relation treats component order as meaningful.
          * @return True if the order of components matters.

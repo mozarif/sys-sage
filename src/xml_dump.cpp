@@ -359,7 +359,7 @@ xmlNodePtr sys_sage::Relation::_CreateXmlEntry()
 
 int sys_sage::exportToXml(
     Component* root, 
-    std::string path, 
+    const std::string &path, 
     std::function<int(std::string,void*,std::string*)> _store_custom_attrib_fcn, 
     std::function<int(std::string,void*,xmlNodePtr)> _store_custom_complex_attrib_fcn)
 {
@@ -382,7 +382,7 @@ int sys_sage::exportToXml(
 
     //scan all Components for their relations
     std::vector<Component*> components;
-    root->FindDescendantsByType(&components, ComponentType::Any);
+    root->FindDescendantsByType(components, ComponentType::Any);
     std::cout << "Number of components to export: " << components.size() << std::endl;
     for(Component* cPtr : components)
     {

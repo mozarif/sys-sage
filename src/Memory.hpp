@@ -30,7 +30,7 @@ namespace sys_sage {
         @param _size = size/capacity of the memory element, default -1
         @param is_volatile = true if the memory is volatile, default false
         */
-        Memory(Component * parent, int id = 0, std::string _name = "Memory", long long _size = -1, bool is_volatile = false);
+        Memory(Component * parent, int id = 0, const std::string &_name = "Memory", long long _size = -1, bool is_volatile = false);
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 

@@ -27,7 +27,7 @@ namespace sys_sage {
          *
          * Sets componentType to sys_sage::ComponentType::Chip.
          */
-        Chip(int _id = 0, std::string _name = "Chip", ChipCategory::type _category = ChipCategory::None, std::string _vendor = "", std::string _model = "");
+        Chip(int _id = 0, const std::string &_name = "Chip", ChipCategory::type _category = ChipCategory::None, const std::string &_vendor = "", const std::string &_model = "");
         /**
          * @brief Chip constructor with insertion into the Component Tree as the parent's child.
          * @param parent The parent component
@@ -40,7 +40,7 @@ namespace sys_sage {
          *
          * Sets componentType to sys_sage::ComponentType::Chip.
          */
-        Chip(Component * parent, int _id = 0, std::string _name = "Chip", ChipCategory::type _category = ChipCategory::None, std::string _vendor = "", std::string _model = "");
+        Chip(Component * parent, int _id = 0, const std::string &_name = "Chip", ChipCategory::type _category = ChipCategory::None, const std::string &_vendor = "", const std::string &_model = "");
         /**
          * @private
          * Use Delete() or DeleteSubtree() for deleting and deallocating the components.
@@ -50,7 +50,7 @@ namespace sys_sage {
          * @brief Sets the vendor of the chip.
          * @param _vendor The name of the vendor to set.
          */
-        void SetVendor(std::string _vendor);
+        void SetVendor(const std::string &_vendor);
         /**
          * @brief Gets the vendor of the chip.
          * @return The name of the vendor.
@@ -62,7 +62,7 @@ namespace sys_sage {
          * @brief Sets the model of the chip.
          * @param _model The model name to set.
          */
-        void SetModel(std::string _model);
+        void SetModel(const std::string &_model);
         
         /**
          * @brief Gets the model of the chip.

@@ -40,7 +40,7 @@ namespace sys_sage {
          *
          * Sets componentType to sys_sage::ComponentType::Cache.
          */
-        Cache(Component * parent, int _id, std::string _cache_type, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
+        Cache(Component * parent, int _id, const std::string &_cache_type, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
 
         /**
          * @brief Cache constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component).
@@ -85,7 +85,7 @@ namespace sys_sage {
          * @brief Set the cache name/type (e.g., "L1", "texture").
          * @param _name Value for cache_type.
          */
-        void SetCacheName(std::string _name);
+        void SetCacheName(const std::string &_name);
 
         /**
          * @brief Retrieves size/capacity of the cache.

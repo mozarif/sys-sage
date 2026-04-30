@@ -389,7 +389,7 @@ PYBIND11_MODULE(sys_sage, m) {
 // -- DEPRECATED GetComponentsInSubtree (used up until version 1.0.0)
         .def("GetComponentsInSubtree", [] (Component &self) {
             std::vector<Component *> v;
-            self.FindDescendantsByType(&v, ComponentType::Any);
+            self.FindDescendantsByType(v, ComponentType::Any);
             return v;
         }, "Get all the components in the subtree of the component")
 // --
@@ -405,11 +405,11 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetAllRelationsBy", &Component::FindRelations, py::arg("type") = RelationType::Any, py::arg("position") = -1, "Get all relations of that type and position")
 // --
         .def("FindRelations", &Component::FindRelations, py::arg("type") = RelationType::Any, py::arg("position") = -1, "Find the relations of that type and position")
-        .def("GetDataPathByType", &Component::GetDataPathByType, py::arg("type"), py::arg("direction") = DataPathDirection::Any,"Get the first data path associated with the component by type")
+        .def("GetDataPathByCategory", &Component::GetDataPathByCategory, py::arg("category"), py::arg("direction") = DataPathDirection::Any,"Get the first data path associated with the component by type")
 // -- DEPRECATED GetAllDataPaths (used up until version 1.0.0)
-        .def("GetAllDataPaths", (std::vector<DataPath *> (Component::*) (DataPathCategory::type, DataPathDirection::type) const) &Component::FindDataPaths, py::arg("type") = DataPathCategory::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that type and direction")
+        .def("GetAllDataPaths", (std::vector<DataPath *> (Component::*) (DataPathCategory::type, DataPathDirection::type) const) &Component::FindDataPaths, py::arg("category") = DataPathCategory::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that category and direction")
 // --
-        .def("FindDataPaths", (std::vector<DataPath *> (Component::*) (DataPathCategory::type, DataPathDirection::type) const) &Component::FindDataPaths, py::arg("type") = DataPathCategory::Any, py::arg("direction") = DataPathDirection::Any, "Find the datapaths of that type and direction")
+        .def("FindDataPaths", (std::vector<DataPath *> (Component::*) (DataPathCategory::type, DataPathDirection::type) const) &Component::FindDataPaths, py::arg("category") = DataPathCategory::Any, py::arg("direction") = DataPathDirection::Any, "Find the datapaths of that category and direction")
 // -- DEPRECATED CheckComponentTreeConsistency (used up until version 1.0.0)
         .def("CheckComponentTreeConsistency", &Component::CheckSubtreeConsistency,"Check if the component tree is consistent")
 // --
@@ -639,7 +639,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathCategory::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))
         .def_property("bandwidth", &DataPath::GetBandwidth, &DataPath::SetBandwidth, "The bandwidth of the data path")
         .def_property("latency", &DataPath::GetLatency, &DataPath::SetLatency, "The latency of the data path")
-        .def_property_readonly("dp_type", &DataPath::GetDataPathCategory, "The type of the data path")
+        .def_property_readonly("dp_category", &DataPath::GetDataPathCategory, "The type of the data path")
         .def_property_readonly("orientation", &DataPath::GetOrientation, "The orientation of the data path")
         .def_property("source", &DataPath::GetSource, &DataPath::UpdateSource, "The source of the data path")
         .def_property("target", &DataPath::GetTarget, &DataPath::UpdateTarget, "The target of the data path")
@@ -676,8 +676,8 @@ PYBIND11_MODULE(sys_sage, m) {
 
     m.def("parseCapsNumaBenchmark", &parseCapsNumaBenchmark,  py::arg("root"), py::arg("benchmarkPath"), py::arg("delim") = ";");
 
-    m.def("parseIQM", (int (*) (Component *, std::string, int, int)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1);
-    m.def("parseIQM", (int (*) (QuantumBackend *, std::string, int, int, bool)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1, py::arg("createTopo") = true);
+    m.def("parseIQM", (int (*) (Component *, const std::string &, int, int)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1);
+    m.def("parseIQM", (int (*) (QuantumBackend *, const std::string&, int, int, bool)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1, py::arg("createTopo") = true);
 
     // TODO: QDMI parser logic is missing in src/parsers/qdmi-parser.hpp
 

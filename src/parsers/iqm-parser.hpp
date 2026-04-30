@@ -18,14 +18,14 @@
 
 namespace sys_sage {
     //user calls only these functions
-    int parseIQM(Component* parent, std::string dataSourcePath, int qcId, int tsForHistory = -1);
-    int parseIQM(QuantumBackend* parent, std::string dataSourcePath, int qcId, int tsForHistory = -1, bool createTopo = true);
+    int parseIQM(Component* parent, const std::string &dataSourcePath, int qcId, int tsForHistory = -1);
+    int parseIQM(QuantumBackend* parent, const std::string &dataSourcePath, int qcId, int tsForHistory = -1, bool createTopo = true);
 
     class IQMParser
     {
     public: 
 
-        IQMParser(QuantumBackend* _qc,std::string filepath);
+        IQMParser(QuantumBackend* _qc, const std::string &filepath);
         int CreateQcTopo();
         int ParseDynamicData(int tsForHistory);
     private:

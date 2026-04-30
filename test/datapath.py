@@ -9,7 +9,7 @@ class TestDatapaths(unittest.TestCase):
         self.assertEqual(a, dp.source)
         self.assertEqual(b, dp.target)
         self.assertEqual(syge.DATAPATH_ORIENTATION_ORIENTED, dp.orientation)
-        self.assertEqual(syge.DATAPATH_CATEGORY_PHYSICAL, dp.dp_type)
+        self.assertEqual(syge.DATAPATH_CATEGORY_PHYSICAL, dp.dp_category)
     def test_constructor_2(self):
         a = syge.Component()
         b = syge.Component()
@@ -17,7 +17,7 @@ class TestDatapaths(unittest.TestCase):
         self.assertEqual(a, dp.source)
         self.assertEqual(b, dp.target)
         self.assertEqual(syge.DATAPATH_ORIENTATION_ORIENTED, dp.orientation)
-        self.assertEqual(syge.DATAPATH_CATEGORY_NONE, dp.dp_type)
+        self.assertEqual(syge.DATAPATH_CATEGORY_NONE, dp.dp_category)
         self.assertEqual(5.0, dp.bandwidth)
         self.assertEqual(42.0, dp.latency)
     def test_constructor_3(self):
@@ -27,7 +27,7 @@ class TestDatapaths(unittest.TestCase):
         self.assertEqual(a, dp.source)
         self.assertEqual(b, dp.target)
         self.assertEqual(syge.DATAPATH_ORIENTATION_ORIENTED, dp.orientation)
-        self.assertEqual(syge.DATAPATH_CATEGORY_PHYSICAL, dp.dp_type)
+        self.assertEqual(syge.DATAPATH_CATEGORY_PHYSICAL, dp.dp_category)
         self.assertEqual(5.0, dp.bandwidth)
         self.assertEqual(42.0, dp.latency)
     def test_unidirectional_data_path(self):
@@ -56,12 +56,12 @@ class TestDatapaths(unittest.TestCase):
         dp3 = syge.DataPath(a, b, syge.DATAPATH_ORIENTATION_ORIENTED, syge.DATAPATH_CATEGORY_PHYSICAL)
         dp4 = syge.DataPath(b, a, syge.DATAPATH_ORIENTATION_ORIENTED, syge.DATAPATH_CATEGORY_PHYSICAL)
 
-        self.assertEqual(dp1, a.GetDataPathByType(syge.DATAPATH_CATEGORY_LOGICAL, syge.DATAPATH_DIRECTION_OUTGOING))
-        self.assertEqual(dp2, a.GetDataPathByType(syge.DATAPATH_CATEGORY_PHYSICAL, syge.DATAPATH_DIRECTION_OUTGOING))
-        self.assertEqual(None, a.GetDataPathByType(syge.DATAPATH_CATEGORY_L3CAT, syge.DATAPATH_DIRECTION_OUTGOING))
-        self.assertEqual(dp4, a.GetDataPathByType(syge.DATAPATH_CATEGORY_PHYSICAL, syge.DATAPATH_DIRECTION_INCOMING))
-        self.assertEqual(dp4, b.GetDataPathByType(syge.DATAPATH_CATEGORY_PHYSICAL, syge.DATAPATH_DIRECTION_OUTGOING))
-        self.assertEqual(dp2, b.GetDataPathByType(syge.DATAPATH_CATEGORY_PHYSICAL, syge.DATAPATH_DIRECTION_ANY))
+        self.assertEqual(dp1, a.GetDataPathByCategory(syge.DATAPATH_CATEGORY_LOGICAL, syge.DATAPATH_DIRECTION_OUTGOING))
+        self.assertEqual(dp2, a.GetDataPathByCategory(syge.DATAPATH_CATEGORY_PHYSICAL, syge.DATAPATH_DIRECTION_OUTGOING))
+        self.assertEqual(None, a.GetDataPathByCategory(syge.DATAPATH_CATEGORY_L3CAT, syge.DATAPATH_DIRECTION_OUTGOING))
+        self.assertEqual(dp4, a.GetDataPathByCategory(syge.DATAPATH_CATEGORY_PHYSICAL, syge.DATAPATH_DIRECTION_INCOMING))
+        self.assertEqual(dp4, b.GetDataPathByCategory(syge.DATAPATH_CATEGORY_PHYSICAL, syge.DATAPATH_DIRECTION_OUTGOING))
+        self.assertEqual(dp2, b.GetDataPathByCategory(syge.DATAPATH_CATEGORY_PHYSICAL, syge.DATAPATH_DIRECTION_ANY))
 
     def test_get_all_data_paths_by_type(self):
         a = syge.Component()

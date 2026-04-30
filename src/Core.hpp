@@ -17,7 +17,7 @@ namespace sys_sage {
         @param _name = name, default "Core"
         @param componentType=>SYS_SAGE_COMPONENT_CORE
         */
-        Core(int _id = 0, std::string _name = "Core");
+        Core(int _id = 0, const std::string &_name = "Core");
         /**
         Core constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
         @param parent = the parent 
@@ -25,7 +25,7 @@ namespace sys_sage {
         @param _name = name, default "Core"
         @param componentType=>SYS_SAGE_COMPONENT_CORE
         */
-        Core(Component * parent, int _id = 0, std::string _name = "Core");
+        Core(Component * parent, int _id = 0, const std::string &_name = "Core");
         /**
         * @private
         * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 

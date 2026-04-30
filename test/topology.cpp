@@ -272,7 +272,7 @@ static suite<"topology"> _ = []
         c.InsertChild(&d);
 
         std::vector<Component *> array;
-        a.FindNthDescendants(&array, 1);
+        a.FindNthDescendants(array, 1);
         expect(that % 2_u == array.size());
     };
 
@@ -288,7 +288,7 @@ static suite<"topology"> _ = []
         c.InsertChild(&d);
 
         std::vector<Component *> array;
-        a.FindDescendantsByType(&array, ComponentType::Chip);
+        a.FindDescendantsByType(array, ComponentType::Chip);
         expect(that % 2_u == array.size());
     };
 
@@ -322,7 +322,7 @@ static suite<"topology"> _ = []
         a.InsertChild(&c);
 
         std::vector<Component *> array;
-        a.FindDescendantsByType(&array, ComponentType::Any);
+        a.FindDescendantsByType(array, ComponentType::Any);
         expect(that % array == (std::vector<Component *>{&a, &b, &d, &c}));
     };
 

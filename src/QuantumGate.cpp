@@ -3,9 +3,9 @@
 
 #include <iostream>
 
-sys_sage::QuantumGate::QuantumGate(size_t _gate_size, std::string _name, double _fidelity, std::string _unitary) : Relation(sys_sage::RelationType::QuantumGate, sys_sage::RelationCategory::Default), gate_size(_gate_size), name(_name), fidelity(_fidelity), unitary(_unitary) {}
+sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::string &_name, double _fidelity, const std::string &_unitary) : Relation(sys_sage::RelationType::QuantumGate, sys_sage::RelationCategory::Default), gate_size(_gate_size), name(_name), fidelity(_fidelity), unitary(_unitary) {}
 sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits) : QuantumGate(_gate_size, _qubits, "QuantumGate", 0.0, ""){}
-sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, std::string _name, double _fidelity, std::string _unitary) : Relation(sys_sage::RelationType::QuantumGate, sys_sage::RelationCategory::Default), gate_size(_gate_size), fidelity(_fidelity), unitary(_unitary) 
+sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *> & _qubits, const std::string &_name, double _fidelity, const std::string &_unitary) : Relation(sys_sage::RelationType::QuantumGate, sys_sage::RelationCategory::Default), gate_size(_gate_size), fidelity(_fidelity), unitary(_unitary) 
 { 
     name =_name ;
     for(Qubit* qp : _qubits)
@@ -13,9 +13,9 @@ sys_sage::QuantumGate::QuantumGate(size_t _gate_size, const std::vector<Qubit *>
         AddComponent(reinterpret_cast<Component*>(qp));
     }
 }
-sys_sage::QuantumGate::QuantumGate(const std::vector<Component*>& components, int _id, bool _ordered, size_t _gate_size, std::string _name, int _gate_length, QuantumGateCategory::type _gate_category, double _fidelity, std::string _unitary) : Relation(components, _id, _ordered, sys_sage::RelationType::QuantumGate, sys_sage::RelationCategory::Default), gate_size(_gate_size), name(_name), gate_length(_gate_length), gate_category(_gate_category), fidelity(_fidelity), unitary(_unitary) {}
+sys_sage::QuantumGate::QuantumGate(const std::vector<Component*>& components, int _id, bool _ordered, size_t _gate_size, const std::string &_name, int _gate_length, QuantumGateCategory::type _gate_category, double _fidelity, const std::string &_unitary) : Relation(components, _id, _ordered, sys_sage::RelationType::QuantumGate, sys_sage::RelationCategory::Default), gate_size(_gate_size), name(_name), gate_length(_gate_length), gate_category(_gate_category), fidelity(_fidelity), unitary(_unitary) {}
 
-void sys_sage::QuantumGate::SetGateProperties(std::string _name, double _fidelity, std::string _unitary)
+void sys_sage::QuantumGate::SetGateProperties(const std::string &_name, double _fidelity, const std::string &_unitary)
 {
     name = _name;
     fidelity = _fidelity;
@@ -50,7 +50,7 @@ void sys_sage::QuantumGate::SetQuantumGateCategory()
     }
 }
 
-void sys_sage::QuantumGate::SetName(std::string _name)
+void sys_sage::QuantumGate::SetName(const std::string &_name)
 {
     name = _name;
 }
@@ -84,7 +84,7 @@ sys_sage::QuantumGateCategory::type sys_sage::QuantumGate::GetQuantumGateCategor
 double sys_sage::QuantumGate::GetFidelity() const { return fidelity; }
 size_t sys_sage::QuantumGate::GetGateSize() const { return gate_size; }
 const std::string& sys_sage::QuantumGate::GetUnitary() const { return unitary; }
-std::string sys_sage::QuantumGate::GetName() const { return name; }
+const std::string &sys_sage::QuantumGate::GetName() const { return name; }
 
 void sys_sage::QuantumGate::Print() const
 {
