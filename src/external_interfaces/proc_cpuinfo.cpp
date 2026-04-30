@@ -83,11 +83,12 @@ int _readCpuinfoFreq(std::vector<sys_sage::Thread*> threads, bool keep_history =
                     if(keep_history)
                     {
                         //check if freq_history exists; if not, create it -- vector of tuples <timestamp,frequency>
-                        if (c->attrib.find("freq_history") == c->attrib.end()) {
-                            c->attrib["freq_history"] = reinterpret_cast<void*>(new std::vector<std::tuple<long long,double>>());
-                        }
+                        auto freqHistory = c->GetAttribute<std::vector<std::tuple<long long, double>>>("freq_history");
+                        if (freqHistory == nullptr)
+                            freqHistory = c->SetAttribute<std::vector<std::tuple<long long, double>>>("freq_history", {});
+
                         long long ts = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-                        static_cast<std::vector<std::tuple<long long,double>>*>(c->attrib["freq_history"])->push_back(std::make_tuple(ts,freq));
+                        freqHistory->push_back(std::make_tuple(ts, freq));
                     }
                     //cout << "----------------Core " << c->GetId() << " (HW thread " << threads[current_thread_pos]->GetId() << ") frequency: " << freq << endl;
                     threads_processed++;
