@@ -17,9 +17,6 @@
 #include "Cache.hpp"
 #include "Subdivision.hpp"
 
-
-//SVTODO refactor to std::map<std::string, std::any> attrib;
-
 //nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex ( nvmlDevice_t device, unsigned int  index, nvmlDevice_t* migDevice ) --> look for all mig devices and add/update them
 int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
 {

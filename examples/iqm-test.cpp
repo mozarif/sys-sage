@@ -34,7 +34,7 @@ void calculateQubitWeight(Qubit* q, int tsForHistory = -1, double T1_max = 1, do
     if(tsForHistory > 0)
     {
         //check if weight_history exists; if not, create it -- vector of tuples <timestamp,weight>
-        auto rh = q->GetAttribute<std::vector<std::tuple<int,double>>>("weight_history");
+        std::vector<std::tuple<int,double>> *rh = q->GetAttribute<std::vector<std::tuple<int,double>>>("weight_history");
         if(!rh)
             rh = q->SetAttribute("weight_history", std::vector<std::tuple<int,double>>());
         rh->emplace_back(tsForHistory, q_weight);

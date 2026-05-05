@@ -5,6 +5,27 @@ the _sys-sage_ library allows users to insert and manipulate arbitrary
 key-value attributes. These attributes can be used to make the _sys-sage_
 library fit each user's unique requirements.
 
+An overview of the API is given below.
+
+| API |
+| --- |
+| sys_sage::Component::SetAttribute |
+| sys_sage::Relation::SetAttribute |
+| sys_sage::Component::GetAttribute |
+| sys_sage::Relation::GetAttribute |
+| sys_sage::Component::UpdateAttribute |
+| sys_sage::Relation::UpdateAttribute |
+| sys_sage::Component::GetAttributesSize |
+| sys_sage::Relation::GetAttributesSize |
+| sys_sage::Component::AttributesBegin |
+| sys_sage::Relation::AttributesBegin |
+| sys_sage::Component::AttributesEnd |
+| sys_sage::Relation::AttributesEnd |
+| sys_sage::Component::EraseAttribute |
+| sys_sage::Relation::EraseAttribute |
+| sys_sage::Component::ClearAttributes |
+| sys_sage::Relation::ClearAttributes |
+
 ## Inserting & Retrieving Attributes
 
 The following code snippet showcases the simple usage of attributes:
@@ -73,7 +94,7 @@ for (auto it = comp.AttributesBegin(); it != comp.AttributesEnd(); it++) {
 }
 ```
 
-Moreover, the number of stored attributes can be retrieved by `AttributesSize()`
+Moreover, the number of stored attributes can be retrieved by `GetAttributesSize()`.
 
 ## Removing Attributes
 
@@ -84,24 +105,21 @@ either case. However, the following will leak memory since only the pointer is
 copied without taking ownership:
 
 ```cpp
-auto i = new int(1);
+int *i = new int(1);
 
 comp.SetAttribute("leakingMemory", i);
 comp.EraseAttribute("leakingMemory"); // does not free the integer
-
-return;
 ```
 
-In such cases, the use of smart pointers in combination with `std::move` is
-advised:
+In such cases, the user needs to add further logic to correctly clean up the
+memory. We suggest to use smart pointers in combination with `std::move` for
+this:
 
 ```cpp
 auto i = std::make_unique<int>(1);
 
 comp.SetAttribute("nonLeakingMemory", std::move(i));
 comp.EraseAttribute("nonLeakingMemory"); // frees the integer
-
-return;
 ```
 
 Apart from that, the destructor of the `Component` and `Relation` class will

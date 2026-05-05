@@ -217,7 +217,7 @@ PYBIND11_MODULE(sys_sage, m) {
                 return value ? *value : py::none();
             }
         )
-        .def("AttributesSize", &Component::AttributesSize)
+        .def("GetAttributesSize", &Component::GetAttributesSize)
         .def("IterateAttributes", [](Component &self) -> AttributeIteratorWrapper<Component> { return AttributeIteratorWrapper(self, self.AttributesBegin()); })
         .def("EraseAttribute", (void (Component::*)(const std::string &))(&Component::EraseAttribute), py::arg("key"))
         .def("ClearAttributes", &Component::ClearAttributes)
@@ -498,7 +498,7 @@ PYBIND11_MODULE(sys_sage, m) {
                 return value ? *value : py::none();
             }
         )
-        .def("AttributesSize", &Relation::AttributesSize)
+        .def("GetAttributesSize", &Relation::GetAttributesSize)
         .def("IterateAttributes", [](Relation &self) -> AttributeIteratorWrapper<Relation> { return AttributeIteratorWrapper(self, self.AttributesBegin()); })
         .def("EraseAttribute", (void (Relation::*)(const std::string &))(&Relation::EraseAttribute), py::arg("key"))
         .def("ClearAttributes", &Relation::ClearAttributes)

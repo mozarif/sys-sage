@@ -604,6 +604,7 @@ int sys_sage::Component::_GetTopologySize(unsigned * out_component_size, unsigne
     return _CalcSubtreeSize(out_component_size, out_RelationSize, *countedRelations);
 }
 
+// TODO: fix this
 int sys_sage::Component::_CalcSubtreeSize(unsigned * out_component_size, unsigned * out_RelationSize, std::set<Relation*> &countedRelations) const
 {
     int component_size = 0;
@@ -673,7 +674,7 @@ int sys_sage::Component::_CalcSubtreeSize(unsigned * out_component_size, unsigne
             if(countedRelations.find(r) == countedRelations.end())
             {
 
-                relationsSize += r->AttributesSize() * sizeof(std::string);
+                relationsSize += r->GetAttributesSize() * sizeof(std::string);
                 switch(rt)
                 {
                     case RelationType::Relation:
@@ -852,7 +853,7 @@ sys_sage::Component::Component(Component * parent, int _id, const std::string &_
 sys_sage::Component::Component(int _id, const std::string &_name): Component(_id, _name, sys_sage::ComponentType::Generic) {}
 sys_sage::Component::Component(Component * parent, int _id, const std::string &_name): Component(parent, _id, _name, sys_sage::ComponentType::Generic) {}
 
-sys_sage::Component::attribSizeType sys_sage::Component::AttributesSize() const
+sys_sage::Component::attribSizeType sys_sage::Component::GetAttributesSize() const
 {
     return attributes.size();
 }

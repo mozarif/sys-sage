@@ -905,7 +905,7 @@ namespace sys_sage {
          *
          * @return The respective size.
          */
-        attribSizeType AttributesSize() const;
+        attribSizeType GetAttributesSize() const;
 
         /**
          * @brief Returns an iterator to the beginning of the attributes.

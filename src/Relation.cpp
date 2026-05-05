@@ -134,7 +134,7 @@ int sys_sage::Relation::RemoveComponent(size_t index)
     return 0;
 }
 
-sys_sage::Relation::attribSizeType sys_sage::Relation::AttributesSize() const
+sys_sage::Relation::attribSizeType sys_sage::Relation::GetAttributesSize() const
 {
     return attributes.size();
 }
