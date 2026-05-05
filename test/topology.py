@@ -285,7 +285,7 @@ class TestComponents(unittest.TestCase):
         self.assertEqual(c.GetAttribute("foo"), None)
 
         c.ClearAttributes()
-        self.assertEqual(c.AttributesSize(), 0)
+        self.assertEqual(c.GetAttributesSize(), 0)
 
 if __name__ == "__main__":
     unittest.main()

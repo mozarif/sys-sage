@@ -89,7 +89,7 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(r.GetAttribute("foo"), None)
 
         r.ClearAttributes()
-        self.assertEqual(r.AttributesSize(), 0)
+        self.assertEqual(r.GetAttributesSize(), 0)
 
     def test_inheritance_data_path(self):
         foo = sys_sage.Component()
