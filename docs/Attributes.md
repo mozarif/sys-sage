@@ -10,21 +10,15 @@ An overview of the API is given below.
 | API |
 | --- |
 | sys_sage::Component::SetAttribute |
-| sys_sage::Relation::SetAttribute |
 | sys_sage::Component::GetAttribute |
-| sys_sage::Relation::GetAttribute |
 | sys_sage::Component::UpdateAttribute |
-| sys_sage::Relation::UpdateAttribute |
 | sys_sage::Component::GetAttributesSize |
-| sys_sage::Relation::GetAttributesSize |
 | sys_sage::Component::AttributesBegin |
-| sys_sage::Relation::AttributesBegin |
 | sys_sage::Component::AttributesEnd |
-| sys_sage::Relation::AttributesEnd |
 | sys_sage::Component::EraseAttribute |
-| sys_sage::Relation::EraseAttribute |
 | sys_sage::Component::ClearAttributes |
-| sys_sage::Relation::ClearAttributes |
+
+The `Relation` class has an analogous API.
 
 ## Inserting & Retrieving Attributes
 
@@ -98,29 +92,31 @@ Moreover, the number of stored attributes can be retrieved by `GetAttributesSize
 
 ## Removing Attributes
 
-Individual attributes can be removed through the `EraseAttribute` method by
-either provding the key or the iterator. To get rid of all attributes, one can
-use the `ClearAttributes` method. The memory will be freed automatically in
-either case. However, the following will leak memory since only the pointer is
-copied without taking ownership:
+Individual attributes can be removed explicitly through the `EraseAttribute`
+method by either provding the corresponding key or the iterator. To get rid of
+all attributes at once, one can use the `ClearAttributes` method. Apart from
+that, the destructor of the `Component` and `Relation` class will implicitly
+clean up all remaining attributes. The memory will be freed automatically in
+either case. However, the following example illustrates an edge case in which
+memory will be leaked:
 
 ```cpp
 int *i = new int(1);
 
 comp.SetAttribute("leakingMemory", i);
-comp.EraseAttribute("leakingMemory"); // does not free the integer
+comp.EraseAttribute("leakingMemory"); // does not free the integer itself
 ```
 
-In such cases, the user needs to add further logic to correctly clean up the
-memory. We suggest to use smart pointers in combination with `std::move` for
-this:
+This is because the attribute's value is a shallow copy of a pointer without
+taking ownership of the underlying memory. When removing this attribute, only
+the memory used for storing the pointer will be freed, without further deleting
+the memory of the actual integer. In such cases, further logic is needed for
+correct clean-up. Apart from manually deleting `i`, one can use smart pointers
+in combination with `std::move` for this:
 
 ```cpp
 auto i = std::make_unique<int>(1);
 
-comp.SetAttribute("nonLeakingMemory", std::move(i));
+comp.SetAttribute("nonLeakingMemory", std::move(i)); // transfers ownership
 comp.EraseAttribute("nonLeakingMemory"); // frees the integer
 ```
-
-Apart from that, the destructor of the `Component` and `Relation` class will
-clean up all remaining attributes.
