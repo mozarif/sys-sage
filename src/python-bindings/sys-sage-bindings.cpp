@@ -273,13 +273,13 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("COMPONENT_QUBIT") = ComponentType::Qubit;
     m.attr("COMPONENT_TOPOLOGY") = ComponentType::Topology;
 
-    m.attr("SUBDIVISION_TYPE_NONE") = SubdivisionType::None;
-    m.attr("SUBDIVISION_TYPE_GPU_SM") = SubdivisionType::GpuSM;
+    m.attr("SUBDIVISION_CATEGORY_NONE") = SubdivisionCategory::None;
+    m.attr("SUBDIVISION_CATEGORY_GPU_SM") = SubdivisionCategory::GpuSM;
 
-    m.attr("CHIP_TYPE_NONE") = ChipType::None;
-    m.attr("CHIP_TYPE_CPU") = ChipType::Cpu;
-    m.attr("CHIP_TYPE_CPU_SOCKET") = ChipType::CpuSocket;
-    m.attr("CHIP_TYPE_GPU") = ChipType::Gpu;
+    m.attr("CHIP_CATEGORY_NONE") = ChipCategory::None;
+    m.attr("CHIP_CATEGORY_CPU") = ChipCategory::Cpu;
+    m.attr("CHIP_CATEGORY_CPU_SOCKET") = ChipCategory::CpuSocket;
+    m.attr("CHIP_CATEGORY_GPU") = ChipCategory::Gpu;
 
     m.attr("RELATION_TYPE_ANY") = RelationType::Any;
     m.attr("RELATION_TYPE_RELATION") = RelationType::Relation;
@@ -293,14 +293,14 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("RELATION_CATEGORY_PAPI_METRICS") = RelationCategory::PAPI_Metrics;
 #endif
 
-    m.attr("DATAPATH_TYPE_ANY") = DataPathType::Any;
-    m.attr("DATAPATH_TYPE_NONE") = DataPathType::None;
-    m.attr("DATAPATH_TYPE_LOGICAL") = DataPathType::Logical;
-    m.attr("DATAPATH_TYPE_PHYSICAL") = DataPathType::Physical;
-    m.attr("DATAPATH_TYPE_DATATRANSFER") = DataPathType::Datatransfer;
-    m.attr("DATAPATH_TYPE_L3CAT") = DataPathType::L3CAT;
-    m.attr("DATAPATH_TYPE_MIG") = DataPathType::MIG;
-    m.attr("DATAPATH_TYPE_C2C") = DataPathType::C2C;
+    m.attr("DATAPATH_CATEGORY_ANY") = DataPathCategory::Any;
+    m.attr("DATAPATH_CATEGORY_NONE") = DataPathCategory::None;
+    m.attr("DATAPATH_CATEGORY_LOGICAL") = DataPathCategory::Logical;
+    m.attr("DATAPATH_CATEGORY_PHYSICAL") = DataPathCategory::Physical;
+    m.attr("DATAPATH_CATEGORY_DATATRANSFER") = DataPathCategory::Datatransfer;
+    m.attr("DATAPATH_CATEGORY_L3CAT") = DataPathCategory::L3CAT;
+    m.attr("DATAPATH_CATEGORY_MIG") = DataPathCategory::MIG;
+    m.attr("DATAPATH_CATEGORY_C2C") = DataPathCategory::C2C;
 
     m.attr("DATAPATH_DIRECTION_ANY") = DataPathDirection::Any;
     m.attr("DATAPATH_DIRECTION_OUTGOING") = DataPathDirection::Outgoing;
@@ -309,13 +309,13 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("DATAPATH_ORIENTATION_ORIENTED") = DataPathOrientation::Oriented;
     m.attr("DATAPATH_ORIENTATION_BIDIRECTIONAL") = DataPathOrientation::Bidirectional;
 
-    m.attr("QUANTUMGATE_TYPE_UNKNOWN") = QuantumGateType::Unknown;
-    m.attr("QUANTUMGATE_TYPE_ID") = QuantumGateType::Id;
-    m.attr("QUANTUMGATE_TYPE_X") = QuantumGateType::X;
-    m.attr("QUANTUMGATE_TYPE_RZ") = QuantumGateType::Rz;
-    m.attr("QUANTUMGATE_TYPE_CNOT") = QuantumGateType::Cnot;
-    m.attr("QUANTUMGATE_TYPE_SX") = QuantumGateType::Sx;
-    m.attr("QUANTUMGATE_TYPE_TOFFOLI") = QuantumGateType::Toffoli;
+    m.attr("QUANTUMGATE_CATEGORY_UNKNOWN") = QuantumGateCategory::Unknown;
+    m.attr("QUANTUMGATE_CATEGORY_ID") = QuantumGateCategory::Id;
+    m.attr("QUANTUMGATE_CATEGORY_X") = QuantumGateCategory::X;
+    m.attr("QUANTUMGATE_CATEGORY_RZ") = QuantumGateCategory::Rz;
+    m.attr("QUANTUMGATE_CATEGORY_CNOT") = QuantumGateCategory::Cnot;
+    m.attr("QUANTUMGATE_CATEGORY_SX") = QuantumGateCategory::Sx;
+    m.attr("QUANTUMGATE_CATEGORY_TOFFOLI") = QuantumGateCategory::Toffoli;
 
     //bind component class
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component")
@@ -389,7 +389,7 @@ PYBIND11_MODULE(sys_sage, m) {
 // -- DEPRECATED GetComponentsInSubtree (used up until version 1.0.0)
         .def("GetComponentsInSubtree", [] (Component &self) {
             std::vector<Component *> v;
-            self.FindDescendantsByType(&v, ComponentType::Any);
+            self.FindDescendantsByType(v, ComponentType::Any);
             return v;
         }, "Get all the components in the subtree of the component")
 // --
@@ -405,11 +405,11 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetAllRelationsBy", &Component::FindRelations, py::arg("type") = RelationType::Any, py::arg("position") = -1, "Get all relations of that type and position")
 // --
         .def("FindRelations", &Component::FindRelations, py::arg("type") = RelationType::Any, py::arg("position") = -1, "Find the relations of that type and position")
-        .def("GetDataPathByType", &Component::GetDataPathByType, py::arg("type"), py::arg("direction") = DataPathDirection::Any,"Get the first data path associated with the component by type")
+        .def("GetDataPathByCategory", &Component::GetDataPathByCategory, py::arg("category"), py::arg("direction") = DataPathDirection::Any,"Get the first data path associated with the component by type")
 // -- DEPRECATED GetAllDataPaths (used up until version 1.0.0)
-        .def("GetAllDataPaths", (std::vector<DataPath *> (Component::*) (DataPathType::type, DataPathDirection::type) const) &Component::FindDataPaths, py::arg("type") = DataPathType::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that type and direction")
+        .def("GetAllDataPaths", (std::vector<DataPath *> (Component::*) (DataPathCategory::type, DataPathDirection::type) const) &Component::FindDataPaths, py::arg("category") = DataPathCategory::Any, py::arg("direction") = DataPathDirection::Any, "Get all datapaths of that category and direction")
 // --
-        .def("FindDataPaths", (std::vector<DataPath *> (Component::*) (DataPathType::type, DataPathDirection::type) const) &Component::FindDataPaths, py::arg("type") = DataPathType::Any, py::arg("direction") = DataPathDirection::Any, "Find the datapaths of that type and direction")
+        .def("FindDataPaths", (std::vector<DataPath *> (Component::*) (DataPathCategory::type, DataPathDirection::type) const) &Component::FindDataPaths, py::arg("category") = DataPathCategory::Any, py::arg("direction") = DataPathDirection::Any, "Find the datapaths of that category and direction")
 // -- DEPRECATED CheckComponentTreeConsistency (used up until version 1.0.0)
         .def("CheckComponentTreeConsistency", &Component::CheckSubtreeConsistency,"Check if the component tree is consistent")
 // --
@@ -486,11 +486,11 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetMIGNumSMs", &Chip::GetMIGNumSMs, py::arg("uuid"))
         .def("UpdateMIGSettings", &Chip::UpdateMIGSettings, py::arg("uuid"))
         #endif
-        .def(py::init<int,std::string,ChipType::type,std::string,std::string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= ChipType::None, py::arg("vendor") = "", py::arg("model") = "")
-        .def(py::init<Component*,int,std::string,ChipType::type,std::string,std::string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = ChipType::None, py::arg("vendor") = "", py::arg("model") = "")
+        .def(py::init<int,std::string,ChipCategory::type,std::string,std::string>(), py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType")= ChipCategory::None, py::arg("vendor") = "", py::arg("model") = "")
+        .def(py::init<Component*,int,std::string,ChipCategory::type,std::string,std::string>(), py::arg("parent"),py::arg("id") = 0, py::arg("name") = "Chip", py::arg("chipType") = ChipCategory::None, py::arg("vendor") = "", py::arg("model") = "")
         .def_property("vendor", &Chip::GetVendor, &Chip::SetVendor, "The vendor of the chip")
         .def_property("model", &Chip::GetModel, &Chip::SetModel, "The model of the chip")
-        .def_property("chipType", &Chip::GetChipType, &Chip::SetChipType, "The type of the chip");
+        .def_property("chipType", &Chip::GetChipCategory, &Chip::SetChipCategory, "The type of the chip");
 
     py::class_<Cache, std::unique_ptr<Cache, py::nodelete>, Component>(m, "Cache")
         #ifdef NVIDIA_MIG
@@ -508,7 +508,7 @@ PYBIND11_MODULE(sys_sage, m) {
     py::class_<Subdivision, std::unique_ptr<Subdivision, py::nodelete>, Component>(m, "Subdivision")
         .def(py::init<int,std::string>(), py::arg("id") = 0, py::arg("name") = "Subdivision")
         .def(py::init<Component*,int,std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "Subdivision")
-        .def_property("subdivisionType", &Subdivision::GetSubdivisionType, &Subdivision::SetSubdivisionType, "The type of the subdivision");
+        .def_property("subdivisionType", &Subdivision::GetSubdivisionCategory, &Subdivision::SetSubdivisionCategory, "The type of the subdivision");
 
     py::class_<Numa,std::unique_ptr<Numa, py::nodelete>, Subdivision>(m, "Numa")
         .def(py::init<int, long long>(), py::arg("id") = 0, py::arg("size") = -1)
@@ -634,12 +634,12 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("UpdateComponent", (int (Relation::*) (Component *, Component *)) &Relation::UpdateComponent, py::arg("old_component"), py::arg("new_component"), "Tries to find the old component to replace it with the new component");
 
     py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>, Relation>(m,"DataPath")
-        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = sys_sage::DataPathType::None)
+        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathCategory::type>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = sys_sage::DataPathCategory::None)
         .def(py::init<Component*, Component*, DataPathOrientation::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("bw"), py::arg("latency"))
-        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathType::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))
+        .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathCategory::type, double, double>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type"), py::arg("bw"), py::arg("latency"))
         .def_property("bandwidth", &DataPath::GetBandwidth, &DataPath::SetBandwidth, "The bandwidth of the data path")
         .def_property("latency", &DataPath::GetLatency, &DataPath::SetLatency, "The latency of the data path")
-        .def_property_readonly("dp_type", &DataPath::GetDataPathType, "The type of the data path")
+        .def_property_readonly("dp_category", &DataPath::GetDataPathCategory, "The type of the data path")
         .def_property_readonly("orientation", &DataPath::GetOrientation, "The orientation of the data path")
         .def_property("source", &DataPath::GetSource, &DataPath::UpdateSource, "The source of the data path")
         .def_property("target", &DataPath::GetTarget, &DataPath::UpdateTarget, "The target of the data path")
@@ -654,11 +654,11 @@ PYBIND11_MODULE(sys_sage, m) {
         .def(py::init<size_t, std::string, double, std::string>(), py::arg("size") = 0, py::arg("name") = "", py::arg("fidelity") = 0.0, py::arg("unitary") = "")
         .def(py::init<size_t, const std::vector<Qubit *> &>(), py::arg("size"), py::arg("qubits"))
         .def(py::init<size_t, const std::vector<Qubit *> &, std::string, double, std::string>(), py::arg("size"), py::arg("qubits"), py::arg("name"), py::arg("fidelity"), py::arg("unitary"))
-        .def(py::init<const std::vector<Component *> &, int, bool, size_t, std::string, int, QuantumGateType::type, double, std::string>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = true, py::arg("size") = 0, py::arg("name") = "", py::arg("length") = 0, py::arg("type") = QuantumGateType::Unknown, py::arg("fidelity") = 0, py::arg("unitary") = "")
+        .def(py::init<const std::vector<Component *> &, int, bool, size_t, std::string, int, QuantumGateCategory::type, double, std::string>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = true, py::arg("size") = 0, py::arg("name") = "", py::arg("length") = 0, py::arg("type") = QuantumGateCategory::Unknown, py::arg("fidelity") = 0, py::arg("unitary") = "")
         .def_property("gate_size", &QuantumGate::GetGateSize, &QuantumGate::SetGateSize)
         .def_property("name", &QuantumGate::GetName, &QuantumGate::SetName)
         .def_property("gate_length", &QuantumGate::GetGateLength, &QuantumGate::SetGateLength)
-        .def_property("gate_type", &QuantumGate::GetQuantumGateType, &QuantumGate::SetQuantumGateType)
+        .def_property("gate_type", &QuantumGate::GetQuantumGateCategory, &QuantumGate::SetQuantumGateCategory)
         .def_property("fidelity", &QuantumGate::GetFidelity, &QuantumGate::SetFidelity)
         .def_property("unitary", &QuantumGate::GetUnitary, &QuantumGate::SetUnitary)
         .def("SetGateProperties", &QuantumGate::SetGateProperties, py::arg("name"), py::arg("fidelity"), py::arg("unitary"), "Sets the name, fidelity, unitary and type of the quantum gate")
@@ -674,8 +674,8 @@ PYBIND11_MODULE(sys_sage, m) {
 
     m.def("parseCapsNumaBenchmark", &parseCapsNumaBenchmark,  py::arg("root"), py::arg("benchmarkPath"), py::arg("delim") = ";");
 
-    m.def("parseIQM", (int (*) (Component *, std::string, int, int)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1);
-    m.def("parseIQM", (int (*) (QuantumBackend *, std::string, int, int, bool)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1, py::arg("createTopo") = true);
+    m.def("parseIQM", (int (*) (Component *, const std::string &, int, int)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1);
+    m.def("parseIQM", (int (*) (QuantumBackend *, const std::string&, int, int, bool)) &parseIQM, "parseIQM", py::arg("parent"), py::arg("dataSourcePath"), py::arg("qcId"), py::arg("tsForHistory") = -1, py::arg("createTopo") = true);
 
     // TODO: QDMI parser logic is missing in src/parsers/qdmi-parser.hpp
 

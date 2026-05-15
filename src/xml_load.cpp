@@ -256,9 +256,9 @@ sys_sage::Component* sys_sage::_CreateComponentSubtree(xmlNodePtr n) {
 	}
 	if (nodeName.compare("Subdivision") == 0) {
 		c = new Subdivision(id);
-		int sd_type = std::stoi(_getStringFromProp(n, "type"));
+		int sd_type = std::stoi(_getStringFromProp(n, "category"));
 
-		static_cast<Subdivision*>(c)->SetSubdivisionType(sd_type);
+		static_cast<Subdivision*>(c)->SetSubdivisionCategory(sd_type);
 	}
 	if (nodeName.compare("NUMA") == 0) {
 		c = new Numa(id);
@@ -373,7 +373,7 @@ int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 		}
 		if (childName.compare("DataPath") == 0)
 		{
-			int dataPathType = std::stoi(_getStringFromProp(xml_child, "DataPathType"));
+			int dataPathType = std::stoi(_getStringFromProp(xml_child, "DataPathCategory"));
 			double bw = std::stod(_getStringFromProp(xml_child, "bw"));
 			double latency = std::stod(_getStringFromProp(xml_child, "latency"));
 			DataPathOrientation::type dpo = (ordered ? DataPathOrientation::Oriented : DataPathOrientation::Bidirectional);
@@ -385,7 +385,7 @@ int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 			int gate_size = std::stoi(_getStringFromProp(xml_child, "gate_size"));
 			std::string name = _getStringFromProp(xml_child, "name");
 			int gate_length = std::stoi(_getStringFromProp(xml_child, "gate_length"));
-			QuantumGateType::type gate_type = std::stoi(_getStringFromProp(xml_child, "gate_type"));
+			QuantumGateCategory::type gate_type = std::stoi(_getStringFromProp(xml_child, "gate_type"));
 			double fidelity = std::stod(_getStringFromProp(xml_child, "fidelity"));
 			std::string unitary = _getStringFromProp(xml_child, "unitary");
 
@@ -403,7 +403,7 @@ int sys_sage::_CreateRelations(xmlNodePtr relationNode) {
 }
 
 sys_sage::Component* sys_sage::importFromXml(
-	std::string path,
+	const std::string &path,
 	std::function<void*(xmlNodePtr)> _load_custom_attrib_fcn,
 	std::function<int(xmlNodePtr, Component *)> _load_custom_complex_attrib_fcn) 
 {

@@ -165,7 +165,7 @@ xmlNodePtr sys_sage::Chip::_CreateXmlSubtree()
         xmlNewProp(n, reinterpret_cast<const unsigned char *>("vendor"), reinterpret_cast<const unsigned char *>(vendor.c_str()));
     if(!model.empty())
         xmlNewProp(n, reinterpret_cast<const unsigned char *>("model"), reinterpret_cast<const unsigned char *>(model.c_str()));
-    xmlNewProp(n, reinterpret_cast<const unsigned char *>("type"), reinterpret_cast<const unsigned char *>(std::to_string(type).c_str()));
+    xmlNewProp(n, reinterpret_cast<const unsigned char *>("category"), reinterpret_cast<const unsigned char *>(std::to_string(category).c_str()));
     return n;
 }
 xmlNodePtr sys_sage::Cache::_CreateXmlSubtree()
@@ -183,7 +183,7 @@ xmlNodePtr sys_sage::Cache::_CreateXmlSubtree()
 xmlNodePtr sys_sage::Subdivision::_CreateXmlSubtree()
 {
     xmlNodePtr n = Component::_CreateXmlSubtree();
-    xmlNewProp(n, reinterpret_cast<const unsigned char *>("subdivision_type"), reinterpret_cast<const unsigned char *>(std::to_string(type).c_str()));
+    xmlNewProp(n, reinterpret_cast<const unsigned char *>("subdivision_category"), reinterpret_cast<const unsigned char *>(std::to_string(category).c_str()));
     return n;
 }
 xmlNodePtr sys_sage::Numa::_CreateXmlSubtree()
@@ -311,7 +311,7 @@ xmlNodePtr sys_sage::DataPath::_CreateXmlEntry()
 {
     xmlNodePtr r_xml = Relation::_CreateXmlEntry();
 
-    xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("DataPathType"), reinterpret_cast<const unsigned char *>(std::to_string(dp_type).c_str()));
+    xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("DataPathCategory"), reinterpret_cast<const unsigned char *>(std::to_string(dp_category).c_str()));
     xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("bw"), reinterpret_cast<const unsigned char *>(std::to_string(bw).c_str()));
     xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("latency"), reinterpret_cast<const unsigned char *>(std::to_string(latency).c_str()));
     return r_xml;
@@ -323,7 +323,7 @@ xmlNodePtr sys_sage::QuantumGate::_CreateXmlEntry()
     xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("gate_size"), reinterpret_cast<const unsigned char *>(std::to_string(gate_size).c_str()));
     xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("name"), reinterpret_cast<const unsigned char *>(name.c_str()));
     xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("gate_length"), reinterpret_cast<const unsigned char *>(std::to_string(gate_length).c_str()));
-    xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("gate_type"), reinterpret_cast<const unsigned char *>(std::to_string(gate_type).c_str()));
+    xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("gate_category"), reinterpret_cast<const unsigned char *>(std::to_string(gate_category).c_str()));
     xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("fidelity"), reinterpret_cast<const unsigned char *>(std::to_string(fidelity).c_str()));
     xmlNewProp(r_xml, reinterpret_cast<const unsigned char *>("unitary"), reinterpret_cast<const unsigned char *>(unitary.c_str()));    
     return r_xml;
@@ -359,7 +359,7 @@ xmlNodePtr sys_sage::Relation::_CreateXmlEntry()
 
 int sys_sage::exportToXml(
     Component* root, 
-    std::string path, 
+    const std::string &path, 
     std::function<int(std::string,void*,std::string*)> _store_custom_attrib_fcn, 
     std::function<int(std::string,void*,xmlNodePtr)> _store_custom_complex_attrib_fcn)
 {
@@ -382,7 +382,7 @@ int sys_sage::exportToXml(
 
     //scan all Components for their relations
     std::vector<Component*> components;
-    root->FindDescendantsByType(&components, ComponentType::Any);
+    root->FindDescendantsByType(components, ComponentType::Any);
     std::cout << "Number of components to export: " << components.size() << std::endl;
     for(Component* cPtr : components)
     {

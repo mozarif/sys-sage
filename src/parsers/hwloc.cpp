@@ -51,7 +51,7 @@ sys_sage::Component* sys_sage::createChildC(string type, xmlNode* node)
     {
         s = xmlGetPropStr(node, "os_index");
         int id = stoi(s.empty()?"0":s);
-        c = new Chip(id, "socket", sys_sage::ChipType::CpuSocket);
+        c = new Chip(id, "socket", sys_sage::ChipCategory::CpuSocket);
     }
     else if(!type.compare("Cache") || !type.compare("L3Cache") || !type.compare("L2Cache") || !type.compare("L1Cache"))
     {
@@ -75,6 +75,7 @@ sys_sage::Component* sys_sage::createChildC(string type, xmlNode* node)
         long long size = stol(s.empty()?"0":s);
 
         c = new Numa(id, size);
+        static_cast<Numa *>(c)->SetSubdivisionCategory(SubdivisionCategory::None);
     }
     else if(!type.compare("Core"))
     {
@@ -218,7 +219,7 @@ int sys_sage::removeUnknownCompoents(Component* c){
 }
 
 //parses a hwloc output and adds it to topology
-int sys_sage::parseHwlocOutput(Node* n, string xmlPath)
+int sys_sage::parseHwlocOutput(Node* n, const string &xmlPath)
 {
     xmlDoc *document = xmlReadFile(xmlPath.c_str(), NULL, 0);
     if (document == NULL) {
