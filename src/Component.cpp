@@ -754,14 +754,21 @@ void sys_sage::Component::DeleteAllDataPaths()
     DeleteRelations(RelationType::DataPath);
 }
 
-void sys_sage::Component::DeleteSubtree()
+static void HelperDeleteSubtree(sys_sage::Component *comp)
 {
-    while(children.size() > 0)
-    {       
-        children.back()->DeleteSubtree(); // it might be faster to remove from behind
-    }
+    auto &children = comp->GetChildren();
+    while (children.size() > 0)
+        HelperDeleteSubtree(children.back());
+    delete comp;
+}
 
-    delete this;
+void sys_sage::Component::DeleteSubtree(bool keepRoot)
+{
+    while (children.size() > 0)
+        HelperDeleteSubtree(children.back());
+
+    if (!keepRoot)
+        delete this;
 }
 
 sys_sage::Component::~Component()

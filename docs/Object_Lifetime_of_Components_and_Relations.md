@@ -9,20 +9,20 @@ avoid undefined behavior.
 
 Components do not take ownership of other components in the Component Tree.
 This holds especially for parent and child components. Therefore, the
-destructor of the `Component` class will only unlink this component from the
-its parent and its children (if they are present) and additionally clean up any
+destructor of the `Component` class will only **unlink this component from the
+its parent and its children** (if they are present) and additionally clean up any
 claimed resources. These resources include the relation objects of type
-`Relation`. Hence, deleting a component will trigger the deletion of all
-relations the component was part of. If this is not desired, then the component
+`Relation`. Hence, deleting a component will trigger the **deletion of all
+relations the component was part of**. If this is not desired, then the component
 should first be unlinked expliciteley from the relation through the
 `Relation::RemoveComponent` method. Moreover, if the entire subtree spanned by
 a component should be deleted, then the `Component::DeleteSubtree` method
 should be used. Note that this recursively calls `operator delete` on the
-children and on the component itself. It should therefore only be called if all
-components in the subtree are heap-allocated.
+children and on the component itself. It should therefore **only be called if all
+components in the subtree are heap-allocated**.
 
-Contrary to this, the destructor of the `Relation` class does not delete any
-components and instead unlinks itself from them in addition to cleaning up
+Contrary to this, the destructor of the `Relation` class **does not delete any
+components** and instead **unlinks itself** from them in addition to cleaning up
 claimed resources. It has no influence on other relations.
 
 ## Construction and Destruction Order
@@ -33,7 +33,7 @@ can matter and is handled similar to the QObject class of the Qt library.
 
 Since destructors of components only unlink themselves from the Component Tree,
 their order of construction and destruction does not matter at all. The
-following examples or work fine:
+following examples work fine:
 
 ```cpp
 #include <sys-sage.hpp>

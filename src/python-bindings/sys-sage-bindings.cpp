@@ -439,7 +439,7 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("DeleteAllRelations", &Component::DeleteRelations, py::arg("type") = RelationType::Any,"Delete all relations of that type from the component")
 // --
         .def("DeleteRelations", &Component::DeleteRelations, py::arg("type") = RelationType::Any, "Delete the relations of that type from the component")
-        .def("DeleteSubtree", &Component::DeleteSubtree,"Delete the subtree of the component")
+        .def("DeleteSubtree", &Component::DeleteSubtree, py::arg("keepRoot") = false, "Delete the subtree of the component")
 #ifdef SS_PAPI
         .def("PrintPAPImetricsInSubtree", &Component::PrintPAPImetricsInSubtree, py::arg("eventSet") = PAPI_NULL)
         .def("FindPAPIrelationsInSubtree", (std::vector<Relation *> (Component::*)() const) &Component::FindPAPIrelationsInSubtree)

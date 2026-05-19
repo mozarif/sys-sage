@@ -731,10 +731,11 @@ namespace sys_sage {
         void DeleteAllDataPaths();
 
         /**
-         * @brief Deletes the whole subtree spanned by this component and this
-         *        component itself.
+         * @brief Deletes the whole subtree spanned by this component.
+         *
+         * @param keepRoot If set to `false`, this component will be deleted as well.
          */
-        void DeleteSubtree();
+        void DeleteSubtree(bool keepRoot = false);
 
 #ifdef SS_PAPI
         /**

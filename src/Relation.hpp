@@ -174,7 +174,7 @@ namespace sys_sage {
         int UpdateComponent(Component* _old_component, Component * _new_component);
 
         /**
-         * @brief Removes the component at the given index.
+         * @brief Removes the component at the given index. This does not delete the component.
          * 
          * @param index The index of interest.
          *
@@ -183,7 +183,7 @@ namespace sys_sage {
         int RemoveComponent(size_t index);
 
         /**
-         * @brief Removes the given component from the relation.
+         * @brief Removes the given component from the relation. This does not delete the component.
          *
          * @param The component of interest.
          *
