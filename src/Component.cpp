@@ -150,6 +150,7 @@ int sys_sage::Component::RemoveChild(Component * child)
 {
     int orig_size = children.size();
     children.erase(std::remove(children.begin(), children.end(), child), children.end());
+    child->SetParent(nullptr);
     return orig_size - children.size();
     //return std::erase(children, child); -- not supported in some compilers
 }
@@ -708,12 +709,6 @@ int sys_sage::Component::CalcDepth(bool refresh)
     return depth;
 }
 
-void sys_sage::Component::DeleteRelation(Relation * r)
-{
-    delete r; // maybe remove this method?
-}
-
-
 void sys_sage::Component::DeleteAllRelations(RelationType::type relationType)
 {
     DeleteRelations(relationType);
@@ -729,46 +724,23 @@ void sys_sage::Component::DeleteRelations(RelationType::type relationType)
         if(relationType == RelationType::Any || relationType == rt)
         {
             std::vector<Relation *> *rel = (*relations)[rt];
-            if(!rel) // no relation of that specific type
-                continue;
-
-            while(rel->size() > 0)
+            if(rel) // no relation of that specific type
             {
-                delete rel->back(); // it might be faster to remove from behind
-            }
+                while(rel->size() > 0)
+                {
+                    Relation::Delete(rel->back()); // it might be faster to remove from behind
+                }
 
-            delete rel;
-            (*relations)[rt] = nullptr; // mark as deleted
+                delete rel;
+                (*relations)[rt] = nullptr; // mark as deleted
+            }
         }
     }
-}
-
-
-void sys_sage::Component::DeleteDataPath(DataPath * dp)
-{
-    DeleteRelation(dp);
 }
 
 void sys_sage::Component::DeleteAllDataPaths()
 {
     DeleteRelations(RelationType::DataPath);
-}
-
-static void HelperDeleteSubtree(sys_sage::Component *comp)
-{
-    auto &children = comp->GetChildren();
-    while (children.size() > 0)
-        HelperDeleteSubtree(children.back());
-    delete comp;
-}
-
-void sys_sage::Component::DeleteSubtree(bool keepRoot)
-{
-    while (children.size() > 0)
-        HelperDeleteSubtree(children.back());
-
-    if (!keepRoot)
-        delete this;
 }
 
 sys_sage::Component::~Component()
@@ -777,11 +749,33 @@ sys_sage::Component::~Component()
         parent->RemoveChild(this);
     for (auto child : children)
         child->SetParent(nullptr);
+}
 
-    if (relations) {
-        DeleteRelations();
-        delete relations;
+void sys_sage::Component::Delete(Component *comp)
+{
+    if (comp->relations) {
+        comp->DeleteRelations();
+        delete comp->relations;
     }
+
+    delete comp;
+}
+
+static void HelperDeleteSubtree(sys_sage::Component *comp)
+{
+    auto &children = comp->GetChildren();
+    while (children.size() > 0)
+        HelperDeleteSubtree(children.back());
+    sys_sage::Component::Delete(comp);
+}
+
+void sys_sage::Component::DeleteSubtree(Component *root, bool keepRoot)
+{
+    while (root->children.size() > 0)
+        HelperDeleteSubtree(root->children.back());
+
+    if (!keepRoot)
+        Component::Delete(root);
 }
 
 const std::string& sys_sage::Component::GetName() const {return name;}

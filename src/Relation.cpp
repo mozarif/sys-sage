@@ -84,6 +84,11 @@ sys_sage::Relation::~Relation()
     }
 }
 
+void sys_sage::Relation::Delete(Relation *rel)
+{
+    delete rel;
+}
+
 sys_sage::RelationType::type sys_sage::Relation::GetType() const{ return type;}
 sys_sage::RelationCategory::type sys_sage::Relation::GetCategory() const{ return category;}
 const std::string &sys_sage::Relation::GetTypeStr() const

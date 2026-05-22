@@ -66,32 +66,30 @@ ut::suite<"relation"> _ = []
   ut::test("adding & updating components") = []
   {
     std::vector<Component *> v;
-    Relation *r = new Relation(v);
-    ut::expect(ut::that % r->GetComponents().size() == 0U);
+    Relation r (v);
+    ut::expect(ut::that % r.GetComponents().size() == 0U);
 
     Component foo;
-    r->AddComponent(&foo);
-    ut::expect(ut::that % r->ContainsComponent(&foo));
+    r.AddComponent(&foo);
+    ut::expect(ut::that % r.ContainsComponent(&foo));
 
     Component bar;
     {
       stream_suppressor suppressor (std::cerr);
-      ut::expect(ut::that % r->UpdateComponent(&bar, &bar) == 1);
+      ut::expect(ut::that % r.UpdateComponent(&bar, &bar) == 1);
     }
 
-    r->UpdateComponent(&foo, &bar);
-    ut::expect(ut::that % r->GetComponents() == std::vector<Component *> {&bar});
+    r.UpdateComponent(&foo, &bar);
+    ut::expect(ut::that % r.GetComponents() == std::vector<Component *> {&bar});
 
     Component foobar;
     {
       stream_suppressor suppressor (std::cerr);
-      ut::expect(ut::that % r->UpdateComponent(1, &foobar) == 1);
+      ut::expect(ut::that % r.UpdateComponent(1, &foobar) == 1);
     }
 
-    r->UpdateComponent(0, &foobar);
-    ut::expect(ut::that % r->GetComponents() == std::vector<Component *> {&foobar});
-
-    delete r;
+    r.UpdateComponent(0, &foobar);
+    ut::expect(ut::that % r.GetComponents() == std::vector<Component *> {&foobar});
   };
 
   ut::test("attributes") = []

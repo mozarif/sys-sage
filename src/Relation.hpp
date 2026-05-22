@@ -74,10 +74,18 @@ namespace sys_sage {
                  RelationCategory::type _category = RelationCategory::Default);
 
         /**
-         * @brief Destructor for relations. Unlinks this relation from its
-         *        components and frees resources.
+         * @brief Destructor for relations.
+         *        Unlinks this relation from its components and frees resources.
          */
         virtual ~Relation();
+
+        /**
+         * @brief Deletes the given relation.
+         *        This assumes that the relation is HEAP-ALLOCATED.
+         *
+         * @param rel The relation to be deleted.
+         */
+        static void Delete(Relation *rel);
 
         /**
          * @brief Sets the id of the relationship.

@@ -36,8 +36,8 @@ class TestRelations(unittest.TestCase):
         bar = sys_sage.Component()
         v = [foo, bar]
         r = sys_sage.Relation(v)
-        r.RemoveComponent(0)
-        r.RemoveComponent(0)
+        r.RemoveComponent(foo)
+        r.RemoveComponent(bar)
         
         self.assertEqual(len(foo.GetRelations(sys_sage.RELATION_TYPE_RELATION)), 0)
         self.assertEqual(len(bar.GetRelations(sys_sage.RELATION_TYPE_RELATION)), 0)

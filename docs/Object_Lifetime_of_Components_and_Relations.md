@@ -1,39 +1,38 @@
 # Object Lifetime of Components and Relations
 
-This document contains general information about the object creation and
-specifically the destruction of components and relations within the _sys-sage_
-library. This should be taken into account for correct memory management and to
-avoid undefined behavior.
+This document contains general information about the object creation and destruction of components and relations within the _sys-sage_ library.
+This should be taken into account for correct memory management.
 
-## Ownership
+## Ownership & Correct Clean-Up
 
-Components do not take ownership of other components in the Component Tree.
-This holds especially for parent and child components. Therefore, the
-destructor of the `Component` class will only **unlink this component from the
-its parent and its children** (if they are present) and additionally clean up any
-claimed resources. These resources include the relation objects of type
-`Relation`. Hence, deleting a component will trigger the **deletion of all
-relations the component was part of**. If this is not desired, then the component
-should first be unlinked expliciteley from the relation through the
-`Relation::RemoveComponent` method. Moreover, if the entire subtree spanned by
-a component should be deleted, then the `Component::DeleteSubtree` method
-should be used. Note that this recursively calls `operator delete` on the
-children and on the component itself. It should therefore **only be called if all
-components in the subtree are heap-allocated**.
+Components do not take ownership of other components and relations.
+Therefore, the destructor of the `Component` class will only **unlink this component from its parent, its children and all of its associated relations**, additionally to cleaning up any claimed resources.
+This also means that the construction order of components does not matter at all (e.g. a component child can be instantiated before its parent).
+If the component should be cleaned up along with all of its associated relations, the `Component::Delete` functions should be used.
+This function assumes that the component itself and all the relations are **heap-allocated**.
+Moreover, if it is desired to delete the entire subtree spanned by a component, then the `Component::DeleteSubtree` function should be used.
+This will also delete all the relations of the subcomponents. 
+Similarly, this function assumes that all objects are **allocated on the heap**.
 
-Contrary to this, the destructor of the `Relation` class **does not delete any
-components** and instead **unlinks itself** from them in addition to cleaning up
-claimed resources. It has no influence on other relations.
+Apart from this, relations do not take ownership of components.
+Hence, the destructor of the `Relation` class simply **unlinks itself from the components** in addition to cleaning up claimed resources.
+It has no influence on other relations.
+For consistency purposes, we also provide a `Relation::Delete` function, which is a simple wrapper around a call to `operator delete` on the given relation.
+Naturally, this assumes **heap allocation**.
 
-## Construction and Destruction Order
+## Stack-allocated vs. heap-allocated
 
-_sys-sage_ does not enforce a strict requirement on whether objects are created
-on the stack or on the heap. However, the construction order of stack variables
-can matter and is handled similar to the QObject class of the Qt library.
+_sys-sage_ allows users to freely create components and relations on the stack or on the heap.
+However, mixing stack-allocated and heap-allocated objects needs to be done with care.
+An overview of functions that assume heap-allocation is given below:
 
-Since destructors of components only unlink themselves from the Component Tree,
-their order of construction and destruction does not matter at all. The
-following examples work fine:
+- `Component::Delete`
+- `Component::DeleteSubtree`
+- `Component::DeleteRelations`
+- `Relation::Delete`
+
+If for instance a child component is a local stack variable while the parent is heap-allocated, then `Component::DeleteSubtree` should only be called when the child exits the scope in which it was instantiated.
+The following examples highlight different scenarios of constructing and destroying components.
 
 ```cpp
 #include <sys-sage.hpp>
@@ -56,7 +55,7 @@ int main()
     }
 
     {
-        // first create the parent on the heap and then the child
+        // create the parent and child on the heap
 
         auto parent = new sys_sage::Component;
         auto child = new sys_sage::Component(parent);
@@ -73,79 +72,93 @@ int main()
         auto parent = new sys_sage::Component;
         parent->InsertChild(child);
 
-        parent->DeleteSubtree();
-        // `parent` and `child` are deleted and should not be used further
+        sys_sage::Component::DeleteSubtree(parent);
+
+        // `parent` and `child` are deleted
     }
 
     {
-        // first create the parent on the heap and the child on the stack
+        // create the parent on the heap and the child on the stack
 
         auto parent = new sys_sage::Component;
         sys_sage::Component child (parent);
 
         delete parent; // does not falsly clean up the child
+
         // child is cleaned up at scope exit
     }
 
+    {
+        // create the parent on the heap and the child on the stack in another scope
+
+        auto parent = new sys_sage::Component;
+        {
+            sys_sage::Component child (parent);
+
+            // child gets removed from the Component Tree and is cleaned-up at exit scope
+        }
+
+        sys_sage::Component::DeleteSubtree(parent); // no problems
+    }
+
+    {
+        // create the parent on the stack and the child on the heap
+
+        sys_sage::Component parent;
+        auto child = new sys_sage::Component(&parent);
+
+        sys_sage::Component::DeleteSubtree(&parent, true); // only deletes the child without falsly trying to deallocate the parent
+    }
+
     return 0;
 }
 ```
 
-Relations are generally cleaned up internally by deleting the corresponding
-components in the Component Tree as mentioned above. Nevertheless, a bit more
-care has to be taken here. Consider the following:
+## Smart pointers
 
-```cpp
+Since _sys-sage_ does not enforce owenership, using smart pointers may not yield the expected outcome.
+Consider the following:
+
+```
 #include <sys-sage.hpp>
+#include <memory>
 
 int main()
 {
-    // initialize an empty relation
-    sys_sage::Relation rel ({});
+    auto node = std::make_unique<sys_sage::Node>();
 
-    sys_sage::Component comp1;
-    sys_sage::Component comp2;
-
-    rel.AddComponent(&comp1);
-    rel.AddComponent(&comp2);
+    sys_sage::parseHwlocOutput(node.get(), "path/to/topo.xml");
 
     return 0;
+
+    // does not correctly clean up the entire Component Tree at scope exit
 }
 ```
 
-Since the C++ language standard specifies that local variables are cleaned up
-in reverse order of their construction, the destructor of `comp2` will falsly
-try to delete the stack-allocated relation by calling `operator delete` on
-`rel`. This results in undefined behavior. To mitigate this, the construction
-order should be changed such that all stack-allocated components are created
-before the creation of the stack-allocated relation. Alternatively, one can
-heap-allocate the relation instead:
+Since the destructor of `comp` only unlinks itself from the subtree without deleting it, the above would technically leak memory.
+For this purpose, a custom deleter can be built with `Component::DeleteSubtree`.
+A possible implementation would be:
 
-```cpp
+```
 #include <sys-sage.hpp>
+#include <memory>
+
+struct Deleter
+{
+    void operator()(sys_sage::Component *comp) const
+    {
+        sys_sage::Component::DeleteSubtree(comp);
+    }
+};
 
 int main()
 {
+    std::unique_ptr<sys_sage::Node, Deleter> node (new sys_sage::Node);
 
-    {
-        sys_sage::Component comp1;
-        sys_sage::Component comp2;
-
-        sys_sage::Relation rel({ &comp1, &comp2 });
-    }
-
-    {
-        auto rel = new sys_sage::Relation ({});
-
-        sys_sage::Component comp1;
-        sys_sage::Component comp2;
-
-        rel->AddComponent(&comp1);
-        rel->AddComponent(&comp2);
-
-        // we don't have to explicitely delete the relation
-    }
+    sys_sage::parseHwlocOutput(node.get(), "path/to/topo.xml");
 
     return 0;
+
+    // correctly cleans up the entire Component Tree at scope exit
 }
 ```

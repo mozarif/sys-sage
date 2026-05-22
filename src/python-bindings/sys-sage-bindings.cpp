@@ -434,12 +434,10 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetDepth", &Component::CalcDepth,py::arg("refresh"),"Get the depth of the component, if refresh is true it will update the depth")
 // --
         .def("CalcDepth", &Component::CalcDepth, py::arg("refresh"), "Calculate the depth of the component, if refresh is true it will update the depth")
-        .def("DeleteRelation", &Component::DeleteRelation, py::arg("relation"), "Delete the given relation from the component")
 // -- DEPRECATED DeleteAllRelations (used up until version 1.0.0)
         .def("DeleteAllRelations", &Component::DeleteRelations, py::arg("type") = RelationType::Any,"Delete all relations of that type from the component")
 // --
         .def("DeleteRelations", &Component::DeleteRelations, py::arg("type") = RelationType::Any, "Delete the relations of that type from the component")
-        .def("DeleteSubtree", &Component::DeleteSubtree, py::arg("keepRoot") = false, "Delete the subtree of the component")
 #ifdef SS_PAPI
         .def("PrintPAPImetricsInSubtree", &Component::PrintPAPImetricsInSubtree, py::arg("eventSet") = PAPI_NULL)
         .def("FindPAPIrelationsInSubtree", (std::vector<Relation *> (Component::*)() const) &Component::FindPAPIrelationsInSubtree)
