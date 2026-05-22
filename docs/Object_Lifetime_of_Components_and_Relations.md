@@ -119,7 +119,7 @@ int main()
 Since _sys-sage_ does not enforce owenership, using smart pointers may not yield the expected outcome.
 Consider the following:
 
-```
+```cpp
 #include <sys-sage.hpp>
 #include <memory>
 
@@ -139,7 +139,7 @@ Since the destructor of `comp` only unlinks itself from the subtree without dele
 For this purpose, a custom deleter can be built with `Component::DeleteSubtree`.
 A possible implementation would be:
 
-```
+```cpp
 #include <sys-sage.hpp>
 #include <memory>
 
