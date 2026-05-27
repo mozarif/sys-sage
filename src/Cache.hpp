@@ -54,11 +54,6 @@ namespace sys_sage {
          * Sets componentType to sys_sage::ComponentType::Cache.
          */
         Cache(Component * parent, int _id = 0, int _cache_level = 0, long long _cache_size = -1, int _associativity = -1, int _cache_line_size = -1);
-        /**
-         * @private
-         * @brief Use Delete() or DeleteSubtree() for deleting and deallocating the components.
-         */
-        ~Cache() override = default;
 
         /**
          * @brief Get the cache level (e.g., 1 for L1, 2 for L2).

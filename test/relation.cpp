@@ -45,7 +45,7 @@ ut::suite<"relation"> _ = []
     Component foo, bar;
     std::vector<Component *> v {&foo, &bar};
     Relation *r = new Relation (v);
-    r->Delete();
+    delete r;
 
     ut::expect(ut::that % foo.GetRelationsByType(RelationType::Relation).size() == 0U);
     ut::expect(ut::that % bar.GetRelationsByType(RelationType::Relation).size() == 0U);
@@ -114,7 +114,7 @@ ut::suite<"relation"> _ = []
       ut::expect(ut::that % r->GetType() == RelationType::DataPath);
       dynamic_cast<DataPath *>(r)->SetBandwidth(1.0);
       dynamic_cast<DataPath *>(r)->SetLatency(2.0);
-      r->Delete();
+      delete r;
     };
 
     ut::test("QuantumGate") = []
@@ -128,7 +128,7 @@ ut::suite<"relation"> _ = []
       ut::expect(ut::that % dynamic_cast<QuantumGate *>(r)->GetQuantumGateCategory() == QuantumGateCategory::Cnot);
       ut::expect(ut::that % dynamic_cast<QuantumGate *>(r)->GetFidelity() == 1.0);
       ut::expect(ut::that % (dynamic_cast<QuantumGate *>(r)->GetUnitary() == "[1 0 0 0; 0 1 0 0; 0 0 0 1; 0 0 1 0]"));
-      r->Delete();
+      delete r;
     };
 
     ut::test("CouplingMap") = []
@@ -138,7 +138,7 @@ ut::suite<"relation"> _ = []
       ut::expect(ut::that % r->GetType() == RelationType::CouplingMap);
       dynamic_cast<CouplingMap *>(r)->SetFidelity(1.0);
       ut::expect(ut::that % dynamic_cast<CouplingMap *>(r)->GetFidelity() == 1.0);
-      r->Delete();
+      delete r;
     };
   };
 };

@@ -28,11 +28,7 @@ namespace sys_sage {
         @param componentType=>SYS_SAGE_COMPONENT_NUMA
         */
         Numa(Component * parent, int _id = 0, long long _size = -1);
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Numa() override = default;
+
         /**
         Get size of the Numa memory segment.
         @returns size of the Numa memory segment.

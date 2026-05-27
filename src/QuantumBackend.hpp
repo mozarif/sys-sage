@@ -175,9 +175,6 @@ namespace sys_sage {
          */
         int _FromJson(const nlohmann::ordered_json &obj) override;
 
-        /** Destructor for QuantumBackend. */
-        ~QuantumBackend() override = default;
-
     private:
         int num_qubits;
         //SVTODO deal with gate_types -- can this go into Relations?

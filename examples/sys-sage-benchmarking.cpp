@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     uint64_t time_createNewComponent = UINT64_MAX;
 
     for (int i = 0; i < 1000; i++) {
-        n->Delete(false);
+        Component::Delete(n);
         t_start = high_resolution_clock::now();
         n = new Node(t, 1);
         t_end = high_resolution_clock::now();
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
         t_start = high_resolution_clock::now();
         Component *f = importFromXml("test.xml",NULL,NULL);
         t_end = high_resolution_clock::now();
-        f->Delete(true);
+        Component::DeleteSubtree(f);
         uint64_t time = t_end.time_since_epoch().count() -
                         t_start.time_since_epoch().count() - timer_overhead;
         if (time < time_importFromXml) {

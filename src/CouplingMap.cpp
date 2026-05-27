@@ -14,7 +14,3 @@ sys_sage::CouplingMap::CouplingMap(int _id, bool _ordered): Relation(_id, _order
 
 void sys_sage::CouplingMap::SetFidelity(double _fidelity){fidelity = _fidelity;}
 double sys_sage::CouplingMap::GetFidelity() const {return fidelity;}
-void sys_sage::CouplingMap::Delete()
-{
-    Relation::Delete();
-}

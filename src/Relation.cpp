@@ -75,15 +75,20 @@ void sys_sage::Relation::Print() const
     cout << endl;
 }
 
-void sys_sage::Relation::Delete()
+sys_sage::Relation::~Relation()
 {
     for(Component* c : components)
     {
         std::vector<Relation*>& component_relation_vector = c->_GetRelationsByType(type);
         component_relation_vector.erase(std::remove(component_relation_vector.begin(), component_relation_vector.end(), this), component_relation_vector.end());
     }
-    delete this;
 }
+
+void sys_sage::Relation::Delete(Relation *rel)
+{
+    delete rel;
+}
+
 sys_sage::RelationType::type sys_sage::Relation::GetType() const{ return type;}
 sys_sage::RelationCategory::type sys_sage::Relation::GetCategory() const{ return category;}
 const std::string &sys_sage::Relation::GetTypeStr() const
@@ -128,6 +133,19 @@ int sys_sage::Relation::RemoveComponent(size_t index)
     cRelations.erase(std::remove(cRelations.begin(), cRelations.end(), this), cRelations.end());
 
     components.erase(components.begin() + index);
+
+    return 0;
+}
+
+int sys_sage::Relation::RemoveComponent(Component *component)
+{
+    auto it = std::find(components.begin(), components.end(), component);
+    if (it == components.end())
+        return -1;
+    components.erase(it);
+
+    auto &relations = component->_GetRelationsByType(type);
+    relations.erase(std::remove(relations.begin(), relations.end(), this), relations.end());
 
     return 0;
 }

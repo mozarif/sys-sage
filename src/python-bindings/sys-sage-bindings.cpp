@@ -434,13 +434,10 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetDepth", &Component::CalcDepth,py::arg("refresh"),"Get the depth of the component, if refresh is true it will update the depth")
 // --
         .def("CalcDepth", &Component::CalcDepth, py::arg("refresh"), "Calculate the depth of the component, if refresh is true it will update the depth")
-        .def("DeleteRelation", &Component::DeleteRelation, py::arg("relation"), "Delete the given relation from the component")
 // -- DEPRECATED DeleteAllRelations (used up until version 1.0.0)
         .def("DeleteAllRelations", &Component::DeleteRelations, py::arg("type") = RelationType::Any,"Delete all relations of that type from the component")
 // --
         .def("DeleteRelations", &Component::DeleteRelations, py::arg("type") = RelationType::Any, "Delete the relations of that type from the component")
-        .def("DeleteSubtree", &Component::DeleteSubtree,"Delete the subtree of the component")
-        .def("Delete", &Component::Delete,py::arg("withSubtree") = true,"Delete the component")
 #ifdef SS_PAPI
         .def("PrintPAPImetricsInSubtree", &Component::PrintPAPImetricsInSubtree, py::arg("eventSet") = PAPI_NULL)
         .def("FindPAPIrelationsInSubtree", (std::vector<Relation *> (Component::*)() const) &Component::FindPAPIrelationsInSubtree)
@@ -629,9 +626,10 @@ PYBIND11_MODULE(sys_sage, m) {
         .def("GetComponent", &Relation::GetComponent, py::arg("index"), "Get a component at a specific position")
         .def("Print", &Relation::Print, "Prin basic information about this relation")
         .def("AddComponent", &Relation::AddComponent, py::arg("component"), "Add this component to the relation")
+        .def("RemoveComponent", (int (Relation::*) (size_t)) &Relation::RemoveComponent, py::arg("index"), "Removes the component at the given index")
+        .def("RemoveComponent", (int (Relation::*) (Component *)) &Relation::RemoveComponent, py::arg("component"), "Removes the given component from the relation")
         .def("UpdateComponent", (int (Relation::*) (int, Component *)) &Relation::UpdateComponent, py::arg("index"), py::arg("new_component"), "Tries to replace the component at the given index with the new component")
-        .def("UpdateComponent", (int (Relation::*) (Component *, Component *)) &Relation::UpdateComponent, py::arg("old_component"), py::arg("new_component"), "Tries to find the old component to replace it with the new component")
-        .def("Delete", &Relation::Delete, "Delete this relation");
+        .def("UpdateComponent", (int (Relation::*) (Component *, Component *)) &Relation::UpdateComponent, py::arg("old_component"), py::arg("new_component"), "Tries to find the old component to replace it with the new component");
 
     py::class_<DataPath, std::unique_ptr<DataPath, py::nodelete>, Relation>(m,"DataPath")
         .def(py::init<Component*, Component*, DataPathOrientation::type, DataPathCategory::type>(), py::arg("source"), py::arg("target"), py::arg("oriented"), py::arg("type") = sys_sage::DataPathCategory::None)
@@ -643,14 +641,12 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property_readonly("orientation", &DataPath::GetOrientation, "The orientation of the data path")
         .def_property("source", &DataPath::GetSource, &DataPath::UpdateSource, "The source of the data path")
         .def_property("target", &DataPath::GetTarget, &DataPath::UpdateTarget, "The target of the data path")
-        .def("Print", &DataPath::Print, "Print basic information of the data path to stdout")
-        .def("Delete", &DataPath::Delete, "Delete the data path");
+        .def("Print", &DataPath::Print, "Print basic information of the data path to stdout");
 
     py::class_<CouplingMap, std::unique_ptr<CouplingMap, py::nodelete>, Relation>(m, "CouplingMap")
         .def(py::init<Qubit *, Qubit *>(), py::arg("q1"), py::arg("q2"))
         .def(py::init<const std::vector<Component*>&, int, bool>(), py::arg("components"), py::arg("id") = 0, py::arg("ordered") = false)
-        .def_property("fidelity", &CouplingMap::GetFidelity, &CouplingMap::SetFidelity)
-        .def("Delete", &CouplingMap::Delete, "Delete the coupling map");
+        .def_property("fidelity", &CouplingMap::GetFidelity, &CouplingMap::SetFidelity);
 
     py::class_<QuantumGate, std::unique_ptr<QuantumGate, py::nodelete>, Relation>(m, "QuantumGate")
         .def(py::init<size_t, std::string, double, std::string>(), py::arg("size") = 0, py::arg("name") = "", py::arg("fidelity") = 0.0, py::arg("unitary") = "")

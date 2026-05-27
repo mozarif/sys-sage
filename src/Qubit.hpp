@@ -126,9 +126,6 @@ namespace sys_sage {
          */
         int _FromJson(const nlohmann::ordered_json &obj) override;
 
-        /** Destructor for Qubir. */
-        ~Qubit() override = default;
-
     private:
         double q1_fidelity;      ///< 1Q (single-qubit gate) fidelity
         double t1;               ///< T1 relaxation time
