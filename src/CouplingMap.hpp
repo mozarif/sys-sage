@@ -59,11 +59,7 @@ namespace sys_sage {
          * @return The fidelity (typically between 0 and 1).
          */
         double GetFidelity() const;
-        /**
-         * @brief Deletes this coupling relation and performs any necessary cleanup.
-         * Overrides the base Relation::Delete().
-         */
-        void Delete() override;
+
         /**
          * @private
          * @brief Helper function for XML export.

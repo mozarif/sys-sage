@@ -163,11 +163,6 @@ namespace sys_sage {
         int _FromJson(const nlohmann::ordered_json &obj,
                       const std::unordered_map<uintptr_t, Component *> &componentMap) override;
 
-        /**
-         * @brief Deletes and de-allocates the DataPath pointer from the list (std::vector) of outgoing and incoming DataPaths of source and target Components.
-         */
-        void Delete() override;
-
     private:
         DataPathCategory::type dp_category; /**< category of the datapath */
 

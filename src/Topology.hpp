@@ -41,11 +41,6 @@ namespace sys_sage {
          */
         int _FromJson(const nlohmann::ordered_json &obj) override;
 
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Topology() override = default;
     private:
     };
 }

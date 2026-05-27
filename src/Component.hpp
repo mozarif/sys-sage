@@ -74,10 +74,30 @@ namespace sys_sage {
 
         //SVTODO reevaluate the delete vs destructor
         /**
-         * @private
-         * @brief Use Delete() or DeleteSubtree() for deleting and deallocating the components.
+         * @brief Destructor for components.
+         *        Unlinks this component from its parent and children and additionally frees resources.
+         *        The destructor does not delete the entire subtree.
+         *        Refer to `Component::DeleteSubtree()` for the latter.
          */
-        virtual ~Component() = default;
+        virtual ~Component();
+
+        /**
+         * @brief Deletes the given component and all relations it is associated with.
+         *        This assumes that the component and the relations are all HEAP-ALLOCATED.
+         *
+         * @param comp The component to be deleted.
+         */
+        static void Delete(Component *comp);
+
+        /**
+         * @brief Deletes the whole subtree spanned by the given component and all associated relations.
+         *        This assumes that the components in the subtree and the relations are all HEAP-ALLOCATED.
+         *
+         * @param root The root of the subtree.
+         * @param keepRoot If set to `false`, the given component will be deleted as well.
+         */
+        static void DeleteSubtree(Component *root, bool keepRoot = false);
+
         /**
          * @brief Inserts a child component to this component (in the Component Tree).
          * The child pointer will be inserted at the end of the children vector.
@@ -118,7 +138,8 @@ namespace sys_sage {
         int InsertBetweenParentAndChildren(Component* parent, std::vector<Component*> children, bool alreadyParentsChild);
 
         /**
-         * @brief Removes the passed component from the list of children, without completely deleting (and deallocating) the child itself
+         * @brief Removes the passed component from the list of children, without completely deleting (and deallocating) the child itself.
+         *        The child's parent pointer will be set to `nullptr`.
          * @param child Child to remove
          * @return Number of elements deleted (normally 0 or 1)
          */
@@ -483,7 +504,7 @@ namespace sys_sage {
          * @brief Returns a (const) reference to the internal vector of relations for a given type.
          * @param relationType Type of relation (see RelationType for available types). Only use specific Relation Types, not RelationType::Any (you will get an empty vector).
          * @return const std::vector<Relation*>& (reference to internal structure)
-         * @note The vector is const so that the Relations of a Component cannot be manipulated this way. Use new Relation()/DeleteRelation() to modify the list of Relations, or access the Relations' API directly.
+         * @note The vector is const so that the Relations of a Component cannot be manipulated this way. Use new Relation()/Relation::Delete() to modify the list of Relations.
          * @see FindAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) as an alternative offering more flexibility at the price of increased overhead through generating a new output vector.
          */
         [[ deprecated("Use GetRelationsByType instead. This function will be removed in the future (used up until version 1.0.0).") ]]
@@ -493,7 +514,7 @@ namespace sys_sage {
          * @brief Returns a (const) reference to the internal vector of relations for a given type.
          * @param relationType Type of relation (see RelationType for available types). Only use specific Relation Types, not RelationType::Any (you will get an empty vector).
          * @return const std::vector<Relation*>& (reference to internal structure)
-         * @note The vector is const so that the Relations of a Component cannot be manipulated this way. Use new Relation()/DeleteRelation() to modify the list of Relations, or access the Relations' API directly.
+         * @note The vector is const so that the Relations of a Component cannot be manipulated this way. Use new Relation()/Relation::Delete() to modify the list of Relations.
          * @see FindAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) as an alternative offering more flexibility at the price of increased overhead through generating a new output vector.
          */
         const std::vector<Relation*>& GetRelationsByType(RelationType::type relationType) const;
@@ -512,7 +533,7 @@ namespace sys_sage {
          * @brief Returns a (const) reference to the internal vector of relations for a given type.
          * @param relationType Type of relation (see RelationType for available types). Only use specific Relation Types, not RelationType::Any (you will get an empty vector).
          * @return const std::vector<Relation*>& (reference to internal structure)
-         * @note The vector is const so that the Relations of a Component cannot be manipulated this way. Use new Relation()/DeleteRelation() to modify the list of Relations, or access the Relations' API directly.
+         * @note The vector is const so that the Relations of a Component cannot be manipulated this way. Use new Relation()/Relation::Delete() to modify the list of Relations.
          * @see FindAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) as an alternative offering more flexibility at the price of increased overhead through generating a new output vector.
          */
         std::vector<Relation*>& _GetRelationsByType(RelationType::type relationType) const;
@@ -713,20 +734,6 @@ namespace sys_sage {
         virtual int _FromJson(const nlohmann::ordered_json &obj);
 
         /**
-         * @brief Deletes a Relation from this component as well as the Relation itself.
-         * @param r Pointer to the relation to delete
-         * @see Relation/DataPath/QuantumGate Delete()
-         */
-        void DeleteRelation(Relation * r);
-        /**
-         * @deprecated Use void DeleteRelation(Relation * r) instead.
-         * @brief Deletes and deallocates the DataPath pointer from the list of outgoing/incoming DataPaths.
-         * @param dp DataPath to delete
-         */
-        [[deprecated("DeleteDataPath is deprecated. Use void DeleteRelation(Relation * r) instead (used up until version 0.5.2).")]]
-        void DeleteDataPath(DataPath * dp);
-
-        /**
          * @brief Deletes all relations of this component (optionally filtered by type).
          * @param relationType Relation type to delete (default: Any)
          */
@@ -735,6 +742,8 @@ namespace sys_sage {
 
         /**
          * @brief Deletes all relations of this component (optionally filtered by type).
+         *        This assumes that all the relations are HEAP-ALLOCATED.
+         *
          * @param relationType Relation type to delete (default: Any)
          */
         void DeleteRelations(RelationType::type relationType = RelationType::Any);
@@ -745,16 +754,6 @@ namespace sys_sage {
          */
         [[ deprecated("Use DeleteRelations instead. This function will be removed in the future (used up until version 1.0.0).") ]]
         void DeleteAllDataPaths();
-        /**
-        Deletes the whole subtree (all the children) of the component.
-        */
-        void DeleteSubtree() const;
-        /**
-         * @brief Deletes a component, its children (if withSubtree = true), and all associated Relations.
-         * If only the component itself is deleted, its children are inserted into its parent's children list.
-         * @param withSubtree If true, the whole subtree is deleted; otherwise only the component itself.
-         */
-        void Delete(bool withSubtree = true);
 
 #ifdef SS_PAPI
         /**

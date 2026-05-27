@@ -26,11 +26,6 @@ namespace sys_sage {
         @param componentType=>SYS_SAGE_COMPONENT_CORE
         */
         Core(Component * parent, int _id = 0, const std::string &_name = "Core");
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Core() override = default;
 
         /**
          * @private
@@ -54,10 +49,7 @@ namespace sys_sage {
          */
         int _FromJson(const nlohmann::ordered_json &obj) override;
 
-    private:
-
     #ifdef PROC_CPUINFO
-    public:
         /**
         * Refreshes the frequency of the core.
         */

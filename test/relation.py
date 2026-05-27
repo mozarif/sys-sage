@@ -31,12 +31,13 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(foo.GetRelations(sys_sage.RELATION_TYPE_RELATION), [r])
         self.assertEqual(bar.GetRelations(sys_sage.RELATION_TYPE_RELATION), [r])
 
-    def test_deletion(self):
+    def test_removal(self):
         foo = sys_sage.Component()
         bar = sys_sage.Component()
         v = [foo, bar]
         r = sys_sage.Relation(v)
-        r.Delete()
+        r.RemoveComponent(foo)
+        r.RemoveComponent(bar)
         
         self.assertEqual(len(foo.GetRelations(sys_sage.RELATION_TYPE_RELATION)), 0)
         self.assertEqual(len(bar.GetRelations(sys_sage.RELATION_TYPE_RELATION)), 0)

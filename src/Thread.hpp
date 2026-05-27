@@ -50,12 +50,6 @@ namespace sys_sage {
          */
         int _FromJson(const nlohmann::ordered_json &obj) override;
 
-        /**
-        * @private
-        * Use Delete() or DeleteSubtree() for deleting and deallocating the components. 
-        */
-        ~Thread() override = default;
-
     #ifdef PROC_CPUINFO //defined in proc_cpuinfo.cpp
     public:
         /**
@@ -150,7 +144,6 @@ namespace sys_sage {
         void FindPAPIeventSets(std::vector<int> &eventSets) const;
 
 #endif
-    private:
     };
 
 }

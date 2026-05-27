@@ -92,6 +92,20 @@ namespace sys_sage {
          */
         Relation &operator=(const Relation &) = delete;
 
+         /**
+         * @brief Destructor for relations.
+         *        Unlinks this relation from its components and frees resources.
+         */
+        virtual ~Relation();
+
+        /**
+         * @brief Deletes the given relation.
+         *        This assumes that the relation is HEAP-ALLOCATED.
+         *
+         * @param rel The relation to be deleted.
+         */
+        static void Delete(Relation *rel);
+
         /**
          * @brief Sets the id of the relationship.
          * @param _id The id of the relationship to set.
@@ -187,13 +201,22 @@ namespace sys_sage {
         int UpdateComponent(Component* _old_component, Component * _new_component);
 
         /**
-         * @brief Removes the component at the given index.
+         * @brief Removes the component at the given index. This does not delete the component.
          * 
          * @param index The index of interest.
          *
          * @return 0 on success, -1 otherwise.
          */
         int RemoveComponent(size_t index);
+
+        /**
+         * @brief Removes the given component from the relation. This does not delete the component.
+         *
+         * @param The component of interest.
+         *
+         * @return 0 on success, -1 otherwise.
+         */
+        int RemoveComponent(Component *component);
 
         /**
          * @private
@@ -227,19 +250,6 @@ namespace sys_sage {
          */
         virtual int _FromJson(const nlohmann::ordered_json &obj,
                               const std::unordered_map<uintptr_t, Component *> &componentMap);
-
-        /**
-         * @brief Virtual function to delete the relation.
-         *
-         * Should be overridden in subclasses if custom destruction logic is needed.
-         */
-        virtual void Delete();//TODO
-        /**
-         * @brief Destructor for the Relation class.
-         * 
-         * This is a virtual destructor to ensure proper cleanup of derived classes.
-         */
-        virtual ~Relation() = default;
 
 #ifdef SS_PAPI
         /**
