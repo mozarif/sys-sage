@@ -96,23 +96,27 @@ Individual attributes can be removed explicitly through the `EraseAttribute`
 method by either provding the corresponding key or the iterator. To get rid of
 all attributes at once, one can use the `ClearAttributes` method. Apart from
 that, the destructor of the `Component` and `Relation` class will implicitly
-clean up all remaining attributes. The memory will be freed automatically in
-either case. However, the following example illustrates an edge case in which
-memory will be leaked:
+clean up all remaining attributes.
+
+However, **the user is responsible for freeing attributes that do not own their
+underlying resources, such as raw pointers**. The following example illustrates
+such a case in which memory will be leaked:
 
 ```cpp
 int *i = new int(1);
 
 comp.SetAttribute("leakingMemory", i);
 comp.EraseAttribute("leakingMemory"); // does not free the integer itself
+
+// manual `delete i;` needed
 ```
 
 This is because the attribute's value is a shallow copy of a pointer without
 taking ownership of the underlying memory. When removing this attribute, only
 the memory used for storing the pointer will be freed, without further deleting
 the memory of the actual integer. In such cases, further logic is needed for
-correct clean-up. Apart from manually deleting `i`, one can use smart pointers
-in combination with `std::move` for this:
+correct clean-up. Apart from manually deleting `i`, **one can also use smart
+pointers** in combination with `std::move` for this:
 
 ```cpp
 auto i = std::make_unique<int>(1);
