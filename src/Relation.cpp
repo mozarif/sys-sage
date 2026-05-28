@@ -57,15 +57,17 @@ void sys_sage::Relation::_PrintRelationComponentInfo() const
 }
 void sys_sage::Relation::_PrintRelationAttrib() const
 {
-    if(!attrib.empty())
-    {
-        cout << " -- attrib: ";
-        for (const auto& n : attrib) {
-            // TODO: fix undefined behaviour caused by strict aliasing rule violation
-            uint64_t* val = reinterpret_cast<uint64_t*>(n.second);
-            std::cout << n.first << " = " << *val << "; ";
-        }
-    }
+    // Comment out this code for now. Printing of the attributes will be
+    // handeled through future JSON support.
+    //if(!attributes.empty())
+    //{
+    //    cout << " -- attrib: ";
+    //    for (const auto& n : attrib) {
+    //        // TODO: fix undefined behaviour caused by strict aliasing rule violation
+    //        uint64_t* val = reinterpret_cast<uint64_t*>(n.second);
+    //        std::cout << n.first << " = " << *val << "; ";
+    //    }
+    //}
 }
 void sys_sage::Relation::Print() const
 {
@@ -148,4 +150,44 @@ int sys_sage::Relation::RemoveComponent(Component *component)
     relations.erase(std::remove(relations.begin(), relations.end(), this), relations.end());
 
     return 0;
+}
+
+sys_sage::Relation::attribSizeType sys_sage::Relation::GetAttributesSize() const
+{
+    return attributes.size();
+}
+
+sys_sage::Relation::attribIterator sys_sage::Relation::AttributesBegin()
+{
+    return attributes.begin();
+}
+
+sys_sage::Relation::constAttribIterator sys_sage::Relation::AttributesBegin() const
+{
+    return attributes.begin();
+}
+
+sys_sage::Relation::attribIterator sys_sage::Relation::AttributesEnd()
+{
+    return attributes.end();
+}
+
+sys_sage::Relation::constAttribIterator sys_sage::Relation::AttributesEnd() const
+{
+    return attributes.end();
+}
+
+void sys_sage::Relation::EraseAttribute(const std::string &key)
+{
+    attributes.erase(key);
+}
+
+sys_sage::Relation::attribIterator sys_sage::Relation::EraseAttribute(Relation::attribIterator it)
+{
+    return attributes.erase(it);
+}
+
+void sys_sage::Relation::ClearAttributes()
+{
+    attributes.clear();
 }

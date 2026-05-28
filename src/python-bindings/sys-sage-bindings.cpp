@@ -26,6 +26,28 @@ py::function print_complex_attributes;
 py::function read_attributes;
 py::function read_complex_attributes;
 
+// wrapper class to allow attributes iteration in Python
+template <typename T>
+class AttributeIteratorWrapper {
+public:
+    AttributeIteratorWrapper(T &_self, T::attribIterator _cur) : self (_self), cur (_cur) {}
+
+    py::object next()
+    {
+        if (cur == self.AttributesEnd())
+            throw py::stop_iteration();
+
+        auto &key = cur->first;
+        auto value = self.template GetAttribute<py::object>(cur++);
+
+        return py::make_tuple(key, *value);
+    }
+
+private:
+    T &self;
+    T::attribIterator cur;
+};
+
 int xmldumper(std::string key, void* value, std::string* ret_value_str) {
     //
     if(default_attribs.end() != std::find(default_attribs.begin(), default_attribs.end(), key))
@@ -95,165 +117,6 @@ int xmlloader_complex(xmlNodePtr node, sys_sage::Component *c) {
     return 0;
 }
 
-//TODO: Add dynamic allocation for values
-//TODO: Delete values only after success
-template <typename T>
-void set_attribute(T &self, const std::string &key, py::object &value) {
-    //std::cout << "set attribute: " << key << " = " << value << std::endl;
-
-    auto val = self.attrib.find(key);
-    
-    if (!key.compare("CATcos") || !key.compare("CATL3mask")) {
-        void * newval = static_cast<void*>(new uint64_t(py::cast<uint64_t>(value)));
-        if(val != self.attrib.end())
-            delete static_cast<uint64_t*>(val->second);
-        self.attrib[key] = newval;
-    } else if (!key.compare("mig_size")) {
-        void* new_val = static_cast<void*>(new long long(py::cast<long long>(value)));
-        if(val != self.attrib.end())
-            delete static_cast<long long*>(val->second);
-        self.attrib[key] = new_val;
-    } else if (!key.compare("Number_of_streaming_multiprocessors") || 
-               !key.compare("Number_of_cores_in_GPU") || 
-               !key.compare("Number_of_cores_per_SM") || 
-               !key.compare("Bus_Width_bit")) {
-        void* new_val = static_cast<void*>(new int(py::cast<int>(value)));
-        if(val != self.attrib.end())
-            delete static_cast<int*>(val->second);
-        self.attrib[key] = new_val;
-    } else if (!key.compare("Clock_Frequency") || !key.compare("GPU_Clock_Rate")) {
-        void * new_val = static_cast<void*>(new double(py::cast<double>(value)));
-        if(val != self.attrib.end())
-            delete static_cast<double*>(val->second);
-        self.attrib[key] = new_val;
-    } else if (!key.compare("latency") ||
-               !key.compare("latency_min") ||
-               !key.compare("latency_max")) {
-        void * new_val = static_cast<void*>(new float(py::cast<float>(value)));
-        if(val != self.attrib.end())
-            delete static_cast<float*>(val->second);
-        self.attrib[key] = new_val;
-    } else if (!key.compare("CUDA_compute_capability") || 
-               !key.compare("mig_uuid")) {
-        void * new_val= static_cast<void*>(new std::string(py::cast<std::string>(value)));
-        if(val != self.attrib.end())
-            delete static_cast<std::string*>(val->second);
-        self.attrib[key] = new_val;
-    } else if (!key.compare("freq_history")) {
-        auto fh = new std::vector<std::tuple<long long, double>>;
-        py::dict fh_dict = py::cast<py::dict>(value);
-        for (auto [key, value] : fh_dict) {
-            fh->push_back(std::make_tuple(py::cast<long long>(key), py::cast<double>(value)));
-        }
-        void * new_val = static_cast<void*>(fh);
-        if(val != self.attrib.end())
-            delete static_cast<std::vector<std::tuple<long long, double>>*>(val->second);
-        self.attrib[key] = new_val;
-    //} else if (!key.compare("GPU_Clock_Rate")) {
-    //    std::cout << "Setting attribute: " << key << std::endl;
-    //    py::object freq = value["freq"];
-    //    py::str unit = value["unit"];
-    //    //double * f = new double(py::cast<double>(freq));
-    //    //std::string * u = new std::string(py::cast<std::string>(unit));
-    //    void * new_val = static_cast<void*>(new std::tuple<double, std::string>(py::cast<double>(freq), py::cast<std::string>(unit)));
-    //    if(val != self.attrib.end())
-    //        delete static_cast<std::tuple<double, std::string>*>(val->second);
-    //    self.attrib[key] = new_val;
-    } else {
-        void * new_val = static_cast<void*>(new std::shared_ptr<py::object>(
-            std::make_shared<py::object>(value)));
-        if (val != self.attrib.end())
-            delete static_cast<std::shared_ptr<py::object>*>(val->second);
-        self.attrib[key] = new_val;
-    }
-
-}
-
-template <typename T>
-py::object get_attribute(T &self, const std::string &key) {
-    auto val = self.attrib.find(key);
-    if (val != self.attrib.end()) {
-        if(!key.compare("CATcos") || !key.compare("CATL3mask")){
-            uint64_t retval = *(reinterpret_cast<uint64_t*>(val->second)); 
-            return py::cast(retval);
-        }
-        else if(!key.compare("mig_size") )
-        {
-            return py::cast(*reinterpret_cast<long long*>(val->second));
-        }
-        //val->secondue: int
-        else if(!key.compare("Number_of_streaming_multiprocessors") || 
-        !key.compare("Number_of_cores_in_GPU") || 
-        !key.compare("Number_of_cores_per_SM")  || 
-        !key.compare("Bus_Width_bit") )
-        {
-            return py::cast(*reinterpret_cast<int*>(val->second));
-        }
-        //value: double
-        else if(!key.compare("Clock_Frequency") || !key.compare("GPU_Clock_Rate"))
-        {
-            return py::cast(*reinterpret_cast<double*>(val->second));
-        }
-        //value: float
-        else if(!key.compare("latency") ||
-        !key.compare("latency_min") ||
-        !key.compare("latency_max") )
-        {
-            return py::cast(*reinterpret_cast<float*>(val->second));
-        }   
-        //value: string
-        else if(!key.compare("CUDA_compute_capability") || 
-        !key.compare("mig_uuid") )
-        {
-            return py::cast(*reinterpret_cast<std::string*>(val->second));
-        }
-        else if(!key.compare("freq_history") ){
-            std::vector<std::tuple<long long,double>>* value = reinterpret_cast<std::vector<std::tuple<long long,double>>*>(val->second);
-            py::dict freq_dict;
-             for(auto [ ts,freq ] : *value){
-                 freq_dict[py::cast(ts)] = py::cast(freq);
-                 //printf("ts:%lld freq:%f\n",ts,freq);
-             }
-             return freq_dict;
-        //}
-        //else if(!key.compare("GPU_Clock_Rate")){
-        //    auto value = static_cast<std::tuple<double, std::string>*>(val->second);
-        //    auto [ freq, unit ] = *value;
-        //    py::dict freq_dict;
-        //    freq_dict[py::str("freq")] = py::cast(freq);
-        //    freq_dict[py::str("unit")] = py::cast(unit);  
-        //    return freq_dict;     
-        }else{
-            auto * ptr = static_cast<std::shared_ptr<py::object>*>(val->second);
-            return *ptr->get();
-        }
-    } else {
-        throw py::attribute_error("Attribute '" + key + "' not found"); 
-    }
-}
-
-template <typename T>
-py::object get_attribute(T &self, int pos){
-    if (pos < 0 || static_cast<size_t>(pos) >= self.attrib.size())
-        throw py::index_error("Index out of bounds");
-    auto it = self.attrib.begin();
-    std::advance(it, pos);
-    return get_attribute(self, it->first);
-}
-
-
-template <typename T>
-void remove_attribute(T &self, const std::string &key) {
-    auto val = self.attrib.find(key);
-    if (val != self.attrib.end()) {
-        delete static_cast<std::shared_ptr<py::object>*>(val->second);
-        self.attrib.erase(val);
-    } else {
-        throw py::attribute_error("Attribute " + key + " not found");
-    }
-}
-
-
 PYBIND11_MODULE(sys_sage, m) {
     using namespace sys_sage;
 
@@ -317,22 +180,47 @@ PYBIND11_MODULE(sys_sage, m) {
     m.attr("QUANTUMGATE_CATEGORY_SX") = QuantumGateCategory::Sx;
     m.attr("QUANTUMGATE_CATEGORY_TOFFOLI") = QuantumGateCategory::Toffoli;
 
+    py::class_<AttributeIteratorWrapper<Component>>(m, "ComponentAttributeIterator")
+        .def("__iter__", [](AttributeIteratorWrapper<Component> &self) -> AttributeIteratorWrapper<Component> & { return self; })
+        .def("__next__", &AttributeIteratorWrapper<Component>::next);
+
+    py::class_<AttributeIteratorWrapper<Relation>>(m, "RelationAttributeIterator")
+        .def("__iter__", [](AttributeIteratorWrapper<Relation> &self) -> AttributeIteratorWrapper<Relation> & { return self; })
+        .def("__next__", &AttributeIteratorWrapper<Relation>::next);
+
     //bind component class
     py::class_<Component, std::unique_ptr<Component, py::nodelete>>(m, "Component")
         .def(py::init<int, std::string>(), py::arg("id") = 0, py::arg("name") = "unknown")
         .def(py::init<Component *, int, std::string>(), py::arg("parent"), py::arg("id") = 0, py::arg("name") = "unknown")
-        .def("__setitem__", [](Component& self, const std::string& name, py::object value) {
-            set_attribute<Component>(self,name, value);
-        })
-        .def("__getitem__", [](Component& self, const std::string& name) {
-            return get_attribute<Component>(self,name);
-        })
-        .def("__getitem__", [](Component& self, int pos) {
-            return get_attribute<Component>(self,pos);
-        })
-        .def("__delitem__", [](Component& self, const std::string& name) {
-            remove_attribute<Component>(self,name);
-        })
+        /*
+         * The iterators and methods that take an iterator as a parameter are
+         * not exposed since there is no 1-to-1 correspondance of an iterator
+         * in Python. Normal iteration inside a for-loop is enabled through a
+         * helper class. Keys should be used instead of iterators like in
+         * `Component::GetAttribute(attribIterator it)`.
+         * 
+         * Furthermore, the method `Component::UpdateAttribute` is not exposed
+         * since the underlying `py::object` needs to be freed and a new one
+         * needs to be allocated anyways.
+         *
+         * JSON serialization for attributes in Python can be supported through
+         * https://github.com/pybind/pybind11_json
+         * However, this uses `nlohmann::json` while we use
+         * `nlohmann::ordered_json`. -> TODO: how to fix this?
+         *
+         * All of the above also holds for the `Relation` class.
+         */
+        .def("SetAttribute", [](Component &self, const std::string &key, py::object value) -> py::object { return *self.SetAttribute<py::object>(key, std::move(value)); })
+        .def("GetAttribute", [](Component &self, const std::string &key) -> py::object
+            {
+                auto value = self.GetAttribute<py::object>(key);
+                return value ? *value : py::none();
+            }
+        )
+        .def("GetAttributesSize", &Component::GetAttributesSize)
+        .def("IterateAttributes", [](Component &self) -> AttributeIteratorWrapper<Component> { return AttributeIteratorWrapper(self, self.AttributesBegin()); })
+        .def("EraseAttribute", (void (Component::*)(const std::string &))(&Component::EraseAttribute), py::arg("key"))
+        .def("ClearAttributes", &Component::ClearAttributes)
         .def("InsertChild", &Component::InsertChild, py::arg("child"), "Insert a child component")
         .def("InsertBetweenParentAndChild", &Component::InsertBetweenParentAndChild, py::arg("parent"), py::arg("child"), py::arg("alreadyParentsChild"),"Insert a component between parent and child")
         .def("InsertBetweenParentAndChildren", &Component::InsertBetweenParentAndChildren, py::arg("parent"), py::arg("children"), py::arg("alreadyParentsChildren"), "Insert a component between parent and children")
@@ -600,18 +488,17 @@ PYBIND11_MODULE(sys_sage, m) {
         .def_property_readonly("category", &Relation::GetCategory)
         .def_property_readonly("ordered", &Relation::IsOrdered)
         .def_property_readonly("components", &Relation::GetComponents)
-        .def("__setitem__", [](Relation& self, const std::string& name, py::object value) {
-            set_attribute<Relation>(self,name, value);
-        })
-        .def("__getitem__", [](Relation& self, const std::string& name) {
-            return get_attribute<Relation>(self,name);
-        })
-        .def("__getitem__", [](Relation& self, int pos) {
-            return get_attribute<Relation>(self,pos);
-        })
-        .def("__delitem__", [](Relation& self, const std::string& name) {
-            remove_attribute<Relation>(self,name);
-        })
+        .def("SetAttribute", [](Relation &self, const std::string &key, py::object value) -> py::object { return *self.SetAttribute<py::object>(key, std::move(value)); })
+        .def("GetAttribute", [](Relation &self, const std::string &key) -> py::object
+            {
+                auto value = self.GetAttribute<py::object>(key);
+                return value ? *value : py::none();
+            }
+        )
+        .def("GetAttributesSize", &Relation::GetAttributesSize)
+        .def("IterateAttributes", [](Relation &self) -> AttributeIteratorWrapper<Relation> { return AttributeIteratorWrapper(self, self.AttributesBegin()); })
+        .def("EraseAttribute", (void (Relation::*)(const std::string &))(&Relation::EraseAttribute), py::arg("key"))
+        .def("ClearAttributes", &Relation::ClearAttributes)
 #ifdef SS_PAPI
         .def("GetPAPImetric", &Relation::GetPAPImetric, py::arg("eventCode"), py::arg("cpuNum") = -1, py::arg("timestamp") = 0)
         .def("GetAllPAPImetrics", &Relation::GetAllPAPImetrics, py::arg("eventCode"), py::arg("cpuNum"))

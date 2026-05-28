@@ -102,14 +102,14 @@ void sys_sage::CccbenchParser::applyDataPaths(Component *root)
             }
             auto xtoylatv = (*this->c2cDatapoints)[xci][yci];
             auto sum = accumulate(xtoylatv.begin(), xtoylatv.end(), 0.0);
-            auto mean = new float(sum / xtoylatv.size());
-            auto max = new float(*max_element(xtoylatv.begin(), xtoylatv.end()));
-            auto min = new float(*min_element(xtoylatv.begin(), xtoylatv.end()));
+            float mean =sum / xtoylatv.size();
+            float max = *max_element(xtoylatv.begin(), xtoylatv.end());
+            float min = *min_element(xtoylatv.begin(), xtoylatv.end());
             auto dtp = new DataPath(xcore, ycore, sys_sage::DataPathOrientation::Oriented,
-                                   sys_sage::DataPathCategory::C2C, 0, *mean);
-            dtp->attrib.insert(std::pair<string, void *>("latency_max", reinterpret_cast<void*>(max)));
-            dtp->attrib.insert(std::pair<string, void *>("latency_min", reinterpret_cast<void*>(min)));
-            dtp->attrib.insert(std::pair<string, void *>("latency", reinterpret_cast<void*>(mean)));
+                                   sys_sage::DataPathCategory::C2C, 0, mean);
+            dtp->SetAttribute("latency_max", max);
+            dtp->SetAttribute("latency_min", min);
+            dtp->SetAttribute("latency", mean);
         }
     }
 }

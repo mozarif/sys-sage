@@ -76,8 +76,8 @@ static suite<"mt4g"> _ = []
     
     expect(that % gpu->GetVendor() == expectedVendor);
     expect(that % gpu->GetModel() == expectedModel);
-    expect(that % *static_cast<long long *>(gpu->attrib["clockRate"]) == 1545000 * 1000);
-    auto majorMinor = static_cast<std::pair<int, int> *>(gpu->attrib["computeCapability"]);
+    expect(that % *gpu->GetAttribute<long long>("clockRate") == 1545000 * 1000);
+    auto majorMinor = gpu->GetAttribute<std::pair<int, int>>("computeCapability");
     expect(that % majorMinor->first == 7 && majorMinor->second == 5);
 
     expect(that % gpu->GetChildren().size() == 1U && gpu->GetChildren()[0]->GetComponentType() == ComponentType::Memory);
@@ -140,8 +140,8 @@ static suite<"mt4g"> _ = []
     
     expect(that % gpu->GetVendor() == expectedVendor);
     expect(that % gpu->GetModel() == expectedModel);
-    expect(that % *static_cast<long long *>(gpu->attrib["clockRate"]) == 1502000 * 1000);
-    auto majorMinor = static_cast<std::pair<int, int> *>(gpu->attrib["computeCapability"]);
+    expect(that % *gpu->GetAttribute<long long>("clockRate") == 1502000 * 1000);
+    auto majorMinor = gpu->GetAttribute<std::pair<int, int>>("computeCapability");
     expect(that % majorMinor->first == 9 && majorMinor->second == 0);
 
     expect(that % gpu->GetChildren().size() == 1U && gpu->GetChildren()[0]->GetComponentType() == ComponentType::Memory);

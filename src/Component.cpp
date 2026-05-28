@@ -589,6 +589,7 @@ int sys_sage::Component::_GetTopologySize(unsigned * out_component_size, unsigne
     return _CalcSubtreeSize(out_component_size, out_RelationSize, *countedRelations);
 }
 
+// TODO: fix this
 int sys_sage::Component::_CalcSubtreeSize(unsigned * out_component_size, unsigned * out_RelationSize, std::set<Relation*> &countedRelations) const
 {
     int component_size = 0;
@@ -628,8 +629,11 @@ int sys_sage::Component::_CalcSubtreeSize(unsigned * out_component_size, unsigne
             component_size += sizeof(Topology);
         break;
     }
-    component_size += attrib.size()*(sizeof(std::string)+sizeof(void*)); //TODO improve
-    component_size += children.size()*sizeof(Component*);
+    // Only consider the keys of the attributes. We can not measure the size of
+    // arbitrary values. Maybe remove the size measurement of the attributes or
+    // remove this function entirely?
+    component_size += sizeof(attributes) + attributes.size() * sizeof(std::string);
+    component_size += sizeof(children) + children.size()*sizeof(Component*);
     //relations -- only counting the vector/array sizes
     if(relations)
     {
@@ -654,23 +658,21 @@ int sys_sage::Component::_CalcSubtreeSize(unsigned * out_component_size, unsigne
         {
             if(countedRelations.find(r) == countedRelations.end())
             {
+
+                relationsSize += r->GetAttributesSize() * sizeof(std::string);
                 switch(rt)
                 {
                     case RelationType::Relation:
                         relationsSize += sizeof(Relation);
-                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
                         break;
                     case RelationType::DataPath:
                         relationsSize += sizeof(DataPath);
-                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
                         break;
                     case RelationType::QuantumGate:
                         relationsSize += sizeof(QuantumGate);
-                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
                         break;
                     case RelationType::CouplingMap:
                         relationsSize += sizeof(CouplingMap);
-                        relationsSize += r->attrib.size() * (sizeof(string)+sizeof(void*)); //TODO improve
                         break;
                 }
                 countedRelations.insert(r);
@@ -803,3 +805,43 @@ sys_sage::Component::Component(Component * parent, int _id, const std::string &_
 }
 sys_sage::Component::Component(int _id, const std::string &_name): Component(_id, _name, sys_sage::ComponentType::Generic) {}
 sys_sage::Component::Component(Component * parent, int _id, const std::string &_name): Component(parent, _id, _name, sys_sage::ComponentType::Generic) {}
+
+sys_sage::Component::attribSizeType sys_sage::Component::GetAttributesSize() const
+{
+    return attributes.size();
+}
+
+sys_sage::Component::attribIterator sys_sage::Component::AttributesBegin()
+{
+    return attributes.begin();
+}
+
+sys_sage::Component::constAttribIterator sys_sage::Component::AttributesBegin() const
+{
+    return attributes.begin();
+}
+
+sys_sage::Component::attribIterator sys_sage::Component::AttributesEnd()
+{
+    return attributes.end();
+}
+
+sys_sage::Component::constAttribIterator sys_sage::Component::AttributesEnd() const
+{
+    return attributes.end();
+}
+
+void sys_sage::Component::EraseAttribute(const std::string &key)
+{
+    attributes.erase(key);
+}
+
+sys_sage::Component::attribIterator sys_sage::Component::EraseAttribute(Component::attribIterator it)
+{
+    return attributes.erase(it);
+}
+
+void sys_sage::Component::ClearAttributes()
+{
+    attributes.clear();
+}

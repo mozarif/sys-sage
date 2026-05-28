@@ -65,6 +65,7 @@ set(HEADERS
     DataPath.hpp
     QuantumGate.hpp
     CouplingMap.hpp
+    attribute.hpp
     xml_dump.hpp
     xml_load.hpp
     json_serialization.hpp
@@ -161,7 +162,7 @@ endif()
     )
     install(DIRECTORY "."
         DESTINATION lib/cmake/inc
-        FILES_MATCHING PATTERN "*.hpp")
+        FILES_MATCHING PATTERN "*.hpp" PATTERN "*.inl")
 
     install(
         TARGETS sys-sage
@@ -171,6 +172,6 @@ endif()
     )
     install(DIRECTORY "."
         DESTINATION inc
-        FILES_MATCHING PATTERN "*.hpp")
+        FILES_MATCHING PATTERN "*.hpp" PATTERN "*.inl")
 
 #endif()

@@ -15,6 +15,13 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <string>
+#include <memory>
+#include <string>
+#include <typeinfo>
+#include <type_traits>
+#include <map>
+#include <utility>
 #include <libxml/parser.h>
 #include <nlohmann/json.hpp>
 #include <unordered_map>
@@ -22,6 +29,7 @@
 
 #include "defines.hpp"
 #include "enums.hpp"
+#include "attribute.hpp"
 
 namespace sys_sage { //forward declaration
     class Component;
@@ -74,6 +82,17 @@ namespace sys_sage {
                  RelationCategory::type _category = RelationCategory::Default);
 
         /**
+         * @brief Prohibit shallow copies by deleting the implicit copy constructor.
+         */
+        Relation(const Relation &) = delete;
+
+        /**
+         * @brief Prohibit shallow copies by deleting the implicit copy
+         *        assignment operator.
+         */
+        Relation &operator=(const Relation &) = delete;
+
+         /**
          * @brief Destructor for relations.
          *        Unlinks this relation from its components and frees resources.
          */
@@ -333,6 +352,180 @@ namespace sys_sage {
         int GetLatestCpuNum() const;
 #endif
 
+        /**
+         * @brief Iterator type for attributes iteration.
+         */
+        using attribIterator = std::map<std::string, std::unique_ptr<IAttribute>>::iterator;
+
+        /**
+         * @brief Constant iterator type for attributes iteration.
+         */
+        using constAttribIterator = std::map<std::string, std::unique_ptr<IAttribute>>::const_iterator;
+
+        /**
+         * @brief Size type for estimating the number of stored attributes.
+         */
+        using attribSizeType = std::map<std::string, std::unique_ptr<IAttribute>>::size_type;
+
+        /**
+         * @brief Inserts an attribute using a key-value pair.
+         *
+         * @param key The key that is associated with the attribute.
+         * @param value The value of the attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         new attribute.
+         */
+        template <typename T>
+        std::decay_t<T> *SetAttribute(const std::string &key, T &&value);
+
+        /**
+         * @brief Retrieves the stored value of the attribute that is
+         *        associated with the given key.
+         *
+         * @param key The key that is associated with the attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         attribute. May be `nullptr` if no attribute is associated
+         *         with the given key or the requested type doesn't match the
+         *         stored type.
+         */
+        template <typename T>
+        T *GetAttribute(const std::string &key);
+
+        /**
+         * @brief Retrieves the stored value of the constant attribute that is
+         *        associated with the given key.
+         *
+         * @param key The key that is associated with the constant attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         constant attribute. May be `nullptr` if no attribute is
+         *         associated with the given key or the requested type doesn't
+         *         match the stored type.
+         */
+        template <typename T>
+        const T *GetAttribute(const std::string &key) const;
+
+        /**
+         * @brief Retrieves the stored value of the attribute iterator.
+         *
+         * @param it The iterator of the attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         attribute. May be `nullptr` if no attribute is associated
+         *         with the given iterator or the requested type doesn't match
+         *         the stored type.
+         */
+        template <typename T>
+        T *GetAttribute(attribIterator it);
+
+        /**
+         * @brief Retrieves the stored value of the constant attribute iterator.
+         *
+         * @param it The iterator of the constant attribute.
+         *
+         * @return A pointer to the respective object storing the value of the
+         *         constant attribute. May be `nullptr` if no attribute is
+         *         associated with the given iterator or the requested type
+         *         doesn't match the stored type.
+         */
+        template <typename T>
+        const T *GetAttribute(constAttribIterator it) const;
+
+        /**
+         * @brief Updates an existing attribute that is associated with the
+         *        given key with a new value. May reuse existing memory and can
+         *        be more resource-efficient. If no such attribute exists, the
+         *        key-value pair is used to insert a new one.
+         *
+         * @param key The key that is associated with the attribute.
+         * @param value The new value of the attribute.
+         *
+         * @return A pointer to the respective object storing the updated value
+         *         of the attribute. May be `nullptr` if the type of the new
+         *         value does not match the stored type of the existing
+         *         attribute. Use the `Relation::SetAttribute` method to
+         *         update in this case.
+         */
+        template <typename T>
+        std::decay_t<T> *UpdateAttribute(const std::string &key, T &&value);
+
+        /**
+         * @brief Updates an existing attribute that is associated with the
+         *        given iterator with a new value. May reuse existing memory
+         *        and can be more resource-efficient.
+         *
+         * @param it The iterator that is associated with the attribute.
+         * @param value The new value of the attribute.
+         *
+         * @return A pointer to the respective object storing the updated value
+         *         of the attribute. May be `nullptr` if no attribute is
+         *         associated with the given iterator or the type of the new
+         *         value does not match the stored type. Use the
+         *         `Relation::SetAttribute` method to update in the latter
+         *         case.
+         */
+        template <typename T>
+        std::decay_t<T> *UpdateAttribute(attribIterator it, T &&value);
+
+        /**
+         * @brief Returns the number of stored attributes.
+         *
+         * @return The respective size.
+         */
+        attribSizeType GetAttributesSize() const;
+
+        /**
+         * @brief Returns an iterator to the beginning of the attributes.
+         *
+         * @return The iterator of the first attribute.
+         */
+        attribIterator AttributesBegin();
+
+        /**
+         * @brief Returns an iterator to the beginning of the constant
+         *        attributes.
+         *
+         * @return The iterator of the first constant attribute.
+         */
+        constAttribIterator AttributesBegin() const;
+
+        /**
+         * @brief Returns an iterator to the end of the attributes.
+         *
+         * @return The iterator of the last attribute.
+         */
+        attribIterator AttributesEnd();
+
+        /**
+         * @brief Returns an iterator to the end of the constant attributes.
+         *
+         * @return The iterator of the last constant attribute.
+         */
+        constAttribIterator AttributesEnd() const;
+
+        /**
+         * @brief Removes the attribute that is associated to the given key.
+         *
+         * @param key The key that is associated to the attribute.
+         */
+        void EraseAttribute(const std::string &key);
+
+        /**
+         * @brief Removes the attribute of the given iterator.
+         *
+         * @param key The iterator of the attribute.
+         *
+         * @return The iterator to the next attribute.
+         */
+        attribIterator EraseAttribute(attribIterator it);
+
+        /**
+         * @brief Removes all attributes.
+         */
+        void ClearAttributes();
+
     protected:
         /**
          * @private
@@ -389,81 +582,14 @@ namespace sys_sage {
          */
         std::vector<Component*> components;
 
-    public:
         /**
-        * A map for storing arbitrary pieces of information or data.
-        * - The `key` denotes the name of the attribute.
-        * - The `value` points to the data, stored as a `void*`.
-        *
-        * This data structure is designed to store a wide variety of data types by
-        * utilizing pointers to void. Due to its flexibility, it is essential to manage
-        * the types and memory allocation/deallocation carefully to avoid issues such
-        * as memory leaks or undefined behavior.
-        *
-        * Usage:
-        * 
-        * 1. Adding a new key-value pair:
-        * 
-        * ```cpp
-        * std::string key = "exampleKey";
-        * int* value = new int(42); // Dynamically allocate memory for the value
-        * attrib[key] = static_cast<void*>(value); // Store the value in the map
-        * ```
-        * 
-        * 2. Retrieving data from an existing key:
-        * 
-        * ```cpp
-        * std::string key = "exampleKey";
-        * if (attrib.find(key) != attrib.end()) {
-        *     int* retrievedValue = static_cast<int*>(attrib[key]);
-        *     std::cout << "Value: " << *retrievedValue << std::endl;
-        * } else {
-        *     std::cout << "Key not found." << std::endl;
-        * }
-        * ```
-        * 
-        * 3. Checking for the existence of a key:
-        * 
-        * ```cpp
-        * std::string key = "exampleKey";
-        * if (attrib.find(key) != attrib.end()) {
-        *     std::cout << "Key exists." << std::endl;
-        * } else {
-        *     std::cout << "Key does not exist." << std::endl;
-        * }
-        * ```
-        * 
-        * 4. Removing a key-value pair and freeing memory:
-        * 
-        * ```cpp
-        * std::string key = "exampleKey";
-        * if (attrib.find(key) != attrib.end()) {
-        *     int* value = static_cast<int*>(attrib[key]);
-        *     delete value; // Free the dynamically allocated memory
-        *     attrib.erase(key); // Remove the key-value pair from the map
-        * }
-        * ```
-        * 
-        * 5. Updating the value for an existing key:
-        * 
-        * ```cpp
-        * std::string key = "exampleKey";
-        * if (attrib.find(key) != attrib.end()) {
-        *     int* oldValue = static_cast<int*>(attrib[key]);
-        *     delete oldValue; // Free the old value
-        *     int* newValue = new int(100); // Allocate new value
-        *     attrib[key] = static_cast<void*>(newValue); // Update the map
-        * }
-        * ```
-        * 
-        * Note:
-        * - Proper memory management is crucial when using `void*` pointers. Always ensure
-        *   that dynamically allocated memory is freed when no longer needed.
-        * - Type safety is not enforced, so it is important to cast pointers to the correct
-        *   type when retrieving values from the map.
-        */
-        std::map<std::string, void*> attrib;
+         * @brief The attributes map.
+         */
+        std::map<std::string, std::unique_ptr<IAttribute>> attributes;
     };
 
 }
+
+#include "Relation.inl"
+
 #endif //RELATION_HPP

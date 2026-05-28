@@ -17,9 +17,6 @@
 #include "Cache.hpp"
 #include "Subdivision.hpp"
 
-
-//SVTODO refactor to std::map<std::string, std::any> attrib;
-
 //nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex ( nvmlDevice_t device, unsigned int  index, nvmlDevice_t* migDevice ) --> look for all mig devices and add/update them
 int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
 {
@@ -60,7 +57,7 @@ int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
         for(Relation* r : GetRelationsByType(RelationType::DataPath))
         {
             DataPath * dp = static_cast<DataPath*>(r);
-            if( dp->GetDataPathCategory() == DataPathCategory::MIG && *(static_cast<std::string*>(dp->attrib["mig_uuid"])) == uuid)
+            if( dp->GetDataPathCategory() == DataPathCategory::MIG && *dp->GetAttribute<std::string>("mig_uuid") == uuid)
             {
                 d = dp;
                 break;
@@ -68,10 +65,8 @@ int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
         }
 
         d = new DataPath(this, m, DataPathOrientation::Bidirectional, DataPathCategory::MIG);
-        std::string* mig_uuid = new std::string(uuid);
-        mig_size = new long long(attributes.memorySizeMB*1000000);
-        d->attrib.insert({"mig_uuid",reinterpret_cast<void*>(mig_uuid)});
-        d->attrib.insert({"mig_size",reinterpret_cast<void*>(mig_size)});
+        d->SetAttribute("mig_uuid", uuid);
+        mig_size = d->SetAttribute<long long>("mig_size", attributes.memorySizeMB*1000000);
     } else {
         std::cerr << "Chip::UpdateMIGSettings: Component Type Memory not found as a child of this Chip. Memory info will not be updated." << std::endl;
         ret = 1;
@@ -95,13 +90,9 @@ int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
         int cache_id = 0;
         for(Cache* c : L2_caches){
             DataPath * d = new DataPath(this, c, DataPathOrientation::Bidirectional, DataPathCategory::MIG);
-            std::string* mig_uuid = new std::string(uuid);
-            mig_size = new long long();
-            *mig_size = c->GetCacheSize() * ( static_cast<float>(num_caches)/static_cast<float>(L2_fraction)-static_cast<float>(cache_id)/static_cast<float>(num_caches));
-            if(*mig_size <0)
-                *mig_size=0;
-            d->attrib.insert({"mig_uuid",reinterpret_cast<void*>(mig_uuid)});
-            d->attrib.insert({"mig_size",reinterpret_cast<void*>(mig_size)});
+            long long val = c->GetCacheSize() * ( static_cast<float>(num_caches)/static_cast<float>(L2_fraction)-static_cast<float>(cache_id)/static_cast<float>(num_caches));
+            mig_size = d->SetAttribute("mig_size", val < 0 ? 0 : val);
+            d->SetAttribute("mig_uuid", uuid);
             cache_id++;
         }
     } else {
@@ -120,8 +111,7 @@ int sys_sage::Chip::UpdateMIGSettings(std::string uuid)
     for(Subdivision* sm: sms){
         if(sm->GetId() < static_cast<int>(attributes.multiprocessorCount)){
             DataPath * d = new DataPath(this, sm, DataPathOrientation::Bidirectional, DataPathCategory::MIG);
-            std::string* mig_uuid = new std::string(uuid);
-            d->attrib.insert({"mig_uuid",reinterpret_cast<void*>(mig_uuid)});
+            d->SetAttribute("mig_uuid", uuid);
         }
     }
 
@@ -154,7 +144,7 @@ int sys_sage::Chip::GetMIGNumSMs(std::string uuid)
         for(Relation* r : GetRelationsByType(RelationType::DataPath))
         {
             DataPath * dp = static_cast<DataPath*>(r);
-            if(dp->GetDataPathCategory() == DataPathCategory::MIG && *reinterpret_cast<std::string*>(dp->attrib["mig_uuid"]) == uuid){
+            if(dp->GetDataPathCategory() == DataPathCategory::MIG && *dp->GetAttribute<std::string>("mig_uuid") == uuid){
                 Component* target = dp->GetTarget();
                 if(target->GetComponentType() == ComponentType::Subdivision && static_cast<Subdivision*>(target)->GetSubdivisionCategory() == SubdivisionCategory::GpuSM ){
                     num_sm++;
@@ -191,7 +181,7 @@ int sys_sage::Chip::GetMIGNumCores(std::string uuid)
         for(Relation* r : GetRelationsByType(RelationType::DataPath))
         {
             DataPath * dp = static_cast<DataPath*>(r);
-            if(dp->GetDataPathCategory() == DataPathCategory::MIG && *reinterpret_cast<std::string*>(dp->attrib["mig_uuid"]) == uuid){
+            if(dp->GetDataPathCategory() == DataPathCategory::MIG && *dp->GetAttribute<std::string>("mig_uuid") == uuid){
                 Component* target = dp->GetTarget();
                 if(target->GetComponentType() == ComponentType::Subdivision && static_cast<Subdivision*>(target)->GetSubdivisionCategory() == SubdivisionCategory::GpuSM ){
                     sms.push_back(static_cast<Subdivision*>(target));
@@ -225,11 +215,10 @@ long long sys_sage::Memory::GetMIGSize(std::string uuid) const
     for(Relation* r : GetRelationsByType(RelationType::DataPath))
     {
         DataPath * dp = static_cast<DataPath*>(r);
-        if(dp->GetDataPathCategory() == DataPathCategory::MIG && *reinterpret_cast<std::string*>(dp->attrib["mig_uuid"]) == uuid){
-            if (dp->attrib.count("mig_size")){
-                long long r = *reinterpret_cast<long long*>(dp->attrib["mig_size"]);
-                return r;
-            }
+        if(dp->GetDataPathCategory() == DataPathCategory::MIG && *dp->GetAttribute<std::string>("mig_uuid") == uuid){
+            auto r = dp->GetAttribute<long long>("mig_size");
+            if (r != nullptr)
+                return *r;
         }
     }
     std::cerr << "Memory::GetMIGSize: no information found about specified UUID " << uuid << " - returning full memory size." << std::endl;
@@ -254,11 +243,10 @@ long long sys_sage::Cache::GetMIGSize(std::string uuid) const
         for(Relation* r : GetRelationsByType(RelationType::DataPath))
         {
             DataPath * dp = static_cast<DataPath*>(r);
-            if(dp->GetDataPathCategory() == DataPathCategory::MIG && *reinterpret_cast<std::string*>(dp->attrib["mig_uuid"]) == uuid){
-                if (dp->attrib.count("mig_size")){
-                    long long r = *reinterpret_cast<long long*>(dp->attrib["mig_size"]);
-                    return r;
-                }
+            if(dp->GetDataPathCategory() == DataPathCategory::MIG && *dp->GetAttribute<std::string>("mig_uuid") == uuid){
+                auto r = dp->GetAttribute<long long>("mig_size");
+                if (r != nullptr)
+                    return *r;
             }
         }
     }

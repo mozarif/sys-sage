@@ -126,7 +126,7 @@ int sys_sage::_search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
 	// freq_history is a vector of tuples containing the timestamp and the
 	// frequency
 	if (!key.compare("freq_history")) {
-		std::vector<std::tuple<long long, double>>* val = new std::vector<std::tuple<long long, double>>();
+		std::vector<std::tuple<long long, double>> val;
 		for (xmlNodePtr cur = n->children; cur != NULL; cur = cur->next) 
 		{
 			// skip text nodes
@@ -139,9 +139,9 @@ int sys_sage::_search_default_complex_attrib_key(xmlNodePtr n, Component *c) {
 			long long ts_ll = std::strtoll((const char *)ts.c_str(), NULL, 10);
 			double freq_d = std::stod(freq);
 
-			val->push_back(std::make_tuple(ts_ll, freq_d));
+			val.push_back(std::make_tuple(ts_ll, freq_d));
 		}
-		c->attrib[key] = reinterpret_cast<void*>(val);
+    c->SetAttribute(key, std::move(val));
 		return 1;
 	} 
 	//else if (!key.compare("GPU_Clock_Rate"))
@@ -180,11 +180,15 @@ int sys_sage::_collect_attrib(xmlNodePtr n, Component *c) {
 	// if custom function could not handle attribute, try default
 	if (attrib_value == NULL)
 		attrib_value = _search_default_attrib_key(n);
+  // The new attributes map was built with JSON support in mind. XML
+  // (de-)serialization is not supported. Remove XML support entirely in the
+  // future. Note: These changes might break the current XML functionality.
+  //
 	// if attribute was handled, add it to Component
-	if (attrib_value != NULL) {
-		std::string key = _getStringFromProp(n, "name");
-		c->attrib[key] = attrib_value;
-	}
+	//if (attrib_value != NULL) {
+	//	std::string key = _getStringFromProp(n, "name");
+	//	c->attrib[key] = attrib_value;
+	//}
 	int ret = 0;
 	// try custom complex attribute search function
 	if (attrib_value == NULL && load_custom_complex_attrib_fcn != NULL)
