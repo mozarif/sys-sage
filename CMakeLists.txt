@@ -18,15 +18,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 #################### DEPENDENCIES ####################
 ######################################################
 # libxml2
-find_package(LibXml2 REQUIRED) # Use pkg-config via the LibXml2 find-module
-execute_process(COMMAND xml2-config --cflags OUTPUT_VARIABLE LIBXML_F OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND xml2-config --libs OUTPUT_VARIABLE LIBXML_L OUTPUT_STRIP_TRAILING_WHITESPACE)
-include_directories(${LIBXML_F})
-link_libraries(${LIBXML_L})
-include_directories(${LIBXML2_INCLUDE_DIR})
-include_directories(${LIBXML2_INCLUDE_DIRS})
-link_libraries(${LIBXML2_LIBRARY})
-link_libraries(${LIBXML2_LIBRARIES})
+find_package(LibXml2 REQUIRED)
 
 # Find nlohmann_json package
 find_package(nlohmann_json 3.10 REQUIRED)

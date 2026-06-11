@@ -118,6 +118,7 @@ if(PY_SYS_SAGE)
     pybind11_add_module(sys_sage MODULE ${PY_BINDS}/sys-sage-bindings.cpp ${SOURCES} ${HEADERS})
     target_link_libraries(sys_sage PUBLIC ${PYTHON_LIBRARIES} pybind11::module)
     target_link_libraries(sys_sage PUBLIC nlohmann_json::nlohmann_json)
+    target_link_libraries(sys_sage PUBLIC LibXml2::LibXml2)
     install(
         TARGETS sys_sage
         LIBRARY DESTINATION ${PYTHON_SITE}       # For Unix-like systems
@@ -139,6 +140,7 @@ endif()
         )
     endif()
 
+    target_link_libraries(sys-sage PUBLIC LibXml2::LibXml2)
     target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
 
     target_include_directories(sys-sage PUBLIC  
@@ -157,7 +159,7 @@ endif()
     install(
         EXPORT sys-sage-targets
         FILE sys-sage-targets.cmake
-        DESTINATION lib/cmake/syssage
+        DESTINATION lib/cmake/sys-sage
         NAMESPACE syssage::
     )
     install(DIRECTORY "."
