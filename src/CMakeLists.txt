@@ -131,16 +131,6 @@ endif()
 
     add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
-    if(NVIDIA_MIG)
-        target_include_directories(sys-sage PUBLIC CUDA::nvml)
-        target_link_libraries(sys-sage PUBLIC CUDA::nvml)
-    endif()
-
-    if(PAPI)
-        target_include_directories(sys-sage PUBLIC ${PAPI_INCLUDE_DIRS})
-        target_link_libraries(sys-sage PUBLIC ${PAPI_LIBRARIES})
-    endif()
-
     # For Quantum Systems
     if(QDMI)
         target_link_libraries(sys-sage PUBLIC

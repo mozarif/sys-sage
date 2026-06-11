@@ -25,6 +25,8 @@ find_package(nlohmann_json 3.10 REQUIRED)
 
 if(NVIDIA_MIG)
   find_package(CUDAToolkit 10.0 REQUIRED)
+  include_directories(CUDA::nvml)
+  link_libraries(CUDA::nvml)
 endif()
 
 if(DATA_SOURCES OR DS_HWLOC)
@@ -93,6 +95,8 @@ endif()
 
 if(PAPI)
   find_package(PAPI REQUIRED)
+  include_directories(${PAPI_INCLUDE_DIRS})
+  link_libraries(${PAPI_LIBRARIES})
 endif()
 
 # Top-level build just includes subdirectories.
