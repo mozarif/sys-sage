@@ -130,6 +130,16 @@ endif()
 
     add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
 
+    if(NVIDIA_MIG)
+        target_include_directories(sys-sage PUBLIC CUDA::nvml)
+        target_link_libraries(sys-sage PUBLIC CUDA::nvml)
+    endif()
+
+    if(PAPI)
+        target_include_directories(sys-sage PUBLIC ${PAPI_INCLUDE_DIRS})
+        target_link_libraries(sys-sage PUBLIC ${PAPI_LIBRARIES})
+    endif()
+
     # For Quantum Systems
     if(QDMI)
         target_link_libraries(sys-sage PUBLIC
@@ -139,6 +149,7 @@ endif()
         )
     endif()
 
+    target_link_libraries(sys-sage PUBLIC LibXml2::LibXml2)
     target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
 
     target_include_directories(sys-sage PUBLIC  
@@ -157,7 +168,7 @@ endif()
     install(
         EXPORT sys-sage-targets
         FILE sys-sage-targets.cmake
-        DESTINATION lib/cmake/syssage
+        DESTINATION lib/cmake/sys-sage
         NAMESPACE syssage::
     )
     install(DIRECTORY "."
