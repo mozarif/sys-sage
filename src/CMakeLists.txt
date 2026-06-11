@@ -118,6 +118,7 @@ if(PY_SYS_SAGE)
     pybind11_add_module(sys_sage MODULE ${PY_BINDS}/sys-sage-bindings.cpp ${SOURCES} ${HEADERS})
     target_link_libraries(sys_sage PUBLIC ${PYTHON_LIBRARIES} pybind11::module)
     target_link_libraries(sys_sage PUBLIC nlohmann_json::nlohmann_json)
+    target_link_libraries(sys_sage PUBLIC LibXml2::LibXml2)
     install(
         TARGETS sys_sage
         LIBRARY DESTINATION ${PYTHON_SITE}       # For Unix-like systems
