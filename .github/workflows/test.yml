@@ -23,7 +23,7 @@ jobs:
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr -DPROC_CPUINFO=ON -DDS_HWLOC=ON -DDS_NUMA=ON -DPAPI=ON -DPY_SYS_SAGE=ON -DTEST=ON -GNinja ${{ inputs.flags }}
       - name: Build
-        run: cmake --build build --target all install test
+        run: sudo cmake --build build --target all install test
       - name: Cpp tests
         run: ./build/test/test
       - name: Python tests
