@@ -1,85 +1,33 @@
-cmake_policy(SET CMP0048 NEW)
 cmake_minimum_required(VERSION 3.22)
-
-set (CMAKE_CXX_STANDARD 20)
-set (CXX_STANDARD_REQUIRED ON)
-set (CMAKE_CXX_FLAGS " -Wall")
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "8.0.0")
-    message(FATAL_ERROR "Insufficient gcc version (at least 8.0.0) set for example with CXX=/path/to/compiler cmake ....")
-  endif()
-endif()
-
-project(sys-sage VERSION 1.0.0 LANGUAGES C CXX )
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+project(sys-sage VERSION 1.1.0 LANGUAGES C CXX)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 ######################################################
-#################### DEPENDENCIES ####################
+####################### TARGET #######################
 ######################################################
-# libxml2
-find_package(LibXml2 REQUIRED)
 
-# Find nlohmann_json package
-find_package(nlohmann_json 3.10 REQUIRED)
+add_library(sys-sage SHARED)
 
-if(NVIDIA_MIG)
-  find_package(CUDAToolkit 10.0 REQUIRED)
-  include_directories(CUDA::nvml)
-  link_libraries(CUDA::nvml)
-endif()
+target_compile_features(sys-sage PUBLIC cxx_std_20)
+set_target_properties(sys-sage PROPERTIES CXX_EXTENSIONS OFF)
+target_compile_options(sys-sage PRIVATE -Wall)
 
-if(DATA_SOURCES OR DS_HWLOC)
-  find_package(HWLOC REQUIRED)
-endif()
+######################################################
+####################### OPTIONS ######################
+######################################################
 
-if(PY_SYS_SAGE)
-  find_package(Python 3.10 COMPONENTS Interpreter Development REQUIRED)
-  find_package(pybind11 CONFIG REQUIRED)
-endif()
+option(INTEL_PQOS "Build with Intel L3 CAT support" OFF)
+option(NVIDIA_MIG "Build with NVIDIA MIG support" OFF)
+option(PROC_CPUINFO "Build with Linux proc/cpuinfo support" OFF)
+option(DATA_SOURCES "Build with all data sources" OFF)
+option(DS_HWLOC "Build with the hwloc data source" OFF)
+option(DS_MT4G "Build with the mt4g data source" OFF)
+option(DS_NUMA "Build with the caps-numa-benchmark data source" OFF)
+option(QDMI "Build with QDMI support" OFF)
+option(PAPI "Build with PAPI support" OFF)
+option(PY_SYS_SAGE "Build with Python bindings" OFF)
 
-if(QDMI)
-    # Find QDMI package
-    find_package(backends REQUIRED)
-    # Find QInfo package
-    find_package(qinfo REQUIRED)
-endif()
-
-if(DATA_SOURCES OR DS_NUMA)
-    find_package(numactl REQUIRED)
-endif()
-
-# Create and install package configuration and version files.
-include(CMakePackageConfigHelpers)
-configure_package_config_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage-config.cmake.in
-                              ${sys-sage_BINARY_DIR}/pkg/sys-sage-config.cmake
-                              INSTALL_DESTINATION lib/cmake/sys-sage)
-#configure_package_config_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage-config-version.cmake.in
-#                              ${sys-sage_BINARY_DIR}/pkg/sys-sage-config-version.cmake
-#                              INSTALL_DESTINATION lib/cmake/sys-sage)
-install(FILES ${sys-sage_BINARY_DIR}/pkg/sys-sage-config.cmake
-                #${sys-sage_BINARY_DIR}/pkg/sys-sage-config-version.cmake
-                DESTINATION lib/cmake/sys-sage)
-
-configure_file(${sys-sage_SOURCE_DIR}/pkg/sys-sage.pc.in
-                ${sys-sage_BINARY_DIR}/pkg/sys-sage.pc @ONLY)
-install(FILES ${sys-sage_BINARY_DIR}/pkg/sys-sage.pc
-         DESTINATION lib)
-
-
-
-###Options:
-option(INTEL_PQOS "Build and install functionality regarding Intel L3 CAT" OFF)
-option(NVIDIA_MIG "Build and install functionality regarding NVidia MIG(multi-instance GPU, ampere or newer)" OFF)
-option(PROC_CPUINFO "Build and install functionality regarding Linux cpuinfo" OFF)
-option(DATA_SOURCES "Build and install all data sources" OFF)
-option(DS_HWLOC "Build and install data source hwloc (Retrieves hwloc topology information)" OFF)
-option(DS_MT4G "Build and install data source mt4g (Compute and memory topology of NVidia GPUs)" OFF)
-option(DS_NUMA "Build and install data source caps-numa-benchmark" OFF)
-option(QDMI "Build with QDMI for Quantum Systems" OFF)
-option(PAPI "Build and install with performance metrics functionality using PAPI" OFF)
-
-set(SS_PAPI ${PAPI})
+set(SS_PAPI ${PAPI}) # for internal use in CXX source code
 
 option(TEST "Build tests" OFF)
 option(TEST_ASAN "Build tests with enabled address sanitizers" OFF)
@@ -93,13 +41,43 @@ if(DATA_SOURCES)
     set(DS_NUMA ON)
 endif()
 
-if(PAPI)
-  find_package(PAPI REQUIRED)
-  include_directories(${PAPI_INCLUDE_DIRS})
-  link_libraries(${PAPI_LIBRARIES})
+######################################################
+#################### DEPENDENCIES ####################
+######################################################
+
+find_package(LibXml2 REQUIRED)
+find_package(nlohmann_json 3.10 REQUIRED)
+
+if(NVIDIA_MIG)
+    find_package(CUDAToolkit 10.0 REQUIRED)
 endif()
 
-# Top-level build just includes subdirectories.
+if(DS_HWLOC)
+    find_package(HWLOC REQUIRED)
+endif()
+
+if(PY_SYS_SAGE)
+    set(PYBIND11_FINDPYTHON ON)
+    find_package(pybind11 CONFIG REQUIRED)
+endif()
+
+if(DS_NUMA)
+    find_package(numactl REQUIRED)
+endif()
+
+if(QDMI)
+    find_package(backends REQUIRED)
+    find_package(qinfo REQUIRED)
+endif()
+
+if(PAPI)
+    find_package(PAPI REQUIRED)
+endif()
+
+######################################################
+################### SUBDIRECTORIES ###################
+######################################################
+
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(data-sources)

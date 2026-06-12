@@ -1,14 +1,11 @@
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake" ${CMAKE_MODULE_PATH})
+# header with #cmakedefine macros for build options
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/defines.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/defines.hpp)
 
-#defines.hpp header with #cmakedefine 
-configure_file(${PROJECT_SOURCE_DIR}/src/defines.hpp.in ${PROJECT_SOURCE_DIR}/src/defines.hpp)
+######################################################
+#################### SOURCE FILES ####################
+######################################################
 
-include_directories(external_interfaces)
-set(EXT_INTF "external_interfaces")
-set(PY_BINDS "python-bindings")
-
-set(SOURCES
+target_sources(sys-sage PRIVATE
     Component.cpp
     Thread.cpp
     Core.cpp
@@ -30,66 +27,70 @@ set(SOURCES
     xml_dump.cpp
     xml_load.cpp
     json_serialization.cpp
-    ${EXT_INTF}/intel_pqos.cpp
-    ${EXT_INTF}/proc_cpuinfo.cpp
-    ${EXT_INTF}/nvidia_mig.cpp
-    #${PY_BINDS}/sys-sage-bindings.cpp
     parsers/hwloc.cpp
     parsers/caps-numa-benchmark.cpp
     parsers/mt4g.cpp
     parsers/mt4g_v0_1.cpp
     parsers/cccbench.cpp
-    parsers/qdmi-parser.cpp
     parsers/iqm-parser.cpp
-    )
+)
 
-set(HEADERS
-    sys-sage.hpp
-    defines.hpp
-    enums.hpp
-    Component.hpp
-    Thread.hpp
-    Core.hpp
-    Cache.hpp
-    Subdivision.hpp
-    Numa.hpp
-    Chip.hpp
-    Memory.hpp
-    Storage.hpp
-    Node.hpp
-    QuantumBackend.hpp
-    Qubit.hpp
-    AtomSite.hpp
-    Topology.hpp
-    Relation.hpp
-    DataPath.hpp
-    QuantumGate.hpp
-    CouplingMap.hpp
-    attribute.hpp
-    xml_dump.hpp
-    xml_load.hpp
-    json_serialization.hpp
-    parsers/hwloc.hpp
-    parsers/caps-numa-benchmark.hpp
-    parsers/mt4g.hpp
-    parsers/cccbench.hpp
-    parsers/qdmi-parser.hpp
-    parsers/iqm-parser.hpp
-    )
-
-if(SS_PAPI)
-	list(APPEND SOURCES ${EXT_INTF}/ss_papi.cpp)
-	list(APPEND HEADERS ${EXT_INTF}/ss_papi.hpp)
+if(INTEL_PQOS)
+    target_sources(sys-sage PRIVATE external_interfaces/intel_pqos.cpp)
 endif()
 
-# add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
+if(NVIDIA_MIG)
+    target_sources(sys-sage PRIVATE external_interfaces/nvidia_mig.cpp)
+endif()
+
+if(PROC_CPUINFO)
+    target_sources(sys-sage PRIVATE external_interfaces/proc_cpuinfo.cpp)
+endif()
+
+if(PAPI)
+    target_sources(sys-sage PRIVATE external_interfaces/ss_papi.cpp)
+endif()
+
+if(QDMI)
+    target_sources(sys-sage PRIVATE parsers/qdmi-parser.cpp)
+endif()
+
+######################################################
+################ INCLUDES & LINKING ##################
+######################################################
+
+include(GNUInstallDirs)
+
+target_include_directories(sys-sage PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(sys-sage PUBLIC LibXml2::LibXml2)
+
+if(NVIDIA_MIG)
+    target_link_libraries(sys-sage PUBLIC CUDA::nvml)
+endif()
+
+if(PAPI)
+    target_include_directories(sys-sage PUBLIC ${PAPI_INCLUDE_DIRS})
+    target_link_libraries(sys-sage PUBLIC ${PAPI_LIBRARIES})
+endif()
+
+if(QDMI)
+    target_link_libraries(sys-sage PUBLIC
+        backend_ibm
+        qdmi
+        qinfo
+    )
+endif()
+
+######################################################
+################### PYTHON BINDINGS ##################
+######################################################
 
 if(PY_SYS_SAGE)
-    # find_package(Python 3.13 COMPONENTS Interpreter Development REQUIRED)
-    link_directories(${PYTHON_LIBRARY_DIRS})
-    include_directories(${PYTHON_INCLUDE_DIRS})
-    set(PYBIND11_FINDPYTHON ON)
-    # find_package(pybind11 CONFIG REQUIRED)
     # Get Python site-packages path
     execute_process(
         COMMAND "${Python_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_paths().get('purelib', ''))"
@@ -115,10 +116,9 @@ if(PY_SYS_SAGE)
     message(STATUS "PY_BINDS=${PY_BINDS}")
 
     # This builds a Python extension module (NOT a regular .so/.dylib)
-    pybind11_add_module(sys_sage MODULE ${PY_BINDS}/sys-sage-bindings.cpp ${SOURCES} ${HEADERS})
-    target_link_libraries(sys_sage PUBLIC ${PYTHON_LIBRARIES} pybind11::module)
-    target_link_libraries(sys_sage PUBLIC nlohmann_json::nlohmann_json)
-    target_link_libraries(sys_sage PUBLIC LibXml2::LibXml2)
+    pybind11_add_module(sys_sage MODULE python-bindings/sys-sage-bindings.cpp)
+    target_link_libraries(sys_sage PRIVATE sys-sage)
+
     install(
         TARGETS sys_sage
         LIBRARY DESTINATION ${PYTHON_SITE}       # For Unix-like systems
@@ -127,53 +127,58 @@ if(PY_SYS_SAGE)
     message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
 
 endif()
-#else()
 
-    add_library(sys-sage SHARED ${SOURCES} ${HEADERS})
+######################################################
+#################### INSTALLATION ####################
+######################################################
 
-    # For Quantum Systems
-    if(QDMI)
-        target_link_libraries(sys-sage PUBLIC
-            backend_ibm
-            qdmi
-            qinfo
-        )
-    endif()
+install(
+    TARGETS sys-sage
+    EXPORT sys-sage-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 
-    target_link_libraries(sys-sage PUBLIC LibXml2::LibXml2)
-    target_link_libraries(sys-sage PUBLIC nlohmann_json::nlohmann_json)
+install(
+    DIRECTORY .
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.hpp" PATTERN "*.inl"
+)
 
-    target_include_directories(sys-sage PUBLIC  
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
-        $<INSTALL_INTERFACE:inc>
-        $<INSTALL_INTERFACE:lib>
-    )
-    install(
-        TARGETS sys-sage
-        EXPORT sys-sage-targets
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib/cmake/lib
-        ARCHIVE DESTINATION lib/cmake/lib
-    )
-    #for spack
-    install(
-        EXPORT sys-sage-targets
-        FILE sys-sage-targets.cmake
-        DESTINATION lib/cmake/sys-sage
-        NAMESPACE syssage::
-    )
-    install(DIRECTORY "."
-        DESTINATION lib/cmake/inc
-        FILES_MATCHING PATTERN "*.hpp" PATTERN "*.inl")
+install(
+    EXPORT sys-sage-targets
+    FILE sys-sage-targets.cmake
+    NAMESPACE sys-sage::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sys-sage
+)
 
-    install(
-        TARGETS sys-sage
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-    )
-    install(DIRECTORY "."
-        DESTINATION inc
-        FILES_MATCHING PATTERN "*.hpp" PATTERN "*.inl")
+######################################################
+###################### PACKAGING #####################
+######################################################
 
-#endif()
+include(CMakePackageConfigHelpers)
+
+# CMake
+configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/pkg/sys-sage-config.cmake.in
+    ${PROJECT_BINARY_DIR}/sys-sage-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sys-sage
+)
+
+install(
+    FILES ${PROJECT_BINARY_DIR}/sys-sage-config.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sys-sage
+)
+
+# pkg-config
+configure_file(
+    ${PROJECT_SOURCE_DIR}/pkg/sys-sage.pc.in
+    ${PROJECT_BINARY_DIR}/sys-sage.pc
+    @ONLY
+)
+
+install(
+    FILES ${PROJECT_BINARY_DIR}/sys-sage.pc
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)
