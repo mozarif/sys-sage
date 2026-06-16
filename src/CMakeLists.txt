@@ -152,33 +152,3 @@ install(
     NAMESPACE sys-sage::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sys-sage
 )
-
-######################################################
-###################### PACKAGING #####################
-######################################################
-
-include(CMakePackageConfigHelpers)
-
-# CMake
-configure_package_config_file(
-    ${PROJECT_SOURCE_DIR}/pkg/sys-sage-config.cmake.in
-    ${PROJECT_BINARY_DIR}/sys-sage-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sys-sage
-)
-
-install(
-    FILES ${PROJECT_BINARY_DIR}/sys-sage-config.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sys-sage
-)
-
-# pkg-config
-configure_file(
-    ${PROJECT_SOURCE_DIR}/pkg/sys-sage.pc.in
-    ${PROJECT_BINARY_DIR}/sys-sage.pc
-    @ONLY
-)
-
-install(
-    FILES ${PROJECT_BINARY_DIR}/sys-sage.pc
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-)
