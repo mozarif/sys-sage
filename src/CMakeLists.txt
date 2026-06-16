@@ -87,48 +87,6 @@ if(QDMI)
 endif()
 
 ######################################################
-################### PYTHON BINDINGS ##################
-######################################################
-
-if(PY_SYS_SAGE)
-    # Get Python site-packages path
-    execute_process(
-        COMMAND "${Python_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_paths().get('purelib', ''))"
-        OUTPUT_VARIABLE PYTHON_SITE
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-
-    #set install directory of the python library
-    if(CMAKE_INSTALL_PREFIX STREQUAL "")
-        # use install prefix if result is empty
-        if(PYTHON_SITE STREQUAL "")
-            set(PYTHON_SITE "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
-            message(WARNING "PYTHON_SITE was empty, falling back to: ${PYTHON_SITE}")
-        # else()
-            # message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
-        endif()
-    else()
-        set(PYTHON_SITE "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
-        # message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
-    endif()
-
-    # set(PY_BINDS ${CMAKE_SOURCE_DIR}/src/python-bindings)
-    message(STATUS "PY_BINDS=${PY_BINDS}")
-
-    # This builds a Python extension module (NOT a regular .so/.dylib)
-    pybind11_add_module(sys_sage MODULE python-bindings/sys-sage-bindings.cpp)
-    target_link_libraries(sys_sage PRIVATE sys-sage)
-
-    install(
-        TARGETS sys_sage
-        LIBRARY DESTINATION ${PYTHON_SITE}       # For Unix-like systems
-        RUNTIME DESTINATION ${PYTHON_SITE}       # For Windows (safe to include)
-    )
-    message(STATUS "Python site-packages directory: ${PYTHON_SITE}")
-
-endif()
-
-######################################################
 #################### INSTALLATION ####################
 ######################################################
 

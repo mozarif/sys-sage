@@ -25,7 +25,6 @@ option(DS_MT4G "Build with the mt4g data source" OFF)
 option(DS_NUMA "Build with the caps-numa-benchmark data source" OFF)
 option(QDMI "Build with QDMI support" OFF)
 option(PAPI "Build with PAPI support" OFF)
-option(PY_SYS_SAGE "Build with Python bindings" OFF)
 
 set(SS_PAPI ${PAPI}) # for internal use in CXX source code
 
@@ -54,11 +53,6 @@ endif()
 
 if(DS_HWLOC)
     find_package(HWLOC REQUIRED)
-endif()
-
-if(PY_SYS_SAGE)
-    set(PYBIND11_FINDPYTHON ON)
-    find_package(pybind11 CONFIG REQUIRED)
 endif()
 
 if(DS_NUMA)

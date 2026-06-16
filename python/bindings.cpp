@@ -1,9 +1,3 @@
-#ifndef SYS_SAGE_BINDINGS_CPP
-#define SYS_SAGE_BINDINGS_CPP
-
-#include "defines.hpp"
-#ifdef PY_SYS_SAGE
-
 #include <cstdio>
 #include <exception>
 #include <libxml2/libxml/parser.h>
@@ -15,6 +9,7 @@
 #include <tuple>
 
 #include "sys-sage.hpp"
+#include "defines.hpp"
 
 namespace py = pybind11;
 
@@ -117,8 +112,58 @@ int xmlloader_complex(xmlNodePtr node, sys_sage::Component *c) {
     return 0;
 }
 
-PYBIND11_MODULE(sys_sage, m) {
+PYBIND11_MODULE(_py_sys_sage, m) {
     using namespace sys_sage;
+
+    // expose the options of the library's build configuration
+
+#ifdef INTEL_PQOS
+    m.attr("HAS_INTEL_PQOS") = true;
+#else
+    m.attr("HAS_INTEL_PQOS") = false;
+#endif
+
+#ifdef NVIDIA_MIG
+    m.attr("HAS_NVIDIA_MIG") = true;
+#else
+    m.attr("HAS_NVIDIA_MIG") = false;
+#endif
+
+#ifdef PROC_CPUINFO
+    m.attr("HAS_PROC_CPUINFO") = true;
+#else
+    m.attr("HAS_PROC_CPUINFO") = false;
+#endif
+
+#ifdef DS_HWLOC
+    m.attr("HAS_DS_HWLOC") = true;
+#else
+    m.attr("HAS_DS_HWLOC") = false;
+#endif
+
+#ifdef DS_MT4G
+    m.attr("HAS_DS_MT4G") = true;
+#else
+    m.attr("HAS_DS_MT4G") = false;
+#endif
+
+#ifdef DS_NUMA
+    m.attr("HAS_DS_NUMA") = true;
+#else
+    m.attr("HAS_DS_NUMA") = false;
+#endif
+
+#ifdef QDMI
+    m.attr("HAS_QDMI") = true;
+#else
+    m.attr("HAS_QDMI") = false;
+#endif
+
+#ifdef SS_PAPI
+    m.attr("HAS_PAPI") = true;
+#else
+    m.attr("HAS_PAPI") = false;
+#endif
 
     m.attr("COMPONENT_GENERIC") = ComponentType::Generic;
     m.attr("COMPONENT_NONE") = ComponentType::Generic;
@@ -630,7 +675,3 @@ PYBIND11_MODULE(sys_sage, m) {
 
 #endif
 }
-
-
-#endif //PY_SYS_SAGE
-#endif //SYS_SAGE_BINDINGS_CPP
