@@ -28,12 +28,6 @@ option(PAPI "Build with PAPI support" OFF)
 
 set(SS_PAPI ${PAPI}) # for internal use in CXX source code
 
-option(TEST "Build tests" OFF)
-option(TEST_ASAN "Build tests with enabled address sanitizers" OFF)
-option(TEST_TSAN "Build tests with enabled thread sanitizers" OFF)
-option(TEST_UBSAN "Build tests with enabled undefined behaviour sanitizers" OFF)
-option(TEST_COVERAGE "Build tests with enabled coverage" OFF)
-
 if(DATA_SOURCES)
     set(DS_HWLOC ON)
     set(DS_MT4G ON)
@@ -75,10 +69,6 @@ endif()
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(data-sources)
-
-if(${TEST})
-    add_subdirectory(test)
-endif()
 
 ######################################################
 ###################### PACKAGING #####################

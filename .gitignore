@@ -3,9 +3,9 @@
 src/main
 main
 *.so
-build/*
-install/*
-inst-dir/*
+build
+install
+inst-dir
 src/defines.hpp
 .vscode
 test.xml
