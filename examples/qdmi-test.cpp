@@ -12,7 +12,7 @@ using namespace sys_sage;
 #include <iostream>
 #include <string.h>
 #include <iomanip>
-#include "sys-sage.hpp"
+#include <sys-sage.hpp>
 
 int main()
 {

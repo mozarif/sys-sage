@@ -3,7 +3,7 @@
 #include <iostream>
 //#include <hwloc.h>
 
-#include "sys-sage.hpp"
+#include <sys-sage.hpp>
 
 using namespace sys_sage;
 

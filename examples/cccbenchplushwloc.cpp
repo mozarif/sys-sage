@@ -1,8 +1,8 @@
 #include <iostream>
 #include <filesystem>
 
-#include "sys-sage.hpp"
-#include "parsers/cccbench.hpp"
+#include <sys-sage.hpp>
+#include <sys-sage/parsers/cccbench.hpp>
 
 using std::cout;
 using std::endl;

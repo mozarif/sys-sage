@@ -1,6 +1,6 @@
 #include <iomanip>
 #include <algorithm>
-#include "sys-sage.hpp"
+#include <sys-sage.hpp>
 
 using std::cout;
 using std::endl;

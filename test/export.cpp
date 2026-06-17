@@ -5,7 +5,7 @@
 #include <libxml/xmlschemas.h>
 #include <libxml/xpath.h>
 
-#include "sys-sage.hpp"
+#include <sys-sage.hpp>
 
 #include <memory>
 #include <set>

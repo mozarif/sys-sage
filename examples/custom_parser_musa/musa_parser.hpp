@@ -9,7 +9,7 @@
 #include <sstream>
 
 
-#include "sys-sage.hpp"
+#include <sys-sage.hpp>
 
 
 int parseMusa(sys_sage::Chip* _socket, std::string datapath);

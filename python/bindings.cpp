@@ -8,8 +8,8 @@
 #include <string>
 #include <tuple>
 
-#include "sys-sage.hpp"
-#include "defines.hpp"
+#include <sys-sage.hpp>
+#include <sys-sage/defines.hpp>
 
 namespace py = pybind11;
 
