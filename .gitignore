@@ -6,6 +6,9 @@ main
 build
 install
 inst-dir
-src/defines.hpp
+src/sys-sage/defines.hpp
 .vscode
 test.xml
+python/py_sys_sage-*/
+python/py_sys_sage/
+!python/py_sys_sage/__init__.py

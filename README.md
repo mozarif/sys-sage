@@ -36,7 +36,7 @@ The documentation is available [here](https://stepanvanecek.github.io/sys-sage/l
 ```cpp
 #include <iostream>
 
-#include "sys-sage.hpp"
+#include <sys-sage.hpp>
 
 int main(int argc, char *argv[])
 {
@@ -52,13 +52,16 @@ int main(int argc, char *argv[])
 }
 ```
 
-Refer to `examples/` for more showcases of how to use sys-sage.
+Refer to examples/, build them, and try them out for more showcases of how to use sys-sage.
 
 ## Installation
 
 Please refer to the [Installation Guide](https://stepanvanecek.github.io/sys-sage/html/md__installation__guide.html) for more information.
 
-The recommended installation is through spack. Alternatively, sys-sage can be built from the sources.
+Furthermore, Python bindings for the _sys-sage_ library can be installed seperately by following the guide [here](docs/python-sys-sage.md).
+
+The recommended way to install the library is through spack.
+Alternatively, sys-sage can be built from the sources, allowing to install newer/develop versions.
 
 ### Installation with spack
 ```bash
@@ -80,6 +83,7 @@ spack install sys-sage
 - libpqos (11+, only when building with the **INTEL_CAT** option)
 - numactl (only when building **caps-numa-benchmark data source**)
 - hwloc (2.9+, only when building **hwloc data source**)
+- papi (only when building with the **PAPI** option)
 
 #### Building from sources
 
@@ -99,6 +103,24 @@ cmake ..
 # -DPAPI=ON                 - builds with PAPI support. If turned on, includes PAPI library headers.
 # -DCMAKE_INSTALL_PREFIX=../inst-dir    - to install locally into the git repo folder
 make all install
+```
+
+If _sys-sage_ is installed locally on your system, don't forget to set the `LD_LIBRARY_PATH` environment variable and optionally the `CMAKE_PREFIX_PATH` and `PKG_CONFIG_PATH` if you want to find _sys-sage_ from CMake or pkg-config respectively (or whatever the equivalent is on your platform).
+
+## Using sys-sage
+
+Other projects can then use _sys-sage_ in CMake through
+
+```cmake
+find_package(sys-sage REQUIRED)
+target_link_libraries(<target> PRIVATE sys-sage::sys-sage)
+```
+
+Alternatively, _sys-sage_'s include and library paths can manually be retrieved from pkg-config through
+
+```bash
+pkg-config --cflags sys-sage
+pkg-config --libs sys-sage
 ```
 
 ## Testing
