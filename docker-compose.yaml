@@ -11,7 +11,7 @@ services:
       - |
         cmake -S /sys-sage -B /sys-sage-build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_BUILD_TYPE=Debug -DPROC_CPUINFO=ON -DDS_HWLOC=ON -DDS_NUMA=ON -DPAPI=ON
         cmake --build /sys-sage-build --parallel
-        sudo cmake --install /sys-sage-build --prefix /usr
+        cmake --install /sys-sage-build --prefix /usr
         cmake -S /sys-sage/test -B /test-build -DCMAKE_BUILD_TYPE=Debug
         cmake --build /test-build
         /test-build/test
