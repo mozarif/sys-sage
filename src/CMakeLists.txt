@@ -55,7 +55,7 @@ if(PAPI)
 endif()
 
 if(QDMI)
-    target_sources(sys-sage PRIVATE sys-sage/parsers/qdmi-parser.cpp)
+    target_sources(sys-sage PRIVATE sys-sage/external_interfaces/qdmi-parser.cpp)
 endif()
 
 ######################################################

@@ -4,7 +4,7 @@
  */
 
 #ifdef QDMI
-#include <sys-sage/parsers/qdmi-parser.hpp>
+#include <sys-sage/external_interfaces/qdmi-parser.hpp>
 
 QInfo QdmiParser::info; 
 QDMI_Session QdmiParser::session; 
