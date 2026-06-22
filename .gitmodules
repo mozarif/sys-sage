@@ -3,4 +3,4 @@
 	url = https://github.com/caps-tum/mt4g.git
 [submodule "test/ut"]
 	path = test/ut
-	url = git@github.com:boost-ext/ut.git
+	url = https://github.com/boost-ext/ut.git

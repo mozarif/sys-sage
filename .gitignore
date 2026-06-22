@@ -3,9 +3,12 @@
 src/main
 main
 *.so
-build/*
-install/*
-inst-dir/*
-src/defines.hpp
+build
+install
+inst-dir
+src/sys-sage/defines.hpp
 .vscode
 test.xml
+python/py_sys_sage-*/
+python/py_sys_sage/
+!python/py_sys_sage/__init__.py

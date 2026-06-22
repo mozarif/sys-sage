@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-#include "sys-sage.hpp"
+#include <sys-sage.hpp>
 #include <hwloc.h>
 
 //intel cat

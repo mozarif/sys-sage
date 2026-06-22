@@ -25,15 +25,8 @@ option(DS_MT4G "Build with the mt4g data source" OFF)
 option(DS_NUMA "Build with the caps-numa-benchmark data source" OFF)
 option(QDMI "Build with QDMI support" OFF)
 option(PAPI "Build with PAPI support" OFF)
-option(PY_SYS_SAGE "Build with Python bindings" OFF)
 
 set(SS_PAPI ${PAPI}) # for internal use in CXX source code
-
-option(TEST "Build tests" OFF)
-option(TEST_ASAN "Build tests with enabled address sanitizers" OFF)
-option(TEST_TSAN "Build tests with enabled thread sanitizers" OFF)
-option(TEST_UBSAN "Build tests with enabled undefined behaviour sanitizers" OFF)
-option(TEST_COVERAGE "Build tests with enabled coverage" OFF)
 
 if(DATA_SOURCES)
     set(DS_HWLOC ON)
@@ -56,11 +49,6 @@ if(DS_HWLOC)
     find_package(HWLOC REQUIRED)
 endif()
 
-if(PY_SYS_SAGE)
-    set(PYBIND11_FINDPYTHON ON)
-    find_package(pybind11 CONFIG REQUIRED)
-endif()
-
 if(DS_NUMA)
     find_package(numactl REQUIRED)
 endif()
@@ -79,12 +67,7 @@ endif()
 ######################################################
 
 add_subdirectory(src)
-add_subdirectory(examples)
 add_subdirectory(data-sources)
-
-if(${TEST})
-    add_subdirectory(test)
-endif()
 
 ######################################################
 ###################### PACKAGING #####################
