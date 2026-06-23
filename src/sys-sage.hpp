@@ -30,8 +30,9 @@
 #include <sys-sage/parsers/caps-numa-benchmark.hpp>
 #include <sys-sage/parsers/mt4g.hpp>
 #include <sys-sage/parsers/cccbench.hpp>
-#include <sys-sage/parsers/qdmi-parser.hpp>
 #include <sys-sage/parsers/iqm-parser.hpp>
+
 #include <sys-sage/external_interfaces/ss_papi.hpp>
+#include <sys-sage/external_interfaces/qdmi-parser.hpp>
 
 #endif //SYS_SAGE
