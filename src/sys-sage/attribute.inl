@@ -26,4 +26,14 @@ namespace sys_sage {
     {
         return &value;
     }
+
+    template <typename T>
+    void Attribute<T>::_ToJson(nlohmann::json &obj) const
+    {
+        // check at compile time whether the attribute supports JSON serialization
+        if constexpr (requires { nlohmann::json(value); })
+            obj = nlohmann::json(value);
+        else
+            obj = nlohmann::json();
+    }
 }

@@ -1,6 +1,8 @@
 #ifndef SYS_SAGE_SRC_ATTRIBUTE_HPP
 #define SYS_SAGE_SRC_ATTRIBUTE_HPP
 
+#include <nlohmann/json.hpp>
+
 namespace sys_sage {
     /**
      * @class IAttribute
@@ -13,6 +15,13 @@ namespace sys_sage {
          * @brief Virtual destructor for correct cleanup of attributes.
          */
         virtual ~IAttribute() = default;
+
+        /**
+         * @brief Virtual JSON serialization for atttributes.
+         *
+         * @param obj The JSON object to be initialized to represent this attribute.
+         */
+        virtual void _ToJson(nlohmann::json &obj) const = 0;
     };
     
     /**
@@ -62,6 +71,13 @@ namespace sys_sage {
          * @return A pointer to the constant value.
          */
         const T *operator->() const;
+
+        /**
+         * @brief JSON serialization for atttributes.
+         *
+         * @param obj The JSON object to be initialized to represent this attribute.
+         */
+        virtual void _ToJson(nlohmann::json &obj) const override;
     
     private:
         /**

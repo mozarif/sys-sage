@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <stdint.h>
 #include <string>
@@ -13,7 +14,26 @@
 using namespace sys_sage;
 using json = nlohmann::json;
 
-static void DumpAttributes(const json &obj) { /* TODO */ }
+template <typename T>
+static void DumpAttributes(json &obj, T *compOrRel)
+{
+    json attributes;
+
+    for (auto it = compOrRel->AttributesBegin(); it != compOrRel->AttributesEnd(); it++) {
+        auto &key = it->first;
+        auto &val = it->second;
+
+        nlohmann::json attribute;
+        val->_ToJson(attribute);
+
+        if (!attribute.is_null()) // only export the attribute if a `to_json` function is defined
+            attributes[key] = std::move(attribute);
+    }
+
+    if (attributes.size() > 0)
+        obj["attributes"] = std::move(attributes);
+}
+
 static void LoadAttributes(const json &obj) { /* TODO */ }
 
 static Component *ComponentFromJson(const json &obj,
@@ -73,7 +93,7 @@ static void CollectComponentsInSubtree(const Component *root,
             queue.push(child);
             componentsInSubtree.insert(child);
         }
-    } while (queue.empty());
+    } while (!queue.empty());
 }
 
 void sys_sage::DumpJson(const Component *component, json &obj)
@@ -222,7 +242,7 @@ void sys_sage::Component::_ToJson(json &obj) const
     obj["id"] = id;
     obj["address"] = reinterpret_cast<uintptr_t>(this);
 
-    DumpAttributes(obj);
+    DumpAttributes(obj, this);
 
     if (children.size() > 0) {
         std::vector<json> jsonChildren ( children.size() );
@@ -270,7 +290,7 @@ void sys_sage::Relation::_ToJson(json &obj) const
 
     obj["components"] = addresses;
 
-    DumpAttributes(obj);
+    DumpAttributes(obj, this);
 }
 
 int sys_sage::Relation::_FromJson(const json &obj,
