@@ -251,7 +251,7 @@ PYBIND11_MODULE(_py_sys_sage, m) {
          * JSON serialization for attributes in Python can be supported through
          * https://github.com/pybind/pybind11_json
          * However, this uses `nlohmann::json` while we use
-         * `nlohmann::ordered_json`. -> TODO: how to fix this?
+         * `nlohmann::json`. -> TODO: how to fix this?
          *
          * All of the above also holds for the `Relation` class.
          */

@@ -11,7 +11,7 @@
 #include <queue>
 
 using namespace sys_sage;
-using json = nlohmann::ordered_json;
+using json = nlohmann::json;
 
 static void DumpAttributes(const json &obj) { /* TODO */ }
 static void LoadAttributes(const json &obj) { /* TODO */ }
