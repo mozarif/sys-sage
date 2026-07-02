@@ -24,9 +24,9 @@ static void DumpAttributes(json &obj, T *compOrRel)
         auto &val = it->second;
 
         nlohmann::json attribute;
-        val->_ToJson(attribute);
+        val->Serialize(attribute);
 
-        if (!attribute.is_null()) // only export the attribute if a `to_json` function is defined
+        if (!attribute.is_null()) // only export the attribute if JSON expored is defined for this type
             attributes[key] = std::move(attribute);
     }
 
