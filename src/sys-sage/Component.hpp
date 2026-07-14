@@ -907,6 +907,17 @@ namespace sys_sage {
         attribSizeType GetAttributesSize() const;
 
         /**
+         * @private
+         *
+         * @brief Inserts a type-erased attribute.
+         *
+         * @param key The key associated with the attribute.
+         * @param attribute The type-erased attribute.
+         */
+        // TODO: somehow make this private and find a better name
+        void _EmplaceAttribute(const std::string &key, std::unique_ptr<IAttribute> &attribute);
+
+        /**
          * @brief Returns an iterator to the beginning of the attributes.
          *
          * @return The iterator of the first attribute.

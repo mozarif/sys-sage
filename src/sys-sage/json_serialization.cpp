@@ -34,7 +34,29 @@ static void DumpAttributes(json &obj, T *compOrRel)
         obj["attributes"] = std::move(attributes);
 }
 
-static void LoadAttributes(const json &obj) { /* TODO */ }
+template <typename T>
+static void LoadAttributes(const json &obj, T *compOrRel)
+{
+    for (auto it = obj.begin(); it != obj.end(); it++) {
+        auto &key = it.key();
+        auto &value = it.value();
+
+        // TODO: define a constant string literal instead of using "_sys_sage_type" and "_sys_sage_value" directly
+        auto typeIt = value.find("_sys_sage_type");
+        if (typeIt == value.end())
+            continue;
+
+        std::string type = typeIt->get<std::string>();
+        auto callBack = sys_sage::TypeRegistry::Instance().GetCallBack(type);
+
+        if (!callBack)
+            continue;
+
+        auto attribute = (*callBack)(value["_sys_sage_value"]);
+        // TODO: somehow make this private
+        compOrRel->_EmplaceAttribute(key, attribute);
+    }
+}
 
 static Component *ComponentFromJson(const json &obj,
                                     std::unordered_map<uintptr_t, Component *> &componentMap)
@@ -259,7 +281,8 @@ int sys_sage::Component::_FromJson(const json &obj)
 {
     obj["id"].get_to<int>(id);
 
-    LoadAttributes(obj);
+    if (auto it = obj.find("attributes"); it != obj.end())
+        LoadAttributes(*it, this);
 
     if (auto it = obj.find("children"); it != obj.end()) {
         for (auto &childJson : *it) {
@@ -313,7 +336,8 @@ int sys_sage::Relation::_FromJson(const json &obj,
     obj["id"].get_to<int>(id);
     obj["ordered"].get_to<bool>(ordered);
 
-    LoadAttributes(obj);
+    if (auto it = obj.find("attributes"); it != obj.end())
+        LoadAttributes(*it, this);
 
     return 0;
 }

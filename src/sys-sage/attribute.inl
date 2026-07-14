@@ -43,11 +43,4 @@ namespace sys_sage {
             obj = nlohmann::json();
         }
     }
-
-    template <typename T>
-    void TypeRegistry::Register(std::string_view id)
-    {
-        if constexpr (TypeTrait<T>::registered && TypeTrait<T>::deserializable)
-            callbacks.emplace(id, TypeTrait<T>::Deserialize);
-    }
 }

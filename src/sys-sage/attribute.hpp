@@ -11,38 +11,72 @@
 #include <unordered_map>
 
 // this macro handles automatic type registration for atomic types
-#define SYS_SAGE_REGISTER_TYPE(type)                                                                                       \
-namespace sys_sage {                                                                                                       \
-    template <>                                                                                                            \
-    struct TypeTraits<type>                                                                                                \
-    {                                                                                                                      \
-        static constexpr bool registered = true;                                                                           \
-        static constexpr bool serializable = requires(const type &attr) { nlohmann::json(attr); };                         \
-        static constexpr bool deserializable = requires(const nlohmann::json &obj) { obj.get<type>(); };                   \
-        static constexpr decltype(auto) id = #type;                                                                        \
-        inline static const auto registrar = [] { TypeRegistry::Instance().Register<type>(id); return std::tuple<>{}; }(); \
-                                                                                                                           \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                                          \
-        {                                                                                                                  \
-            if constexpr (deserializable)                                                                                  \
-                return std::make_unique<Attribute<type>>(obj.get<type>());                                                 \
-            else                                                                                                           \
-                return nullptr;                                                                                            \
-        }                                                                                                                  \
-    };                                                                                                                     \
+#define SYS_SAGE_REGISTER_TYPE(type)                                              \
+namespace sys_sage {                                                              \
+    template <>                                                                   \
+    struct TypeTrait<type, true> {                                                \
+        static constexpr bool serializable = HasToJson<type>;                     \
+        static constexpr bool deserializable = HasFromJson<type>;                 \
+        static constexpr bool registered = serializable && deserializable;        \
+                                                                                  \
+        static constexpr decltype(auto) id = #type;                               \
+                                                                                  \
+        template <typename U = type> requires (deserializable)                    \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
+        {                                                                         \
+            return std::make_unique<Attribute<U>>(obj.get<U>());                  \
+        }                                                                         \
+                                                                                  \
+        template <typename U = type> requires (!deserializable)                   \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json&)     \
+        {                                                                         \
+            return nullptr;                                                       \
+        }                                                                         \
+                                                                                  \
+        inline static const auto registrar = []                                   \
+        {                                                                         \
+            if constexpr (serializable && deserializable) {                       \
+                TypeRegistry::Instance().Register(id, Deserialize);               \
+            }                                                                     \
+            return std::tuple<>{};                                                \
+        }();                                                                      \
+    };                                                                            \
+                                                                                  \
+    template <>                                                                   \
+    struct TypeTrait<type, false> {                                               \
+        static constexpr bool serializable = HasToJson<type>;                     \
+        static constexpr bool deserializable = HasFromJson<type>;                 \
+        static constexpr bool registered = serializable && deserializable;        \
+                                                                                  \
+        static constexpr decltype(auto) id = #type;                               \
+    };                                                                            \
 }
 
 namespace sys_sage {
+    /**
+     * @brief A concept for checking if a type supports JSON serialization.
+     */
+    template <typename T>
+    concept HasToJson = requires (nlohmann::json &obj, const T &attr) { nlohmann::adl_serializer<T>::to_json(obj, attr); };
+
+    /**
+     * @brief A concept for checking if a type supports JSON deserialization.
+     */
+    template <typename T>
+    concept HasFromJson = requires (const nlohmann::json &obj, T &attr) { nlohmann::adl_serializer<T>::from_json(obj, attr); }
+                       || requires (const nlohmann::json &obj) { { nlohmann::adl_serializer<T>::from_json(obj) } -> std::same_as<T>; };
+
     /**
      * @class TypeTraits
      *
      * @brief Provides compile time meta data for a type.
      */
-    template <typename T>
+    template <typename T, bool b = true>
     struct TypeTrait {
+        static constexpr bool serializable = HasToJson<T>;
+        static constexpr bool deserializable = HasFromJson<T>;
         static constexpr bool registered = false;
-        static constexpr bool serializable = requires(const T &attr) { nlohmann::json(attr); };
-        static constexpr bool deserializable = requires(const nlohmann::json &obj) { obj.get<T>(); };
+    
         static constexpr decltype(auto) id = "";
     };
 
@@ -145,8 +179,7 @@ namespace sys_sage {
          *
          * @param id A unique identifier for the `TypeDescriptor`.
          */
-        template <typename T>
-        void Register(std::string_view id);
+        void Register(std::string_view id, std::unique_ptr<IAttribute> (*callback)(const nlohmann::json&));
     
         /**
          * @brief Returns the deserialization callback associated to this type.
