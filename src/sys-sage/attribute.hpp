@@ -10,8 +10,11 @@
 #include <string_view>
 #include <unordered_map>
 
-// this macro handles automatic type registration for atomic types
-#define SYS_SAGE_REGISTER_TYPE(type)                                              \
+#define SYS_SAGE_STRINGIFY(...) #__VA_ARGS__
+#define SYS_SAGE_EXTRACT_ARG(...) __VA_ARGS__
+
+// this macro handles type registration for atomic types
+#define SYS_SAGE_REGISTER_TYPE_INTERNAL(type)                                     \
 namespace sys_sage {                                                              \
     template <>                                                                   \
     struct TypeTrait<type, true> {                                                \
@@ -19,7 +22,7 @@ namespace sys_sage {                                                            
         static constexpr bool deserializable = HasFromJson<type>;                 \
         static constexpr bool registered = serializable && deserializable;        \
                                                                                   \
-        static constexpr decltype(auto) id = #type;                               \
+        static constexpr decltype(auto) id = SYS_SAGE_STRINGIFY(type);            \
                                                                                   \
         template <typename U = type> requires (deserializable)                    \
         static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
@@ -48,9 +51,11 @@ namespace sys_sage {                                                            
         static constexpr bool deserializable = HasFromJson<type>;                 \
         static constexpr bool registered = serializable && deserializable;        \
                                                                                   \
-        static constexpr decltype(auto) id = #type;                               \
+        static constexpr decltype(auto) id = SYS_SAGE_STRINGIFY(type);            \
     };                                                                            \
 }
+
+#define SYS_SAGE_REGISTER_TYPE(...) SYS_SAGE_REGISTER_TYPE_INTERNAL(SYS_SAGE_EXTRACT_ARG(__VA_ARGS__))
 
 namespace sys_sage {
     /**
