@@ -31,7 +31,7 @@ namespace sys_sage {
     void Attribute<T>::Serialize(nlohmann::json &obj) const
     {
         if constexpr (TypeTrait<T>::serializable) {
-            if constexpr (TypeTrait<T>::registered) {
+            if constexpr (TypeTrait<T>::deserializable) {
                 obj = {
                     { "_sys_sage_type", TypeTrait<T>::id },
                     { "_sys_sage_value", value }
