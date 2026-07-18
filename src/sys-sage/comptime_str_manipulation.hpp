@@ -92,12 +92,81 @@ namespace sys_sage {
     /*
      * @private
      *
+     * @brief Defines position not found.
+     */
+    inline static constexpr std::size_t npos = static_cast<std::size_t>(-1);
+
+    /*
+     * @private
+     *
+     * @brief Finds the starting position of the substring `needle` in the string `hayStack`.
+     *        The search is started from the beginning.
+     *        The returned position is the first found one.
+     *        Note: Fancy optimizations for finding the substring (e.g. KMP, Boyer-Moore, ...) are likely an overkill, since the strings will typically be of small size.
+     */
+    template <CompStr hayStack, CompStr needle>
+    consteval std::size_t CompStrFind()
+    {
+        constexpr std::size_t hayStackSize = std::size(hayStack.buffer) - 1;
+        constexpr std::size_t needleSize = std::size(needle.buffer) - 1;
+
+        static_assert(hayStackSize >= needleSize);
+
+        for (std::size_t i = 0; i <= hayStackSize - needleSize; i++) {
+            std::size_t j;
+            for (j = 0; j < needleSize; j++) {
+                if (hayStack.buffer[i + j] != needle.buffer[j])
+                    break;
+            }
+            if (j == needleSize)
+                return i;
+        }
+
+        return npos;
+    }
+
+    /*
+     * @private
+     *
+     * @brief Finds the starting position of the substring `needle` in the string `hayStack`.
+     *        The search is started from the end.
+     *        The returned position is the first found one.
+     *        Note: Fancy optimizations for finding the substring (e.g. KMP, Boyer-Moore, ...) are likely an overkill, since the strings will typically be of small size.
+     */
+    template <CompStr hayStack, CompStr needle>
+    consteval std::size_t CompStrRFind()
+    {
+        constexpr std::size_t hayStackSize = std::size(hayStack.buffer) - 1;
+        constexpr std::size_t needleSize = std::size(needle.buffer) - 1;
+
+        static_assert(hayStackSize >= needleSize);
+
+        for (std::size_t i = 0; i <= hayStackSize - needleSize; i++) {
+            std::size_t j;
+            for (j = 0; j < needleSize; j++) {
+                if (hayStack.buffer[(hayStackSize - needleSize - i) + (needleSize - 1 - j)] != needle.buffer[needleSize - 1 - j])
+                    break;
+            }
+
+            if (j == needleSize)
+                return hayStackSize - needleSize - i;
+        }
+
+        return npos;
+    }
+
+    /*
+     * @private
+     *
      * @brief Returns a substring literal starting from `begin` and ending at `end`.
      */
-    template <CompStr funcName, std::size_t begin, std::size_t end>
+    template <CompStr funcName, std::size_t begin, std::size_t offset, std::size_t end>
     consteval decltype(auto) CompStrExtract() noexcept
     {
-        return CompStrToLiteral<CompStr<end - begin + 1>(funcName, begin)>();
+        static_assert(begin != npos);
+        static_assert(end != npos);
+
+        return CompStrToLiteral<CompStr<end - (begin + offset) + 1>(funcName, begin + offset)>();
     }
 
     /*
@@ -108,11 +177,11 @@ namespace sys_sage {
     template <CompStr funcName, CompStr prefix, CompStr suffix>
     consteval decltype(auto) CompStrExtract() noexcept
     {
-        constexpr std::string_view strv ( funcName.buffer );
         return CompStrExtract<
             funcName,
-            strv.find(prefix.buffer) + (std::size(prefix.buffer) - 1),
-            strv.rfind(suffix.buffer)
+            CompStrFind<funcName, prefix>(),
+            std::size(prefix.buffer) - 1,
+            CompStrRFind<funcName, suffix>()
         >();
     }
 
