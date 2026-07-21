@@ -3,52 +3,52 @@
 sys_sage::TypeRegistry::TypeRegistry()
 {
     if constexpr (TypeTrait<bool>::serializable && TypeTrait<bool>::deserializable)
-        callbacks.emplace( TypeTrait<bool>::id, TypeTrait<bool>::Deserialize );
+        callbacks.emplace( TypeTrait<bool>::id, TypeTrait<bool>::Deserialize<> );
 
     if constexpr (TypeTrait<char>::serializable && TypeTrait<char>::deserializable)
-        callbacks.emplace( TypeTrait<char>::id, TypeTrait<char>::Deserialize );
+        callbacks.emplace( TypeTrait<char>::id, TypeTrait<char>::Deserialize<> );
 
     if constexpr (TypeTrait<signed char>::serializable && TypeTrait<signed char>::deserializable)
-        callbacks.emplace( TypeTrait<signed char>::id, TypeTrait<signed char>::Deserialize );
+        callbacks.emplace( TypeTrait<signed char>::id, TypeTrait<signed char>::Deserialize<> );
 
     if constexpr (TypeTrait<unsigned char>::serializable && TypeTrait<unsigned char>::deserializable)
-        callbacks.emplace( TypeTrait<unsigned char>::id, TypeTrait<unsigned char>::Deserialize );
+        callbacks.emplace( TypeTrait<unsigned char>::id, TypeTrait<unsigned char>::Deserialize<> );
 
     if constexpr (TypeTrait<short int>::serializable && TypeTrait<short int>::deserializable)
-        callbacks.emplace( TypeTrait<short int>::id, TypeTrait<short int>::Deserialize );
+        callbacks.emplace( TypeTrait<short int>::id, TypeTrait<short int>::Deserialize<> );
 
     if constexpr (TypeTrait<unsigned short int>::serializable && TypeTrait<unsigned short int>::deserializable)
-        callbacks.emplace( TypeTrait<unsigned short int>::id, TypeTrait<unsigned short int>::Deserialize );
+        callbacks.emplace( TypeTrait<unsigned short int>::id, TypeTrait<unsigned short int>::Deserialize<> );
 
     if constexpr (TypeTrait<int>::serializable && TypeTrait<int>::deserializable)
-        callbacks.emplace( TypeTrait<int>::id, TypeTrait<int>::Deserialize );
+        callbacks.emplace( TypeTrait<int>::id, TypeTrait<int>::Deserialize<> );
 
     if constexpr (TypeTrait<unsigned int>::serializable && TypeTrait<unsigned int>::deserializable)
-        callbacks.emplace( TypeTrait<unsigned int>::id, TypeTrait<unsigned int>::Deserialize );
+        callbacks.emplace( TypeTrait<unsigned int>::id, TypeTrait<unsigned int>::Deserialize<> );
 
     if constexpr (TypeTrait<long int>::serializable && TypeTrait<long int>::deserializable)
-        callbacks.emplace( TypeTrait<long int>::id, TypeTrait<long int>::Deserialize );
+        callbacks.emplace( TypeTrait<long int>::id, TypeTrait<long int>::Deserialize<> );
 
     if constexpr (TypeTrait<unsigned long int>::serializable && TypeTrait<unsigned long int>::deserializable)
-        callbacks.emplace( TypeTrait<unsigned long int>::id, TypeTrait<unsigned long int>::Deserialize );
+        callbacks.emplace( TypeTrait<unsigned long int>::id, TypeTrait<unsigned long int>::Deserialize<> );
 
     if constexpr (TypeTrait<long long int>::serializable && TypeTrait<long long int>::deserializable)
-        callbacks.emplace( TypeTrait<long long int>::id, TypeTrait<long long int>::Deserialize );
+        callbacks.emplace( TypeTrait<long long int>::id, TypeTrait<long long int>::Deserialize<> );
 
     if constexpr (TypeTrait<unsigned long long int>::serializable && TypeTrait<unsigned long long int>::deserializable)
-        callbacks.emplace( TypeTrait<unsigned long long int>::id, TypeTrait<unsigned long long int>::Deserialize );
+        callbacks.emplace( TypeTrait<unsigned long long int>::id, TypeTrait<unsigned long long int>::Deserialize<> );
 
     if constexpr (TypeTrait<float>::serializable && TypeTrait<float>::deserializable)
-        callbacks.emplace( TypeTrait<float>::id, TypeTrait<float>::Deserialize );
+        callbacks.emplace( TypeTrait<float>::id, TypeTrait<float>::Deserialize<> );
 
     if constexpr (TypeTrait<double>::serializable && TypeTrait<double>::deserializable)
-        callbacks.emplace( TypeTrait<double>::id, TypeTrait<double>::Deserialize );
+        callbacks.emplace( TypeTrait<double>::id, TypeTrait<double>::Deserialize<> );
 
     if constexpr (TypeTrait<long double>::serializable && TypeTrait<long double>::deserializable)
-        callbacks.emplace( TypeTrait<long double>::id, TypeTrait<long double>::Deserialize );
+        callbacks.emplace( TypeTrait<long double>::id, TypeTrait<long double>::Deserialize<> );
 
     if constexpr (TypeTrait<std::string>::serializable && TypeTrait<std::string>::deserializable)
-        callbacks.emplace( TypeTrait<std::string>::id, TypeTrait<std::string>::Deserialize );
+        callbacks.emplace( TypeTrait<std::string>::id, TypeTrait<std::string>::Deserialize<> );
 }
 
 sys_sage::TypeRegistry &sys_sage::TypeRegistry::Instance()

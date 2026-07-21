@@ -17,10 +17,31 @@
 #include <unordered_map>
 #include <vector>
 
-#define SYS_SAGE_STRINGIFY(...) #__VA_ARGS__
-#define SYS_SAGE_EXTRACT_ARGS(...) __VA_ARGS__
+#define SYS_SAGE_EXPAND_128(...) SYS_SAGE_EXPAND_64(SYS_SAGE_EXPAND_64(__VA_ARGS__))
+#define SYS_SAGE_EXPAND_64(...) SYS_SAGE_EXPAND_32(SYS_SAGE_EXPAND_32(__VA_ARGS__))
+#define SYS_SAGE_EXPAND_32(...) SYS_SAGE_EXPAND_16(SYS_SAGE_EXPAND_16(__VA_ARGS__))
+#define SYS_SAGE_EXPAND_16(...) SYS_SAGE_EXPAND_8(SYS_SAGE_EXPAND_8(__VA_ARGS__))
+#define SYS_SAGE_EXPAND_8(...) SYS_SAGE_EXPAND_4(SYS_SAGE_EXPAND_4(__VA_ARGS__))
+#define SYS_SAGE_EXPAND_4(...) SYS_SAGE_EXPAND_2(SYS_SAGE_EXPAND_2(__VA_ARGS__))
+#define SYS_SAGE_EXPAND_2(...) SYS_SAGE_EXPAND_1(SYS_SAGE_EXPAND_1(__VA_ARGS__))
+#define SYS_SAGE_EXPAND_1(...) __VA_ARGS__
 
-// this macro handles type registration for atomic types
+#define SYS_SAGE_PARENTHESES ()
+
+#define SYS_SAGE_TYPENAME(x) typename x
+#define SYS_SAGE_MAP_TYPENAME(...) __VA_OPT__(SYS_SAGE_EXPAND_128(SYS_SAGE_MAP_TYPENAME_INTERNAL(__VA_ARGS__)))
+#define SYS_SAGE_MAP_TYPENAME_INTERNAL(arg, ...) SYS_SAGE_TYPENAME(arg)__VA_OPT__(, SYS_SAGE_MAP_TYPENAME_INTERNAL_AGAIN SYS_SAGE_PARENTHESES (__VA_ARGS__))
+#define SYS_SAGE_MAP_TYPENAME_INTERNAL_AGAIN() SYS_SAGE_MAP_TYPENAME_INTERNAL
+
+#define SYS_SAGE_TYPETRAIT(x) TypeTrait<x, false>::id
+#define SYS_SAGE_MAP_TYPETRAIT(...) __VA_OPT__(SYS_SAGE_EXPAND_128(SYS_SAGE_MAP_TYPETRAIT_INTERNAL(__VA_ARGS__)))
+#define SYS_SAGE_MAP_TYPETRAIT_INTERNAL(arg, ...) SYS_SAGE_TYPETRAIT(arg)__VA_OPT__(, ", ", SYS_SAGE_MAP_TYPETRAIT_INTERNAL_AGAIN SYS_SAGE_PARENTHESES (__VA_ARGS__))
+#define SYS_SAGE_MAP_TYPETRAIT_INTERNAL_AGAIN() SYS_SAGE_MAP_TYPETRAIT_INTERNAL
+
+#define SYS_SAGE_STRINGIFY(...) #__VA_ARGS__
+#define SYS_SAGE_REGISTER_TYPE(...) SYS_SAGE_REGISTER_TYPE_INTERNAL(SYS_SAGE_EXPAND_1(__VA_ARGS__))
+#define SYS_SAGE_SPECIALIZE_TRAIT(...) SYS_SAGE_SPECIALIZE_TRAIT_INTERNAL(SYS_SAGE_EXPAND_1(__VA_ARGS__))
+
 #define SYS_SAGE_REGISTER_TYPE_INTERNAL(type)                                       \
 namespace sys_sage {                                                                \
     template <bool b>                                                               \
@@ -52,7 +73,53 @@ namespace sys_sage {                                                            
     };                                                                              \
 }
 
-#define SYS_SAGE_REGISTER_TYPE(...) SYS_SAGE_REGISTER_TYPE_INTERNAL(SYS_SAGE_EXTRACT_ARGS(__VA_ARGS__))
+#define SYS_SAGE_SPECIALIZE_TRAIT_INTERNAL(type)                                  \
+namespace sys_sage {                                                              \
+    template <bool b>                                                             \
+    struct TypeTrait<type, b> {                                                   \
+        static constexpr bool serializable = HasToJson<type>;                     \
+        static constexpr bool deserializable = HasFromJson<type>;                 \
+                                                                                  \
+        static constexpr decltype(auto) id = SYS_SAGE_STRINGIFY(type);            \
+                                                                                  \
+        template <typename U = type> requires (deserializable)                    \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
+        {                                                                         \
+            return std::make_unique<Attribute<U>>(obj.get<U>());                  \
+        }                                                                         \
+    };                                                                            \
+}
+
+#define SYS_SAGE_REGISTER_TEMPLATE_TYPE(template_type, ...)                                                                                  \
+namespace sys_sage {                                                                                                                         \
+    template <SYS_SAGE_MAP_TYPENAME(__VA_ARGS__), bool b>                                                                                    \
+    struct TypeTrait<template_type<__VA_ARGS__>, b> {                                                                                        \
+        static constexpr bool serializable = HasToJson<template_type<__VA_ARGS__>>;                                                          \
+        static constexpr bool deserializable = HasFromJson<template_type<__VA_ARGS__>>;                                                      \
+                                                                                                                                             \
+        static constexpr decltype(auto) id = CompStrCat<SYS_SAGE_STRINGIFY(template_type), "<", SYS_SAGE_MAP_TYPETRAIT(__VA_ARGS__), ">">(); \
+                                                                                                                                             \
+        template <typename U = template_type<__VA_ARGS__>> requires (deserializable)                                                         \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                                                            \
+        {                                                                                                                                    \
+            return std::make_unique<Attribute<U>>(obj.get<U>());                                                                             \
+        }                                                                                                                                    \
+                                                                                                                                             \
+        template <typename U = template_type<__VA_ARGS__>> requires (b && serializable && deserializable)                                    \
+        inline static const auto registrar = []                                                                                              \
+        {                                                                                                                                    \
+            TypeRegistry::Instance().Register(id, Deserialize);                                                                              \
+            return std::tuple<>{};                                                                                                           \
+        }();                                                                                                                                 \
+                                                                                                                                             \
+        __attribute__((used, retain))                                                                                                        \
+        static void UseRegistrar()                                                                                                           \
+        {                                                                                                                                    \
+            if constexpr (b && serializable && deserializable)                                                                               \
+                (void) registrar<template_type<__VA_ARGS__>>;                                                                                \
+        }                                                                                                                                    \
+    };                                                                                                                                       \
+}
 
 namespace sys_sage {
     /**
@@ -90,7 +157,7 @@ namespace sys_sage {
 
     // forward declaration
     template <typename T, bool>
-    class TypeTrait;
+    struct TypeTrait;
     
     /**
      * @class Attribute
@@ -209,6 +276,12 @@ namespace sys_sage {
             return std::make_unique<Attribute<U>>(obj.get<U>());
         }
 
+        template <typename U = T> requires (!deserializable)
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
+        {
+            return nullptr;
+        }
+
         template <typename U = T> requires (b && serializable && deserializable)
         inline static const auto registrar = []
         {
@@ -219,236 +292,9 @@ namespace sys_sage {
         __attribute__((used, retain))
         static void UseRegistrar()
         {
+            // TODO: fix this
             if constexpr (b && serializable && deserializable)
                 (void) registrar<T>;
-        }
-    };
-
-///////////////////////////////////////////////////////////////////////////////
-/////////////////////////// PRE-DEFINE SOME TYPES /////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-    template <bool b>
-    struct TypeTrait<bool, b> {
-        static constexpr bool serializable = HasToJson<bool>;
-        static constexpr bool deserializable = HasFromJson<bool>;
-
-        static constexpr decltype(auto) id = "bool";
-
-        template <typename U = bool> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<bool>>(obj.get<bool>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<char, b> {
-        static constexpr bool serializable = HasToJson<char>;
-        static constexpr bool deserializable = HasFromJson<char>;
-
-        static constexpr decltype(auto) id = "char";
-
-        template <typename U = char> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<char>>(obj.get<char>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<signed char, b> {
-        static constexpr bool serializable = HasToJson<signed char>;
-        static constexpr bool deserializable = HasFromJson<signed char>;
-
-        static constexpr decltype(auto) id = "signed char";
-
-        template <typename U = signed char> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<signed char>>(obj.get<signed char>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<unsigned char, b> {
-        static constexpr bool serializable = HasToJson<unsigned char>;
-        static constexpr bool deserializable = HasFromJson<unsigned char>;
-
-        static constexpr decltype(auto) id = "unsigned char";
-
-        template <typename U = unsigned char> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<unsigned char>>(obj.get<unsigned char>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<short int, b> {
-        static constexpr bool serializable = HasToJson<short int>;
-        static constexpr bool deserializable = HasFromJson<short int>;
-
-        static constexpr decltype(auto) id = "short int";
-
-        template <typename U = short int> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<short int>>(obj.get<short int>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<unsigned short int, b> {
-        static constexpr bool serializable = HasToJson<unsigned short int>;
-        static constexpr bool deserializable = HasFromJson<unsigned short int>;
-
-        static constexpr decltype(auto) id = "unsigned short int";
-
-        template <typename U = unsigned short int> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<unsigned short int>>(obj.get<unsigned short int>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<int, b> {
-        static constexpr bool serializable = HasToJson<int>;
-        static constexpr bool deserializable = HasFromJson<int>;
-
-        static constexpr decltype(auto) id = "int";
-
-        template <typename U = int> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<int>>(obj.get<int>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<unsigned int, b> {
-        static constexpr bool serializable = HasToJson<unsigned int>;
-        static constexpr bool deserializable = HasFromJson<unsigned int>;
-
-        static constexpr decltype(auto) id = "unsigned int";
-
-        template <typename U = unsigned int> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<unsigned int>>(obj.get<unsigned int>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<long int, b> {
-        static constexpr bool serializable = HasToJson<long int>;
-        static constexpr bool deserializable = HasFromJson<long int>;
-
-        static constexpr decltype(auto) id = "long int";
-
-        template <typename U = long int> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<long int>>(obj.get<long int>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<unsigned long int, b> {
-        static constexpr bool serializable = HasToJson<unsigned long int>;
-        static constexpr bool deserializable = HasFromJson<unsigned long int>;
-
-        static constexpr decltype(auto) id = "unsigned long int";
-
-        template <typename U = unsigned long int> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<unsigned long int>>(obj.get<unsigned long int>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<long long int, b> {
-        static constexpr bool serializable = HasToJson<long long int>;
-        static constexpr bool deserializable = HasFromJson<long long int>;
-
-        static constexpr decltype(auto) id = "long long int";
-
-        template <typename U = long long int> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<long long int>>(obj.get<long long int>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<unsigned long long int, b> {
-        static constexpr bool serializable = HasToJson<unsigned long long int>;
-        static constexpr bool deserializable = HasFromJson<unsigned long long int>;
-
-        static constexpr decltype(auto) id = "unsigned long long int";
-
-        template <typename U = unsigned long long int> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<unsigned long long int>>(obj.get<unsigned long long int>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<float, b> {
-        static constexpr bool serializable = HasToJson<float>;
-        static constexpr bool deserializable = HasFromJson<float>;
-
-        static constexpr decltype(auto) id = "float";
-
-        template <typename U = float> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<float>>(obj.get<float>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<double, b> {
-        static constexpr bool serializable = HasToJson<double>;
-        static constexpr bool deserializable = HasFromJson<double>;
-
-        static constexpr decltype(auto) id = "double";
-
-        template <typename U = double> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<double>>(obj.get<double>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<long double, b> {
-        static constexpr bool serializable = HasToJson<long double>;
-        static constexpr bool deserializable = HasFromJson<long double>;
-
-        static constexpr decltype(auto) id = "long double";
-
-        template <typename U = long double> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<long double>>(obj.get<long double>());
-        }
-    };
-
-    template <bool b>
-    struct TypeTrait<std::string, b> {
-        static constexpr bool serializable = HasToJson<std::string>;
-        static constexpr bool deserializable = HasFromJson<std::string>;
-
-        static constexpr decltype(auto) id = "std::string";
-
-        template <typename U = std::string> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<std::string>>(obj.get<std::string>());
         }
     };
 
@@ -508,34 +354,55 @@ namespace sys_sage {
         }
     };
 
-    template <typename K, typename V, bool b>
-    struct TypeTrait<std::unordered_map<K, V>, b> {
-        static constexpr bool serializable = HasToJson<std::unordered_map<K, V>>;
-        static constexpr bool deserializable = HasFromJson<std::unordered_map<K, V>>;
-    
-        static constexpr decltype(auto) id = CompStrCat<"std::unordered_map<", TypeTrait<K, false>::id, TypeTrait<V, false>::id, ">">();
+    //template <typename K, typename V, bool b>
+    //struct TypeTrait<std::unordered_map<K, V>, b> {
+    //    static constexpr bool serializable = HasToJson<std::unordered_map<K, V>>;
+    //    static constexpr bool deserializable = HasFromJson<std::unordered_map<K, V>>;
+    //
+    //    static constexpr decltype(auto) id = CompStrCat<"std::unordered_map<", TypeTrait<K, false>::id, ", ", TypeTrait<V, false>::id, ">">();
 
-        template <typename U = std::unordered_map<K, V>> requires (deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
-        {
-            return std::make_unique<Attribute<U>>(obj.get<U>());
-        }
+    //    template <typename U = std::unordered_map<K, V>> requires (deserializable)
+    //    static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
+    //    {
+    //        return std::make_unique<Attribute<U>>(obj.get<U>());
+    //    }
 
-        template <typename U = std::unordered_map<K, V>> requires (b && serializable && deserializable)
-        inline static const auto registrar = []
-        {
-            TypeRegistry::Instance().Register(id, Deserialize);
-            return std::tuple<>{};
-        }();
+    //    template <typename U = std::unordered_map<K, V>> requires (b && serializable && deserializable)
+    //    inline static const auto registrar = []
+    //    {
+    //        TypeRegistry::Instance().Register(id, Deserialize);
+    //        return std::tuple<>{};
+    //    }();
 
-        __attribute__((used, retain))
-        static void UseRegistrar()
-        {
-            if constexpr (b && serializable && deserializable)
-                (void) registrar<std::unordered_map<K, V>>;
-        }
-    };
+    //    __attribute__((used, retain))
+    //    static void UseRegistrar()
+    //    {
+    //        if constexpr (b && serializable && deserializable)
+    //            (void) registrar<std::unordered_map<K, V>>;
+    //    }
+    //};
 }
+
+///////////////////////////////////////////////////////////////////////////////
+/////////////////////////// PRE-DEFINE SOME TYPES /////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+SYS_SAGE_SPECIALIZE_TRAIT(bool)
+SYS_SAGE_SPECIALIZE_TRAIT(char)
+SYS_SAGE_SPECIALIZE_TRAIT(signed char)
+SYS_SAGE_SPECIALIZE_TRAIT(unsigned char)
+SYS_SAGE_SPECIALIZE_TRAIT(short int)
+SYS_SAGE_SPECIALIZE_TRAIT(unsigned short int)
+SYS_SAGE_SPECIALIZE_TRAIT(int)
+SYS_SAGE_SPECIALIZE_TRAIT(unsigned int)
+SYS_SAGE_SPECIALIZE_TRAIT(long int)
+SYS_SAGE_SPECIALIZE_TRAIT(unsigned long int)
+SYS_SAGE_SPECIALIZE_TRAIT(long long int)
+SYS_SAGE_SPECIALIZE_TRAIT(unsigned long long int)
+SYS_SAGE_SPECIALIZE_TRAIT(float)
+SYS_SAGE_SPECIALIZE_TRAIT(double)
+SYS_SAGE_SPECIALIZE_TRAIT(long double)
+SYS_SAGE_SPECIALIZE_TRAIT(std::string)
 
 #include <sys-sage/attribute.inl>
 
