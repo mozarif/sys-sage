@@ -7,12 +7,15 @@
 #include <array>
 #include <concepts>
 #include <cstddef>
+#include <map>
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <string>
 #include <string_view>
 #include <tuple>
 #include <unordered_map>
+#include <vector>
 
 #define SYS_SAGE_STRINGIFY(...) #__VA_ARGS__
 #define SYS_SAGE_EXTRACT_ARGS(...) __VA_ARGS__
@@ -432,6 +435,104 @@ namespace sys_sage {
         static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
         {
             return std::make_unique<Attribute<long double>>(obj.get<long double>());
+        }
+    };
+
+    template <bool b>
+    struct TypeTrait<std::string, b> {
+        static constexpr bool serializable = HasToJson<std::string>;
+        static constexpr bool deserializable = HasFromJson<std::string>;
+
+        static constexpr decltype(auto) id = "std::string";
+
+        template <typename U = std::string> requires (deserializable)
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
+        {
+            return std::make_unique<Attribute<std::string>>(obj.get<std::string>());
+        }
+    };
+
+    template <typename T, bool b>
+    struct TypeTrait<std::vector<T>, b> {
+        static constexpr bool serializable = HasToJson<std::vector<T>>;
+        static constexpr bool deserializable = HasFromJson<std::vector<T>>;
+    
+        static constexpr decltype(auto) id = CompStrCat<"std::vector<", TypeTrait<T, false>::id, ">">();
+
+        template <typename U = std::vector<T>> requires (deserializable)
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
+        {
+            return std::make_unique<Attribute<U>>(obj.get<U>());
+        }
+
+        template <typename U = std::vector<T>> requires (b && serializable && deserializable)
+        inline static const auto registrar = []
+        {
+            TypeRegistry::Instance().Register(id, Deserialize);
+            return std::tuple<>{};
+        }();
+
+        __attribute__((used, retain))
+        static void UseRegistrar()
+        {
+            if constexpr (b && serializable && deserializable)
+                (void) registrar<std::vector<T>>;
+        }
+    };
+
+    template <typename K, typename V, bool b>
+    struct TypeTrait<std::map<K, V>, b> {
+        static constexpr bool serializable = HasToJson<std::map<K, V>>;
+        static constexpr bool deserializable = HasFromJson<std::map<K, V>>;
+    
+        static constexpr decltype(auto) id = CompStrCat<"std::map<", TypeTrait<K, false>::id, TypeTrait<V, false>::id, ">">();
+
+        template <typename U = std::map<K, V>> requires (deserializable)
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
+        {
+            return std::make_unique<Attribute<U>>(obj.get<U>());
+        }
+
+        template <typename U = std::map<K, V>> requires (b && serializable && deserializable)
+        inline static const auto registrar = []
+        {
+            TypeRegistry::Instance().Register(id, Deserialize);
+            return std::tuple<>{};
+        }();
+
+        __attribute__((used, retain))
+        static void UseRegistrar()
+        {
+            if constexpr (b && serializable && deserializable)
+                (void) registrar<std::map<K, V>>;
+        }
+    };
+
+    template <typename K, typename V, bool b>
+    struct TypeTrait<std::unordered_map<K, V>, b> {
+        static constexpr bool serializable = HasToJson<std::unordered_map<K, V>>;
+        static constexpr bool deserializable = HasFromJson<std::unordered_map<K, V>>;
+    
+        static constexpr decltype(auto) id = CompStrCat<"std::unordered_map<", TypeTrait<K, false>::id, TypeTrait<V, false>::id, ">">();
+
+        template <typename U = std::unordered_map<K, V>> requires (deserializable)
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
+        {
+            return std::make_unique<Attribute<U>>(obj.get<U>());
+        }
+
+        template <typename U = std::unordered_map<K, V>> requires (b && serializable && deserializable)
+        inline static const auto registrar = []
+        {
+            TypeRegistry::Instance().Register(id, Deserialize);
+            return std::tuple<>{};
+        }();
+
+        __attribute__((used, retain))
+        static void UseRegistrar()
+        {
+            if constexpr (b && serializable && deserializable)
+                (void) registrar<std::unordered_map<K, V>>;
         }
     };
 }

@@ -46,6 +46,9 @@ sys_sage::TypeRegistry::TypeRegistry()
 
     if constexpr (TypeTrait<long double>::serializable && TypeTrait<long double>::deserializable)
         callbacks.emplace( TypeTrait<long double>::id, TypeTrait<long double>::Deserialize );
+
+    if constexpr (TypeTrait<std::string>::serializable && TypeTrait<std::string>::deserializable)
+        callbacks.emplace( TypeTrait<std::string>::id, TypeTrait<std::string>::Deserialize );
 }
 
 sys_sage::TypeRegistry &sys_sage::TypeRegistry::Instance()
