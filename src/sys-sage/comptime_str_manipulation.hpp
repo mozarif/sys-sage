@@ -10,6 +10,10 @@
  * We have made slight modifications to the code (such as removing the delimiter and changing the namespace) and further extended it with the latter functionality.
  */
 
+#include <algorithm>
+#include <cstddef>
+#include <ranges>
+
 namespace sys_sage {
     /*
      * @private

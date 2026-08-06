@@ -1,16 +1,13 @@
 #ifndef SYS_SAGE_SRC_ATTRIBUTE_HPP
 #define SYS_SAGE_SRC_ATTRIBUTE_HPP
 
-#include <nlohmann/json.hpp>
 #include <sys-sage/comptime_str_manipulation.hpp>
-#include <algorithm>
+#include <nlohmann/json.hpp>
 #include <array>
 #include <concepts>
-#include <cstddef>
 #include <map>
 #include <memory>
 #include <optional>
-#include <ranges>
 #include <string>
 #include <string_view>
 #include <tuple>
