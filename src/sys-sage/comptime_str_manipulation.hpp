@@ -60,6 +60,15 @@ namespace sys_sage {
     }
 
     /*
+     * @brief Simply returns the string literal back.
+     */
+    template <CompStr compStr>
+    consteval decltype(auto) CompStrCat() noexcept
+    {
+        return CompStrToLiteral<compStr>();
+    }
+
+    /*
      * @brief Returns the concatenation of two string literals at compile time.
      *        It forms the base case of the recursive string literal concatenation.
      */
