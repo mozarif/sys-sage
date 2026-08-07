@@ -48,8 +48,8 @@
 namespace sys_sage {                                                              \
     template <bool b>                                                             \
     struct TypeTrait<__VA_ARGS__, b> {                                            \
-        static constexpr bool serializable = HasToJson<__VA_ARGS__>;              \
-        static constexpr bool deserializable = HasFromJson<__VA_ARGS__>;          \
+        static constexpr bool serializable = IsSerializable<__VA_ARGS__>;         \
+        static constexpr bool deserializable = IsDeserializable<__VA_ARGS__>;     \
                                                                                   \
         static constexpr decltype(auto) id = SYS_SAGE_STRINGIFY(__VA_ARGS__);     \
                                                                                   \
@@ -67,8 +67,8 @@ namespace sys_sage {                                                            
 namespace sys_sage {                                                                                                                \
     template <SYS_SAGE_MAP_TYPENAME(__VA_ARGS__), bool b>                                                                           \
     struct TypeTrait<type<__VA_ARGS__>, b> {                                                                                        \
-        static constexpr bool serializable = HasToJson<type<__VA_ARGS__>>;                                                          \
-        static constexpr bool deserializable = HasFromJson<type<__VA_ARGS__>>;                                                      \
+        static constexpr bool serializable = IsSerializable<type<__VA_ARGS__>>;                                                     \
+        static constexpr bool deserializable = IsDeserializable<type<__VA_ARGS__>>;                                                 \
                                                                                                                                     \
         static constexpr decltype(auto) id = CompStrCat<SYS_SAGE_STRINGIFY(type), "<", SYS_SAGE_MAP_TYPETRAIT(__VA_ARGS__), ">">(); \
                                                                                                                                     \
@@ -86,8 +86,8 @@ namespace sys_sage {                                                            
 namespace sys_sage {                                                                       \
     template <bool b>                                                                      \
     struct TypeTrait<__VA_ARGS__, b> {                                                     \
-        static constexpr bool serializable = HasToJson<__VA_ARGS__>;                       \
-        static constexpr bool deserializable = HasFromJson<__VA_ARGS__>;                   \
+        static constexpr bool serializable = IsSerializable<__VA_ARGS__>;                  \
+        static constexpr bool deserializable = IsDeserializable<__VA_ARGS__>;              \
                                                                                            \
         static constexpr decltype(auto) id = SYS_SAGE_STRINGIFY(__VA_ARGS__);              \
                                                                                            \
@@ -120,8 +120,8 @@ namespace sys_sage {                                                            
 namespace sys_sage {                                                                                                                \
     template <SYS_SAGE_MAP_TYPENAME(__VA_ARGS__), bool b>                                                                           \
     struct TypeTrait<type<__VA_ARGS__>, b> {                                                                                        \
-        static constexpr bool serializable = HasToJson<type<__VA_ARGS__>>;                                                          \
-        static constexpr bool deserializable = HasFromJson<type<__VA_ARGS__>>;                                                      \
+        static constexpr bool serializable = IsSerializable<type<__VA_ARGS__>>;                                                     \
+        static constexpr bool deserializable = IsDeserializable<type<__VA_ARGS__>>;                                                 \
                                                                                                                                     \
         static constexpr decltype(auto) id = CompStrCat<SYS_SAGE_STRINGIFY(type), "<", SYS_SAGE_MAP_TYPETRAIT(__VA_ARGS__), ">">(); \
                                                                                                                                     \
@@ -148,19 +148,73 @@ namespace sys_sage {                                                            
     };                                                                                                                              \
 }
 
+// blacklists the specified type from JSON serialization
+#define SYS_SAGE_BLACKLIST_TYPE_FROM_SERIALIZATION(...)                     \
+namespace sys_sage {                                                        \
+    template <>                                                             \
+    struct IsBlacklistedFromSerialization<__VA_ARGS__> : std::true_type {}; \
+}
+
+// blacklists the specified type from JSON deserialization
+#define SYS_SAGE_BLACKLIST_TYPE_FROM_DESERIALIZATION(...)                     \
+namespace sys_sage {                                                          \
+    template <>                                                               \
+    struct IsBlacklistedFromDeserialization<__VA_ARGS__> : std::true_type {}; \
+}
+
+// blacklists the specified templated type from JSON serialization
+#define SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_SERIALIZATION(type, ...)           \
+namespace sys_sage {                                                              \
+    template <SYS_SAGE_MAP_TYPENAME(__VA_ARGS__)>                                 \
+    struct IsBlacklistedFromSerialization<type<__VA_ARGS__>> : std::true_type {}; \
+}
+
+// blacklists the specified templated type from JSON deserialization
+#define SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_DESERIALIZATION(type, ...)           \
+namespace sys_sage {                                                                \
+    template <SYS_SAGE_MAP_TYPENAME(__VA_ARGS__)>                                   \
+    struct IsBlacklistedFromDeserialization<type<__VA_ARGS__>> : std::true_type {}; \
+}
+
 namespace sys_sage {
     /**
-     * @brief A concept for checking if a type supports JSON serialization.
+     * @brief A concept for checking if a `to_json` function exists for the given type.
      */
     template <typename T>
     concept HasToJson = requires (nlohmann::json &obj, const T &attr) { nlohmann::adl_serializer<T>::to_json(obj, attr); };
 
     /**
-     * @brief A concept for checking if a type supports JSON deserialization.
+     * @brief A concept for checking if a `from_json` function exists for the given type.
      */
     template <typename T>
     concept HasFromJson = requires (const nlohmann::json &obj, T &attr) { nlohmann::adl_serializer<T>::from_json(obj, attr); }
                        || requires (const nlohmann::json &obj) { { nlohmann::adl_serializer<T>::from_json(obj) } -> std::same_as<T>; };
+
+    /**
+     * @brief Blacklists types that do not support JSON serialization, even though a `to_json` function exists.
+     *        It is used to circumvent a bug in nlohmann-json.
+     */
+    template <typename T>
+    struct IsBlacklistedFromSerialization : std::false_type {};
+
+    /**
+     * @brief Blacklists types that do not support JSON deserialization, even though a `from_json` function exists.
+     *        It is used to circumvent a bug in nlohmann-json.
+     */
+    template <typename T>
+    struct IsBlacklistedFromDeserialization : std::false_type {};
+
+    /**
+     * @brief A concept for checking if a type supports JSON serialization.
+     */
+    template <typename T>
+    concept IsSerializable = !IsBlacklistedFromSerialization<T>::value && HasToJson<T>;
+
+    /**
+     * @brief A concept for checking if a type supports JSON deserialization.
+     */
+    template <typename T>
+    concept IsDeserializable = !IsBlacklistedFromDeserialization<T>::value && HasFromJson<T>;
 
     /**
      * @class IAttribute
@@ -292,8 +346,8 @@ namespace sys_sage {
      */
     template <typename T, bool b = true>
     struct TypeTrait {
-        static constexpr bool serializable = HasToJson<T>;
-        static constexpr bool deserializable = HasFromJson<T>;
+        static constexpr bool serializable = IsSerializable<T>;
+        static constexpr bool deserializable = IsDeserializable<T>;
 
         static constexpr decltype(auto) id = CompStrExtract<T>();
 
@@ -350,6 +404,20 @@ SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::allocator, T)
 SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::less, Key)
 SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::hash, Key)
 SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::equal_to, Key)
+
+///////////////////////////////////////////////////////////////////////////////
+/////////////////////////// BLACKLIST SOME TYPES //////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+namespace sys_sage {
+    template <typename Key, typename T, typename Compare, typename Allocator>
+    struct IsBlacklistedFromDeserialization<std::multimap<Key, T, Compare, Allocator>> : std::bool_constant<!std::same_as<Key, std::string>> {};
+}
+
+namespace sys_sage {
+    template <typename Key, typename T, typename Hash, typename KeyEqual, typename Allocator>
+    struct IsBlacklistedFromDeserialization<std::unordered_multimap<Key, T, Hash, KeyEqual, Allocator>> : std::bool_constant<!std::same_as<Key, std::string>> {};
+}
 
 #include <sys-sage/attribute.inl>
 
