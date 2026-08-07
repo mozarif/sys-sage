@@ -132,7 +132,7 @@ void sys_sage::DumpJson(const Component *component, json &obj)
             auto &relations = comp->GetRelationsByType(relationType);
             for (auto relation : relations) {
                 // print each relation once
-                if (relation->GetComponent(0) != component)
+                if (relation->GetComponent(0) != comp)
                     continue;
 
                 bool inSubtree = true;
@@ -167,7 +167,7 @@ int sys_sage::DumpJson(const Component *component,
             std::cerr << "Failed to write to " << path << "\n";
             return 1;
         }
-        stream << obj.dump(2) << std::endl;
+        stream << obj.dump(4) << std::endl;
     }
 
     return 0;
