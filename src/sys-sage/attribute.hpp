@@ -14,32 +14,6 @@
 #include <unordered_map>
 #include <vector>
 
-#define SYS_SAGE_PARENTHESES ()
-
-// recursively expands the macro 128 times
-#define SYS_SAGE_EXPAND_128(...) SYS_SAGE_EXPAND_64(SYS_SAGE_EXPAND_64(__VA_ARGS__))
-#define SYS_SAGE_EXPAND_64(...) SYS_SAGE_EXPAND_32(SYS_SAGE_EXPAND_32(__VA_ARGS__))
-#define SYS_SAGE_EXPAND_32(...) SYS_SAGE_EXPAND_16(SYS_SAGE_EXPAND_16(__VA_ARGS__))
-#define SYS_SAGE_EXPAND_16(...) SYS_SAGE_EXPAND_8(SYS_SAGE_EXPAND_8(__VA_ARGS__))
-#define SYS_SAGE_EXPAND_8(...) SYS_SAGE_EXPAND_4(SYS_SAGE_EXPAND_4(__VA_ARGS__))
-#define SYS_SAGE_EXPAND_4(...) SYS_SAGE_EXPAND_2(SYS_SAGE_EXPAND_2(__VA_ARGS__))
-#define SYS_SAGE_EXPAND_2(...) SYS_SAGE_EXPAND_1(SYS_SAGE_EXPAND_1(__VA_ARGS__))
-#define SYS_SAGE_EXPAND_1(...) __VA_ARGS__
-
-// applies the map `x -> typename x` to every argument of the macro
-// the maximum number of supported macro arguments is 128
-#define SYS_SAGE_MAP_TYPENAME(...) __VA_OPT__(SYS_SAGE_EXPAND_128(SYS_SAGE_MAP_TYPENAME_INTERNAL(__VA_ARGS__)))
-#define SYS_SAGE_MAP_TYPENAME_INTERNAL(arg, ...) SYS_SAGE_TYPENAME(arg)__VA_OPT__(, SYS_SAGE_MAP_TYPENAME_INTERNAL_AGAIN SYS_SAGE_PARENTHESES (__VA_ARGS__))
-#define SYS_SAGE_MAP_TYPENAME_INTERNAL_AGAIN() SYS_SAGE_MAP_TYPENAME_INTERNAL
-#define SYS_SAGE_TYPENAME(x) typename x
-
-// applies the map `x -> TypeTrait<x, false>::id` to every argument of the macro
-// the maximum number of supported macro arguments is 128
-#define SYS_SAGE_MAP_TYPETRAIT(...) __VA_OPT__(SYS_SAGE_EXPAND_128(SYS_SAGE_MAP_TYPETRAIT_INTERNAL(__VA_ARGS__)))
-#define SYS_SAGE_MAP_TYPETRAIT_INTERNAL(arg, ...) SYS_SAGE_TYPETRAIT(arg)__VA_OPT__(, ", ", SYS_SAGE_MAP_TYPETRAIT_INTERNAL_AGAIN SYS_SAGE_PARENTHESES (__VA_ARGS__))
-#define SYS_SAGE_MAP_TYPETRAIT_INTERNAL_AGAIN() SYS_SAGE_MAP_TYPETRAIT_INTERNAL
-#define SYS_SAGE_TYPETRAIT(x) TypeTrait<x, false>::id
-
 #define SYS_SAGE_STRINGIFY(...) #__VA_ARGS__
 
 // Generates meta information for the specified type
@@ -61,18 +35,52 @@ namespace sys_sage {                                                            
     };                                                                            \
 }
 
+// Generates meta information for the specified type
+// REGISTERS THE TYPE
+#define SYS_SAGE_REGISTER_TYPE_TRAIT(...)                                         \
+namespace sys_sage {                                                              \
+    template <bool b>                                                             \
+    struct TypeTrait<__VA_ARGS__, b> {                                            \
+        static constexpr bool serializable = IsSerializable<__VA_ARGS__>;         \
+        static constexpr bool deserializable = IsDeserializable<__VA_ARGS__>;     \
+                                                                                  \
+        static constexpr decltype(auto) id = SYS_SAGE_STRINGIFY(__VA_ARGS__);     \
+                                                                                  \
+        template <typename U = __VA_ARGS__> requires (deserializable)             \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
+        {                                                                         \
+            return std::make_unique<Attribute<U>>(obj.get<U>());                  \
+        }                                                                         \
+                                                                                  \
+        template <typename U = __VA_ARGS__>                                       \
+        inline static const auto registrar = []                                   \
+        {                                                                         \
+            if constexpr (b && serializable && deserializable)                    \
+                TypeRegistry::Instance().Register(id, Deserialize);               \
+            return std::tuple<>{};                                                \
+        }();                                                                      \
+                                                                                  \
+        __attribute__((used, retain))                                             \
+        static void UseRegistrar()                                                \
+        {                                                                         \
+            if constexpr (b && serializable && deserializable)                    \
+                (void) registrar<__VA_ARGS__>;                                    \
+        }                                                                         \
+    };                                                                            \
+}
+
 // Generates meta information for the specified templated type
 // DOES NOT REGISTER THE TEMPLATED TYPE
-#define SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(type, ...)                                                                         \
+#define SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(type)                                                                              \
 namespace sys_sage {                                                                                                                \
-    template <SYS_SAGE_MAP_TYPENAME(__VA_ARGS__), bool b>                                                                           \
-    struct TypeTrait<type<__VA_ARGS__>, b> {                                                                                        \
-        static constexpr bool serializable = IsSerializable<type<__VA_ARGS__>>;                                                     \
-        static constexpr bool deserializable = IsDeserializable<type<__VA_ARGS__>>;                                                 \
+    template <typename... Ts, bool b>                                                                                               \
+    struct TypeTrait<type<Ts...>, b> {                                                                                              \
+        static constexpr bool serializable = IsSerializable<type<Ts...>>;                                                           \
+        static constexpr bool deserializable = IsDeserializable<type<Ts...>>;                                                       \
                                                                                                                                     \
-        static constexpr decltype(auto) id = CompStrCat<SYS_SAGE_STRINGIFY(type), "<", SYS_SAGE_MAP_TYPETRAIT(__VA_ARGS__), ">">(); \
+        static constexpr decltype(auto) id = CompStrCat<SYS_SAGE_STRINGIFY(type), "<", CompStrCatVariadicTemplate<Ts...>(), ">">(); \
                                                                                                                                     \
-        template <typename U = type<__VA_ARGS__>> requires (deserializable)                                                         \
+        template <typename U = type<Ts...>> requires (deserializable)                                                               \
         static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                                                   \
         {                                                                                                                           \
             return std::make_unique<Attribute<U>>(obj.get<U>());                                                                    \
@@ -80,58 +88,24 @@ namespace sys_sage {                                                            
     };                                                                                                                              \
 }
 
-// Generates meta information for the specified type
-// REGISTERS THE TYPE
-#define SYS_SAGE_REGISTER_TYPE_TRAIT(...)                                                  \
-namespace sys_sage {                                                                       \
-    template <bool b>                                                                      \
-    struct TypeTrait<__VA_ARGS__, b> {                                                     \
-        static constexpr bool serializable = IsSerializable<__VA_ARGS__>;                  \
-        static constexpr bool deserializable = IsDeserializable<__VA_ARGS__>;              \
-                                                                                           \
-        static constexpr decltype(auto) id = SYS_SAGE_STRINGIFY(__VA_ARGS__);              \
-                                                                                           \
-        template <typename U = __VA_ARGS__> requires (deserializable)                      \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)          \
-        {                                                                                  \
-            return std::make_unique<Attribute<U>>(obj.get<U>());                           \
-        }                                                                                  \
-                                                                                           \
-        template <typename U = __VA_ARGS__>                                                \
-        inline static const auto registrar = []                                            \
-        {                                                                                  \
-            if constexpr (b && serializable && deserializable)                             \
-                TypeRegistry::Instance().Register(id, Deserialize);                        \
-            return std::tuple<>{};                                                         \
-        }();                                                                               \
-                                                                                           \
-        __attribute__((used, retain))                                                      \
-        static void UseRegistrar()                                                         \
-        {                                                                                  \
-            if constexpr (b && serializable && deserializable)                             \
-                (void) registrar<__VA_ARGS__>;                                             \
-        }                                                                                  \
-    };                                                                                     \
-}
-
 // Generates meta information for the specified templated type
 // ONLY REGISTERS A FULLY INSTANTIATED TEMPLATED TYPE
-#define SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(type, ...)                                                                           \
+#define SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(type)                                                                                \
 namespace sys_sage {                                                                                                                \
-    template <SYS_SAGE_MAP_TYPENAME(__VA_ARGS__), bool b>                                                                           \
-    struct TypeTrait<type<__VA_ARGS__>, b> {                                                                                        \
-        static constexpr bool serializable = IsSerializable<type<__VA_ARGS__>>;                                                     \
-        static constexpr bool deserializable = IsDeserializable<type<__VA_ARGS__>>;                                                 \
+    template <typename... Ts, bool b>                                                                                               \
+    struct TypeTrait<type<Ts...>, b> {                                                                                              \
+        static constexpr bool serializable = IsSerializable<type<Ts...>>;                                                           \
+        static constexpr bool deserializable = IsDeserializable<type<Ts...>>;                                                       \
                                                                                                                                     \
-        static constexpr decltype(auto) id = CompStrCat<SYS_SAGE_STRINGIFY(type), "<", SYS_SAGE_MAP_TYPETRAIT(__VA_ARGS__), ">">(); \
+        static constexpr decltype(auto) id = CompStrCat<SYS_SAGE_STRINGIFY(type), "<", CompStrCatVariadicTemplate<Ts...>(), ">">(); \
                                                                                                                                     \
-        template <typename U = type<__VA_ARGS__>> requires (deserializable)                                                         \
+        template <typename U = type<Ts...>> requires (deserializable)                                                               \
         static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                                                   \
         {                                                                                                                           \
             return std::make_unique<Attribute<U>>(obj.get<U>());                                                                    \
         }                                                                                                                           \
                                                                                                                                     \
-        template <typename U = type<__VA_ARGS__>>                                                                                   \
+        template <typename U = type<Ts...>>                                                                                         \
         inline static const auto registrar = []                                                                                     \
         {                                                                                                                           \
             if constexpr (b && serializable && deserializable)                                                                      \
@@ -143,7 +117,7 @@ namespace sys_sage {                                                            
         static void UseRegistrar()                                                                                                  \
         {                                                                                                                           \
             if constexpr (b && serializable && deserializable)                                                                      \
-                (void) registrar<type<__VA_ARGS__>>;                                                                                \
+                (void) registrar<type<Ts...>>;                                                                                      \
         }                                                                                                                           \
     };                                                                                                                              \
 }
@@ -163,17 +137,17 @@ namespace sys_sage {                                                          \
 }
 
 // blacklists the specified templated type from JSON serialization
-#define SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_SERIALIZATION(type, ...)           \
-namespace sys_sage {                                                              \
-    template <SYS_SAGE_MAP_TYPENAME(__VA_ARGS__)>                                 \
-    struct IsBlacklistedFromSerialization<type<__VA_ARGS__>> : std::true_type {}; \
+#define SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_SERIALIZATION(type)          \
+namespace sys_sage {                                                        \
+    template <typename... Ts>                                               \
+    struct IsBlacklistedFromSerialization<type<Ts...>> : std::true_type {}; \
 }
 
 // blacklists the specified templated type from JSON deserialization
-#define SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_DESERIALIZATION(type, ...)           \
-namespace sys_sage {                                                                \
-    template <SYS_SAGE_MAP_TYPENAME(__VA_ARGS__)>                                   \
-    struct IsBlacklistedFromDeserialization<type<__VA_ARGS__>> : std::true_type {}; \
+#define SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_DESERIALIZATION(type)          \
+namespace sys_sage {                                                          \
+    template <typename... Ts>                                                 \
+    struct IsBlacklistedFromDeserialization<type<Ts...>> : std::true_type {}; \
 }
 
 namespace sys_sage {
@@ -372,6 +346,30 @@ namespace sys_sage {
                 (void) registrar<T>;
         }
     };
+
+    template <CompStr compStr>
+    consteval decltype(auto) CompStrCatVariadicTemplate()
+    {
+        return CompStrToLiteral<compStr>();
+    }
+
+    template <CompStr compStr, typename T, typename... Ts>
+    consteval decltype(auto) CompStrCatVariadicTemplate()
+    {
+        return CompStrCatVariadicTemplate<CompStrCat<compStr, ", ", TypeTrait<T, false>::id>(), Ts...>();
+    }
+
+    template <typename T, typename... Ts>
+    consteval decltype(auto) CompStrCatVariadicTemplate()
+    {
+        return CompStrCatVariadicTemplate<TypeTrait<T, false>::id, Ts...>();
+    }
+
+    template <typename... Ts> requires (sizeof...(Ts) == 0)
+    consteval decltype(auto) CompStrCatVariadicTemplate()
+    {
+        return "";
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -395,15 +393,31 @@ SYS_SAGE_SPECIALIZE_TYPE_TRAIT(double)
 SYS_SAGE_SPECIALIZE_TYPE_TRAIT(long double)
 SYS_SAGE_SPECIALIZE_TYPE_TRAIT(std::string)
 
-SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(std::vector, T, Allocator)
-SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(std::map, Key, T, Compare, Allocator)
-SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(std::unordered_map, Key, T, Hash, KeyEqual, Allocator)
-SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(std::pair, T1, T2)
+SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(std::vector)
+SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(std::map)
+SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(std::unordered_map)
+SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(std::tuple)
 
-SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::allocator, T)
-SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::less, Key)
-SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::hash, Key)
-SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::equal_to, Key)
+SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::allocator)
+SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::less)
+SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::hash)
+SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::equal_to)
+
+namespace sys_sage {
+    template <typename T1, typename T2, bool b>
+    struct TypeTrait<std::pair<const T1, T2>, b> {
+        static constexpr bool serializable = IsSerializable<std::pair<const T1, T2>>;
+        static constexpr bool deserializable = IsDeserializable<std::pair<const T1, T2>>;
+
+        static constexpr decltype(auto) id = CompStrCat<"std::pair<const ", TypeTrait<T1, false>::id, ", ", TypeTrait<T2, false>::id, ">">();
+
+        template <typename U = std::pair<const T1, T2>> requires (deserializable)
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
+        {
+            return std::make_unique<Attribute<U>>(obj.get<U>());
+        }
+    };
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /////////////////////////// BLACKLIST SOME TYPES //////////////////////////////
