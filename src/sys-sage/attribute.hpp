@@ -183,6 +183,8 @@ namespace sys_sage {                                                            
     };                                                                                                                              \
 }
 
+// Generates COMPILER-SPECIFIC meta information for the specified type
+// DOES NOT REGISTER THE TYPE
 #define SYS_SAGE_SPECIALIZE_TYPE_TRAIT_NON_PORTABLE(...)                          \
 namespace sys_sage {                                                              \
     template <>                                                                   \
@@ -206,6 +208,8 @@ namespace sys_sage {                                                            
     };                                                                            \
 }
 
+// Generates COMPILER-SPECIFIC meta information for the specified type
+// REGISTERS THE TYPE
 #define SYS_SAGE_REGISTER_TYPE_TRAIT_NON_PORTABLE(...)                                \
 namespace sys_sage {                                                                  \
     template <>                                                                       \
@@ -242,6 +246,8 @@ namespace sys_sage {                                                            
     };                                                                                \
 }
 
+// Generates COMPILER-SPECIFIC meta information for the specified templated type
+// DOES NOT REGISTER THE TEMPLATED TYPE
 #define SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT_NON_PORTABLE(type, ...)                                        \
 namespace sys_sage {                                                                                            \
     template <SYS_SAGE_MAP_UNPACK(__VA_ARGS__)>                                                                 \
@@ -265,6 +271,8 @@ namespace sys_sage {                                                            
     };                                                                                                          \
 }
 
+// Generates COMPILER-SPECIFIC meta information for the specified templated type
+// ONLY REGISTERS A FULLY INSTANTIATED TEMPLATED TYPE
 #define SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT_NON_PORTABLE(type, ...)                                          \
 namespace sys_sage {                                                                                            \
     template <SYS_SAGE_MAP_UNPACK(__VA_ARGS__)>                                                                 \
@@ -541,7 +549,7 @@ namespace sys_sage {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/////////////// SOME OUT-OF-THE-BOX TYPE TRAIT SPECIALIZATIONS ////////////////
+////// SOME OUT-OF-THE-BOX TYPE TRAIT SPECIALIZATIONS AND REGISTRATIONS ///////
 ///////////////////////////////////////////////////////////////////////////////
 
 SYS_SAGE_SPECIALIZE_TYPE_TRAIT(bool)
