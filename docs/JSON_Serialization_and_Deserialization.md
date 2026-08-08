@@ -194,6 +194,7 @@ Both generate some meta information that is used to register a type **implicitly
 The latter macro is intended for generating meta information for templated types like `std::vector<T>`, such that one only has to specify it once and _sys-sage_ knows how to register `std::vector<int>`, `std::vector<std::string>` or any other `T`.
 Alternatively, one can register a fully instantiated templated type directly.
 Registration is not limited to the number of template arguments, meaning that we also support variadic template arguments.
+Moreover, we do not distinguish between templated arguments with or with default values.
 The `SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT` macro should only be used for types that only take **typed template arguments**.
 Refer to the sections below for non-typed template arguments.
 Some basic usage is shown here:
@@ -398,8 +399,166 @@ As mentioned before, `SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(FooBar::Bar)` will 
 Implicit registration of a particual instance of the templated type, e.g. `FooBar::Bar<int, double>` with `T1 = int` and `T2 = double`, only happens if that instance was **referenced** in any of the attributes.
 Since the above example never uses an attribute of type `FooBar::Bar<int, double>`, it will not be registered, hence the attribute from the `topo.json` file will not be deserialized.
 This behavior is valid, because we don't have to deserialize an attribute if it is never used.
-If you were to rely on explicit registration or directly registered the particular instance via `SYS_SAGE_REGISTER_TYPE_TRAIT(FooBar::Bar<int, double>)` instead, deserialization would happen in this case.
+If you were to use the attribute somewhere, e.g. `comp->GetAttribute<FooBar::Bar<int, double>>("bar")`, or rely on explicit registration or directly registered the particular instance via `SYS_SAGE_REGISTER_TYPE_TRAIT(FooBar::Bar<int, double>)` instead, deserialization would happen in this case.
 
 Another important aspect is where to put the macros.
 In a nutshell, we recommend placing the macros used for specializing/registering a (templated) type in the file in which the (templated) type is defined. e.g. the header file.
-If this is not possible, e.g. you want to register a type from a third-party library, then create a new header file that contains all specialization/registration macros and include that header whenever you reference the (templated) type through an attribute, i.e. when inserting/updating/retrieving an attribute of that type.
+If this is not possible, then create a new header file that contains all specialization/registration macros and include that header whenever you reference the (templated) type through an attribute, i.e. when inserting/updating/retrieving/serializing/deserializing an attribute of that type.
+
+### Meta Information
+
+One can retrieve meta information about a type `T` of an attribute by using fields of the `sys_sage::TypeTrait` struct.
+The relevant fields are
+
+| struct field | meta information |
+| ------------ | ---------------- |
+| sys_sage::TypeTrait<T>::serializable | A bool that indicates whether `T` is eligible for serialization |
+| sys_sage::TypeTrait<T>::deserializable | A bool that indicates whether `T` is eligible for deserialization |
+| sys_sage::TypeTrait<T>::id | A unique string literal representing `T` that is used for distinguishing types during deserialization |
+
+All fields are `constexpr` and can be use for debugging purposes.
+
+### False Positives & Blacklisted Types
+
+Both `sys_sage::TypeTrait<T>::serializable` and `sys_sage::TypeTrait<T>::deserializable` can sometimes yield false positives.
+This can result in a huge compilation errors in which the meta data generated for a specialized/register (templated) type indicates that it can be serialized/deserialized, but the compiler fails to generate the corresponding code for serialization/deserialization due to some internal implementation within `nlohmann-json`.
+The only workaround we found was to explicitly blacklist some (templated) types either from serialization or deserialization.
+_sys-sage_ has blacklisted the following types
+
+| blacklisted (templated) types | blacklisted from |
+| std::multimap where the key is not an std::string | deserialization |
+| std::unordered_multimap where the key is not an std::string | deserialization |
+
+If you encounter any such compilation errors when specializing/registering a type `T`, try to identify the false positive.
+To check whether serialization of `T` is the problem, try to compile
+
+```cpp
+if constexpr (sys_sage::TypeTrait<T>::serializable) {
+    T t;
+    nlohmann::json obj = t;
+}
+```
+
+If this doesn't compile, try to blacklist `T` from serialization and check if the compilation error still persists (or you might as well not register `T`).
+For deserialization, try to compile
+
+```cpp
+T t1;
+nlohmann::json obj = t1;
+if constexpr (sys_sage::TypeTrait<T>::deserializable) {
+    T t2 = obj.get<T>();
+}
+```
+
+To blacklist a (templated) type, use the macros
+
+| macros for blacklisting |
+| ----------------------- |
+| SYS_SAGE_BLACKLIST_TYPE_FROM_SERIALIZATION |
+| SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_SERIALIZATION |
+| SYS_SAGE_BLACKLIST_TYPE_FROM_DESERIALIZATION |
+| SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_DESERIALIZATION |
+
+where you specify the types in the same way as with the macros used for specialization/registration.
+
+To check if a (templated) type is blacklisted, use
+
+| macros for blacklisting |
+| ----------------------- |
+| sys_sage::IsBlacklistedFromSerialization<T>::value |
+| sys_sage::IsBlacklistedFromDeserialization<T>::value |
+
+Sometimes a type should only be blacklisted under certain conditions.
+This way one can still register and serialize/deserialize the type under certain conditions and simply disable it in others while avoiding compilation errors.
+For instance, _sys-sage_ has blacklisted both `std::multimap` and `std::unordered_multimap` in case the key is not an `std::string`.
+You can have have a look at the following example to implement your own predicate for conditional blacklisting:
+
+```cpp
+namespace sys_sage
+{
+    template </* possible template arguments of your (templated) type */>
+    struct IsBlacklistedFromDeserialization</* your (templated) type */> : std::bool_constant</* your predicate */> {};
+}
+```
+
+### Non-typed Template Arguments
+
+First of all, one can specialize/register every fully instantiated instance of the templated type explicitly.
+Let's consider `std::array<typename T, std::size_t N>` for example. We can identify every instance needed an register everything manually:
+
+```cpp
+SYS_SAGE_REGISTER_TYPE_TRAIT(std::array<int, 3>)
+SYS_SAGE_REGISTER_TYPE_TRAIT(std::array<int, 4>)
+SYS_SAGE_REGISTER_TYPE_TRAIT(std::array<std::string, 4>)
+...
+```
+
+In order to register a templated type in a similar fashion to `SYS_SAGE_REGISTER_TYPE_TRAIT`, where you only have to specify the templated type once and all specific instances will be handled automatically, one needs to rely on **non-portable** functionalities that depend on the compiler.
+The relevant macros are
+
+| macros for implicit/explicit non-portable type registry |
+| ------------------------------------------------------- |
+| SYS_SAGE_SPECIALIZE_TYPE_TRAIT_NON_PORTABLE |
+| SYS_SAGE_REGISTER_TYPE_TRAIT_NON_PORTABLE |
+| SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT_NON_PORTABLE |
+| SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT_NON_PORTABLE |
+
+Both `SYS_SAGE_SPECIALIZE_TYPE_TRAIT_NON_PORTABLE` and `SYS_SAGE_REGISTER_TYPE_TRAIT_NON_PORTABLE` are usually not needed, but provided nevertheless for completeness sake.
+To register `std::array<typename T, std::size_t N>`, we would do
+
+```cpp
+SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT_NON_PORTABLE(std::array, (typename, T), (std::size_t, N))
+```
+
+Note that we have to specify each template argument in a pair to indicate whether it is a typed or non-typed template argument.
+Both `SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT_NON_PORTABLE` and `SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT_NON_PORTABLE` can support up to 128 template arguments.
+
+Since these macros use compiler-specific information to generate the meta data, JSON that was dumped by a program compiled with one compiler may not be deserializable by a program compiled with another compiler.
+Use these macros at your own risk.
+As a general rule of thumb, if you consistently use the same compiler and the same versions, you have nothing to worry about.
+If the versions don't match or if you use different compilers, it is worth checking if the different compilers generate compatible meta data.
+For that, simply check whether the compilers output the same `sys_sage::TypeTrait<T>::id` for the type `T`.
+Discrepencies often only occur between entirely different compilers (e.g. gcc vs clang) on types from the STL.
+User-defined types should generally not pose any problems and differences between different compiler versions is very unlikely.
+
+### Python Bindings
+
+As of now, only a selected few types are supported for serializing/deserializing attributes, as specified by the `pybind11-json` library.
+These types include
+
+| supported types in Python |
+| ------------------------- |
+| None |
+| bool |
+| int |
+| float |
+| str |
+| tuple |
+| list |
+| dict |
+
+User-defined types are currently excluded.
+We are working on a solution for this.
+In the meantime, one can instead use a dictionary representing the object of a user-defined type, e.g.
+
+```Python
+import py_sys_sage as pysage
+
+class Foo:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def PrintFoo(self):
+        print(f"Foo: {self.x}, {self.y}")
+
+comp = pysage.Component()
+comp.SetAttribute("foo", Foo(x, y).__dict__)
+
+foo = Foo(**comp.GetAttribute("foo"))
+foo.PrintFoo()
+```
+
+### Generating Meta Data for Custom Type Specializations & Registrations
+
+TODO.

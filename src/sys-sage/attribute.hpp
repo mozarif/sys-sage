@@ -44,10 +44,15 @@
 #define SYS_SAGE_UNPACK_SECOND_INTERNAL(x, y) y
 
 // DEVELOPER NOTE:
-//     In the following macros, we have 2 versions of the `Deserialize` method each.
-//     The reason is that we want to avoid nasty compilation errors when a (templated) type is specialized/registered even though it does not support deserialization.
-//     This is useful in cases such as the multimap, where only a subset of multimaps is eligible for deserialization (see blacklist at the bottom).
-//     If a multimap is not eligible, we want the user to still be able to insert a non-eligible multimap into the attributes map while simultaneously registering other eligible multimaps.
+//     All `SYS_SAGE_REGISTER...` macros rely on a side effects to register a type at program start through static initialization of the `registered` member variable.
+//     In order for this to happen, the compiler needs to emit the necessary code.
+//     After a lot of tweaking (see __attribute__((used, retain)) UseRegistrar), both gcc and clang emit the code successfully.
+//     However, emitting code for registering a type `T` of an attribute `Attribute<T>` is only triggered when the compiler instantiates the corresponding `TypeTrait<T>`.
+//     After using a hack (see Component.inl and Relation.inl), both gcc and clang trigger instantiation of `TypeTrait<T>` whenever we insert/update/retrieve/serialize an `Attribute<T>`.
+//     A type `T` is only registered once at most.
+//
+//     -> this functionality has been designed with a lot of nuances and intricacies in mind with respect to code generation and template instantiation performed by the compiler.
+//     -> MODIFICATIONS TO THE CODE SHOULD BE DONE WITH CARE!
 
 // DEVELOPER NOTE:
 //     DO NOT CHANGE THE DEFINITION OF THE `registered` variable inside of the macros.
@@ -56,6 +61,12 @@
 // DEVELOPER NOTE:
 //     DO NOT CHANGE THE DEFINITION OF THE `UseRegistered` method inside of the macros.
 //     It forces clang to emit code for the `registered` variable.
+
+// DEVELOPER NOTE:
+//     In the following macros, we have 2 versions of the `Deserialize` method each.
+//     The reason is that we want to avoid nasty compilation errors when a (templated) type is specialized/registered even though it does not support deserialization.
+//     This is useful in cases such as the multimap, where only a subset of multimaps is eligible for deserialization (see blacklist at the bottom).
+//     If a multimap is not eligible, we want the user to still be able to insert a non-eligible multimap into the attributes map while simultaneously registering other eligible multimaps.
 
 // Generates meta information for the specified type
 // DOES NOT REGISTER THE TYPE
