@@ -479,7 +479,7 @@ namespace sys_sage {
         /**
          * @brief Registers a type.
          *
-         * @param id A unique identifier for the `TypeDescriptor`.
+         * @return Returns `true` if registration succeeded, `false` otherwise.
          */
         template <typename T>
         bool Register()
