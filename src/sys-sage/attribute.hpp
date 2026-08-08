@@ -17,6 +17,7 @@
 #define SYS_SAGE_PARENTHESES ()
 #define SYS_SAGE_STRINGIFY(...) #__VA_ARGS__
 
+// recursively expands a macro 128 times
 #define SYS_SAGE_EXPAND_128(...) SYS_SAGE_EXPAND_64(SYS_SAGE_EXPAND_64(__VA_ARGS__))
 #define SYS_SAGE_EXPAND_64(...) SYS_SAGE_EXPAND_32(SYS_SAGE_EXPAND_32(__VA_ARGS__))
 #define SYS_SAGE_EXPAND_32(...) SYS_SAGE_EXPAND_16(SYS_SAGE_EXPAND_16(__VA_ARGS__))
@@ -26,17 +27,35 @@
 #define SYS_SAGE_EXPAND_2(...) SYS_SAGE_EXPAND_1(SYS_SAGE_EXPAND_1(__VA_ARGS__))
 #define SYS_SAGE_EXPAND_1(...) __VA_ARGS__
 
+// applies the map `(x, y) -> x y` to every argument pair of the macro
+// the maximum number of supported macro arguments is 128
 #define SYS_SAGE_MAP_UNPACK(...) SYS_SAGE_EXPAND_128(SYS_SAGE_MAP_UNPACK_INTERNAL(__VA_ARGS__))
 #define SYS_SAGE_MAP_UNPACK_INTERNAL(arg, ...) SYS_SAGE_UNPACK(arg)__VA_OPT__(, SYS_SAGE_MAP_UNPACK_INTERNAL_AGAIN SYS_SAGE_PARENTHESES (__VA_ARGS__))
 #define SYS_SAGE_MAP_UNPACK_INTERNAL_AGAIN() SYS_SAGE_MAP_UNPACK_INTERNAL
 #define SYS_SAGE_UNPACK(pair) SYS_SAGE_UNPACK_INTERNAL pair
 #define SYS_SAGE_UNPACK_INTERNAL(x, y) x y
 
+// applies the map `(x, y) -> y` to every argument pair of the macro
+// the maximum number of supported macro arguments is 128
 #define SYS_SAGE_MAP_UNPACK_SECOND(...) SYS_SAGE_EXPAND_128(SYS_SAGE_MAP_UNPACK_SECOND_INTERNAL(__VA_ARGS__))
 #define SYS_SAGE_MAP_UNPACK_SECOND_INTERNAL(arg, ...) SYS_SAGE_UNPACK_SECOND(arg)__VA_OPT__(, SYS_SAGE_MAP_UNPACK_SECOND_INTERNAL_AGAIN SYS_SAGE_PARENTHESES (__VA_ARGS__))
 #define SYS_SAGE_MAP_UNPACK_SECOND_INTERNAL_AGAIN() SYS_SAGE_MAP_UNPACK_SECOND_INTERNAL
 #define SYS_SAGE_UNPACK_SECOND(pair) SYS_SAGE_UNPACK_SECOND_INTERNAL pair
 #define SYS_SAGE_UNPACK_SECOND_INTERNAL(x, y) y
+
+// DEVELOPER NOTE:
+//     In the following macros, we have 2 versions of the `Deserialize` method each.
+//     The reason is that we want to avoid nasty compilation errors when a (templated) type is specialized/registered even though it does not support deserialization.
+//     This is useful in cases such as the multimap, where only a subset of multimaps is eligible for deserialization (see blacklist at the bottom).
+//     If a multimap is not eligible, we want the user to still be able to insert a non-eligible multimap into the attributes map while simultaneously registering other eligible multimaps.
+
+// DEVELOPER NOTE:
+//     DO NOT CHANGE THE DEFINITION OF THE `registered` variable inside of the macros.
+//     For some weird reason, clang refuses to emit the correct code if the call to the type registry is not wrapped inside of a lambda expression.
+
+// DEVELOPER NOTE:
+//     DO NOT CHANGE THE DEFINITION OF THE `UseRegistered` method inside of the macros.
+//     It forces clang to emit code for the `registered` variable.
 
 // Generates meta information for the specified type
 // DOES NOT REGISTER THE TYPE
@@ -54,41 +73,51 @@ namespace sys_sage {                                                            
         {                                                                         \
             return std::make_unique<Attribute<U>>(obj.get<U>());                  \
         }                                                                         \
+                                                                                  \
+        template <typename U = __VA_ARGS__> requires (!deserializable)            \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
+        {                                                                         \
+            return nullptr;                                                       \
+        }                                                                         \
     };                                                                            \
 }
 
 // Generates meta information for the specified type
 // REGISTERS THE TYPE
-#define SYS_SAGE_REGISTER_TYPE_TRAIT(...)                                         \
-namespace sys_sage {                                                              \
-    template <>                                                                   \
-    struct TypeTrait<__VA_ARGS__> {                                               \
-        static constexpr bool serializable = IsSerializable<__VA_ARGS__>;         \
-        static constexpr bool deserializable = IsDeserializable<__VA_ARGS__>;     \
-                                                                                  \
-        static constexpr decltype(auto) id = SYS_SAGE_STRINGIFY(__VA_ARGS__);     \
-                                                                                  \
-        template <typename U = __VA_ARGS__> requires (deserializable)             \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
-        {                                                                         \
-            return std::make_unique<Attribute<U>>(obj.get<U>());                  \
-        }                                                                         \
-                                                                                  \
-        template <typename U = __VA_ARGS__>                                       \
-        inline static const auto registrar = []                                   \
-        {                                                                         \
-            if constexpr (serializable && deserializable)                         \
-                TypeRegistry::Instance().Register(id, Deserialize);               \
-            return std::tuple<>{};                                                \
-        }();                                                                      \
-                                                                                  \
-        __attribute__((used, retain))                                             \
-        static void UseRegistrar()                                                \
-        {                                                                         \
-            if constexpr (serializable && deserializable)                         \
-                (void) registrar<__VA_ARGS__>;                                    \
-        }                                                                         \
-    };                                                                            \
+#define SYS_SAGE_REGISTER_TYPE_TRAIT(...)                                             \
+namespace sys_sage {                                                                  \
+    template <>                                                                       \
+    struct TypeTrait<__VA_ARGS__> {                                                   \
+        static constexpr bool serializable = IsSerializable<__VA_ARGS__>;             \
+        static constexpr bool deserializable = IsDeserializable<__VA_ARGS__>;         \
+                                                                                      \
+        static constexpr decltype(auto) id = SYS_SAGE_STRINGIFY(__VA_ARGS__);         \
+                                                                                      \
+        template <typename U = __VA_ARGS__> requires (deserializable)                 \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)     \
+        {                                                                             \
+            return std::make_unique<Attribute<U>>(obj.get<U>());                      \
+        }                                                                             \
+                                                                                      \
+        template <typename U = __VA_ARGS__> requires (!deserializable)                \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)     \
+        {                                                                             \
+            return nullptr;                                                           \
+        }                                                                             \
+                                                                                      \
+        template <typename U = __VA_ARGS__>                                           \
+        inline static const bool registered = []                                      \
+        {                                                                             \
+            return TypeRegistry::Instance().Register<U>();                            \
+        }();                                                                          \
+                                                                                      \
+        __attribute__((used, retain))                                                 \
+        static void UseRegistered()                                                   \
+        {                                                                             \
+            if constexpr (serializable && deserializable)                             \
+                (void) registered<__VA_ARGS__>;                                       \
+        }                                                                             \
+    };                                                                                \
 }
 
 // Generates meta information for the specified templated type
@@ -106,6 +135,12 @@ namespace sys_sage {                                                            
         static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                                                   \
         {                                                                                                                           \
             return std::make_unique<Attribute<U>>(obj.get<U>());                                                                    \
+        }                                                                                                                           \
+                                                                                                                                    \
+        template <typename U = type<Ts...>> requires (!deserializable)                                                              \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                                                   \
+        {                                                                                                                           \
+            return nullptr;                                                                                                         \
         }                                                                                                                           \
     };                                                                                                                              \
 }
@@ -127,19 +162,23 @@ namespace sys_sage {                                                            
             return std::make_unique<Attribute<U>>(obj.get<U>());                                                                    \
         }                                                                                                                           \
                                                                                                                                     \
-        template <typename U = type<Ts...>>                                                                                         \
-        inline static const auto registrar = []                                                                                     \
+        template <typename U = type<Ts...>> requires (!deserializable)                                                              \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                                                   \
         {                                                                                                                           \
-            if constexpr (serializable && deserializable)                                                                           \
-                TypeRegistry::Instance().Register(id, Deserialize);                                                                 \
-            return std::tuple<>{};                                                                                                  \
+            return nullptr;                                                                                                         \
+        }                                                                                                                           \
+                                                                                                                                    \
+        template <typename U = type<Ts...>>                                                                                         \
+        inline static const bool registered = []                                                                                    \
+        {                                                                                                                           \
+            return TypeRegistry::Instance().Register<U>();                                                                          \
         }();                                                                                                                        \
                                                                                                                                     \
         __attribute__((used, retain))                                                                                               \
-        static void UseRegistrar()                                                                                                  \
+        static void UseRegistered()                                                                                                 \
         {                                                                                                                           \
             if constexpr (serializable && deserializable)                                                                           \
-                (void) registrar<type<Ts...>>;                                                                                      \
+                (void) registered<type<Ts...>>;                                                                                     \
         }                                                                                                                           \
     };                                                                                                                              \
 }
@@ -158,39 +197,49 @@ namespace sys_sage {                                                            
         {                                                                         \
             return std::make_unique<Attribute<U>>(obj.get<U>());                  \
         }                                                                         \
+                                                                                  \
+        template <typename U = __VA_ARGS__> requires (!deserializable)            \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
+        {                                                                         \
+            return nullptr;                                                       \
+        }                                                                         \
     };                                                                            \
 }
 
-#define SYS_SAGE_REGISTER_TYPE_TRAIT_NON_PORTABLE(...)                            \
-namespace sys_sage {                                                              \
-    template <>                                                                   \
-    struct TypeTrait<__VA_ARGS__> {                                               \
-        static constexpr bool serializable = IsSerializable<__VA_ARGS__>;         \
-        static constexpr bool deserializable = IsDeserializable<__VA_ARGS__>;     \
-                                                                                  \
-        static constexpr decltype(auto) id = CompStrExtract<__VA_ARGS__>();       \
-                                                                                  \
-        template <typename U = __VA_ARGS__> requires (deserializable)             \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
-        {                                                                         \
-            return std::make_unique<Attribute<U>>(obj.get<U>());                  \
-        }                                                                         \
-                                                                                  \
-        template <typename U = __VA_ARGS__>                                       \
-        inline static const auto registrar = []                                   \
-        {                                                                         \
-            if constexpr (serializable && deserializable)                         \
-                TypeRegistry::Instance().Register(id, Deserialize);               \
-            return std::tuple<>{};                                                \
-        }();                                                                      \
-                                                                                  \
-        __attribute__((used, retain))                                             \
-        static void UseRegistrar()                                                \
-        {                                                                         \
-            if constexpr (serializable && deserializable)                         \
-                (void) registrar<__VA_ARGS__>;                                    \
-        }                                                                         \
-    };                                                                            \
+#define SYS_SAGE_REGISTER_TYPE_TRAIT_NON_PORTABLE(...)                                \
+namespace sys_sage {                                                                  \
+    template <>                                                                       \
+    struct TypeTrait<__VA_ARGS__> {                                                   \
+        static constexpr bool serializable = IsSerializable<__VA_ARGS__>;             \
+        static constexpr bool deserializable = IsDeserializable<__VA_ARGS__>;         \
+                                                                                      \
+        static constexpr decltype(auto) id = CompStrExtract<__VA_ARGS__>();           \
+                                                                                      \
+        template <typename U = __VA_ARGS__> requires (deserializable)                 \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)     \
+        {                                                                             \
+            return std::make_unique<Attribute<U>>(obj.get<U>());                      \
+        }                                                                             \
+                                                                                      \
+        template <typename U = __VA_ARGS__> requires (!deserializable)                \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)     \
+        {                                                                             \
+            return nullptr;                                                           \
+        }                                                                             \
+                                                                                      \
+        template <typename U = __VA_ARGS__>                                           \
+        inline static const bool registered = []                                      \
+        {                                                                             \
+            return TypeRegistry::Instance().Register<U>();                            \
+        }();                                                                          \
+                                                                                      \
+        __attribute__((used, retain))                                                 \
+        static void UseRegistered()                                                   \
+        {                                                                             \
+            if constexpr (serializable && deserializable)                             \
+                (void) registered<__VA_ARGS__>;                                       \
+        }                                                                             \
+    };                                                                                \
 }
 
 #define SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT_NON_PORTABLE(type, ...)                                        \
@@ -206,6 +255,12 @@ namespace sys_sage {                                                            
         static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                               \
         {                                                                                                       \
             return std::make_unique<Attribute<U>>(obj.get<U>());                                                \
+        }                                                                                                       \
+                                                                                                                \
+        template <typename U = type<SYS_SAGE_MAP_UNPACK_SECOND(__VA_ARGS__)>> requires (!deserializable)        \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                               \
+        {                                                                                                       \
+            return nullptr;                                                                                     \
         }                                                                                                       \
     };                                                                                                          \
 }
@@ -225,19 +280,24 @@ namespace sys_sage {                                                            
             return std::make_unique<Attribute<U>>(obj.get<U>());                                                \
         }                                                                                                       \
                                                                                                                 \
-        template <typename U = type<SYS_SAGE_MAP_UNPACK_SECOND(__VA_ARGS__)>>                                   \
-        inline static const auto registrar = []                                                                 \
+                                                                                                                \
+        template <typename U = type<SYS_SAGE_MAP_UNPACK_SECOND(__VA_ARGS__)>> requires (!deserializable)        \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                               \
         {                                                                                                       \
-            if constexpr (serializable && deserializable)                                                       \
-                TypeRegistry::Instance().Register(id, Deserialize);                                             \
-            return std::tuple<>{};                                                                              \
+            return nullptr;                                                                                     \
+        }                                                                                                       \
+                                                                                                                \
+        template <typename U = type<SYS_SAGE_MAP_UNPACK_SECOND(__VA_ARGS__)>>                                   \
+        inline static const bool registered = []                                                                \
+        {                                                                                                       \
+            return TypeRegistry::Instance().Register<U>();                                                      \
         }();                                                                                                    \
                                                                                                                 \
         __attribute__((used, retain))                                                                           \
-        static void UseRegistrar()                                                                              \
+        static void UseRegistered()                                                                             \
         {                                                                                                       \
             if constexpr (serializable && deserializable)                                                       \
-                (void) registrar<type<SYS_SAGE_MAP_UNPACK_SECOND(__VA_ARGS__)>>;                                \
+                (void) registered<type<SYS_SAGE_MAP_UNPACK_SECOND(__VA_ARGS__)>>;                               \
         }                                                                                                       \
     };                                                                                                          \
 }
@@ -413,7 +473,16 @@ namespace sys_sage {
          *
          * @param id A unique identifier for the `TypeDescriptor`.
          */
-        void Register(std::string_view id, std::unique_ptr<IAttribute> (*callback)(const nlohmann::json&));
+        template <typename T>
+        bool Register()
+        {
+            if constexpr (TypeTrait<T>::serializable && TypeTrait<T>::deserializable) {
+                callbacks.emplace(TypeTrait<T>::id, TypeTrait<T>::template Deserialize<>);
+                return true;
+            } else {
+                return false;
+            }
+        }
     
         /**
          * @brief Returns the deserialization callback associated to this type.
@@ -514,6 +583,12 @@ namespace sys_sage {
         static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
         {
             return std::make_unique<Attribute<U>>(obj.get<U>());
+        }
+
+        template <typename U = std::pair<const T1, T2>> requires (!deserializable)
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
+        {
+            return nullptr;
         }
     };
 }
