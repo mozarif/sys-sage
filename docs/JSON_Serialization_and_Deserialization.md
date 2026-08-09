@@ -194,7 +194,7 @@ Both generate some meta information that is used to register a type **implicitly
 The latter macro is intended for generating meta information for templated types like `std::vector<T>`, such that one only has to specify it once and _sys-sage_ knows how to register `std::vector<int>`, `std::vector<std::string>` or any other `T`.
 Alternatively, one can register a fully instantiated templated type directly.
 Registration is not limited to the number of template arguments, meaning that we also support variadic template arguments.
-Moreover, we do not distinguish between templated arguments with or with default values.
+Moreover, we do not distinguish between templated arguments with or without default values.
 The `SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT` macro should only be used for types that only take **typed template arguments**.
 Refer to the sections below for non-typed template arguments.
 Some basic usage is shown here:
@@ -407,14 +407,14 @@ If this is not possible, then create a new header file that contains all special
 
 ### Meta Information
 
-One can retrieve meta information about a type `T` of an attribute by using fields of the `sys_sage::TypeTrait` struct.
+One can retrieve meta information about a type `T` of an attribute by using fields of the `sys_sage::TypeTrait<T>` struct.
 The relevant fields are
 
 | struct field | meta information |
 | ------------ | ---------------- |
-| sys_sage::TypeTrait<T>::serializable | A bool that indicates whether `T` is eligible for serialization |
-| sys_sage::TypeTrait<T>::deserializable | A bool that indicates whether `T` is eligible for deserialization |
-| sys_sage::TypeTrait<T>::id | A unique string literal representing `T` that is used for distinguishing types during deserialization |
+| `sys_sage::TypeTrait<T>::serializable` | A bool that indicates whether `T` is eligible for serialization |
+| `sys_sage::TypeTrait<T>::deserializable` | A bool that indicates whether `T` is eligible for deserialization |
+| `sys_sage::TypeTrait<T>::id` | A unique string literal representing `T` that is used for distinguishing types during deserialization |
 
 All fields are `constexpr` and can be use for debugging purposes.
 
@@ -426,8 +426,9 @@ The only workaround we found was to explicitly blacklist some (templated) types 
 _sys-sage_ has blacklisted the following types
 
 | blacklisted (templated) types | blacklisted from |
-| std::multimap where the key is not an std::string | deserialization |
-| std::unordered_multimap where the key is not an std::string | deserialization |
+| ----------------------------- | ---------------- |
+| `std::multimap` where the key is **not** an `std::string` | deserialization |
+| `std::unordered_multimap` where the key is **not** an `std::string` | deserialization |
 
 If you encounter any such compilation errors when specializing/registering a type `T`, try to identify the false positive.
 To check whether serialization of `T` is the problem, try to compile
@@ -465,8 +466,8 @@ To check if a (templated) type is blacklisted, use
 
 | macros for blacklisting |
 | ----------------------- |
-| sys_sage::IsBlacklistedFromSerialization<T>::value |
-| sys_sage::IsBlacklistedFromDeserialization<T>::value |
+| `sys_sage::IsBlacklistedFromSerialization<T>::value` |
+| `sys_sage::IsBlacklistedFromDeserialization<T>::value` |
 
 Sometimes a type should only be blacklisted under certain conditions.
 This way one can still register and serialize/deserialize the type under certain conditions and simply disable it in others while avoiding compilation errors.
@@ -510,10 +511,10 @@ To register `std::array<typename T, std::size_t N>`, we would do
 SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT_NON_PORTABLE(std::array, (typename, T), (std::size_t, N))
 ```
 
-Note that we have to specify each template argument in a pair to indicate whether it is a typed or non-typed template argument.
+Note that we have to specify each template argument in a pair to indicate whether it is typed or non-typed.
 Both `SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT_NON_PORTABLE` and `SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT_NON_PORTABLE` can support up to 128 template arguments.
 
-Since these macros use compiler-specific information to generate the meta data, JSON that was dumped by a program compiled with one compiler may not be deserializable by a program compiled with another compiler.
+Since these macros use compiler-specific information to generate the meta data, JSON that was dumped by a program compiled with one compiler **may not be deserializable** by a program compiled with another compiler.
 Use these macros at your own risk.
 As a general rule of thumb, if you consistently use the same compiler and the same versions, you have nothing to worry about.
 If the versions don't match or if you use different compilers, it is worth checking if the different compilers generate compatible meta data.
