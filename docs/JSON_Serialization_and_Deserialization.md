@@ -400,13 +400,17 @@ int main()
 the output will be `0`.
 As mentioned before, `SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT(FooBar::Bar)` will only generate meta information such that _sys-sage_ knows how to register a `FooBar::Bar<T1, T2>`.
 Implicit registration of a particual instance of the templated type, e.g. `FooBar::Bar<int, double>` with `T1 = int` and `T2 = double`, only happens if that instance was **referenced** in any of the attributes.
+By "referencing a type through an attribute" we mean inserting/updating/retrieving an attribute of that type.
+Note that referencing a type just once is sufficient enough to trigger registration, thus all attributes of that type will be deserialized.
+You don't have to reference every single attribute for it to be deserialized.
+
 Since the above example never uses an attribute of type `FooBar::Bar<int, double>`, it will not be registered, hence the attribute from the `topo.json` file will not be deserialized.
 This behavior is valid, because we don't have to deserialize an attribute if it is never used.
-If you were to use the attribute somewhere, e.g. `comp->GetAttribute<FooBar::Bar<int, double>>("bar")`, or rely on explicit registration or directly registered the particular instance via `SYS_SAGE_REGISTER_TYPE_TRAIT(FooBar::Bar<int, double>)` instead, deserialization would happen in this case.
+If you were to use the attribute somewhere, e.g. `comp->GetAttribute<FooBar::Bar<int, double>>("bar")`, or rely on explicit registration or directly registered the particular instance via `SYS_SAGE_REGISTER_TYPE_TRAIT(FooBar::Bar<int, double>)` instead, deserialization would occur.
 
 Another important aspect is where to put the macros.
 In a nutshell, we recommend placing the macros used for specializing/registering a (templated) type in the file in which the (templated) type is defined. e.g. the header file.
-If this is not possible, then create a new header file that contains all specialization/registration macros and include that header whenever you reference the (templated) type through an attribute, i.e. when inserting/updating/retrieving/serializing/deserializing an attribute of that type.
+If this is not possible, then create a new header file that contains all specialization/registration macros and include that header whenever you insert/update/retrieve/serialize/deserialize an attribute of that type.
 
 ### Meta Information
 
