@@ -86,7 +86,7 @@ namespace sys_sage {                                                            
         }                                                                         \
                                                                                   \
         template <typename U = __VA_ARGS__> requires (!deserializable)            \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &)    \
         {                                                                         \
             return nullptr;                                                       \
         }                                                                         \
@@ -111,7 +111,7 @@ namespace sys_sage {                                                            
         }                                                                             \
                                                                                       \
         template <typename U = __VA_ARGS__> requires (!deserializable)                \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)     \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &)        \
         {                                                                             \
             return nullptr;                                                           \
         }                                                                             \
@@ -149,7 +149,7 @@ namespace sys_sage {                                                            
         }                                                                                                                           \
                                                                                                                                     \
         template <typename U = type<Ts...>> requires (!deserializable)                                                              \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                                                   \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &)                                                      \
         {                                                                                                                           \
             return nullptr;                                                                                                         \
         }                                                                                                                           \
@@ -174,7 +174,7 @@ namespace sys_sage {                                                            
         }                                                                                                                           \
                                                                                                                                     \
         template <typename U = type<Ts...>> requires (!deserializable)                                                              \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                                                   \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &)                                                      \
         {                                                                                                                           \
             return nullptr;                                                                                                         \
         }                                                                                                                           \
@@ -212,7 +212,7 @@ namespace sys_sage {                                                            
         }                                                                         \
                                                                                   \
         template <typename U = __VA_ARGS__> requires (!deserializable)            \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj) \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &)    \
         {                                                                         \
             return nullptr;                                                       \
         }                                                                         \
@@ -237,7 +237,7 @@ namespace sys_sage {                                                            
         }                                                                             \
                                                                                       \
         template <typename U = __VA_ARGS__> requires (!deserializable)                \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)     \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &)        \
         {                                                                             \
             return nullptr;                                                           \
         }                                                                             \
@@ -275,7 +275,7 @@ namespace sys_sage {                                                            
         }                                                                                                       \
                                                                                                                 \
         template <typename U = type<SYS_SAGE_MAP_UNPACK_SECOND(__VA_ARGS__)>> requires (!deserializable)        \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                               \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &)                                  \
         {                                                                                                       \
             return nullptr;                                                                                     \
         }                                                                                                       \
@@ -301,7 +301,7 @@ namespace sys_sage {                                                            
                                                                                                                 \
                                                                                                                 \
         template <typename U = type<SYS_SAGE_MAP_UNPACK_SECOND(__VA_ARGS__)>> requires (!deserializable)        \
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)                               \
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &)                                  \
         {                                                                                                       \
             return nullptr;                                                                                     \
         }                                                                                                       \
@@ -605,7 +605,7 @@ namespace sys_sage {
         }
 
         template <typename U = std::pair<const T1, T2>> requires (!deserializable)
-        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &obj)
+        static std::unique_ptr<IAttribute> Deserialize(const nlohmann::json &)
         {
             return nullptr;
         }

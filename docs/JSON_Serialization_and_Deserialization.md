@@ -1,6 +1,7 @@
 # JSON Serialization & Deserialization
 
 _sys-sage_ provides the means to dump the entire component tree and its associated relations to JSON.
+All functionality has been successfully tested on gcc (>=12.1) and clang (>=16.0.0).
 In addition, the component tree can be loaded back from JSON.
 This way, a snapshot of the dynamic state of the hardware topology can be saved, inspected and reconstructed.
 The relevant functions in the library's API are:
@@ -190,6 +191,8 @@ The _sys-sage_ library provides the following macros for standard type registry:
 | SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT |
 
 Both generate some meta information that is used to register a type **implicitly** at **program start** through static initialization.
+Note that registration only happens if the type is serializable and deserializable.
+Otherwise it's ignored.
 
 The latter macro is intended for generating meta information for templated types like `std::vector<T>`, such that one only has to specify it once and _sys-sage_ knows how to register `std::vector<int>`, `std::vector<std::string>` or any other `T`.
 Alternatively, one can register a fully instantiated templated type directly.
@@ -415,8 +418,10 @@ The relevant fields are
 | `sys_sage::TypeTrait<T>::serializable` | A bool that indicates whether `T` is eligible for serialization |
 | `sys_sage::TypeTrait<T>::deserializable` | A bool that indicates whether `T` is eligible for deserialization |
 | `sys_sage::TypeTrait<T>::id` | A unique string literal representing `T` that is used for distinguishing types during deserialization |
+| `sys_sage::TypeTrait<T>::registered` | A bool that indicates whether `T` has been successfully registered (only valid for types that are registered with the `SYS_SAGE_REGISTER...` macros)  |
 
-All fields are `constexpr` and can be use for debugging purposes.
+The first three fields are `constexpr`.
+Use these fields for debugging purposes.
 
 ### False Positives & Blacklisted Types
 
