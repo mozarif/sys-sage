@@ -1,5 +1,7 @@
 # sys-sage: A Library for Representing System Architecture and its Dynamic Properties
 
+## Preface
+
 _sys-sage_ is a modern, extensible C++20 library for **describing, analyzing, and manipulating** system architectures and their dynamic properties.
 Whether you’re working with classic HPC clusters, heterogeneous nodes, or exploring new computing paradigms, _sys-sage_ gives you the ability to **introspect your hardware platform** to get a unified representation of hardware components and their interconnections, static or dynamic system state and configurations, momentual measurements, calibration data, application-specific hardware-relevant information, and all the metadata that matters.
 
@@ -32,8 +34,8 @@ Cache-aware algorithms need to query this dynamic property from the topology to 
 - **Python API:** Use sys-sage from Python for rapid prototyping, data science, or integration with other tools.
 
 ## Documentation overview
-- [Detailed Concepts and Architecture](Concept.md)
 - [Installation Guide](Installation_Guide.md)
+- [Detailed Concepts and Architecture](Concept.md)
 - [Data Parsers](Data_Parsers.md)
 - [PAPI Integration](sys-sage_PAPI.md)
 - [**Python API**](python-sys-sage.md)
