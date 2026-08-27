@@ -14,7 +14,7 @@ spack info sys-sage
 
 to retrieve information about supported options and versions.
 
-To install _sys-sage_, run
+To install the library, run
 
 ```bash
 spack install sys-sage
@@ -42,7 +42,7 @@ spack install sys-sage
 
 Set the following options to enable features for extended functionality:
 
-| CMAKE option | description |
+| CMake option | description |
 | ------------ | ----------- |
 | INTEL_PQOS | builds with Intel CAT support |
 | NVIDIA_MIG | builds with NVIDIA MIG support |
@@ -87,23 +87,24 @@ pkg-config --libs sys-sage
 ## Python API
 
 _sys-sage_ provides additional bindings for the Python programming language through the _py_sys_sage_ package.
-The bindings depend on the C++ library, so first install the C++ library and make sure that the `CMAKE_PREFIX_PATH` is set accordingly.
+The bindings depend on the C++ library, so first install the C++ library as described in the above [section](c++-api) and make sure that the `CMAKE_PREFIX_PATH` is set accordingly if installed locally with CMake.
 
-### Additional Dependencies
+### Installation with Pip
+
+#### Additional Dependencies
 
 - pybind11
-- pybind11_json
+- pybind11-json
+- pip
 
-**First make sure that you have installed _sys-sage_ and `pybind11` on your system**.
-
-The bindings can be installed through the pip package manager. To manage your packages locally, you can create an isolated virtual environment by running
+To manage your packages locally, you can create an isolated virtual environment by running
 
 ```bash
 python3 -m venv <path_to_venv>
 ```
 
 You can also reuse an existing virtual environment or install it globally on your system depending on your platform.
-In the following, we'll procede with the installation into a virtual environment, but the steps are almost identical in other cases.
+In the following, we'll proceed with the installation into a virtual environment, but the steps are almost identical in other cases.
 
 From the project root directory of _sys-sage_, run
 
@@ -113,7 +114,7 @@ From the project root directory of _sys-sage_, run
 
 to install the package.
 
-## Package Import
+### Package Import
 
 The package is called `py_sys_sage` and it can be imported like this:
 
