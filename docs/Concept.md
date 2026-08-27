@@ -1,85 +1,29 @@
 # Concept
 
-The main goal of the library is to to store, update, and provide all relevant information about **hardware topology, dynamic system state/configuration, system capabilities, and other data related to HW from different data sources logically connected to each other**.
+## Workflow
 
-## Defining the functionality
+The typical workflow is described in the figure below.
 
-#### sys-sage vs. hwloc
-sys-sage can be considered an extension to hwloc; it targets the aspects of system topology and HW-related information that are not covered by hwloc.
-Hwloc is limited to (among otehrs)
-- Providing static data (only given HW topology)
-    - Modern systems are not strictly hierarchical anymore
-    - Information regarding data movement capabilities is missing
-- Difficult to incorporate complementary information
-- Mainly CPU-centric
+<p align="middle">
+    <img alt="workflow under sys-sage" src="images/workflow.drawio.pdf" width="80%">
+</p>
 
-#### What sys-sage Addresses
-On the top of hwloc functionality, sys-sage targets
-- **The dynamic aspects of modern HPC systems**
-    - Data movement information
-    - Variable system characteristics
-- **Managing arbitrary systems including state-of-the-art architectures**
-    - heterogeneous components (CPU, GPU, ..)
-    - Interconnets / buses connecting the components
-- **High variability in storing and using the data**
-    - Different set of information needed ind ifferent use-cases
-    - sys-sage enables representing an entity from a single chip up to a whole HPC system with custom level of detail )
-    - Arbitrary data can be added to already existing representation
-    - sys-sage can store/maintain/provide arbitrary information out-of-the-box, i.e. the user is free to define the stored parameters
+We use the term "user" to refer to any resource manager, daemon, user-side application, or any other entities that store or retrieve data from the library.
 
-#### Possible Areas of Usage
+1. As part of the pre-run system discovery, the user measures and collects relevant topological information from available data sources
+2. At application startup, the static configuration of the target architecture as well as the supplementary data from the previous step are imported into the library to materialize an initial system state.
+3. During applicatin runtime, topological information can be queried/updated/extended through the library's unfied interface
+4. Before the application terminates, the user may capture a snapshot of the system's state
 
-sys-sage is designed to be very versatile, so that it can be integrated to work in many different areas. Thanks the variability, the users can use the fitting set of information for various use-cases.
+## Conceptual Design
 
-Some of the areas may include:
-- Job / thread scheduling, co-scheduling multiple applications
-- Autotuning tasks / applications
-- Data management on heterogeneous memory systems (allocation decisions)
-- Power management
-- Performance optimization, performance modelling tools
-- ...and many others
+An overview of _sys-sage_'s design is given in the figure below.
 
-#### Functionality scope
+<p align="middle">
+    <img alt="workflow under sys-sage" src="images/integration-architecture.drawio.pdf" width="60%">
+</p>
 
-The library aims at storing, and providing the data to the user, not necessarily at the data collection.
-Nevertheless, it also provides a set of so-called Default Data Sources which provide the often-used set of information out-of-the-box.
-It can represent the dynamic state of the system and increases the degree of detail compared to static hardware topology views.
-
-<img src="images/goal.drawio.png">
-
-<!-- For Doxygen -->
-\image html images/goal.drawio.png 
-\image latex images/goal.drawio.png
-
-#### Types of Attributes to Handle
-1. Both qualitative (such as core ID) and quantitative (cache size) attributes.
-2. Information describing one particular component (L1 cache), their group
-(socket), or relation between them (CPU-GPU bandwidth).
-3. Both static (theoretical peak bandwidth) and dynamic variable (currently
-measured bandwidth) information.
-4. Data to describe the hardware (CPU cores), the configuration of a system
-(hyperthreading enabled), or its current state (wattage on CPU).
-5. Both system-centric (containing information about all system resources) and application-centric (containing information about the resources available to
-or used by a particular application/process/user).
-6. Application-relevant observations (current memory occupancy, monitoring
-data, ...).
-
-#### Workflow
-The general workflow is as follows:
-
-***The "User" is usually an application, a resource manager, or any other program***
-1. The user specifies which data to upload to the library, choosing either from provided or custom (self-made) data sets. This will create an initial state in sys-sage. Data from multiple sources will be put together and create a single representation of system-related information. (*mainly through input parsers, also possible via the API*)
-2. Then, the user requests the stored data from the library. (*through sys-sage API*)
-3. Alternatively, the user may use sys-sage in an interactive mode. This means, he would both update/store new data to modify/extend the current representation, and he would also request the data again in order to react to it. (*through sys-sage API*)
-4. Finally, the user can dump the contents in an XML file. (This can be done at any point, even repeatedly.) (*through sys-sage XML export functionality*)
-
-## Design of sys-sage
-
-<img src="images/sys-sage-workflow-general.drawio.png">
-
-<!-- For Doxygen -->
-\image html images/sys-sage-workflow-general.drawio.png
-\image latex images/sys-sage-workflow-general.drawio.png
+**TODO**
 
 The design of sys-sage reflects the requirements put on it. It is implemented in C++, where the particular constructs are implemented as C++ classes in the background.
 

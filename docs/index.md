@@ -16,6 +16,11 @@ It’s designed for:
 - **Tool developers** building schedulers, mappers, or simulators.
 - **System architects** who need to capture and reason about complex, evolving topologies.
 
+<p align="middle">
+    <img alt="decentralized topology representation without sys-sage" src="images/goal_1.drawio.pdf" width="45%">
+    <img alt="unified topology representation with sys-sage" src="images/goal_2.drawio.pdf" width="45%">
+</p>
+
 ### Why care about hardware topology?
 
 Knowledge about the composition and layout of your target architecture is vital for analyzing and reasoning about your platform's compute capabilities and your application's performance.
@@ -35,7 +40,7 @@ Cache-aware algorithms need to query this dynamic property from the topology to 
 
 ## Documentation overview
 - [Installation Guide](Installation_Guide.md)
-- [Detailed Concepts and Architecture](Concept.md)
+- [Architectural Concept and Design](Concept.md)
 - [Data Parsers](Data_Parsers.md)
 - [PAPI Integration](sys-sage_PAPI.md)
 - [**Python API**](python-sys-sage.md)

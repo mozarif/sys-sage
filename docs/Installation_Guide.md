@@ -87,7 +87,7 @@ pkg-config --libs sys-sage
 ## Python API
 
 _sys-sage_ provides additional bindings for the Python programming language through the _py_sys_sage_ package.
-The bindings depend on the C++ library, so first install the C++ library as described in the above [section](c-api) and make sure that the `CMAKE_PREFIX_PATH` is set accordingly if installed locally with CMake.
+The bindings depend on the C++ library, so first install the C++ library as described in the above [section](#c++-api) and make sure that the `CMAKE_PREFIX_PATH` is set accordingly if installed locally with CMake.
 
 ### Installation with Pip
 
