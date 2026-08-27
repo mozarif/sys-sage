@@ -5,7 +5,7 @@
 The typical workflow is described in the figure below.
 
 <p align="middle">
-    <img alt="workflow under sys-sage" src="images/workflow.drawio.pdf" width="80%">
+    <img alt="workflow under sys-sage" src="images/workflow.drawio.png" width="80%">
 </p>
 
 We use the term "user" to refer to any resource manager, daemon, user-side application, or any other entities that store or retrieve data from the library.
@@ -20,7 +20,7 @@ We use the term "user" to refer to any resource manager, daemon, user-side appli
 An overview of _sys-sage_'s design is given in the figure below.
 
 <p align="middle">
-    <img alt="workflow under sys-sage" src="images/integration-architecture.drawio.pdf" width="60%">
+    <img alt="workflow under sys-sage" src="images/integration-architecture.drawio.png" width="60%">
 </p>
 
 **TODO**

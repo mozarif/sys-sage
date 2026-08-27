@@ -17,8 +17,8 @@ It’s designed for:
 - **System architects** who need to capture and reason about complex, evolving topologies.
 
 <p align="middle">
-    <img alt="decentralized topology representation without sys-sage" src="images/goal_1.drawio.pdf" width="45%">
-    <img alt="unified topology representation with sys-sage" src="images/goal_2.drawio.pdf" width="45%">
+    <img alt="decentralized topology representation without sys-sage" src="images/goal_1.drawio.png" width="45%">
+    <img alt="unified topology representation with sys-sage" src="images/goal_2.drawio.png" width="45%">
 </p>
 
 ### Why care about hardware topology?
