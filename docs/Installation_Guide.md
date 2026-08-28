@@ -56,17 +56,19 @@ Set the following options to enable features for extended functionality:
 
 #### Building
 
-To build and install _sys-sage_, run
+To build and install _sys-sage_ system-wide, run
 
 ```bash
 git clone https://github.com/caps-tum/sys-sage.git
 cd sys-sage
 mkdir build && cd build
 cmake ..
-make all install
+make -j $(nproc)
+sudo make install
 ```
 
-If _sys-sage_ is installed locally on your system, don't forget to set the `LD_LIBRARY_PATH` environment variable and optionally the `CMAKE_PREFIX_PATH` and `PKG_CONFIG_PATH` (or whatever the equivalent is on your platform) if you want to find _sys-sage_ through CMake or pkg-config respectively.
+This will install _sys-sage_ to `/usr/local` on UNIX platforms (see [here](https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html)).
+If you instead decide to install _sys-sage_ locally on your system, you need to manually set the `LD_LIBRARY_PATH` environment variable and optionally the `CMAKE_PREFIX_PATH` and `PKG_CONFIG_PATH` (or whatever the equivalent is on your platform) if you want to find _sys-sage_ through CMake or pkg-config respectively.
 
 ### Packaging
 
@@ -87,7 +89,7 @@ pkg-config --libs sys-sage
 ## Python API
 
 _sys-sage_ provides additional bindings for the Python programming language through the _py_sys_sage_ package.
-The bindings depend on the C++ library, so first install the C++ library as described in the above [section](#c++-api) and make sure that the `CMAKE_PREFIX_PATH` is set accordingly if installed locally with CMake.
+The bindings depend on the C++ library, so first install the C++ library as described in the above [section](#c-api) and make sure that the `CMAKE_PREFIX_PATH` is set accordingly if installed locally with CMake.
 
 ### Installation with Pip
 

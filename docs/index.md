@@ -1,4 +1,4 @@
-# sys-sage: A Library for Representing System Architecture and its Dynamic Properties
+# sys-sage: A Library for Representing System Architectures and their Dynamic Properties
 
 ## Preface
 
@@ -12,7 +12,7 @@ With hardware architectures evolving into intricate topologies composed of heter
 Rather than collecting the data itself, it aims at integrating and complementing data from existing sources to create an extensive model that would otherwise be incomplete when only using a single source.
 It’s designed for:
 
-- **Researchers** who want to experiment with new hardware or system layouts and who need to correlate system information to get a more comprehensive understaiding of the system.
+- **Researchers** who want to experiment with new hardware or system layouts and who need to correlate diverse system information to get a more comprehensive understaiding of the system.
 - **Tool developers** building schedulers, mappers, or simulators.
 - **System architects** who need to capture and reason about complex, evolving topologies.
 
