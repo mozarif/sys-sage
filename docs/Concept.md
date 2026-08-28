@@ -5,7 +5,7 @@
 The typical workflow is described in the figure below.
 
 <p align="middle">
-    <img alt="workflow under sys-sage" src="images/workflow.drawio.png" width="90%">
+    <img alt="workflow under sys-sage" src="images/workflow.drawio.png" width="80%">
 </p>
 
 We use the term "user" to refer to any resource manager, daemon, user-side application, or any other entities that store or retrieve data from the library.
@@ -29,7 +29,7 @@ The hardware topology is modeled by an internal representation that aims at repr
 It builds the foundation for the library by combining all data together into one central interface.
 
 The physical hardware components are represented by the [Component](class_component.html) data structure, whose hierarchical layout form a **Component Tree** that naturaly describes the topologies basis.
-Every piece of static or dynamic information attaches to or references Components within this tree.
+Every piece of static or dynamic information attaches to or references Components within this tree, therefore being the primary access point to query topological information.
 Although the design is inspired by [hwloc](https://www.open-mpi.org/projects/hwloc/)’s CPU-centric approach, _sys-sage_ significantly generalizes the concept to support a much broader and heterogeneous spectrum of hardware and system resources, thus extending far beyond CPU-centric modelling.
 Users can interconnect Components arbitrarily, thus providing a high degree of freedom in expressing custom system configurations and layouts.
 Furthermore, _sys-sage_ defines several ComponentTypes derived from distinct parts of computing hardware, with each being tailored towards holding the relevant characteristics and behaviors of its domain.
@@ -38,7 +38,7 @@ More information on the specific classes and their members can be found [here](c
 
 In contrast, a [Relation](class_relation.html) is a complementary data structure that reflect different relationships and interactions between Components.
 The full collection of Relations forms a **Relations Graph**, which captures information orthogonal to the Component Tree.
-Relations accommodate a broad spectrum of information types, including data-transfer characteristics, performance indicators, power consumption, application-specific metrics, or quantum-specific properties.
+Relations are typically referenced through the participating Components, and accommodate a broad spectrum of information types including data-transfer characteristics, performance indicators, power consumption, application-specific metrics, or quantum-specific properties.
 Moreover, a Component can participate in an arbitrary number of Relations, and multiple Relations can connect the same subset of Components to represent different dependencies or properties.
 This open design provides high flexibility for diverse user-defined use-case scenarios.
 Similar to Components, each Relation belongs to a specific RelationType, which allows for more specialized functionality targeted at a specific usage scenario.
@@ -51,11 +51,11 @@ Relations extend this view by capturing relational properties between an arbitra
 The figures below showcases this distinction.
 
 <p align="middle">
-    <img alt="sys-sage's Component Tree data structure" src="images/images/component-tree-dis.drawio.png" width="45%">
+    <img alt="sys-sage's Component Tree data structure" src="images/component-tree-dis.drawio.png" width="45%">
     <img alt="sys-sage's Relations Graph data structure" src="images/relations-dis.drawio.png" width="45%">
 </p>
 
-The one one the left shows the Component Tree consisting of different ComponentTypes marked by different colors, whereas the figure on the right demonstrate relations carrying different information as indicated by different colors.
+The one one the left shows the Component Tree consisting of different ComponentTypes marked by different colors, whereas the figure on the right demonstrates relations carrying different information as indicated by the different colors.
 
 ### Data Sources and Input Parsers
 
