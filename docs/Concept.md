@@ -12,7 +12,7 @@ We use the term "user" to refer to any resource manager, daemon, user-side appli
 
 1. As part of the pre-run system discovery, the user measures and collects relevant topological information from available data sources
 2. At application startup, the static configuration of the target architecture as well as the supplementary data from the previous step are imported into the library to materialize an initial system state.
-3. During applicatin runtime, topological information can be queried/updated/extended through the library's unfied interface
+3. During application runtime, topological information can be queried/updated/extended through the library's unified interface
 4. Before the application terminates, the user may capture a snapshot of the system's state
 
 ## Conceptual Design
@@ -51,11 +51,14 @@ Relations extend this view by capturing relational properties between an arbitra
 The figures below showcases this distinction.
 
 <p align="middle">
-    <img alt="sys-sage's Component Tree data structure" src="images/component-tree-dis.drawio.png" width="45%">
-    <img alt="sys-sage's Relations Graph data structure" src="images/relations-dis.drawio.png" width="45%">
+    <img alt="sys-sage's Component Tree data structure" src="images/component-tree-dis.drawio.png" width="40%">
+    <br clear="all">
+    <img alt="sys-sage's Relations Graph data structure" src="images/relations-dis.drawio.png" width="40%">
 </p>
 
-The one one the left shows the Component Tree consisting of different ComponentTypes marked by different colors, whereas the figure on the right demonstrates relations carrying different information as indicated by the different colors.
+The one at the top shows the Component Tree consisting of different ComponentTypes marked by different colors, whereas the figure at the bottom demonstrates relations carrying different information as indicated by the different colors.
+
+Refer to this [tutorial](../examples/tutorials/Tutorial_01.md) to get hands-on experience with _sys-sage_'s Component Tree and Relations Graph.
 
 ### Data Sources and Input Parsers
 

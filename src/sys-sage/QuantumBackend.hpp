@@ -174,6 +174,10 @@ namespace sys_sage {
          */
         int _FromJson(const nlohmann::json &obj) override;
 
+    protected:
+        QuantumBackend(int _id, const std::string &_name, ComponentType::type _type);
+        QuantumBackend(Component *parent, int _id, const std::string &_name, ComponentType::type _type);
+
     private:
         int num_qubits;
         //SVTODO deal with gate_types -- can this go into Relations?

@@ -22,6 +22,23 @@ namespace sys_sage {
     public:
 
         /**
+        AtomSite constructor (no automatic insertion in the Component Tree). Sets:
+        @param _id = id, default 0
+        @param _name = name, default "QuantumBackend"
+        @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
+        */
+        AtomSite(int _id = 0, const std::string &_name = "AtomSite");
+
+        /**
+        AtomSite constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
+        @param parent = the parent 
+        @param _id = id, default 0
+        @param _name = name, default "QuantumBackend"
+        @param componentType=>SYS_SAGE_COMPONENT_ATOM_SITE
+        */
+        AtomSite(Component *parent, int _id = 0, const std::string &_name = "AtomSite");
+
+        /**
          * @private
          * @brief (Private, internal) Helper function for XML dump generation.
          * 
