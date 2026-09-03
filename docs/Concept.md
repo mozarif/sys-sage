@@ -89,6 +89,8 @@ A list of Default Data Sources for which a Default Data Parser exists is given b
 | **MUSA** | static CPU topology in MUSA simulator input format |
 | **FIRESTARTER2**, **BabelSTREAM**, **NAS Parallel Benchmarks**, **High Performance Linpack**, **LULESH** | various performance benchmarks (parsed through MPPV parser) |
 
+More details about the specific information these data sources provide can be found in the API documentation of their respective parsers.
+
 Refer to this [tutorial](../examples/tutorials/Tutorial_02.md) to learn how to upload data sources and how to write your own parsers.
 
 ### 3rd party extensions
