@@ -3,12 +3,12 @@
 In this tutorial, we will construct a Componet Tree step-by-step to model a (theoretical) target platform.
 We will further express relational properties between the hardware components through the Relations Graph.
 
-Let us consider the topology that was illustrated in the [documentation](../docs/Concept.md) as shown in the figures below
+Let us consider the topology that was illustrated in the [documentation](../../docs/Concept.md) as shown in the figures below
 
 <p align="middle">
-    <img alt="sys-sage's Component Tree data structure" src="../docs/images/component-tree-dis.drawio.png" width="40%">
+    <img alt="sys-sage's Component Tree data structure" src="../../docs/images/component-tree-dis.drawio.png" width="40%">
     <br clear="all">
-    <img alt="sys-sage's Relations Graph data structure" src="../docs/images/relations-dis.drawio.png" width="40%">
+    <img alt="sys-sage's Relations Graph data structure" src="../../docs/images/relations-dis.drawio.png" width="40%">
 </p>
 
 ## Component Tree
@@ -29,7 +29,7 @@ The arguments passed to the constructor denote the ID and the name of the node.
 These are completely optional, but we advise to assign a unique ID if possible, in order to distinguish Components of the same type within the same domain (e.g. caches within a CPU and GPU typically have unique IDs, but an ID may be shared across CPUs and GPUs).
 Unique IDs may be important when querying information from the topology.
 Furthermore, we store the pointer of the node in a pointer of type \ref sys_sage::Component.
-This class forms a base class of all Components and is idiomatically used to represent all Components with the Component Tree.
+This class forms a base class of all Components and is idiomatically used to represent all Components within the Component Tree.
 
 At the top-most level, the node contains one CPU socket, one GPU and one QPU:
 
@@ -60,7 +60,7 @@ sys_sage::Component *atomSite3 = new sys_sage::AtomSite(qpu, 3);
 We have omitted the name of the Components for brevity.
 In a similar manner, we proceed with creating the remaining levels of the Component Tree:
 
-```
+```cpp
 // CPU
 sys_sage::Component *cpuCache0 = new sys_sage::Cache(numa0, 0);
 sys_sage::Component *cpuCache1 = new sys_sage::Cache(numa0, 1);

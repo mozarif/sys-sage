@@ -60,7 +60,36 @@ The one at the top shows the Component Tree consisting of different ComponentTyp
 
 Refer to this [tutorial](../examples/tutorials/Tutorial_01.md) to get hands-on experience with _sys-sage_'s Component Tree and Relations Graph.
 
-### Data Sources and Input Parsers
+### Data Sources and Data Parsers
+
+As mentioned before, _sys-sage_ collects topological information from external Data Sources to construct a full system representation.
+The Data Sources referred to here constitute the data integration path stemming from pre-startup system discovery.
+The raw data is stored within a file that can be the output of applications, benchmarks, scripts, user-defined configuration files, and other inputs.
+These files are then uploaded to _sys-sage_ during startup, usually providing the base hardware topology and other information that does not change.
+Furthermore, Data Sources can broadly be divided into two categories: Default Data Sources and Custom Data Sources.
+Regarding the former, _sys-sage_ offers out-of-the-box integration for commonly used information.
+The latter includes user-provided measurements, observations, or findings, which lie outside of the core of _sys-sage_ but can be integrated during the data upload process.
+
+To upload a Data Source to _sys-sage_, a dedicated Data Parser is needed.
+They interpret and process the given information and convert it to structures compatible with the library’s Internal Representation.
+Similar to Data Sources, Data Parsers are divided into Default and Custom Data Parsers.
+On one hand, Default Parsers are part of the library and can directly be used to upload the corresponding Default Data Sources.
+On the other hand, are extensions implemented by users to parse their Custom Data Sources.
+These are typically implemented by a single function that reads the data and merges it into the Internal Representation.
+
+A list of Default Data Sources for which a Default Data Parser exists is given below.
+
+| Default Data Source | used for |
+| ------------------- | -------- |
+| **hwloc** | CPU static topology |
+| **MT4G** | GPU static and dynamic topology information |
+| **IQM** | tatic topological information on IQM QPUs |
+| **cccbench** | CPU core-to-core communication latency benchmark |
+| **caps-numa-benchmark** | load latencies of CPU to NUMA and cross-NUMA memory accesses |
+| **MUSA** | static CPU topology in MUSA simulator input format |
+| **FIRESTARTER2**, **BabelSTREAM**, **NAS Parallel Benchmarks**, **High Performance Linpack**, **LULESH** | various performance benchmarks (parsed through MPPV parser) |
+
+Refer to this [tutorial](../examples/tutorials/Tutorial_02.md) to learn how to upload data sources and how to write your own parsers.
 
 ### 3rd party extensions
 
