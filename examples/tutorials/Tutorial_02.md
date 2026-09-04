@@ -18,7 +18,7 @@ The topological information regarding the CPU can be extracted from hwloc by usi
 For instance,
 
 ```bash
-lstopo topo.xml`
+lstopo topo.xml
 ```
 
 will output an XML file named `topo.xml` in the current working directory, containing the relevant information.
@@ -28,7 +28,7 @@ By providing the path to this file to the hwloc Data Parser, we can upload the d
 sys_sage::Node *node = new sys_sage::Node(0);
 
 // `xmlPath` contains the path to the XML file
-if (sys_sage::parseHwlocOutput(node, xmlPath) != 0)
+if (sys_sage::parseHwlocOutput(node, xmlPath) == 0)
     return 1;
 ```
 
@@ -81,7 +81,7 @@ Let us further assume the benchmark results are stored in a CSV file, where the 
 
 We will provide the full implementation of the parser below and subsequently discuss it:
 
-```
+```cpp
 std::tuple<int, int, double> extractInfo(const std::string &line)
 {
     std::string::size_type start = 0;
@@ -134,7 +134,7 @@ int parseCacheLinePingPongBenchmark(sys_sage::Component *root, const std::string
 
 The function `parseCacheLinePingPongBenchmark` takes a pointer to a Component that represents the root of the (sub-)tree and a string containing the path to the output Data Source file.
 While reading every line of the file one by one, it extracts the comma seperated values by calling the helper function `extractInfo`.
-Moreover, we use the method \ref sys_sage::GetDescendantById to search for a core with the given ID.
+Moreover, we use the method \ref sys_sage::GetDescendantById to search for a core with the given ID in the subtree spanned by `root`.
 If no such cores could be found, we return with an error, assuming that the file is corrupted.
 Afterwards, we create a new DataPath to model this relational property by setting its latency to the latency retrieved from the benchmark.
 

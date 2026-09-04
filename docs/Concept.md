@@ -87,7 +87,7 @@ A list of Default Data Sources for which a Default Data Parser exists is given b
 | **cccbench** | CPU core-to-core communication latency benchmark |
 | **caps-numa-benchmark** | load latencies of CPU to NUMA and cross-NUMA memory accesses |
 | **MUSA** | static CPU topology in MUSA simulator input format |
-| **FIRESTARTER2**, **BabelSTREAM**, **NAS Parallel Benchmarks**, **High Performance Linpack**, **LULESH** | various performance benchmarks (parsed through MPPV parser) |
+| **FIRESTARTER2**, **BabelSTREAM**, **NAS Parallel Benchmarks**, **High Performance Linpack**, **LULESH** | various performance benchmarks |
 
 More details about the specific information these data sources provide can be found in the API documentation of their respective parsers.
 

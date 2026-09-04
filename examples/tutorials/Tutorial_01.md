@@ -107,7 +107,7 @@ Now, let us define some Relations between the Components to convey some dynamic 
 After collecting some benchmark results during the pre-run system discovery, we have measured the bandwidth and the latency from the CPU core 0 to NUMA nodes 0 and 1.
 Moreover, we can apply a CNOT gate between qubit 1 and 2:
 
-```
+```cpp
 /*
  * For the sake of simplicity, let's assume the measurement results are hardcoded.
  * In a more realistic scenario, you would either parse a file containing the measurement results or poll them directly from the benchmark library at runtime.
