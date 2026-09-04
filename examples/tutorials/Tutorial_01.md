@@ -6,9 +6,7 @@ We will further express relational properties between the hardware components th
 Let us consider the topology that was illustrated in the [documentation](../../docs/Concept.md) as shown in the figures below
 
 <p align="middle">
-    <img alt="sys-sage's Component Tree data structure" src="../../docs/images/component-tree-dis.drawio.png" width="40%">
-    <br clear="all">
-    <img alt="sys-sage's Relations Graph data structure" src="../../docs/images/relations-dis.drawio.png" width="40%">
+    <img alt="sys-sage's Component Tree data structure" src="../../docs/images/component-tree-dis.drawio.png" width="50%">
 </p>
 
 ## Component Tree

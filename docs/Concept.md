@@ -60,6 +60,8 @@ The one at the top shows the Component Tree consisting of different ComponentTyp
 
 Refer to this [tutorial](../examples/tutorials/Tutorial_01.md) to get hands-on experience with _sys-sage_'s Component Tree and Relations Graph.
 
+Moreover, in this [tutorial](../examples/tutorials/Tutorial_02.md) you can get a first look into the library's API and familiarize yourself with navigating through the Component Tree and retrieving topological information.
+
 ### Data Sources and Data Parsers
 
 As mentioned before, _sys-sage_ collects topological information from external Data Sources to construct a full system representation.
@@ -91,7 +93,7 @@ A list of Default Data Sources for which a Default Data Parser exists is given b
 
 More details about the specific information these data sources provide can be found in the API documentation of their respective parsers.
 
-Refer to this [tutorial](../examples/tutorials/Tutorial_02.md) to learn how to upload data sources and how to write your own parsers.
+Refer to this [tutorial](../examples/tutorials/Tutorial_03.md) to learn how to upload data sources and how to write your own parsers.
 
 ### 3rd party extensions
 
