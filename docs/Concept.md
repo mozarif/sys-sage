@@ -106,12 +106,18 @@ Like with Default Data Sources, _sys-sage_ offers some pre-built 3rd party exten
 
 | 3rd Party API | description |
 | ------------- | ----------- |
-| Intel PQoS | resource sharing and cache isolation on Intel CPUs |
-| NVIDIA MIG | resource isolation and GPU partitioning on NVIDIA GPUs |
-| proc_cpuinfo | retrieve live information on CPU frequency from /proc/cpuinfo |
-| PAPI | capture hardware performance counters |
-| QDMI | retrieve QPU topological information and live system status |
+| **Intel PQoS** | resource sharing and cache isolation on Intel CPUs |
+| **NVIDIA MIG** | resource isolation and GPU partitioning on NVIDIA GPUs |
+| **proc_cpuinfo** | retrieve live information on CPU frequency from /proc/cpuinfo |
+| **PAPI** | capture hardware performance counters |
+| **QDMI** | retrieve QPU topological information and live system status |
 
 Use this [tutorial](../examples/tutorials/Tutorial_04.md) to learn how to integrate other 3rd party libraries into _sys-sage_.
+Note that some existing extensions, such as PAPI, come with their own documentation.
+Please refer to them for more detailed information.
 
 ### User-specific Attributes
+
+The information that _sys-sage_ carries can further be expanded to contain data that is specific to the current use-case scenario.
+All Components and Relations can store additional attributes expressed as key-value-pairs provided by the user.
+The flexibility to easily store arbitrary data in the Component Tree and the Relations Graph enable straight-forward customization of the topology's model.
