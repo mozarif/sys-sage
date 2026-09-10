@@ -1,4 +1,4 @@
-# Tutorial 01: Building Your Hardware Topology
+# Tutorial 01: Modeling Your Hardware Topology
 
 In this tutorial, we will construct a Componet Tree step-by-step to model a (theoretical) target platform.
 We will further express relational properties between the hardware components through the Relations Graph.

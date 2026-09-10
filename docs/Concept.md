@@ -81,7 +81,7 @@ These are typically implemented by a single function that reads the data and mer
 
 A list of Default Data Sources for which a Default Data Parser exists is given below.
 
-| Default Data Source | used for |
+| Default Data Source | description |
 | ------------------- | -------- |
 | **hwloc** | CPU static topology |
 | **MT4G** | GPU static and dynamic topology information |
@@ -96,5 +96,22 @@ More details about the specific information these data sources provide can be fo
 Refer to this [tutorial](../examples/tutorials/Tutorial_03.md) to learn how to upload data sources and how to write your own parsers.
 
 ### 3rd party extensions
+
+Complementary to the data collected during the pre-run system discovery and uploaded to _sys-sage_ at application startup via the Data Parsers, live information about the application and the system state can be polled during runtime through a 3rd party library and integrated into _sys-sage_'s Internal Representation.
+In contrast to Data Sources, these external libraries typically provide information about some dynamic system that can be accessed through a dedicated API, not a static file.
+This means that integrating these libraries into _sys-sage_ usually requires wrapping the API around some logic -- instead of parsing a file -- to map the queried information to the Internal State.
+
+On the one hand, 3rd party extensions enable a more richer system introspection involving insight into variable and dynamically changing system settings, while on the other hand _sys-sage_ envelops the standalone information in the overall context of the hardware topology.
+Like with Default Data Sources, _sys-sage_ offers some pre-built 3rd party extensions:
+
+| 3rd Party API | description |
+| ------------- | ----------- |
+| Intel PQoS | resource sharing and cache isolation on Intel CPUs |
+| NVIDIA MIG | resource isolation and GPU partitioning on NVIDIA GPUs |
+| proc_cpuinfo | retrieve live information on CPU frequency from /proc/cpuinfo |
+| PAPI | capture hardware performance counters |
+| QDMI | retrieve QPU topological information and live system status |
+
+Use this [tutorial](../examples/tutorials/Tutorial_04.md) to learn how to integrate other 3rd party libraries into _sys-sage_.
 
 ### User-specific Attributes
