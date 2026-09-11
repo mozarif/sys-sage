@@ -24,6 +24,7 @@ This part of the documentation provides information about the various classes an
     - [DataPath](class_datapath.html)
     - [QuantumGate](class_quantumgate.html)
     - [CouplingMap](class_couplingmap.html)
+- Constants
 - Input Parsers
     - [hwloc](hwloc_8hpp.html)
     - MT4G
