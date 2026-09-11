@@ -85,7 +85,7 @@ A list of Default Data Sources for which a Default Data Parser exists is given b
 | ------------------- | -------- |
 | **hwloc** | CPU static topology |
 | **MT4G** | GPU static and dynamic topology information |
-| **IQM** | tatic topological information on IQM QPUs |
+| **IQM** | static topological information on IQM QPUs |
 | **cccbench** | CPU core-to-core communication latency benchmark |
 | **caps-numa-benchmark** | load latencies of CPU to NUMA and cross-NUMA memory accesses |
 | **MUSA** | static CPU topology in MUSA simulator input format |

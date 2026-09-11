@@ -37,29 +37,28 @@ namespace sys_sage {
      *
      * All components inherit from this class, which defines attributes and methods common to all components.
      * This enables a unified interface for tree traversal, querying, and manipulation.
-     * Usually, a Component instance is one of the derived subclasses, but a generic Component is also possible.
+     * Usually, a Component instance is one of the derived subclasses, but a generic Component is also possible and can for instance be used to model custom hardware components.
      */
     class Component {
     public:
         /**
          * @brief Generic Component constructor (no automatic insertion in the Component Tree).
-         * Usually one of the derived subclasses for different Component Types will be created, not this one.
+         *        Sets the componentType member to sys_sage::ComponentType::Generic.
+         *
          * @param _id Numeric ID of the component (default 0)
          * @param _name Name of the component (default "unknown")
-         *
-         * Sets componentType to sys_sage::ComponentType::Generic.
          */
         Component(int _id = 0, const std::string &_name = "unknown");
+
         /**
          * @brief Generic Component constructor with insertion into the Component Tree as the parent's child.
-         * Usually one of the derived subclasses for different Component Types will be created.
-         * @param parent Pointer to the parent component
+         *        Sets componentType to sys_sage::ComponentType::Generic.
+         *
+         * @param _parent Pointer to the parent component
          * @param _id Numeric ID of the component (default 0)
          * @param _name Name of the component (default "unknown")
-         *
-         * Sets componentType to sys_sage::ComponentType::Generic.
          */
-        Component(Component * parent, int _id = 0, const std::string &_name = "unknown");
+        Component(Component *_parent, int _id = 0, const std::string &_name = "unknown");
 
         /**
          * @brief Prohibit shallow copies by deleting the implicit copy constructor.
@@ -72,12 +71,11 @@ namespace sys_sage {
          */
         Component &operator=(const Component &) = delete;
 
-        //SVTODO reevaluate the delete vs destructor
         /**
          * @brief Destructor for components.
          *        Unlinks this component from its parent and children and additionally frees resources.
          *        The destructor does not delete the entire subtree.
-         *        Refer to `Component::DeleteSubtree()` for the latter.
+         *        Refer to \ref sys_sage::Component::DeleteSubtree() for the latter.
          */
         virtual ~Component();
 
@@ -100,7 +98,8 @@ namespace sys_sage {
 
         /**
          * @brief Inserts a child component to this component (in the Component Tree).
-         * The child pointer will be inserted at the end of the children vector.
+         *        The child pointer will be inserted at the end of the children vector.
+         *
          * @param child Pointer to a Component (or any class instance that inherits from Component).
          * @see GetChildren()
          * @see GetChild(int _id)

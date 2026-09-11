@@ -41,106 +41,10 @@ Cache-aware algorithms need to query this dynamic property from the topology to 
 ## Documentation overview
 - [Installation Guide](Installation_Guide.md)
 - [Architectural Concept and Design](Concept.md)
-- [Data Parsers](Data_Parsers.md)
-- [PAPI Integration](sys-sage_PAPI.md)
-- [**Python API**](python-sys-sage.md)
+- [Library Features](Features.md)
+- [Public API](API.md)
 
-- **API documentation**
-    - [Component](class_component.html)
-        - [Topology](class_topology.html)
-        - [Node](class_node.html)
-        - [Memory](class_memory.html)
-        - [Storage](class_storage.html)
-        - [Chip](class_chip.html)
-        - [Cache](class_cache.html)
-        - [Subdivision](class_subdivision.html)
-        - [Numa](class_numa.html)
-        - [Core](class_core.html)
-        - [Thread](class_thread.html)
-        - [QuantumBackend](class_quantumbackend.html)
-        - [Qubit](class_qubit.html)
-        - [AtomSite](class_atomsite.html)
-    - [Relation](class_relation.html)
-        - [DataPath](class_datapath.html)
-        - [QuantumGate](class_quantumgate.html)
-        - [CouplingMap](class_couplingmap.html)
-    - External Interfaces
-        - Intel PQOS
-        - NVidia MIG
-        - /proc/cpuinfo
-    - Input Parsers
-        - caps-numa-benchmark
-        - cccbench
-        - [**hwloc**](hwloc_8hpp.html)
-        - iqm
-        - mt4g
-        - qdmi
-    - Data Sources
-        - caps-numa-benchmark
-        - [**hwloc**](hwloc-output_8cpp.html)
-        - mt4g
-    - [XML import/export](xmlio.md)
-    <!-- TODO: is XML import/export API or concept? -->
-    
-
-
-## Python API
-
-sys-sage now offers a Python API for rapid prototyping and integration with Python-based tools. You can:
-
-- Load and traverse system topologies
-- Query components and relations
-- Export/import XML
-- Attach and retrieve custom attributes
-
-See [sys-sage Python API doc](python-sys-sage.md) for details and usage examples.
-
-## Examples: 
-
-#### Building and Exporting a System Topology
-
-```cpp
-#include <sys_sage.hpp>
-
-// Create a node with a CPU and a GPU
-auto* node = new sys_sage::Node(0, "Node0");
-auto* cpu = new sys_sage::Chip(node, 1, "CPU0");
-auto* gpu = new sys_sage::Chip(node, 2, "GPU0");
-
-// Connect CPU and GPU with a DataPath 
-auto* dp = new sys_sage::DataPath(cpu, gpu, sys_sage::DataPathOrientation::Oriented, sys_sage::DataPathType::Physical);
-dp->SetBandwidth(16.0); // GB/s
-dp->SetLatency(1.2);    // microseconds
-
-// Export to XML
-sys_sage::exportToXml(node, "system.xml");
-```
-
-#### Querying Components and Relations
-
-```cpp
-// Find all "chips" in the system
-std::vector<sys_sage::Component*> chips;
-node->GetAllSubcomponentsByType(sys_sage::ComponentType::Chip, &chips);
-
-// Print all DataPaths from CPU to GPU
-for (auto* rel : cpu->GetAllRelationsBy(sys_sage::RelationType::DataPath)) {
-    rel->Print();
-}
-```
-
-
-#### Python API
-
-```python
-import sys_sage
-
-root = sys_sage.import_from_xml("system.xml")
-for gpu in root.get_all_subcomponents_by_type("Gpu"):
-    print(gpu.name, gpu.get_attribute("bandwidth"))
-```
-
-### Documentation Versioning
+## Documentation Versioning
 
 - [latest](https://stepanvanecek.github.io/sys-sage/latest/html/index.html)
 - [1.0.0](https://stepanvanecek.github.io/sys-sage/1.0.0/html/index.html)
@@ -151,7 +55,7 @@ for gpu in root.get_all_subcomponents_by_type("Gpu"):
 _sys-sage_ has been created by Stepan Vanecek (stepan.vanecek@tum.de) and the [CAPS TUM](https://www.ce.cit.tum.de/en/caps/homepage/).
 Please contact us in case of questions, bug reporting etc.
 
-The source code can be found at [https://github.com/caps-tum/sys-sage](https://github.com/caps-tum/sys-sage) .
+The source code can be found at [https://github.com/caps-tum/sys-sage](https://github.com/caps-tum/sys-sage).
 
 _sys-sage_ is available under the Apache-2.0 license. (see [License](https://github.com/caps-tum/sys-sage/blob/master/LICENSE))
 
