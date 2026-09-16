@@ -95,13 +95,20 @@ More details about the specific information these data sources provide can be fo
 
 Refer to this [tutorial](../examples/tutorials/Tutorial_03.md) to learn how to upload data sources and how to write your own parsers.
 
+### User-specific Attributes
+
+The information that _sys-sage_ carries can further be expanded to contain data that is specific to the current use-case scenario.
+All Components and Relations can store additional attributes expressed as key-value-pairs provided by the user.
+The flexibility to easily store arbitrary data in the Component Tree and the Relations Graph enable straight-forward customization and extension of the topology's model.
+
+This [tutorial](../examples/tutorials/Tutorial_04.md) gives you a brief introduction into the usage of attributes.
+
 ### 3rd party extensions
 
-Complementary to the data collected during the pre-run system discovery and uploaded to _sys-sage_ at application startup via the Data Parsers, live information about the application and the system state can be polled during runtime through a 3rd party library and integrated into _sys-sage_'s Internal Representation.
+Complementary to the data collected during the pre-run system discovery and uploaded to _sys-sage_ at application startup via the Data Parsers, live information about the application and the system state can be polled during runtime from a 3rd party library and integrated into _sys-sage_'s Internal Representation.
 In contrast to Data Sources, these external libraries typically provide information about some dynamic system that can be accessed through a dedicated API, not a static file.
-This means that integrating these libraries into _sys-sage_ usually requires wrapping the API around some logic -- instead of parsing a file -- to map the queried information to the Internal State.
+This means that integrating these libraries into _sys-sage_ usually requires wrapping the API around some logic -- instead of parsing a file -- to map the queried information to the Internal Representation.
 
-On the one hand, 3rd party extensions enable a more richer system introspection involving insight into variable and dynamically changing system settings, while on the other hand _sys-sage_ envelops the standalone information in the overall context of the hardware topology.
 Like with Default Data Sources, _sys-sage_ offers some pre-built 3rd party extensions:
 
 | 3rd Party API | description |
@@ -112,12 +119,26 @@ Like with Default Data Sources, _sys-sage_ offers some pre-built 3rd party exten
 | **PAPI** | capture hardware performance counters |
 | **QDMI** | retrieve QPU topological information and live system status |
 
-Use this [tutorial](../examples/tutorials/Tutorial_04.md) to learn how to integrate other 3rd party libraries into _sys-sage_.
-Note that some existing extensions, such as PAPI, come with their own documentation.
-Please refer to them for more detailed information.
+On the one hand, 3rd party extensions enable a more richer system introspection involving insight into variable and dynamically changing system settings, while on the other hand _sys-sage_ envelops the standalone information in the overall context of the hardware topology.
+To illustrate this symbiotic relationship, let us sketch the following use-case scenario:
 
-### User-specific Attributes
+Assume multiple applications run on a single node.
+The compute cores are partitioned such that each application is assigned a fixed number of cores.
+Moreover, the node is set under a power cap and therefore only has access to a limited power budget that it needs to distribute among the applications.
+Let's say the "application manager" of the node favors to increase the clock frequency of cores assigned to compute-intensive applications while decreasing the clock frequency of memory-bound applications.
+Hence, the application manager needs to know for every application how the change in frequency affects the performance.
+For that reason, every application should monitor the respective performance counters (e.g. IPC, cache misses, stalled cycles, etc.) and the frequency of the cores.
+Together these dynamic system properties can be used to express the change in performance, e.g.
 
-The information that _sys-sage_ carries can further be expanded to contain data that is specific to the current use-case scenario.
-All Components and Relations can store additional attributes expressed as key-value-pairs provided by the user.
-The flexibility to easily store arbitrary data in the Component Tree and the Relations Graph enable straight-forward customization of the topology's model.
+\f[
+\frac{\Delta \text{Performance}}{\Delta \text{Frequency}}
+\f]
+
+and reported to the application manager for the decision making.
+Now this is how the _sys-sage_ integration helps:
+_sys-sage_ can be used on both the application layer and the system management layer to have a unified system representation, making communication between these layers much simpler.
+Moreover, by using the PAPI extension of _sys-sage_, the hardware performance counters can directly be correlated to the relevant cores on which the counters have been monitored on.
+Furthermore, by using the proc_cpuinfo extension, we can capture the core's frequency and again associate them directly to the respective cores in the topology model.
+This means that _sys-sage_ combines both the dynamic hardware counters and the clock frequency under the same abstraction of a CPU core, thus avoiding the need of having to coordinate both metrics in isolation.
+
+Naturally, user-defined extensions can be added to _sys-sage_. Have a look at this [tutorial](../examples/tutorials/Tutorial_05.md) to get an example.
