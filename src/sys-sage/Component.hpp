@@ -42,8 +42,8 @@ namespace sys_sage {
          * @brief Generic Component constructor (no automatic insertion in the Component Tree).
          *        Sets the componentType member to `sys_sage::ComponentType::Generic`.
          *
-         * @param _id Numeric ID of the component (default 0)
-         * @param _name Name of the component (default "unknown")
+         * @param _id Numeric ID of the component (default 0).
+         * @param _name Name of the component (default "unknown").
          */
         Component(int _id = 0, const std::string &_name = "unknown");
 
@@ -51,9 +51,9 @@ namespace sys_sage {
          * @brief Generic Component constructor with insertion into the Component Tree as the parent's child.
          *        Sets componentType to sys_sage::ComponentType::Generic.
          *
-         * @param _parent Pointer to the parent component
-         * @param _id Numeric ID of the component (default 0)
-         * @param _name Name of the component (default "unknown")
+         * @param _parent Pointer to the parent component.
+         * @param _id Numeric ID of the component (default 0).
+         * @param _name Name of the component (default "unknown").
          */
         Component(Component *_parent, int _id = 0, const std::string &_name = "unknown");
 
@@ -427,110 +427,132 @@ namespace sys_sage {
         std::vector<Component*> FindNthDescendants(int depth);
 
         /**
-         * @brief Returns a (const) reference to the internal vector of relations for a given type.
-         * @param relationType Type of relation (see RelationType for available types). Only use specific Relation Types, not RelationType::Any (you will get an empty vector).
-         * @return const std::vector<Relation*>& (reference to internal structure)
-         * @note The vector is const so that the Relations of a Component cannot be manipulated this way. Use new Relation()/Relation::Delete() to modify the list of Relations.
-         * @see FindAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) as an alternative offering more flexibility at the price of increased overhead through generating a new output vector.
+         * @brief Returns a reference to a constant vector containing all relations of the component that are of a specific type.
+         *
+         * @param relationType Type of relation (can be RelationType::Any).
+         *
+         * @return Reference to an immutable vector of relations (may be empty).
+         *
+         * @see relations
          */
         const std::vector<Relation*>& GetRelationsByType(RelationType::type relationType) const;
 
         /**
-         * @brief Returns a (const) reference to the internal vector of relations for a given type.
-         * @param relationType Type of relation (see RelationType for available types). Only use specific Relation Types, not RelationType::Any (you will get an empty vector).
-         * @return const std::vector<Relation*>& (reference to internal structure)
-         * @note The vector is const so that the Relations of a Component cannot be manipulated this way. Use new Relation()/Relation::Delete() to modify the list of Relations.
-         * @see FindAllRelationsBy(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) as an alternative offering more flexibility at the price of increased overhead through generating a new output vector.
+         * @private
+         *
+         * @brief Returns a reference to a non-const vector containing all relations of the component that are of a specific type (internal use).
+         *
+         * @param relationType Type of relation (can be RelationType::Any).
+         *
+         * @return Reference to a mutable vector of relations.
+         *
+         * @see relations
          */
-        std::vector<Relation*>& _GetRelationsByType(RelationType::type relationType) const;
+        std::vector<Relation*>& _GetRelationsByType(RelationType::type relationType);
 
         /**
-         * @brief Returns a newly-constructed vector of all relations of a given type and position.
-         * @param relationType Type of relation (default: Any)
-         * @param thisComponentPosition Position of this component in the relation (default: -1 = do NOT care about position)
-         * @return Vector of matching relations (copy, not reference)
-         * @see getRelations(RelationType::type relationType) const as an alternative that returns a reference to the internal structure, i.e. has less overhead.
+         * @brief Returns a newly-constructed vector of all relations of a given type and where this component is at a specified position.
+         *
+         * @param relationType Type of relation (default: Any).
+         * @param thisComponentPosition Position of this component relative to the \ref sys_sage::Relation::components vector of the relation (default: -1 = do NOT care about position).
+         *
+         * @return A new vector of all matching relations.
          */
         std::vector<Relation*> FindRelations(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) const;
 
         /**
          * @private
-         * @brief Only called by Relation's AddComponent/UpdateComponent.
-         * @param relationType Type of relation
-         * @param r Pointer to the relation
+         *
+         * @brief Adds the given relation to the internal vector of this component's relations.
+         *        Only called by Relation's AddComponent/UpdateComponent (internal use).
+         *
+         * @param relationType Type of relation.
+         *
+         * @param r Pointer to the relation.
          */
         void _AddRelation(RelationType::type relationType, Relation* r);
 
         /**
-         * @brief Retrieves a DataPath* from the list of this component's data paths with matching DataPathCategory and DataPathDirection.
-         * The first match is returned.
-         * @param dp_category DataPath category to search for
-         * @param direction Orientation (default: Any)
-         * @return Pointer to the found DataPath, or nullptr if not found
+         * @brief Retrieves a DataPath from the vector of this component's data paths with matching DataPathCategory and DataPathDirection.
+         *        The first match is returned.
+         *
+         * @param dp_category DataPath category to search for.
+         * @param direction Orientation of the target DataPath (default: Any).
+         *
+         * @return Pointer to the found DataPath, or nullptr if not found.
          */
         DataPath* GetDataPathByCategory(DataPathCategory::type dp_category, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
-         * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation.
-         * Results are returned in std::vector<DataPath*>* outDpArr, where first the matching data paths in dp_outgoing are pushed back, then the ones in dp_incoming.
-         * @param outDpArr - output parameter (vector with results)
-         * An input is pointer to a std::vector<DataPath *>, in which the data paths will be pushed. It must be allocated before the call (but does not have to be empty).
-         * The method pushes back the found data paths -- i.e. the data paths(pointers) can be found in this array after the method returns. (If no found, the vector is not changed.)
-         * @param dp_category DataPath type to search for (default: Any)
-         * @param direction Orientation/direction of a DataPath (default: Any)
+         * @brief Searches for all data paths of this component matching the given DataPathCategory and DataPathDirection.
+         *
+         * @param outDpArr An output vector to append the matching data paths to.
+         * @param dp_category Required DataPathCategory (default: Any).
+         * @param direction Required Direction/Orientation of a DataPath (default: Any).
          */
         void FindDataPaths(std::vector<DataPath*> &outDpArr, DataPathCategory::type dp_category = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
-         * @brief Retrieves all DataPath* from the list of this component's data paths with matching type and orientation/direction.
-         * Results are returned in a std::vector<DataPath*>*.
-         * @param dp_category DataPath type to search for (default: Any)
-         * @param direction Orientation (default: Any)
-         * @return Vector of matching DataPaths
+         * @brief Searches for all data paths of this component matching the given DataPathCategory and DataPathDirection.
+         *
+         * @param dp_category Required DataPathCategory (default: Any).
+         * @param direction Required Direction/Orientation of a DataPath (default: Any).
+         *
+         * @return A new vector of all matching data paths.
          */
         std::vector<DataPath*> FindDataPaths(DataPathCategory::type dp_category = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
         /**
-        @brief Checks the consistency of the component tree starting from this component.
-
-        This function verifies that each child component has this component set as its parent.
-        It logs an error message for each child that has an incorrect parent and increments the error count.
-        The function then recursively checks the consistency of the entire subtree rooted at each child component.
-
-        @return The total number of inconsistencies found in the component tree.
-        
-        The function returns the total number of errors found in the component tree, including errors in the direct children and any nested descendants.
-        */
+         * @brief Checks the consistency of the subtree spanned by this component.
+         *        This function verifies that each child component has this component set as its parent.
+         *        It logs an error message for each child that has an incorrect parent and increments the error count.
+         *        The function then recursively checks the consistency of the entire subtree rooted at each child component.
+         *
+         * @return The total number of inconsistencies found in the subtree.
+         */
         int CheckSubtreeConsistency() const;
 
         /**
-         * @brief Calculates approximate memory footprint of the subtree of this element (including the relevant Relations).
-         * @param out_component_size output parameter (contains the footprint of the component tree elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
-         * @param out_dataPathSize output parameter (contains the footprint of the data-path graph elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
-         * @return The total size in bytes
+         * @brief Calculates approximate memory footprint of the subtree spanned by this component (including the relevant relations).
+         *
+         * @param out_component_size Output parameter storing the footprint of the components in the subtree.
+         *                           It is assumed to be allocated from the user-side and initialized with the value 0 (the result is accumulated here).
+         * @param out_RelationSize Output parameter storing the footprint of the relations in the subtree.
+         *                         It is assumed to be allocated from the user side and initialized with the value 0 (the result is accumulated here).
+         *
+         * @return The total size in bytes.
          */
-        int CalcSubtreeSize(unsigned * out_component_size, unsigned * out_dataPathSize) const;
+        int CalcSubtreeSize(unsigned *out_component_size, unsigned *out_RelationSize) const;
 
         /**
          * @private
-         * Helper function of int GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize); -- normally you would call this one.
-         * \n Calculates approximate memory footprint of the subtree of this element (including the relevant data paths). Does not count DataPaths stored in counted_dataPaths.
-         * @param out_component_size - output parameter (contains the footprint of the component tree elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
-         * @param out_dataPathSize - output parameter (contains the footprint of the data-path graph elements); an already allocated unsigned * is the input, the value is expected to be 0 (the result is accumulated here)
-         * @param counted_dataPaths - std::set<DataPath*>* of data paths that should not be counted
-         * @return The total size in bytes
-         * @see GetTopologySize(unsigned * out_component_size, unsigned * out_dataPathSize);
+         *
+         * @brief Calculates approximate memory footprint of the subtree spanned by this component (including the relevant relations).
+         *        Used as a helper function for internal use.
+         *
+         * @param out_component_size Output parameter storing the footprint of the components in the subtree.
+         *                           It is assumed to be allocated from the user-side and initialized with the value 0 (the result is accumulated here).
+         * @param out_RelationSize Output parameter storing the footprint of the relations in the subtree.
+         *                         It is assumed to be allocated from the user side and initialized with the value 0 (the result is accumulated here).
+         * @param countedRelations Set of already traversed relations.
+         *
+         * @return The total size in bytes.
          */
-        int _CalcSubtreeSize(unsigned * out_component_size, unsigned * out_RelationSize, std::set<Relation*> &countedRelations) const;
+        int _CalcSubtreeSize(unsigned *out_component_size, unsigned *out_RelationSize, std::set<Relation*> &countedRelations) const;
 
         /**
-         * @brief Retrieves the depth (level) of a component in the topology.
-         * @param refresh If true, recalculate the position (depth) of the component in the tree; if false, return the already stored value
-         * @return Depth (level) of the component in the topology
+         * @brief Retrieves the depth (level) of a component in the ComponentTree.
+         *
+         * @param refresh If true, recalculate the position (depth) of the component in the tree;
+         *                \n if false, return the already stored value.
+         *
+         * @return The depth (level) of the component.
+         *
          * @see depth
          */
         int CalcDepth(bool refresh);
 
+        // TODO: remove in the future
         /**
          * @private
          * @brief Helper for XML dump generation.
@@ -566,7 +588,7 @@ namespace sys_sage {
          * @brief Deletes all relations of this component (optionally filtered by type).
          *        This assumes that all the relations are HEAP-ALLOCATED.
          *
-         * @param relationType Relation type to delete (default: Any)
+         * @param relationType Relation type to delete (default: Any).
          */
         void DeleteRelations(RelationType::type relationType = RelationType::Any);
 
@@ -784,46 +806,33 @@ namespace sys_sage {
 
     protected:
         /**
-         * @brief Protected constructor for derived classes (no automatic insertion in the Component Tree).
-         * @param _id Numeric ID of the component
-         * @param _name Name of the component
-         * @param _componentType Component type (of type sys_sage::ComponentType::type)
+         * @brief Protected constructor for derived classes (no automatic insertion in the ComponentTree).
+         *
+         * @param _id Numeric ID of the component.
+         * @param _name Name of the component.
+         * @param _componentType ComponentType of the component.
          */
         Component(int _id, const std::string &_name, ComponentType::type _componentType);
 
         /**
-         * @brief Protected constructor for derived classes with insertion into the Component Tree.
-         * @param parent Pointer to the parent component
-         * @param _id Numeric ID of the component
-         * @param _name Name of the component
-         * @param _componentType Component type (of type sys_sage::ComponentType::type)
+         * @brief Protected constructor for derived classes with insertion into the ComponentTree.
+         *
+         * @param _parent Pointer to the parent component.
+         * @param _id Numeric ID of the component.
+         * @param _name Name of the component.
+         * @param _componentType ComponentType of the component.
          */
-        Component(Component * parent, int _id, const std::string &_name, ComponentType::type _componentType);
+        Component(Component *_parent, int _id, const std::string &_name, ComponentType::type _componentType);
 
-        int id; /**< Numeric ID of the component. There is no requirement for uniqueness of the ID, however it is advised to have unique IDs at least in the realm of parent's children (siblings). Some tree search functions, which take the id as a search parameter search for first match, so the user is responsible to manage uniqueness in the realm of the search subtree (or should be aware of the consequences of not doing so). Component's ID is set by the constructor, and is retrieved via int GetId(); */
-        int depth; /**< Depth (level) of the Component in the Component Tree */
-        std::string name; /**< Name of the component (as a std::string). */
-        int count{-1}; /**< Can be used to represent multiple Components with the same properties. By default, it represents only 1 component, and is set to -1. */
-        /**
-        Component type of the component. The component type denotes of which class the instance is (often the components are stored as Component*, even though they are a member of one of the child classes)
-        Component type is constant, set by constructor, readonly. 
-        It can be of types as listed in ComponentType::type (which is user-extensible).*/
-        const ComponentType::type componentType;
-        std::vector<Component*> children; /**< Contains the list (std::vector) of pointers to children of the component in the component tree. */
-        Component* parent { nullptr }; /**< Contains pointer to the parent component in the component tree. If this component is the root, parent will be nullptr.*/
-        
-        /**
-         * Contains a list (std::array) of different Relation types. 
-         * Initially nullptr, it is allocated on the first call to AddRelation() or new Relation().
-         * The array size is RelationType::_num_relation_types, which is defined in RelationType.
-         * Each element of the array is a pointer to a std::vector<Relation*> that contains all Relations of that type. (also lazy-allocated)
-         */
-        std::array<std::vector<Relation*>*, RelationType::_num_relation_types>* relations = nullptr;
-
-        /**
-         * The attributes map.
-         */
-        std::map<std::string, std::unique_ptr<IAttribute>> attributes;
+        int id; /**< Numeric ID of the component. There is no requirement for uniqueness of the ID, however it is advised to have unique IDs at least in the realm of parent's children (siblings). Some tree search functions, which take the ID as a parameter, search for first matching ID, meaning that the user is responsible to manage uniqueness in the realm of the search subtree (or should be aware of the consequences of not doing so). */
+        int depth; /**< Depth (level) of the Component in the ComponentTree. */
+        std::string name; /**< Name of the component. */
+        int count{-1}; /**< Can be used to represent multiple components with the same properties. By default, it represents only 1 component, and is set to -1. */ // TODO: maybe set the default to 1?
+        const ComponentType::type componentType; /** Indicates the type of a component (see \ref sys_sage::ComponentType). Can be used to cast a given base `Component *` pointer into one of the derived classes. */
+        std::vector<Component*> children; /**< Contains the vector of pointers to children of the component in the ComponentTree. */
+        Component* parent { nullptr }; /**< Contains a pointer to the parent component in the ComponentTree. If this component is the root, the parent will be nullptr. */
+        std::array<std::vector<Relation*>*, RelationType::_num_relation_types>* relations = nullptr; /** Collection of all relations of this component. It is initialized once the first relation is added. Each entry of the array corresponds to one of the RelationTypes (see sys_sage::RelationType) and consists of a (lazy-allocated) vector of relations of that type. */
+        std::map<std::string, std::unique_ptr<IAttribute>> attributes; /** Stores all attributes of this component. */
     };
 
 } //namespace sys_sage 

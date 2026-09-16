@@ -348,7 +348,7 @@ sys_sage::DataPath* sys_sage::Component::GetDataPathByCategory(DataPathCategory:
     return NULL;
 }
 
-std::vector<sys_sage::Relation*>& sys_sage::Component::_GetRelationsByType(RelationType::type relationType) const
+std::vector<sys_sage::Relation*>& sys_sage::Component::_GetRelationsByType(RelationType::type relationType)
 {
     if (relations &&
         relationType >= 0 && 
