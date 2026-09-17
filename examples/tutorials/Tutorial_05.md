@@ -102,9 +102,9 @@ int sys_sage_MeasurePowerZoneMetrics(sys_sage::Relation &powerZone)
     if (powerZoneId == nullptr)
         return -2;
 
-    PowerZoneMetrics *measurement = powerZone.GetAttribute<PowerZone>("measurement");
+    PowerZoneMetrics *measurement = powerZone.GetAttribute<PowerZoneMetrics>("measurement");
     if (measurement == nullptr) // no measurement yet
-        measurement = powerZone.SetAttribute<PowerZone>("measurement", PowerZone{}); // insert empty struct
+        measurement = powerZone.SetAttribute<PowerZoneMetrics>("measurement", PowerZoneMetrics{}); // insert an empty struct
 
     int rval = MeasurePowerZoneMetrics(*powerZoneId, measurement);
     if (rval != 0)
@@ -122,6 +122,11 @@ Now you can simply do the following:
 std::vector<sys_sage::Relation> powerZones;
 sys_sage_GetPowerZonePartitioning(cpu, powerZones);
 
-for (sys_sage::Relation &powerZone : powerZones)
+for (sys_sage::Relation &powerZone : powerZones) {
     sys_sage_MeasurePowerZoneMetrics(powerZone);
+    int *powerZoneId = powerZone.GetAttribute<int>("powerZoneId");
+    PowerZoneMetrics *measurement = powerZone.GetAttribute<PowerZoneMetrics>("measurement");
+
+    std::cout << "aggregate energy counter on power zone " << *powerZoneId << ": " << measurement->energy_uj << " µJ\n";
+}
 ```
