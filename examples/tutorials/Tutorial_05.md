@@ -12,12 +12,12 @@ Let's say that the CPU cores are logically partitioned into distinct power zones
 We want to capture this information in _sys-sage_ by wrapping the libraries API calls around some additional logic that integrates the provided data into _sys-sage_.
 
 Since a power zone usually spans multiple components/cores, we would like to use a Relation to model this logical relationship.
-However, _sys-sage_ does not provide a RelationType that is tailored out-of-the-box for this specific use case, as we need to store power-related metrics.
+However, _sys-sage_ does not provide a RelationType out-of-the-box that is tailored for this specific use case, as we need to store power-related metrics.
 Luckily, we can take a "plain" Relation and customize it by defining a new RelationCategory and by making use of a Relation's attribute to store custom data.
 This way we model a power zone via a Relation that works as an interface providing all the necessary information.
 We define our new category to be
 
-```
+```cpp
 namespace sys_sage::RelationCategory
 {
     constexpr type PowerZone = 10;
@@ -29,12 +29,12 @@ where we have made sure that the value 10 is not reserved by any other category.
 ## Integrating the 3rd Party Library
 
 For the sake of this (simplified) tutorial, let's assume that our hypothetical 3rd party library has two functions: `int GetPowerZonePartitioning(int ***partitionnig)` and `int MeasurePowerZoneMetrics(int powerZoneId, struct PowerZoneMetrics *measurement)`.
-The former one gives us the logical partitioning of the cores via a 2D array, where the first dimension denotes the ID of the power zone in incremental order and the second one the contains the cores that are part of that power zone.
+The former one gives us the logical partitioning of the cores via a 2D array, where the first dimension denotes the ID of the power zone in incremental order and the second one contains the cores that are part of that power zone.
 Also, by convention the end of the "power zone array" is `NULL` and the end of the "core arrays" is denoted by -1, e.g.
 
 ```
   power zone ID                     core IDs
-                  ------      ---------------------
+                  ------      --------------------
               0  |      | -> | 0 | 1 | 2 | 3 | -1 |
                  |------|     --------------------
               1  |      | -> | 4 | 5 | 6 | 7 | -1 |

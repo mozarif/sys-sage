@@ -130,9 +130,7 @@ Hence, the application manager needs to know for every application how the chang
 For that reason, every application should monitor the respective performance counters (e.g. IPC, cache misses, stalled cycles, etc.) and the frequency of the cores.
 Together these dynamic system properties can be used to express the change in performance, e.g.
 
-\f[
-\frac{\Delta \text{Performance}}{\Delta \text{Frequency}}
-\f]
+$$\frac{\Delta \text{Performance}}{\Delta \text{Frequency}}$$
 
 and reported to the application manager for the decision making.
 Now this is how the _sys-sage_ integration helps:
@@ -141,4 +139,5 @@ Moreover, by using the PAPI extension of _sys-sage_, the hardware performance co
 Furthermore, by using the proc_cpuinfo extension, we can capture the core's frequency and again associate them directly to the respective cores in the topology model.
 This means that _sys-sage_ combines both the dynamic hardware counters and the clock frequency under the same abstraction of a CPU core, thus avoiding the need of having to coordinate both metrics in isolation.
 
-Naturally, user-defined extensions can be added to _sys-sage_. Have a look at this [tutorial](../examples/tutorials/Tutorial_05.md) to get an example.
+Naturally, user-defined extensions can be added to _sys-sage_.
+Have a look at this [tutorial](../examples/tutorials/Tutorial_05.md) to get an example.
