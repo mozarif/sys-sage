@@ -25,7 +25,7 @@ namespace Foo
 }
 ```
 
-The first step would be implement some logic that expresses how to serialize the type `Foo::Bar<T1, T2>` to JSON and how to deserialize it back from JSON.
+The first step would be to implement some logic that expresses how to serialize the type `Foo::Bar<T1, T2>` to JSON and how to deserialize it back from JSON.
 For that we make use of the [nlohmann-json](https://json.nlohmann.me/) library.
 Since the above type is non-default-constructible (see [here](https://json.nlohmann.me/api/adl_serializer/from_json/#examples)), we need to update `Bar.hpp` with the following:
 
@@ -206,7 +206,7 @@ We can access this information (see [here](../../docs/JSON_Serialization_and_Des
 
 int main()
 {
-    using FooBarStrTup = Foo::Bar<std::string, std::tuple<long, double>>;
+    using FooBarStrTup = Foo::Bar<std::string, std::tuple<long, double>>; // abbreviation
 
     std::cout << (sys_sage::TypeTrait<FooBarStrTup>::serializable ? "Yes" : "No") << '\n'; // prints "Yes"
 
@@ -221,5 +221,83 @@ int main()
     std::cout << (sys_sage::IsBlacklistedFromDeserialization<FooBarStrTup>::value ? "Yes" : "No") << '\n'; // prints "No"
 
     return 0;
+}
+```
+
+Lastly, let us briefly discuss how to conditionally blacklist a type.
+Normally, blacklisting a type is done to circumvent a compilation error that is triggered when specializing/registering a type even though it is not serializable or deserializable under certain circumstances.
+This may occur whenever the template argument of a specialized/registered type is not serializable or deserializable by `nlohmann-json`.
+In such cases, even though we try to prevent these errors by checking `sys_sage::TypeTrait<T>::serializable` and `sys_sage::TypeTrait<T>::deserializable`, the compiler still throws an error due to some internal implementation within `nlohmann-json`.
+To avoid completely deregistering a type, it is therefore necessary to conditionally disable the type from serialization or deserialization.
+
+For the sake of this tutorial, let us say we want to disable the serialization of an attribute of type `Foo::Bar<T1, T2>` whenever `T2 = char`.
+Since the macro `SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_SERIALIZATION` completely disables the given type for any template argument, we need to write some custom logic.
+Inside of `Bar.hpp`, we would add the following at the global namespace:
+
+```cpp
+namespace sys_sage
+{
+    template <typename T1, typename T2>
+    struct IsBlacklistedFromSerialization<Foo::Bar<T1, T2>> : std::bool_constant<std::same_as<T2, char>> {};
+}
+```
+
+The trait [std::bool_constant](https://en.cppreference.com/cpp/types/integral_constant) wraps a static constexpr bool that is used to evaluate the trait `sys_sage::IsBlacklistedFromSerialization`.
+To check for the condition `T2 = char`, we initialize `std::bool_constant` with the constexpr predicate `std::same_as<T2, char>`, which essentially checks at compile time whether the template argument for `T2` is `char`.
+
+With this, the output of
+
+```cpp
+// main.cpp
+
+#include "Bar.hpp"
+#include <iostream>
+
+int main()
+{
+    sys_sage::Component *comp = new sys_sage::Component;
+
+    comp->SetAttribute("bar", Foo::Bar<std::string, std::tuple<long, double>>(
+        "hello world",
+        { 100, 3.1415 }
+    ));
+
+    comp->SetAttribute("barChar", Foo::Bar<std::string, char>(
+        "hello world",
+        'a'
+    ));
+
+    std::cout << "number of attributes: " << comp->GetAttributesSize() << "\n\n";
+
+    nlohmann::json obj = comp;
+    std::cout << obj.dump(4) << '\n';
+
+    delete comp;
+
+    return 0;
+}
+```
+
+would be
+
+```bash
+number of attributes: 2
+
+{
+    "address": 94104899291760,
+    "attributes": {
+        "bar": {
+            "_sys_sage_type": "Foo::Bar<std::string, std::tuple<long, double>>",
+            "_sys_sage_value": {
+                "x": "hello world",
+                "y": [
+                    100,
+                    3.1415
+                ]
+            }
+        }
+    },
+    "id": 0,
+    "type": "GenericComponent"
 }
 ```
