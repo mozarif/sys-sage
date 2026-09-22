@@ -149,6 +149,9 @@ with corresponding output
 Since a component's attribute can be of arbitrary type, _sys-sage_ maintains a type registry system to automatically dump and load arbitrary attributes.
 In order for _sys-sage_ to know how to process an attribute, its type needs to be registered and serialization/deserialization callbacks need to be provided.
 
+The rest of this documentation will contain detailed explanations about various aspects of _sys-sage_'s type registry.
+Refer to this [tutorial](../examples/tutorials/Tutorial_06.md) for a small, hands-on example.
+
 ### Table of Contents
 
 1. [Serialization & Deserialization Callbacks](#serialization--deserialization-callbacks)
@@ -432,7 +435,7 @@ The relevant fields are
 | `sys_sage::TypeTrait<T>::serializable` | A bool that indicates whether `T` is eligible for serialization |
 | `sys_sage::TypeTrait<T>::deserializable` | A bool that indicates whether `T` is eligible for deserialization |
 | `sys_sage::TypeTrait<T>::id` | A unique string literal representing `T` that is used for distinguishing types during deserialization |
-| `sys_sage::TypeTrait<T>::registered` | A bool that indicates whether `T` has been successfully registered (only valid for types that are registered with the `SYS_SAGE_REGISTER...` macros)  |
+| `sys_sage::TypeTrait<T>::registered<>` | A bool that indicates whether `T` has been successfully registered (only valid for types that are registered with the `SYS_SAGE_REGISTER...` macros)  |
 
 The first three fields are `constexpr`.
 Use these fields for debugging purposes.
