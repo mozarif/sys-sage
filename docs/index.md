@@ -43,6 +43,7 @@ Cache-aware algorithms need to query this dynamic property from the topology to 
 - [Architectural Concept and Design](Concept.md)
 - [Library Features](Features.md)
 - [Public API](API.md)
+- [Tutorials](../examples/README.md)
 
 ## Documentation Versioning
 

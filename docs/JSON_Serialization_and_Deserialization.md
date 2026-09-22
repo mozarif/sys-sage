@@ -4,12 +4,7 @@ _sys-sage_ provides the means to dump the entire component tree and its associat
 In addition, the component tree can be loaded back from JSON.
 This way, a snapshot of the dynamic state of the hardware topology can be saved, inspected and reconstructed.
 All functionality has been successfully tested on gcc (>=12.1) and clang (>=16.0.0).
-The relevant functions in the library's API are:
-
-```cpp
-sys_sage::DumpJson
-sys_sage::LoadJson
-```
+The relevant functions in the library's API are \ref sys_sage::DumpJson and \ref sys_sage::LoadJson.
 
 An example is shown below
 
