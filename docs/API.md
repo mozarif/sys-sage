@@ -5,25 +5,25 @@ This part of the documentation provides information about the various classes an
 ## Overview
 
 - Component Tree
-    - [Component](class_component.html)
-    - [Topology](class_topology.html)
-    - [Node](class_node.html)
-    - [Storage](class_storage.html)
-    - [Memory](class_memory.html)
-    - [Chip](class_chip.html)
-    - [Subdivision](class_subdivision.html)
-    - [Numa](class_numa.html)
-    - [Cache](class_cache.html)
-    - [Core](class_core.html)
-    - [Thread](class_thread.html)
-    - [QuantumBackend](class_quantumbackend.html)
-    - [Qubit](class_qubit.html)
-    - [AtomSite](class_atomsite.html)
+    - sys_sage::Component
+    - sys_sage::Topology
+    - sys_sage::Node
+    - sys_sage::Storage
+    - sys_sage::Memory
+    - sys_sage::Chip
+    - sys_sage::Subdivision
+    - sys_sage::Numa
+    - sys_sage::Cache
+    - sys_sage::Core
+    - sys_sage::Thread
+    - sys_sage::QuantumBackend
+    - sys_sage::Qubit
+    - sys_sage::AtomSite
 - Relations Graph
-    - [Relation](class_relation.html)
-    - [DataPath](class_datapath.html)
-    - [QuantumGate](class_quantumgate.html)
-    - [CouplingMap](class_couplingmap.html)
+    - sys_sage::Relation
+    - sys_sage::DataPath
+    - sys_sage::QuantumGate
+    - sys_sage::CouplingMap
 - Constants
 - Input Parsers
     - [hwloc](hwloc_8hpp.html)

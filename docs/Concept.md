@@ -4,9 +4,9 @@
 
 The typical workflow is described in the figure below.
 
-<p align="middle">
-    <img alt="workflow under sys-sage" src="images/workflow.drawio.png" width="80%">
-</p>
+<center>
+    ![workflow under sys-sage](images/workflow.drawio.png){html: width=60%, markdown: width=80%}
+</center>
 
 We use the term "user" to refer to any resource manager, daemon, user-side application, or any other entities that store or retrieve data from the library.
 
@@ -19,9 +19,9 @@ We use the term "user" to refer to any resource manager, daemon, user-side appli
 
 An overview of _sys-sage_'s design is given in the figure below.
 
-<p align="middle">
-    <img alt="conceptual design of sys-sage" src="images/integration-architecture.drawio.png" width="50%">
-</p>
+<center>
+    ![conceptual design of sys-sage](images/integration-architecture.drawio.png){html: width=35%, markdown: width=50%}
+</center>
 
 ### Internal Representation
 
@@ -50,11 +50,11 @@ Components will also be used to store a CPU core’s register file size and curr
 Relations extend this view by capturing relational properties between an arbitrary number of (often two: source-target) Components — for instance, cache-to-core load latencies across multiple cache levels or the fraction of cross-NUMA memory accesses between different NUMA domains.
 The figures below showcases this distinction.
 
-<p align="middle">
-    <img alt="sys-sage's Component Tree data structure" src="images/component-tree-dis.drawio.png" width="40%">
-    <br clear="all">
-    <img alt="sys-sage's Relations Graph data structure" src="images/relations-dis.drawio.png" width="40%">
-</p>
+<center>
+    ![sys-sage's Component Tree data structure](images/component-tree-dis.drawio.png){html: width=30%, markdown: width=40%}
+    <br>
+    ![sys-sage's Relations Graph data structure](images/relations-dis.drawio.png){html: width=30%, markdown: width=40%}
+</center>
 
 The one at the top shows the Component Tree consisting of different ComponentTypes marked by different colors, whereas the figure at the bottom demonstrates relations carrying different information as indicated by the different colors.
 
@@ -81,15 +81,17 @@ These are typically implemented by a single function that reads the data and mer
 
 A list of Default Data Sources for which a Default Data Parser exists is given below.
 
-| Default Data Source | description |
-| ------------------- | -------- |
-| **hwloc** | CPU static topology |
-| **MT4G** | GPU static and dynamic topology information |
-| **IQM** | static topological information on IQM QPUs |
-| **cccbench** | CPU core-to-core communication latency benchmark |
-| **caps-numa-benchmark** | load latencies of CPU to NUMA and cross-NUMA memory accesses |
-| **MUSA** | static CPU topology in MUSA simulator input format |
-| **FIRESTARTER2**, **BabelSTREAM**, **NAS Parallel Benchmarks**, **High Performance Linpack**, **LULESH** | various performance benchmarks |
+<center>
+    | Default Data Source | description |
+    | ------------------- | -------- |
+    | **hwloc** | CPU static topology |
+    | **MT4G** | GPU static and dynamic topology information |
+    | **IQM** | static topological information on IQM QPUs |
+    | **cccbench** | CPU core-to-core communication latency benchmark |
+    | **caps-numa-benchmark** | load latencies of CPU to NUMA and cross-NUMA memory accesses |
+    | **MUSA** | static CPU topology in MUSA simulator input format |
+    | **FIRESTARTER2**, **BabelSTREAM**, **NAS Parallel Benchmarks**, **High Performance Linpack**, **LULESH** | various performance benchmarks |
+</center>
 
 More details about the specific information these data sources provide can be found in the API documentation of their respective parsers.
 
@@ -111,13 +113,15 @@ This means that integrating these libraries into _sys-sage_ usually requires wra
 
 Like with Default Data Sources, _sys-sage_ offers some pre-built 3rd party extensions:
 
-| 3rd Party API | description |
-| ------------- | ----------- |
-| **Intel PQoS** | resource sharing and cache isolation on Intel CPUs |
-| **NVIDIA MIG** | resource isolation and GPU partitioning on NVIDIA GPUs |
-| **proc_cpuinfo** | retrieve live information on CPU frequency from /proc/cpuinfo |
-| **PAPI** | capture hardware performance counters |
-| **QDMI** | retrieve QPU topological information and live system status |
+<center>
+    | 3rd Party API | description |
+    | ------------- | ----------- |
+    | **Intel PQoS** | resource sharing and cache isolation on Intel CPUs |
+    | **NVIDIA MIG** | resource isolation and GPU partitioning on NVIDIA GPUs |
+    | **proc_cpuinfo** | retrieve live information on CPU frequency from /proc/cpuinfo |
+    | **PAPI** | capture hardware performance counters |
+    | **QDMI** | retrieve QPU topological information and live system status |
+</center>
 
 On the one hand, 3rd party extensions enable a more richer system introspection involving insight into variable and dynamically changing system settings, while on the other hand _sys-sage_ envelops the standalone information in the overall context of the hardware topology.
 To illustrate this symbiotic relationship, let us sketch the following use-case scenario:

@@ -193,10 +193,12 @@ Per default, an attribute whose type is serializable, i.e. a corresponding `to_j
 However, deserialization only happens when the type is registered.
 The _sys-sage_ library provides the following macros for standard type registry:
 
-| macros for implicit type registry |
-| --------------------------------- |
-| SYS_SAGE_REGISTER_TYPE_TRAIT |
-| SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT |
+<center>
+    | macros for implicit type registry |
+    | --------------------------------- |
+    | SYS_SAGE_REGISTER_TYPE_TRAIT |
+    | SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT |
+</center>
 
 Both generate some meta information that is used to register a type **implicitly** at **program start** through static initialization.
 Note that registration only happens if the type is serializable and deserializable.
@@ -240,10 +242,12 @@ One can also register (templated) types **explicitly**.
 This may be helpful for debugging, since it avoids side effects during program start, and to (marginally) reduce static memory usage.
 Nevertheless, some meta data still needs to be generated regardless by using the macros below:
 
-| macros for explicit type registry |
-| --------------------------------- |
-| SYS_SAGE_SPECIALIZE_TYPE_TRAIT |
-| SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT |
+<center>
+    | macros for explicit type registry |
+    | --------------------------------- |
+    | SYS_SAGE_SPECIALIZE_TYPE_TRAIT |
+    | SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT |
+</center>
 
 They are drop-in replacements for the ones before.
 To register a type `T`, one then needs to call the function `sys_sage::TypeRegistry::Instance().Register<T>()` at runtime.
@@ -257,38 +261,42 @@ The _sys-sage_ library already comes with some pre-registered types **out-of-the
 We hope that it covers most of the basic usage, such that users only have to register user-defined types.
 Pre-registered types include
 
-| pre-registered (templated) types |
-| -------------------------------- |
-| bool |
-| char |
-| signed char |
-| unsigned char |
-| short |
-| unsigned short |
-| int |
-| unsigned int |
-| long |
-| unsigned long |
-| long long |
-| unsigned long long |
-| float |
-| double |
-| long double |
-| std::string |
-| std::vector |
-| std::map |
-| std::unordered_map |
-| std::tuple |
+<center>
+    | pre-registered (templated) types |
+    | -------------------------------- |
+    | bool |
+    | char |
+    | signed char |
+    | unsigned char |
+    | short |
+    | unsigned short |
+    | int |
+    | unsigned int |
+    | long |
+    | unsigned long |
+    | long long |
+    | unsigned long long |
+    | float |
+    | double |
+    | long double |
+    | std::string |
+    | std::vector |
+    | std::map |
+    | std::unordered_map |
+    | std::tuple |
+</center>
 
 Some "helper" templated types have been "specialized" using the `SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT` macro without being registered:
 
-| "pre-specialized" templated types |
-| --------------------------------- |
-| std::allocator |
-| std::less |
-| std::hash |
-| std::equal_to |
-| std::pair<const T1, T2> |
+<center>
+    | "pre-specialized" templated types |
+    | --------------------------------- |
+    | std::allocator |
+    | std::less |
+    | std::hash |
+    | std::equal_to |
+    | std::pair<const T1, T2> |
+</center>
 
 Note that we have only specialized `std::pair` where the first template argument is `const`.
 
@@ -425,12 +433,14 @@ If this is not possible, then create a new header file that contains all special
 One can retrieve meta information about a type `T` of an attribute by using fields of the `sys_sage::TypeTrait<T>` struct.
 The relevant fields are
 
-| struct field | meta information |
-| ------------ | ---------------- |
-| `sys_sage::TypeTrait<T>::serializable` | A bool that indicates whether `T` is eligible for serialization |
-| `sys_sage::TypeTrait<T>::deserializable` | A bool that indicates whether `T` is eligible for deserialization |
-| `sys_sage::TypeTrait<T>::id` | A unique string literal representing `T` that is used for distinguishing types during deserialization |
-| `sys_sage::TypeTrait<T>::registered<>` | A bool that indicates whether `T` has been successfully registered (only valid for types that are registered with the `SYS_SAGE_REGISTER...` macros)  |
+<center>
+    | struct field | meta information |
+    | ------------ | ---------------- |
+    | `sys_sage::TypeTrait<T>::serializable` | A bool that indicates whether `T` is eligible for serialization |
+    | `sys_sage::TypeTrait<T>::deserializable` | A bool that indicates whether `T` is eligible for deserialization |
+    | `sys_sage::TypeTrait<T>::id` | A unique string literal representing `T` that is used for distinguishing types during deserialization |
+    | `sys_sage::TypeTrait<T>::registered<>` | A bool that indicates whether `T` has been successfully registered (only valid for types that are registered with the `SYS_SAGE_REGISTER...` macros)  |
+</center>
 
 The first three fields are `constexpr`.
 Use these fields for debugging purposes.
@@ -442,10 +452,12 @@ This can result in a huge compilation errors in which the meta data generated fo
 The only workaround we found was to explicitly blacklist some (templated) types either from serialization or deserialization.
 _sys-sage_ has blacklisted the following types
 
-| blacklisted (templated) types | blacklisted from |
-| ----------------------------- | ---------------- |
-| `std::multimap` where the key is **not** an `std::string` | deserialization |
-| `std::unordered_multimap` where the key is **not** an `std::string` | deserialization |
+<center>
+    | blacklisted (templated) types | blacklisted from |
+    | ----------------------------- | ---------------- |
+    | `std::multimap` where the key is **not** an `std::string` | deserialization |
+    | `std::unordered_multimap` where the key is **not** an `std::string` | deserialization |
+</center>
 
 If you encounter any such compilation errors when specializing/registering a type `T`, try to identify the false positive.
 To check whether serialization of `T` is the problem, try to compile
@@ -470,21 +482,25 @@ if constexpr (sys_sage::TypeTrait<T>::deserializable) {
 
 To blacklist a (templated) type, use the macros
 
-| macros for blacklisting |
-| ----------------------- |
-| SYS_SAGE_BLACKLIST_TYPE_FROM_SERIALIZATION |
-| SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_SERIALIZATION |
-| SYS_SAGE_BLACKLIST_TYPE_FROM_DESERIALIZATION |
-| SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_DESERIALIZATION |
+<center>
+    | macros for blacklisting |
+    | ----------------------- |
+    | SYS_SAGE_BLACKLIST_TYPE_FROM_SERIALIZATION |
+    | SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_SERIALIZATION |
+    | SYS_SAGE_BLACKLIST_TYPE_FROM_DESERIALIZATION |
+    | SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_DESERIALIZATION |
+</center>
 
 where you specify the types in the same way as with the macros used for specialization/registration.
 
 To check if a (templated) type is blacklisted, use
 
-| macros for blacklisting |
-| ----------------------- |
-| `sys_sage::IsBlacklistedFromSerialization<T>::value` |
-| `sys_sage::IsBlacklistedFromDeserialization<T>::value` |
+<center>
+    | macros for blacklisting |
+    | ----------------------- |
+    | `sys_sage::IsBlacklistedFromSerialization<T>::value` |
+    | `sys_sage::IsBlacklistedFromDeserialization<T>::value` |
+</center>
 
 Sometimes a type should only be blacklisted under certain conditions.
 This way one can still register and serialize/deserialize the type under certain conditions and simply disable it in others while avoiding compilation errors.
@@ -514,12 +530,14 @@ SYS_SAGE_REGISTER_TYPE_TRAIT(std::array<std::string, 4>)
 In order to register a templated type in a similar fashion to `SYS_SAGE_REGISTER_TYPE_TRAIT`, where you only have to specify the templated type once and all specific instances will be handled automatically, one needs to rely on **non-portable** functionalities that depend on the compiler.
 The relevant macros are
 
-| macros for implicit/explicit non-portable type registry |
-| ------------------------------------------------------- |
-| SYS_SAGE_SPECIALIZE_TYPE_TRAIT_NON_PORTABLE |
-| SYS_SAGE_REGISTER_TYPE_TRAIT_NON_PORTABLE |
-| SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT_NON_PORTABLE |
-| SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT_NON_PORTABLE |
+<center>
+    | macros for implicit/explicit non-portable type registry |
+    | ------------------------------------------------------- |
+    | SYS_SAGE_SPECIALIZE_TYPE_TRAIT_NON_PORTABLE |
+    | SYS_SAGE_REGISTER_TYPE_TRAIT_NON_PORTABLE |
+    | SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT_NON_PORTABLE |
+    | SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT_NON_PORTABLE |
+</center>
 
 Both `SYS_SAGE_SPECIALIZE_TYPE_TRAIT_NON_PORTABLE` and `SYS_SAGE_REGISTER_TYPE_TRAIT_NON_PORTABLE` are usually not needed, but provided nevertheless for completeness sake.
 To register `std::array<typename T, std::size_t N>`, we would do
@@ -544,16 +562,18 @@ User-defined types should generally not pose any problems and differences betwee
 As of now, only a selected few types are supported for serializing/deserializing attributes, as specified by the `pybind11-json` library.
 These types include
 
-| supported types in Python |
-| ------------------------- |
-| None |
-| bool |
-| int |
-| float |
-| str |
-| tuple |
-| list |
-| dict |
+<center>
+    | supported types in Python |
+    | ------------------------- |
+    | None |
+    | bool |
+    | int |
+    | float |
+    | str |
+    | tuple |
+    | list |
+    | dict |
+</center>
 
 User-defined types are currently excluded.
 We are working on a solution for this.

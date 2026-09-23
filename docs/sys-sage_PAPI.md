@@ -2,8 +2,8 @@
 
 ## General Information
 
-The _sys-sage_ library incorporates the **P**erformance **A**pplication
-**P**rogramming **I**nterface [[1]](#1) (PAPI) to enable the integration of
+The _sys-sage_ library incorporates the <b>P</b>erformance <b>A</b>pplication
+<b>P</b>rogramming <b>I</b>nterface [[1]](#1) (**PAPI**) to enable the integration of
 hardware performance counters on CPUs into the _sys-sage_ topology. That way,
 the performance metrics gained through PAPI can be attributed directly to the
 relevant hardware components, thus allowing for the examination and
@@ -20,7 +20,9 @@ A link to the PAPI Wiki can be found [here](https://github.com/icl-utk-edu/papi/
 The following diagram shows the overall workflow of the PAPI metrics collection
 and evaluation through _sys-sage_:
 
-![](images/sys-sage_PAPI_workflow.png)
+<center>
+    ![workflow of sys-sage's PAPI extension](images/sys-sage_PAPI_workflow.png){html: width=40%, markdown: width=40%}
+</center>
 
 The green boxes correspond to the _sys-sage_ API whereas the blue ones
 correspond to plain PAPI. In general, the creation and configuration of event
@@ -38,13 +40,15 @@ underlying PAPI routine, with the added logic of automatically handling the
 storage of the performance counter values within the _sys-sage_ topology via
 relation management. The wrapper functions are
 
-| sys-sage wrapper | corresponding PAPI routine |
-| ---------------- | -------------------------- |
-| \ref sys_sage::SS_PAPI_start | [PAPI_start](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gae6e5bcd23205175a109d4253452d4c23) |
-| \ref sys_sage::SS_PAPI_reset | [PAPI_reset](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gad9898d7dff52a01eaa3568ded30db02c) |
-| \ref sys_sage::SS_PAPI_read | [PAPI_read](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gaae91839ad186b820960687728e0ecf09) |
-| \ref sys_sage::SS_PAPI_accum | [PAPI_accum](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#ga11ebee62055cc1a0109131b6355d3be1) |
-| \ref sys_sage::SS_PAPI_stop | [PAPI_stop](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gaf0697913043edf09dd6d34f5cd871b6b) |
+<center>
+    | sys-sage wrapper | corresponding PAPI routine |
+    | ---------------- | -------------------------- |
+    | \ref sys_sage::SS_PAPI_start | [PAPI_start](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gae6e5bcd23205175a109d4253452d4c23) |
+    | \ref sys_sage::SS_PAPI_reset | [PAPI_reset](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gad9898d7dff52a01eaa3568ded30db02c) |
+    | \ref sys_sage::SS_PAPI_read | [PAPI_read](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gaae91839ad186b820960687728e0ecf09) |
+    | \ref sys_sage::SS_PAPI_accum | [PAPI_accum](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#ga11ebee62055cc1a0109131b6355d3be1) |
+    | \ref sys_sage::SS_PAPI_stop | [PAPI_stop](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gaf0697913043edf09dd6d34f5cd871b6b) |
+</center>
 
 In general, the _sys-sage_ wrappers can coexist with plain PAPI and can
 therefore be used next to the PAPI routines. This extends to routines like
@@ -55,21 +59,23 @@ of `PAPI_start`, `PAPI_reset` and `PAPI_accum` respectively.
 To access or display the performance metrics that are integrated into the
 _sys-sage_ topology, the following functions are provided
 
-| Routines to access & display PAPI metrics |
-| ------------------------------------------- |
-| \ref sys_sage::Relation::GetPAPImetric |
-| \ref sys_sage::Relation::GetAllPAPImetrics |
-| \ref sys_sage::Relation::PrintPAPImetrics |
-| \ref sys_sage::Relation::FindPAPIevents |
-| \ref sys_sage::Relation::GetCurrentEventSet |
-| \ref sys_sage::Relation::GetElapsedTime |
-| \ref sys_sage::Thread::GetPAPImetric |
-| \ref sys_sage::Thread::PrintPAPImetrics |
-| \ref sys_sage::Thread::GetPAPIrelation |
-| \ref sys_sage::Thread::FindPAPIrelations |
-| \ref sys_sage::Thread::FindPAPIeventSets |
-| \ref sys_sage::Component::PrintPAPImetricsInSubtree |
-| \ref sys_sage::Component::FindPAPIrelationsInSubtree |
+<center>
+    | Routines to access & display PAPI metrics |
+    | ------------------------------------------- |
+    | \ref sys_sage::Relation::GetPAPImetric |
+    | \ref sys_sage::Relation::GetAllPAPImetrics |
+    | \ref sys_sage::Relation::PrintPAPImetrics |
+    | \ref sys_sage::Relation::FindPAPIevents |
+    | \ref sys_sage::Relation::GetCurrentEventSet |
+    | \ref sys_sage::Relation::GetElapsedTime |
+    | \ref sys_sage::Thread::GetPAPImetric |
+    | \ref sys_sage::Thread::PrintPAPImetrics |
+    | \ref sys_sage::Thread::GetPAPIrelation |
+    | \ref sys_sage::Thread::FindPAPIrelations |
+    | \ref sys_sage::Thread::FindPAPIeventSets |
+    | \ref sys_sage::Component::PrintPAPImetricsInSubtree |
+    | \ref sys_sage::Component::FindPAPIrelationsInSubtree |
+</center>
 
 ## A brief example
 

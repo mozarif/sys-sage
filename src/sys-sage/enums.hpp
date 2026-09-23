@@ -1,9 +1,14 @@
+/**
+ * @file
+ *
+ * @brief Definition of contants.
+ */
+
 #ifndef ENUMS_HPP
 #define ENUMS_HPP
 
 #include <cstdint>
 #include <unordered_map>
-
 
 namespace sys_sage {
 
@@ -22,7 +27,7 @@ namespace sys_sage {
     namespace ComponentType{
         using type = int32_t; /**< ComponentType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
-        constexpr type Any = -1;
+        constexpr type Any = -1; /**< Any component (used for querying any type of component) */
         constexpr type Generic = 1; /**< class Component (do not use normally)*/
         constexpr type Thread = 2; /**< class Thread */
         constexpr type Core = 3; /**< class Core */
@@ -116,8 +121,8 @@ namespace sys_sage {
     namespace RelationType{
         using type = int32_t; /**< RelationType datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
 
-        constexpr type Any = -1;
-        constexpr type Relation = 0;
+        constexpr type Any = -1; /** Any relation (used to query any type of relation) */
+        constexpr type Relation = 0; /** class */
         constexpr type DataPath = 1;
         constexpr type QuantumGate = 2;
         constexpr type CouplingMap = 3;
@@ -170,7 +175,7 @@ namespace sys_sage {
      * categories, reflecting the various use-case-specific objects.
      */
     namespace RelationCategory {
-        using type = int32_t; /**< RelationCategory datatype -- to indicate a parameter should be from this enum/namespace (as there are no hard restrictions from C++). */
+        using type = int32_t; /**< datatype of the constants. */
 
         constexpr type Any = -1; /**< Any category. */
         constexpr type Default = 0; /**< The default category. */
@@ -250,6 +255,8 @@ namespace sys_sage {
         };
 
         /**
+         * @private
+         *
          * @brief Converts a QuantumGateCategory value to a human-readable string.
          * //TODO: Use QuantumGate::GetQuantumGateCategoryStr() for a more convenient way to get the string representation.
          * @param rt QuantumGateCategory value

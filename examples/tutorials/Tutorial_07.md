@@ -212,17 +212,17 @@ int main(int argc, const char **argv)
 }
 ```
 
-As usual, we first create the _sys-sage_ topology model parsing the XML file provided by hwloc.
+As usual, we first create the _sys-sage_ topology model by parsing the XML file provided by hwloc.
 
 Now, in order to attribute the performance counter values to the hardware components, the _sys-sage_ library uses a Relation to naturally link them together.
-For this purpose, a pointer of type `sys_sage::Relation` is provided to \ref sys_sage::SS_PAPI_start.
+For this purpose, a pointer of type sys_sage::Relation is provided to sys_sage::SS_PAPI_start.
 Since `metrics` is `nullptr`, the _sys-sage_ library will create a new relation object, which `metrics` will point to after the call to `sys_sage::SS_PAPI_start`.
 If it already points to a valid Relation object, that object will be reused instead.
 Within the same call, the underlying `PAPI_start` routine will be used to start the event set.
 This will also bind the Relation object to the given event set.
 Note that when bound to new event set, the Relation object does not loose the metrics of the previous event set.
 
-Within the loop, we repeatedly measure the current counters of the relevant events by using the \ref sys_sage::SS_PAPI_read function.
+Within the loop, we repeatedly measure the current counters of the relevant events by using the sys_sage::SS_PAPI_read function.
 Since the event set is now represented by the Relation, we forward the Relation object to the wrapper to integrate and correlate the counter values and corresponding hardware threads.
 A pointer to the `node` object, which represents the root of our topology, is also passed to the wrapper to search for the hardware thread abstractions inside of the topology model.
 Lastly, the boolean parameter is set to `true`, since we want to take multiple snapshots of the performance counters without overwriting the previous ones.

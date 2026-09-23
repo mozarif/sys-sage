@@ -828,11 +828,11 @@ namespace sys_sage {
         int depth; /**< Depth (level) of the Component in the ComponentTree. */
         std::string name; /**< Name of the component. */
         int count{-1}; /**< Can be used to represent multiple components with the same properties. By default, it represents only 1 component, and is set to -1. */ // TODO: maybe set the default to 1?
-        const ComponentType::type componentType; /** Indicates the type of a component (see \ref sys_sage::ComponentType). Can be used to cast a given base `Component *` pointer into one of the derived classes. */
+        const ComponentType::type componentType; /**< Indicates the type of a component (see \ref sys_sage::ComponentType). Can be used to cast a given base `Component *` pointer into one of the derived classes. */
         std::vector<Component*> children; /**< Contains the vector of pointers to children of the component in the ComponentTree. */
         Component* parent { nullptr }; /**< Contains a pointer to the parent component in the ComponentTree. If this component is the root, the parent will be nullptr. */
-        std::array<std::vector<Relation*>*, RelationType::_num_relation_types>* relations = nullptr; /** Collection of all relations of this component. It is initialized once the first relation is added. Each entry of the array corresponds to one of the RelationTypes (see sys_sage::RelationType) and consists of a (lazy-allocated) vector of relations of that type. */
-        std::map<std::string, std::unique_ptr<IAttribute>> attributes; /** Stores all attributes of this component. */
+        std::array<std::vector<Relation*>*, RelationType::_num_relation_types>* relations = nullptr; /**< Collection of all relations of this component. It is initialized once the first relation is added. Each entry of the array corresponds to one of the RelationTypes (see sys_sage::RelationType) and consists of a (lazy-allocated) vector of relations of that type. */
+        std::map<std::string, std::unique_ptr<IAttribute>> attributes; /**< Stores all attributes of this component. */
     };
 
 } //namespace sys_sage 

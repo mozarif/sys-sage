@@ -42,17 +42,19 @@ spack install sys-sage
 
 Set the following options to enable features for extended functionality:
 
-| CMake option | description |
-| ------------ | ----------- |
-| INTEL_PQOS | builds with Intel CAT support |
-| NVIDIA_MIG | builds with NVIDIA MIG support |
-| PROC_CPUINFO | builds with Linux /proc/cpuinfo support (only x86) |
-| QDMI | builds with QDMI support |
-| PAPI | builds with PAPI support |
-| DATA_SOURCES | enables all data source options |
-| DS_HWLOC | builds with the hwloc data source for automatic CPU topology discovery (independant from hwloc input parser) |
-| DS_MT4g | builds with the mt4g data source for automatic GPU topology discovery (independant from mt4g input parser) |
-| DS_NUMA | builds with the caps-numa-benchmark data source for automatic NUMA topology discovery (independant from caps-numa-benchmark input parser) |
+<center>
+    | CMake option | description |
+    | ------------ | ----------- |
+    | INTEL_PQOS | builds with Intel CAT support |
+    | NVIDIA_MIG | builds with NVIDIA MIG support |
+    | PROC_CPUINFO | builds with Linux /proc/cpuinfo support (only x86) |
+    | QDMI | builds with QDMI support |
+    | PAPI | builds with PAPI support |
+    | DATA_SOURCES | enables all data source options |
+    | DS_HWLOC | builds with the hwloc data source for automatic CPU topology discovery (independant from hwloc input parser) |
+    | DS_MT4g | builds with the mt4g data source for automatic GPU topology discovery (independant from mt4g input parser) |
+    | DS_NUMA | builds with the caps-numa-benchmark data source for automatic NUMA topology discovery (independant from caps-numa-benchmark input parser) |
+</center>
 
 #### Building
 

@@ -16,10 +16,9 @@ It’s designed for:
 - **Tool developers** building schedulers, mappers, or simulators.
 - **System architects** who need to capture and reason about complex, evolving topologies.
 
-<p align="middle">
-    <img alt="decentralized topology representation without sys-sage" src="images/goal_1.drawio.png" width="45%">
-    <img alt="unified topology representation with sys-sage" src="images/goal_2.drawio.png" width="45%">
-</p>
+<center>
+    ![decentralized topology representation without sys-sage](images/goal_1.drawio.png){html: width=30%, markdown: width=40%} &nbsp; &nbsp; &nbsp; &nbsp; ![unified topology representation with sys-sage](images/goal_2.drawio.png){html: width=30%, markdown: width=40%}
+</center>
 
 ### Why care about hardware topology?
 
@@ -43,7 +42,7 @@ Cache-aware algorithms need to query this dynamic property from the topology to 
 - [Architectural Concept and Design](Concept.md)
 - [Library Features](Features.md)
 - [Public API](API.md)
-- [Tutorials](../examples/README.md)
+- [Tutorials](../examples/tutorials/README.md)
 
 ## Documentation Versioning
 
