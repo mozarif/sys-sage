@@ -59,4 +59,4 @@ The source code can be found at [https://github.com/caps-tum/sys-sage](https://g
 
 _sys-sage_ is available under the Apache-2.0 license. (see [License](https://github.com/caps-tum/sys-sage/blob/master/LICENSE))
 
-Version: 1.0.0
+Version: 2.0.0

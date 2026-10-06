@@ -4,6 +4,7 @@ This tutorial will explain how to use attributes to make _sys-sage_ fit each use
 
 An overview of the API is given below.
 
+<center>
 | API |
 | --- |
 | \ref sys_sage::Component::SetAttribute |
@@ -14,6 +15,7 @@ An overview of the API is given below.
 | \ref sys_sage::Component::AttributesEnd |
 | \ref sys_sage::Component::EraseAttribute |
 | \ref sys_sage::Component::ClearAttributes |
+</center>
 
 The \ref sys_sage::Relation class has an analogous API.
 
