@@ -196,7 +196,7 @@ The _sys-sage_ library provides the following macros for standard type registry:
 <center>
     | macros for implicit type registry |
     | --------------------------------- |
-    | SYS_SAGE_REGISTER_TYPE_TRAIT |
+    | @ref SYS_SAGE_REGISTER_TYPE_TRAIT |
     | SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT |
 </center>
 

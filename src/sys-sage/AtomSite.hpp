@@ -15,7 +15,6 @@ namespace sys_sage {
      * Typically associated with a QuantumBackend and may be used to model
      * the physical location or properties of an atom or qubit site.
      *
-     * @note The full implementation is in the corresponding .cpp file.
      * @see QuantumBackend
      */
     class AtomSite : public QuantumBackend{

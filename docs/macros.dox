@@ -1,0 +1,14 @@
+/**
+ * @defgroup Macros Public Macros
+ *
+ * @brief Public preprocessor macros provided by sys-sage.
+ *
+ * This group contains the documented preprocessor macros that
+ * form part of the public sys-sage API.
+ *
+ * @section macro_categories Categories
+ *
+ * The macros are grouped here independently of the header files
+ * in which they are defined, providing a single entry point for
+ * users looking for compile-time configuration and API macros.
+ */

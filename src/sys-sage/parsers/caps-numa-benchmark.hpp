@@ -6,6 +6,15 @@
 
 
 namespace sys_sage {
+    /**
+     * @brief Parser for the caps-numa-benchmark data source.
+     *
+     * @param rootComponent The root of the topology.
+     * @param benchmarkPath The path to the caps-numa-benchmark CSV output file.
+     * @param delim The delimiter used in the CSV file.
+     *
+     * @return 0 on success, 1 on failure.
+     */
     int parseCapsNumaBenchmark(Component* rootComponent, const std::string &benchmarkPath, const std::string &delim = ";");
 
     /**

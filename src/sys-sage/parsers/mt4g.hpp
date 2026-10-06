@@ -6,7 +6,7 @@
 
 namespace sys_sage {
 
-  /*
+  /**
    * @brief Construct a complete GPU topology by parsing an mt4g output file.
    *        The topology will be represented by a newly created Chip component.
    *
@@ -18,7 +18,7 @@ namespace sys_sage {
    */
   int ParseMt4g(Component *parent, const std::string &path, int gpuId);
 
-  /*
+  /**
    * @brief Construct a complete GPU topology by parsing an mt4g output file.
    *        The topology will be represented by a given Chip component.
    *
@@ -29,7 +29,7 @@ namespace sys_sage {
    */
   int ParseMt4g(Chip *gpu, const std::string &path);
 
-  /*
+  /**
    * @brief Construct a complete GPU topology by parsing an mt4g output file.
    *        The topology will be represented by a newly created Chip component.
    *        Equivalent to `ParseMt4g`.
@@ -42,7 +42,7 @@ namespace sys_sage {
    */
   int ParseMt4g_v1_x(Component *parent, const std::string &path, int gpuId);
 
-  /*
+  /**
    * @brief Construct a complete GPU topology by parsing an mt4g output file.
    *        The topology will be represented by a given Chip component.
    *        Equivalent to `ParseMt4g`.
@@ -54,7 +54,7 @@ namespace sys_sage {
    */
   int ParseMt4g_v1_x(Chip *gpu, const std::string &path);
 
-  /*
+  /**
    * @brief Construct a complete GPU topology by parsing an mt4g output file.
    *        The topology will be represented by a newly created Chip component.
    *        This parser is made for version v0.1 of mt4g and is not compatible
@@ -69,7 +69,7 @@ namespace sys_sage {
    */
   int ParseMt4g_v0_1(Component* parent, const std::string &path, int gpuId, const std::string delim = ";");
 
-  /*
+  /**
    * @brief Construct a complete GPU topology by parsing an mt4g output file.
    *        The topology will be represented by a given Chip component.
    *        This parser is made for version v0.1 of mt4g and is not compatible

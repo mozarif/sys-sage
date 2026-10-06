@@ -11,17 +11,22 @@
         <tab type="user" visible="yes" title="PAPI Extension" url="@ref sys-sage_PAPI.md"/>
         <tab type="user" visible="yes" title="Python Bindings" url="@ref python-sys-sage.md"/>
       </tab>
-      <tab type="usergroup" visible="yes" title="Public API" url="[none]">
-        <tab type="classlist" visible="yes"/>
+      <tab type="usergroup" visible="yes" title="Public API" url="namespacesys__sage.html">
+        <tab type="user" visible="yes" title="Namespaces" url="namespacesys__sage.html#namespaces"/>
+        <tab type="user" visible="yes" title="Classes" url="namespacesys__sage.html#nested-classes"/>
+        <tab type="user" visible="yes" title="Concepts" url="namespacesys__sage.html#concepts"/>
+        <tab type="user" visible="yes" title="Functions" url="namespacesys__sage.html#func-members"/>
+        <tab type="user" visible="yes" title="Macros" url="@ref Macros"/>
       </tab>
+      <!-- <tab type="user" visible="yes" title="Source Code" url="files.html"> -->
       <tab type="usergroup" visible="yes" title="Tutorials" url="[none]">
-        <tab type="user" visible="yes" title="Topology Model" url="@ref tutorials/Tutorial_01.md"/>
-        <tab type="user" visible="yes" title="Component Tree Navigation" url="@ref tutorials/Tutorial_02.md"/>
-        <tab type="user" visible="yes" title="Data Sources and Data Parsers" url="@ref tutorials/Tutorial_03.md"/>
-        <tab type="user" visible="yes" title="Custom Attributes" url="@ref tutorials/Tutorial_04.md"/>
-        <tab type="user" visible="yes" title="Custom 3rd Party Extensions" url="@ref tutorials/Tutorial_05.md"/>
-        <tab type="user" visible="yes" title="Type Registry System" url="@ref tutorials/Tutorial_06.md"/>
-        <tab type="user" visible="yes" title="Performance Profiling" url="@ref tutorials/Tutorial_07.md"/>
+        <tab type="user" visible="yes" title="01. Topology Model" url="@ref tutorials/Tutorial_01.md"/>
+        <tab type="user" visible="yes" title="02. Component Tree Navigation" url="@ref tutorials/Tutorial_02.md"/>
+        <tab type="user" visible="yes" title="03. Data Sources and Data Parsers" url="@ref tutorials/Tutorial_03.md"/>
+        <tab type="user" visible="yes" title="04. Custom Attributes" url="@ref tutorials/Tutorial_04.md"/>
+        <tab type="user" visible="yes" title="05. Custom 3rd Party Extensions" url="@ref tutorials/Tutorial_05.md"/>
+        <tab type="user" visible="yes" title="06. Type Registry System" url="@ref tutorials/Tutorial_06.md"/>
+        <tab type="user" visible="yes" title="07. Performance Profiling" url="@ref tutorials/Tutorial_07.md"/>
       </tab>
   </navindex>
 

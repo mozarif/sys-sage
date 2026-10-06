@@ -36,14 +36,21 @@ namespace sys_sage {
     std::string xmlGetPropStr(xmlNode* node, std::string key);
 
     //SVDOCTODO private?
+    /**
+     * @private
+     */
     int removeUnknownCompoents(Component* c);
     /**
-    Defines parsed XML object names: "topology", "object"
-    */
+     * @private
+     *
+     * Defines parsed XML object names: "topology", "object"
+     */
     extern std::vector<std::string> xmlRelevantNames;
     /**
-    Defines parsed XML object types: "Machine", "Package", "Cache", "L3Cache", "L2Cache", "L1Cache", "NUMANode", "Core", "PU"
-    */
+     * @private
+     *
+     * Defines parsed XML object types: "Machine", "Package", "Cache", "L3Cache", "L2Cache", "L1Cache", "NUMANode", "Core", "PU"
+     */
     extern std::vector<std::string> xmlRelevantObjectTypes;
 
 } //namespace sys_sage

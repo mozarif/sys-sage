@@ -27,6 +27,11 @@ namespace sys_sage { //forward declaration
     class QuantumGate;
 }
 
+/**
+ * @namespace sys_sage
+ *
+ * @brief Global namespace of the sys-sage library.
+ */
 namespace sys_sage {
     /**
      * @class Component

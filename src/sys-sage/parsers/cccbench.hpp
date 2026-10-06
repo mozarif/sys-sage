@@ -12,7 +12,15 @@
 
 
 namespace sys_sage {
-    int parseCccbenchOutput(Node* , const std::string &);
+    /**
+     * @brief Parser for the cccbench data source.
+     *
+     * @param n The node in the topology.
+     * @param cccPath The path to the cccbench output file.
+     *
+     * @return 0.
+     */
+    int parseCccbenchOutput(Node* n, const std::string &cccPath);
 
     /**
      * @private

@@ -1,3 +1,7 @@
+/**
+ * @file attribute.hpp
+ */
+
 #ifndef SYS_SAGE_SRC_ATTRIBUTE_HPP
 #define SYS_SAGE_SRC_ATTRIBUTE_HPP
 
@@ -184,6 +188,8 @@
 //     If a multimap is not eligible, we want the user to still be able to insert a non-eligible multimap into the attributes map while simultaneously registering other eligible multimaps.
 
 /**
+ * @ingroup Macros
+ *
  * @brief Generates meta information for the specified type.
  *        DOES NOT REGISTER THE TYPE.
  */
@@ -211,6 +217,8 @@ namespace sys_sage {                                                            
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Generates meta information for the specified type.
  *        REGISTERS THE TYPE.
  */
@@ -251,6 +259,8 @@ namespace sys_sage {                                                            
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Generates meta information for the specified templated type.
  *        DOES NOT REGISTER THE TEMPLATED TYPE.
  */
@@ -278,6 +288,8 @@ namespace sys_sage {                                                            
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Generates meta information for the specified templated type.
  *        ONLY REGISTERS A FULLY INSTANTIATED TEMPLATED TYPE.
  */
@@ -318,6 +330,8 @@ namespace sys_sage {                                                            
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Generates COMPILER-SPECIFIC meta information for the specified type.
  *        DOES NOT REGISTER THE TYPE.
  */
@@ -345,6 +359,8 @@ namespace sys_sage {                                                            
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Generates COMPILER-SPECIFIC meta information for the specified type.
  *        REGISTERS THE TYPE.
  */
@@ -385,6 +401,8 @@ namespace sys_sage {                                                            
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Generates COMPILER-SPECIFIC meta information for the specified templated type.
  *        DOES NOT REGISTER THE TEMPLATED TYPE.
  */
@@ -412,6 +430,8 @@ namespace sys_sage {                                                            
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Generates COMPILER-SPECIFIC meta information for the specified templated type.
  *        ONLY REGISTERS A FULLY INSTANTIATED TEMPLATED TYPE.
  */
@@ -453,6 +473,8 @@ namespace sys_sage {                                                            
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Blacklists the specified type from JSON serialization.
  */
 #define SYS_SAGE_BLACKLIST_TYPE_FROM_SERIALIZATION(...)                     \
@@ -462,6 +484,8 @@ namespace sys_sage {                                                        \
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Blacklists the specified templated type from JSON serialization.
  */
 #define SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_SERIALIZATION(type)          \
@@ -471,6 +495,8 @@ namespace sys_sage {                                                        \
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Blacklists the specified type from JSON deserialization.
  */
 #define SYS_SAGE_BLACKLIST_TYPE_FROM_DESERIALIZATION(...)                     \
@@ -480,6 +506,8 @@ namespace sys_sage {                                                          \
 }
 
 /**
+ * @ingroup Macros
+ *
  * @brief Blacklists the specified templated type from JSON deserialization.
  */
 #define SYS_SAGE_BLACKLIST_TEMPLATED_TYPE_FROM_DESERIALIZATION(type)          \
