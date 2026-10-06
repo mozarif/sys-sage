@@ -23,11 +23,21 @@ namespace sys_sage {
      */
     template <std::size_t N>
     struct CompStr {
+        /**
+         * @private
+         *
+         * @brief Copies a string literal into a CompStr object.
+         */
         consteval CompStr(const char (&literal)[N]) noexcept
         {
             std::ranges::copy(literal, buffer);
         }
     
+        /**
+         * @private
+         *
+         * @brief Copies a CompStr object into another CompStr object.
+         */
         template <std::size_t N1>
         consteval CompStr(const CompStr<N1> &compStr, std::size_t begin) noexcept
         {
@@ -35,6 +45,11 @@ namespace sys_sage {
             buffer[N - 1] = '\0';
         }
     
+        /**
+         * @private
+         *
+         * @brief Creates a new CompStr object as the concatenation of two CompStr objects.
+         */
         template <std::size_t N1, std::size_t N2> requires (N == N1 + N2 - 1)
         consteval CompStr(const CompStr<N1> &compStr1, const CompStr<N2> &compStr2) noexcept
         {
@@ -64,6 +79,8 @@ namespace sys_sage {
     }
 
     /**
+     * @private
+     *
      * @brief Simply returns the string literal back.
      */
     template <CompStr compStr>
@@ -73,6 +90,8 @@ namespace sys_sage {
     }
 
     /**
+     * @private
+     *
      * @brief Returns the concatenation of two string literals at compile time.
      *        It forms the base case of the recursive string literal concatenation.
      */
@@ -83,6 +102,8 @@ namespace sys_sage {
     }
 
     /**
+     * @private
+     *
      * @brief Recursively concatenates string literals at compile time.
      */
     template <CompStr compStr1, CompStr compStr2, CompStr... compStrs> requires (sizeof...(compStrs) > 0)
@@ -199,6 +220,8 @@ namespace sys_sage {
     }
 
     /**
+     * @private
+     *
      * @brief Returns the string representation of the given type `T` at compile time.
      *        WARNING: The output is compiler-specific.
      *        There are NO GUARANTEES that the output is the same across different compilers or across versions of the same compiler.

@@ -149,7 +149,29 @@ namespace sys_sage {
         int _FromJson(const nlohmann::json &obj) override;
 
     protected:
+        /**
+         * @private
+         *
+         * @brief Protected constructor for internal use.
+         *        Usually called by the AtomSite constructor.
+         *
+         * @param _id The id of the quantum backend.
+         * @param _name The name of the quantum backend.
+         * @param _type The specific type of the quantum backend (often set to sys_sage::ComponentType::AtomSite).
+         */
         QuantumBackend(int _id, const std::string &_name, ComponentType::type _type);
+
+        /**
+         * @private
+         *
+         * @brief Protected constructor for internal use.
+         *        Usually called by the AtomSite constructor.
+         *
+         * @param parent The parent in the topology.
+         * @param _id The id of the quantum backend.
+         * @param _name The name of the quantum backend.
+         * @param _type The specific type of the quantum backend (often set to sys_sage::ComponentType::AtomSite).
+         */
         QuantumBackend(Component *parent, int _id, const std::string &_name, ComponentType::type _type);
 
     private:
