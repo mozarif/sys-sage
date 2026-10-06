@@ -14,17 +14,74 @@
 #include <unordered_map>
 #include <vector>
 
+/**
+ * @private
+ *
+ * @brief Expands to "()".
+ */
 #define SYS_SAGE_PARENTHESES ()
+
+/**
+ * @private
+ *
+ * @brief Returns string representation of the macro arguments.
+ */
 #define SYS_SAGE_STRINGIFY(...) #__VA_ARGS__
 
-// recursively expands a macro 128 times
+/**
+ * @private
+ *
+ * @brief recursively expands a macro 128 times
+ */
 #define SYS_SAGE_EXPAND_128(...) SYS_SAGE_EXPAND_64(SYS_SAGE_EXPAND_64(__VA_ARGS__))
+
+/**
+ * @private
+ *
+ * @brief Recursively expands a macro 64 times.
+ */
 #define SYS_SAGE_EXPAND_64(...) SYS_SAGE_EXPAND_32(SYS_SAGE_EXPAND_32(__VA_ARGS__))
+
+/**
+ * @private
+ *
+ * @brief Recursively expands a macro 32 times.
+ */
 #define SYS_SAGE_EXPAND_32(...) SYS_SAGE_EXPAND_16(SYS_SAGE_EXPAND_16(__VA_ARGS__))
+
+/**
+ * @private
+ *
+ * @brief Recursively expands a macro 16 times.
+ */
 #define SYS_SAGE_EXPAND_16(...) SYS_SAGE_EXPAND_8(SYS_SAGE_EXPAND_8(__VA_ARGS__))
+
+/**
+ * @private
+ *
+ * @brief Recursively expands a macro 8 times.
+ */
 #define SYS_SAGE_EXPAND_8(...) SYS_SAGE_EXPAND_4(SYS_SAGE_EXPAND_4(__VA_ARGS__))
+
+/**
+ * @private
+ *
+ * @brief Recursively expands a macro 4 times.
+ */
 #define SYS_SAGE_EXPAND_4(...) SYS_SAGE_EXPAND_2(SYS_SAGE_EXPAND_2(__VA_ARGS__))
+
+/**
+ * @private
+ *
+ * @brief Recursively expands a macro 2 times.
+ */
 #define SYS_SAGE_EXPAND_2(...) SYS_SAGE_EXPAND_1(SYS_SAGE_EXPAND_1(__VA_ARGS__))
+
+/**
+ * @private
+ *
+ * @brief Expands the macro arguments.
+ */
 #define SYS_SAGE_EXPAND_1(...) __VA_ARGS__
 
 // applies the map `(x, y) -> x y` to every argument pair of the macro
