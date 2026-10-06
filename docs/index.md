@@ -37,13 +37,6 @@ Cache-aware algorithms need to query this dynamic property from the topology to 
 - **Serialization:** Import/export your system topology to JSON to capture and recreate the exact system representation, including all internal information, on a different machine or at a different time.
 - **Python API:** Use sys-sage from Python for rapid prototyping, data science, or integration with other tools.
 
-## Documentation overview
-- [Installation Guide](Installation_Guide.md)
-- [Architectural Concept and Design](Concept.md)
-- [Library Features](Features.md)
-- [Public API](API.md)
-- [Tutorials](../examples/tutorials/README.md)
-
 ## Documentation Versioning
 
 - [latest](https://stepanvanecek.github.io/sys-sage/latest/html/index.html)

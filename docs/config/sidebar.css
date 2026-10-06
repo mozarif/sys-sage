@@ -66,3 +66,13 @@ body.sidebar-collapsed #doc-content {
     pointer-events: none;
     user-select: none;
 }
+
+/*
+ * Hide the automatically generated main-page branch.
+ *
+ * Keep the PROJECT_NAME root, but remove its first child,
+ * which is the title of index.md together with its sections.
+ */
+#nav-tree-contents > ul > li:first-child > ul.children_ul > li:first-child {
+    display: none !important;
+}
