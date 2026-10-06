@@ -58,9 +58,9 @@ The figures below showcases this distinction.
 
 The one at the top shows the Component Tree consisting of different ComponentTypes marked by different colors, whereas the figure at the bottom demonstrates relations carrying different information as indicated by the different colors.
 
-Refer to this [tutorial](../examples/tutorials/Tutorial_01.md) to get hands-on experience with _sys-sage_'s Component Tree and Relations Graph.
+Refer to this [tutorial](tutorials/Tutorial_01.md) to get hands-on experience with _sys-sage_'s Component Tree and Relations Graph.
 
-Moreover, in this [tutorial](../examples/tutorials/Tutorial_02.md) you can get a first look into the library's API and familiarize yourself with navigating through the Component Tree and retrieving topological information.
+Moreover, in this [tutorial](tutorials/Tutorial_02.md) you can get a first look into the library's API and familiarize yourself with navigating through the Component Tree and retrieving topological information.
 
 ### Data Sources and Data Parsers
 
@@ -95,7 +95,7 @@ A list of Default Data Sources for which a Default Data Parser exists is given b
 
 More details about the specific information these data sources provide can be found in the API documentation of their respective parsers.
 
-Refer to this [tutorial](../examples/tutorials/Tutorial_03.md) to learn how to upload data sources and how to write your own parsers.
+Refer to this [tutorial](tutorials/Tutorial_03.md) to learn how to upload data sources and how to write your own parsers.
 
 ### User-specific Attributes
 
@@ -103,7 +103,7 @@ The information that _sys-sage_ carries can further be expanded to contain data 
 All Components and Relations can store additional attributes expressed as key-value-pairs provided by the user.
 The flexibility to easily store arbitrary data in the Component Tree and the Relations Graph enable straight-forward customization and extension of the topology's model.
 
-This [tutorial](../examples/tutorials/Tutorial_04.md) gives you a brief introduction into the usage of attributes.
+This [tutorial](tutorials/Tutorial_04.md) gives you a brief introduction into the usage of attributes.
 
 ### 3rd party extensions
 
@@ -144,4 +144,4 @@ Furthermore, by using the proc_cpuinfo extension, we can capture the core's freq
 This means that _sys-sage_ combines both the dynamic hardware counters and the clock frequency under the same abstraction of a CPU core, thus avoiding the need of having to coordinate both metrics in isolation.
 
 Naturally, user-defined extensions can be added to _sys-sage_.
-Have a look at this [tutorial](../examples/tutorials/Tutorial_05.md) to get an example.
+Have a look at this [tutorial](tutorials/Tutorial_05.md) to get an example.

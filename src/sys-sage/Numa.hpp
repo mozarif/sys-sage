@@ -6,9 +6,8 @@
 namespace sys_sage {
 
     /**
-    Class Numa - represents a NUMA region on a chip.
-    \n This class is a child of Subdivision (which is a child of Component) class, therefore inherits its attributes and methods.
-    */
+     * @brief Represents a NUMA region on a chip.
+     */
     class Numa : public Subdivision {
     public:
         /**

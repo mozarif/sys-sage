@@ -6,9 +6,9 @@
 namespace sys_sage {
 
     /**
-    Class Topology - the root of the topology.
-    \n It is not required to have an instance of this class at the root of the topology. Any component can be the root. This class is a child of Component class, therefore inherits its attributes and methods.
-    */
+     * @brief Represents the root of the topology.
+     * It is not required to have an instance of this class at the root of the topology. Any component can be the root.
+     */
     class Topology : public Component {
     public:
         /**

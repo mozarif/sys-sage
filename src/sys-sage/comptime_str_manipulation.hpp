@@ -15,7 +15,7 @@
 #include <ranges>
 
 namespace sys_sage {
-    /*
+    /**
      * @private
      *
      * @brief Represents a string at compile time and is meant to be used in template metaprogramming.
@@ -44,7 +44,7 @@ namespace sys_sage {
         char buffer[N];
     };
 
-    /*
+    /**
      * @private
      *
      * @brief deduction hint for the compiler
@@ -52,7 +52,7 @@ namespace sys_sage {
     template <std::size_t N1, std::size_t N2>
     CompStr(const CompStr<N1> &, const CompStr<N2> &) -> CompStr<N1 + N2 - 1>;
 
-    /*
+    /**
      * @private
      *
      * @brief Effectively casts an internal buffer to a string literal.
@@ -63,7 +63,7 @@ namespace sys_sage {
         return compStr.buffer;
     }
 
-    /*
+    /**
      * @brief Simply returns the string literal back.
      */
     template <CompStr compStr>
@@ -72,7 +72,7 @@ namespace sys_sage {
         return CompStrToLiteral<compStr>();
     }
 
-    /*
+    /**
      * @brief Returns the concatenation of two string literals at compile time.
      *        It forms the base case of the recursive string literal concatenation.
      */
@@ -82,7 +82,7 @@ namespace sys_sage {
         return CompStrToLiteral<CompStr(compStr1, compStr2)>();
     }
 
-    /*
+    /**
      * @brief Recursively concatenates string literals at compile time.
      */
     template <CompStr compStr1, CompStr compStr2, CompStr... compStrs> requires (sizeof...(compStrs) > 0)
@@ -91,7 +91,7 @@ namespace sys_sage {
         return CompStrCat<CompStr(compStr1, compStr2), compStrs...>();
     }
 
-    /*
+    /**
      * @private
      *
      * @brief Returns it's own function signature which contains a string representation for the given type `T`.
@@ -102,14 +102,14 @@ namespace sys_sage {
         return __PRETTY_FUNCTION__;
     }
 
-    /*
+    /**
      * @private
      *
      * @brief Defines position not found.
      */
     inline static constexpr std::size_t npos = static_cast<std::size_t>(-1);
 
-    /*
+    /**
      * @private
      *
      * @brief Finds the starting position of the substring `needle` in the string `hayStack`.
@@ -138,7 +138,7 @@ namespace sys_sage {
         return npos;
     }
 
-    /*
+    /**
      * @private
      *
      * @brief Finds the starting position of the substring `needle` in the string `hayStack`.
@@ -168,7 +168,7 @@ namespace sys_sage {
         return npos;
     }
 
-    /*
+    /**
      * @private
      *
      * @brief Returns a substring literal starting from `begin` and ending at `end`.
@@ -182,7 +182,7 @@ namespace sys_sage {
         return CompStrToLiteral<CompStr<end - (begin + offset) + 1>(funcName, begin + offset)>();
     }
 
-    /*
+    /**
      * @private
      *
      * @brief Returns a substring literal by removing a prefix that ends with `prefix` and removing a suffix that starts with `suffix`.
@@ -198,7 +198,7 @@ namespace sys_sage {
         >();
     }
 
-    /*
+    /**
      * @brief Returns the string representation of the given type `T` at compile time.
      *        WARNING: The output is compiler-specific.
      *        There are NO GUARANTEES that the output is the same across different compilers or across versions of the same compiler.

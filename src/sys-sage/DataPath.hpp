@@ -10,14 +10,10 @@ namespace sys_sage { //forward declaration
 namespace sys_sage {
     /**
      * @class DataPath
-     * @brief Represents a data path (arbitrary relation or data movement) between two Components in the topology.
-     *
-     * DataPaths form a data-path graph, which is orthogonal to the Component Tree. Each Component contains references
-     * to all DataPaths going to or from it, in addition to its parent and children in the Component Tree. This enables
-     * navigation between Components and access to data stored in Components or DataPaths.
+     * @brief Represents a data path relation between two components in the topology.
      *
      * DataPaths can be oriented (directed) or bidirectional, and can carry additional information such as bandwidth,
-     * latency, and user-defined categories. They are essential for modeling memory hierarchies, interconnects, and other
+     * latency, and user-defined attributes. They are essential for modeling memory hierarchies, interconnects, and other
      * logical or physical data flows in heterogeneous systems.
      */
     class DataPath : public Relation {

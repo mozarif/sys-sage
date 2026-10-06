@@ -6,9 +6,8 @@
 namespace sys_sage {
 
     /**
-    Class Storage - represents a persistent storage device. (Of any kind.)
-    \n This class is a child of Component class, therefore inherits its attributes and methods.
-    */
+     * @brief Represents a persistent storage device (of any kind).
+     */
     class Storage : public Component {
     public:
         /**

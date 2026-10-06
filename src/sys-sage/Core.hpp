@@ -6,9 +6,8 @@
 namespace sys_sage {
 
     /**
-    Class Core - represents a CPU core, or a GPU streaming multiprocessor.
-    \n This class is a child of Component class, therefore inherits its attributes and methods.
-    */
+     * @brief Represents a CPU core.
+     */
     class Core : public Component {
     public:
         /**

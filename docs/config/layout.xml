@@ -13,9 +13,6 @@
       </tab>
       <tab type="usergroup" visible="yes" title="Public API" url="[none]">
         <tab type="classlist" visible="yes"/>
-        <tab type="namespacelist" visible="yes"/>
-        <tab type="concepts" visible="yes"/>
-        <tab type="filelist" visible="yes"/>
       </tab>
       <tab type="usergroup" visible="yes" title="Tutorials" url="[none]">
         <tab type="user" visible="yes" title="Topology Model" url="@ref tutorials/Tutorial_01.md"/>

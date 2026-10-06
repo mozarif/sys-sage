@@ -30,7 +30,7 @@ namespace sys_sage { //forward declaration
 namespace sys_sage {
     /**
      * @class Component
-     * @brief Generic class for all hardware and logical components in sys-sage.
+     * @brief Generic class for all hardware and logical components.
      *
      * All components inherit from this class, which defines attributes and methods common to all components.
      * This enables a unified interface for tree traversal, querying, and manipulation.

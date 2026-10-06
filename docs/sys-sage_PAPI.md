@@ -79,7 +79,7 @@ _sys-sage_ topology, the following functions are provided
 
 ## A brief example
 
-We offer a dedicated [tutorial](../examples/tutorials/Tutorial_07.md) on the PAPI integration, showcasing the basic concepts.
+We offer a dedicated [tutorial](tutorials/Tutorial_07.md) on the PAPI integration, showcasing the basic concepts.
 For more sophisticated examples, please have a look at the `examples/`
 directory of the _sys-sage_ repository. The examples include
 

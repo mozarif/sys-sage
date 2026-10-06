@@ -6,9 +6,8 @@
 namespace sys_sage {
 
     /**
-    Class Node - represents a compute node.
-    \n This class is a child of Component class, therefore inherits its attributes and methods.
-    */
+     * @brief Represents a compute node.
+     */
     class Node : public Component {
     public:
         /**

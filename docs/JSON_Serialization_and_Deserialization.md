@@ -145,7 +145,7 @@ Since a component's attribute can be of arbitrary type, _sys-sage_ maintains a t
 In order for _sys-sage_ to know how to process an attribute, its type needs to be registered and serialization/deserialization callbacks need to be provided.
 
 The rest of this documentation will contain detailed explanations about various aspects of _sys-sage_'s type registry.
-Refer to this [tutorial](../examples/tutorials/Tutorial_06.md) for a small, hands-on example.
+Refer to this [tutorial](tutorials/Tutorial_06.md) for a small, hands-on example.
 
 ### Table of Contents
 

@@ -8,6 +8,9 @@
 namespace sys_sage {
     int parseCapsNumaBenchmark(Component* rootComponent, const std::string &benchmarkPath, const std::string &delim = ";");
 
+    /**
+     * @private
+     */
     class CSVReader
     {
         std::string benchmarkPath;

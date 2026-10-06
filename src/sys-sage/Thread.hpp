@@ -7,9 +7,8 @@ namespace sys_sage {
 
 
     /**
-    Class Thread - represents HW thread on CPUs, or a thread on a GPU.
-    \n This class is a child of Component class, therefore inherits its attributes and methods.
-    */
+     * @brief Represents a hardware thread on CPUs, or a thread on a GPU.
+     */
     class Thread : public Component {
     public:
         /**

@@ -13,7 +13,7 @@
 namespace sys_sage {
 
     /**
-     * @brief An object representing a single perf counter value.
+     * @brief An object representing a single performance counter value.
      */
     struct Metric {
         unsigned long long timestamp;

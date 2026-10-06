@@ -14,6 +14,9 @@
 namespace sys_sage {
     int parseCccbenchOutput(Node* , const std::string &);
 
+    /**
+     * @private
+     */
     template <typename T>class Vec2DArray
     {
         Vec2DArray(){}
@@ -37,6 +40,9 @@ namespace sys_sage {
         return &(this->array[this->xdim*xindex]);
     }
 
+    /**
+     * @private
+     */
     class CccbenchParser{
         unsigned int firstCore;
         unsigned int lastCore;

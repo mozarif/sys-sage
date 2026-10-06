@@ -478,7 +478,7 @@ namespace sys_sage {
     /**
      * @class TypeRegistry
      *
-     * @brief Manages type registration and stores deserialization callbacks functions.
+     * @brief Manages type registration and stores deserialization callback functions.
      */
     class TypeRegistry {
     public:
@@ -522,7 +522,7 @@ namespace sys_sage {
     };
 
     /**
-     * @class TypeTraits
+     * @class TypeTrait
      *
      * @brief Provides compile time meta data for a type.
      */
@@ -591,6 +591,9 @@ SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::hash)
 SYS_SAGE_SPECIALIZE_TEMPLATED_TYPE_TRAIT(std::equal_to)
 
 namespace sys_sage {
+    /**
+     * @private
+     */
     template <typename T1, typename T2>
     struct TypeTrait<std::pair<const T1, T2>> {
         static constexpr bool serializable = IsSerializable<std::pair<const T1, T2>>;
@@ -617,11 +620,17 @@ namespace sys_sage {
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace sys_sage {
+    /**
+     * @private
+     */
     template <typename Key, typename T, typename Compare, typename Allocator>
     struct IsBlacklistedFromDeserialization<std::multimap<Key, T, Compare, Allocator>> : std::bool_constant<!std::same_as<Key, std::string>> {};
 }
 
 namespace sys_sage {
+    /**
+     * @private
+     */
     template <typename Key, typename T, typename Hash, typename KeyEqual, typename Allocator>
     struct IsBlacklistedFromDeserialization<std::unordered_multimap<Key, T, Hash, KeyEqual, Allocator>> : std::bool_constant<!std::same_as<Key, std::string>> {};
 }

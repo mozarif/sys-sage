@@ -7,7 +7,7 @@ namespace sys_sage {
 
     /**
      * @class CouplingMap
-     * @brief Represents a coupling (connectivity) relation between two or more qubits/components.
+     * @brief Represents a coupling (connectivity) relation between two or more qubits.
      *
      * This class is used to describe the physical or logical connectivity between qubits in a quantum device,
      * typically as part of the quantum hardware abstraction in sys-sage. It inherits from Relation and can

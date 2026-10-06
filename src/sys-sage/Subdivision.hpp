@@ -6,9 +6,8 @@
 namespace sys_sage {
 
     /**
-    Class Subdivision - represents a data cache memories in the system (of different levels/purposes).
-    \n This class is a child of Component class, therefore inherits its attributes and methods.
-    */
+     * @brief Represents a logical or physical collection of components that share topological semantics (e.g. NUMA node or GPU streaming multiprocessor).
+     */
     class Subdivision : public Component {
     public:
         /**

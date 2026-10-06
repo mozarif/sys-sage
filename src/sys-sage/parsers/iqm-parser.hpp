@@ -21,6 +21,9 @@ namespace sys_sage {
     int parseIQM(Component* parent, const std::string &dataSourcePath, int qcId, int tsForHistory = -1);
     int parseIQM(QuantumBackend* parent, const std::string &dataSourcePath, int qcId, int tsForHistory = -1, bool createTopo = true);
 
+    /**
+     * @private
+     */
     class IQMParser
     {
     public: 

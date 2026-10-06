@@ -34,29 +34,28 @@ $extrastylesheet
 <script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function () {
     const button = document.getElementById("sidebar-toggle");
+    if (button) {
+        button.addEventListener("click", function () {
+            const collapsed =
+                document.body.classList.toggle("sidebar-collapsed");
 
-    if (!button) return;
-
-    button.addEventListener("click", function () {
-        const collapsed =
-            document.body.classList.toggle("sidebar-collapsed");
-
-        button.textContent = collapsed ? "☰" : "×";
-        button.setAttribute(
-            "aria-expanded",
-            String(!collapsed)
-        );
-        button.setAttribute(
-            "aria-label",
-            collapsed
-                ? "Show navigation sidebar"
-                : "Hide navigation sidebar"
-        );
-        button.title =
-            collapsed
-                ? "Show navigation sidebar"
-                : "Hide navigation sidebar";
-    });
+            button.textContent = collapsed ? "☰" : "×";
+            button.setAttribute(
+                "aria-expanded",
+                String(!collapsed)
+            );
+            button.setAttribute(
+                "aria-label",
+                collapsed
+                    ? "Show navigation sidebar"
+                    : "Hide navigation sidebar"
+            );
+            button.title =
+                collapsed
+                    ? "Show navigation sidebar"
+                    : "Hide navigation sidebar";
+        });
+    }
 });
 </script>
 </head>

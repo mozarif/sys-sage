@@ -29,9 +29,9 @@ namespace sys_sage { //forward declaration
 namespace sys_sage {
     /**
      * @class Relation
-     * @brief Abstract base class representing a multi-way connection among Components.
+     * @brief Abstract base class representing a multi-way connection among components.
      *
-     * A Relation models a relationship among one or more Components, such as a data path,
+     * A Relation models a relationship among one or more components, such as a data path,
      * logical gate, or any other connectivity construct. Derived classes define the specific
      * type and semantics.
      *

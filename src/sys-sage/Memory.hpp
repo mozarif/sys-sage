@@ -6,9 +6,9 @@
 namespace sys_sage {
 
     /**
-    Class Memory - represents a memory element. (Could be main memory of different technologies, could be a GPU memory or any other type.)
-    \n This class is a child of Component class, therefore inherits its attributes and methods.
-    */
+     * @brief Represents a memory element.
+     *        Could be main memory of different technologies; could be a GPU memory or any other type.
+     */
     class Memory : public Component {
     public:
         /**
