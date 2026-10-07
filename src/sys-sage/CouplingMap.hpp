@@ -25,6 +25,8 @@ namespace sys_sage {
          *
          * This constructor is typically used for pairwise couplings in quantum hardware.
          * Sets type to sys_sage::RelationType::CouplingMap.
+         *
+         * @pythonBinding
          */
         CouplingMap(Qubit* q1, Qubit*q2);
 
@@ -48,6 +50,8 @@ namespace sys_sage {
          *
          * This constructor allows for more general coupling relations, including multi-qubit couplings.
          * Sets type to sys_sage::RelationType::CouplingMap.
+         *
+         * @pythonBinding
          */
         CouplingMap(const std::vector<Component*>& components, int _id = 0, bool _ordered = true);
         /**

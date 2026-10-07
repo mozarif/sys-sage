@@ -72,6 +72,8 @@ namespace sys_sage {
      * @return If `metrics == nullptr` or `metrics` is not of category
      *         `RelationCategory::PAPI_Metrics`, then `PAPI_EINVAL` is returned,
      *          otherwise the same as in `PAPI_reset`.
+     *
+     * @pythonBinding
      */
     int SS_PAPI_reset(Relation *metrics);
 

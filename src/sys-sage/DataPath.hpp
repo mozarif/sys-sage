@@ -39,6 +39,8 @@ namespace sys_sage {
          * @param _dp_category (optional) Category of the Data Path (user-defined, default: DataPathCategory::None).
          *
          * Sets type to sys_sage::RelationType::DataPath.
+         *
+         * @pythonBinding
          */
         DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathCategory::type _dp_category = sys_sage::DataPathCategory::None);
         /**
@@ -50,6 +52,8 @@ namespace sys_sage {
          * @param _latency Data load latency from the source (provides the data) to the target (requests the data)
          *
          * Sets type to sys_sage::RelationType::DataPath.
+         *
+         * @pythonBinding
          */
         DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, double _bw, double _latency);
 
@@ -63,6 +67,8 @@ namespace sys_sage {
          * @param _latency Data load latency from the source (provides the data) to the target (requests the data)
          *
          * Sets type to sys_sage::RelationType::DataPath.
+         *
+         * @pythonBinding
          */
         DataPath(Component* _source, Component* _target, sys_sage::DataPathOrientation::type _oriented, sys_sage::DataPathCategory::type _dp_category, double _bw, double _latency);
 
@@ -129,6 +135,8 @@ namespace sys_sage {
          * @brief Prints basic information about the Data Path to stdout.
          * Prints componentType and Id of the source and target Components, the bandwidth, load latency, and the attributes.
          * For each attribute, the name and value are printed; the value is only retyped to uint64_t (so will print nonsensical values for other data types).
+         *
+         * @pythonBinding
          */
         void Print() const override;
         /**

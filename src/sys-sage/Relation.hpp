@@ -67,6 +67,8 @@ namespace sys_sage {
          * @param _id Optional unique ID for the relation (default 0).
          * @param _ordered Whether the order of components carries semantic meaning (default true).
          * @param _category The category of this relation (default RelationCategory::Default).
+         *
+         * @pythonBinding
          */
         Relation(const std::vector<Component*>& components, int _id = 0, bool _ordered = true,
                  RelationCategory::type _category = RelationCategory::Default);
@@ -134,6 +136,8 @@ namespace sys_sage {
          * @brief Returns a human-readable string representation of the RelationType as defined in \ref sys_sage::RelationType::names.
          *
          * @return A string representation of the relation's type.
+         *
+         * @pythonBinding
          */
         const std::string &GetTypeStr() const;
 
@@ -152,6 +156,8 @@ namespace sys_sage {
          *
          * @return True if the given component is found in this relation's vector of components;
          *         \n false otherwise.
+         *
+         * @pythonBinding
          */
         bool ContainsComponent(Component* c) const;
 
@@ -161,6 +167,8 @@ namespace sys_sage {
          * @param index Index of the component in this relation's components vector.
          *
          * @return Pointer to the component at that index.
+         *
+         * @pythonBinding
          */
         Component* GetComponent(int index) const;
 
@@ -175,6 +183,8 @@ namespace sys_sage {
 
         /**
          * @brief Prints debug information about this relation.
+         *
+         * @pythonBinding
          */
         virtual void Print() const;
 
@@ -198,6 +208,8 @@ namespace sys_sage {
          * @brief Add a new component to this relation.
          *
          * @param c The component to add.
+         *
+         * @pythonBinding
          */
         void AddComponent(Component* c);
 
@@ -209,6 +221,8 @@ namespace sys_sage {
          *
          * @return 0 on success;
          *         \n -1 if the index is invalid.
+         *
+         * @pythonBinding
          */
         int UpdateComponent(int index, Component *_new_component);
 
@@ -220,6 +234,8 @@ namespace sys_sage {
          *
          * @return 0 on success;
          *         \n -1 if not found.
+         *
+         * @pythonBinding
          */
         int UpdateComponent(Component* _old_component, Component * _new_component);
 
@@ -230,6 +246,8 @@ namespace sys_sage {
          *
          * @return 0 on success;
          *         \n -1 otherwise.
+         *
+         * @pythonBinding
          */
         int RemoveComponent(size_t index);
 
@@ -240,6 +258,8 @@ namespace sys_sage {
          *
          * @return 0 on success;
          *         \n -1 otherwise.
+         *
+         * @pythonBinding
          */
         int RemoveComponent(Component *component);
 
@@ -302,6 +322,8 @@ namespace sys_sage {
          *                  involved in the latest reading.
          *
          * @return > 0 if a perf counter value exists for the given paramters, 0 otherwise.
+         *
+         * @pythonBinding
          */
         long long GetPAPImetric(int eventCode, int cpuNum = -1, unsigned long long timestamp = 0) const;
 
@@ -316,6 +338,8 @@ namespace sys_sage {
          * @return A valid pointer to an object containing the perf counter
          *         values. If such an object doesn't exist for the given
          *         paramters, `nullptr` is returned.
+         *
+         * @pythonBinding
          */
         const CpuMetrics *GetAllPAPImetrics(int eventCode, int cpuNum) const;
 
@@ -328,6 +352,8 @@ namespace sys_sage {
          *        should be printed or only a specific one. If the value is -1,
          *        the former will be done. Otherwise, the value is interpreted
          *        as the target CPUs ID.
+         *
+         * @pythonBinding
          */
         void PrintPAPImetrics(int cpuNum = -1) const;
 
@@ -336,6 +362,8 @@ namespace sys_sage {
          *
          * @return A vector containing the event codes. It may be empty if no
          *         such events exist.
+         *
+         * @pythonBinding
          */
         std::vector<int> FindPAPIevents() const;
 
@@ -353,6 +381,8 @@ namespace sys_sage {
           * @return The corresponding event set. If this relation is not of
           *         category `RelationCategory::PAPI_Metrics`, then `PAPI_NULL`
           *         will be returned instead.
+          *
+         * @pythonBinding
           */
         int GetCurrentEventSet() const;
 
@@ -365,6 +395,8 @@ namespace sys_sage {
          * @return If this relation is not of category
          *         `RelationCategory::PAPI_Metrics`, 0 is returned, otherwise
          *         the elapsed time.
+         *
+         * @pythonBinding
          */
         unsigned long long GetElapsedTime(unsigned long long timestamp) const;
 
@@ -376,6 +408,8 @@ namespace sys_sage {
          *         `RelationCategory::PAPI_Metrics` or no measurements have yet
          *         been taken, -1 is returned. Otherwise, the ID of the
          *         described CPU.
+         *
+         * @pythonBinding
          */
         int GetLatestCpuNum() const;
 #endif
@@ -403,6 +437,8 @@ namespace sys_sage {
          *
          * @return A pointer to the respective object storing the value of the
          *         new attribute.
+         *
+         * @pythonBinding
          */
         template <typename T>
         std::decay_t<T> *SetAttribute(const std::string &key, T &&value);
@@ -417,6 +453,8 @@ namespace sys_sage {
          *         attribute. May be `nullptr` if no attribute is associated
          *         with the given key or the requested type doesn't match the
          *         stored type.
+         *
+         * @pythonBinding
          */
         template <typename T>
         T *GetAttribute(const std::string &key);
@@ -548,6 +586,8 @@ namespace sys_sage {
          * @brief Removes the attribute that is associated to the given key.
          *
          * @param key The key that is associated to the attribute.
+         *
+         * @pythonBinding
          */
         void EraseAttribute(const std::string &key);
 
@@ -562,6 +602,8 @@ namespace sys_sage {
 
         /**
          * @brief Removes all attributes.
+         *
+         * @pythonBinding
          */
         void ClearAttributes();
 

@@ -16,6 +16,8 @@ namespace sys_sage {
          *
          * @param _id The ID of the core (default 0).
          * @param _name The name of the core (default "Core").
+         *
+         * @pythonBinding
          */
         Core(int _id = 0, const std::string &_name = "Core");
 
@@ -26,6 +28,8 @@ namespace sys_sage {
          * @param parent The parent of this core within the tree.
          * @param _id The ID of the core (default 0).
          * @param _name The name of the core (default "Core").
+         *
+         * @pythonBinding
          */
         Core(Component * parent, int _id = 0, const std::string &_name = "Core");
 
@@ -58,6 +62,8 @@ namespace sys_sage {
          * @param keep_history Whether the new frequency metric should be also be saved in a dedicated vector.
          *
          * @return 0 on success, 1 on failure.
+         *
+         * @pythonBinding
          */
         int RefreshFreq(bool keep_history = false);
 

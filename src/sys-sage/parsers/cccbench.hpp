@@ -19,6 +19,8 @@ namespace sys_sage {
      * @param cccPath The path to the cccbench output file.
      *
      * @return 0.
+     *
+     * @pythonBinding
      */
     int parseCccbenchOutput(Node* n, const std::string &cccPath);
 

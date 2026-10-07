@@ -13,12 +13,12 @@ namespace sys_sage {
     public:
         /**
         Memory constructor (no automatic insertion in the Component Tree). Sets:
-        @param _id = 0
-        @param _name = "Memory"
         @param _size = size/capacity of the memory element, default -1
         @param is_volatile = true if the memory is volatile, default false
 
         Sets componentType to sys_sage::ComponentType::Memory.
+
+        @pythonBinding
         */
         Memory(long long _size = -1, bool is_volatile = false);
         /**
@@ -26,11 +26,12 @@ namespace sys_sage {
         @param parent = the parent 
         @param _id = 0
         @param _name = name, default "Memory"
-        @param componentType=>SYS_SAGE_COMPONENT_MEMORY
         @param _size = size/capacity of the memory element, default -1
         @param is_volatile = true if the memory is volatile, default false
 
         Sets componentType to sys_sage::ComponentType::Memory.
+
+        @pythonBinding
         */
         Memory(Component * parent, int id = 0, const std::string &_name = "Memory", long long _size = -1, bool is_volatile = false);
 
@@ -86,13 +87,15 @@ namespace sys_sage {
         int _FromJson(const nlohmann::json &obj) override;
 
     private:
-        long long size; /**< size/capacity of the memory element*/
+        long long size; /**< size/capacity of the memory element */
         bool is_volatile; /**< is volatile? */
 
     #ifdef NVIDIA_MIG
     public:
         /**
          * Gets the MIG size of the memory element.
+         *
+         * @pythonBinding
          */
         long long GetMIGSize(std::string uuid = "") const;
     #endif

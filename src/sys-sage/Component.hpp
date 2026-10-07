@@ -49,6 +49,8 @@ namespace sys_sage {
          *
          * @param _id Numeric ID of the component (default 0).
          * @param _name Name of the component (default "unknown").
+         *
+         * @pythonBinding
          */
         Component(int _id = 0, const std::string &_name = "unknown");
 
@@ -59,6 +61,8 @@ namespace sys_sage {
          * @param _parent Pointer to the parent component.
          * @param _id Numeric ID of the component (default 0).
          * @param _name Name of the component (default "unknown").
+         *
+         * @pythonBinding
          */
         Component(Component *_parent, int _id = 0, const std::string &_name = "unknown");
 
@@ -105,6 +109,8 @@ namespace sys_sage {
          *
          * @see GetChildren()
          * @see GetChild(int _id)
+         *
+         * @pythonBinding
          */
         void InsertChild(Component *child);
         
@@ -122,6 +128,8 @@ namespace sys_sage {
          *         \n 1 if the child and parent are not actually child and parent in the Component Tree;
          *         \n 2 if the Component Tree is corrupt (parent is a parent of child but child is not in the parent's children vector);
          *         \n 3 if the Component Tree is corrupt (parent is not a parent of child but child is in the parent's children vector).
+         *
+         * @pythonBinding
         */
         int InsertBetweenParentAndChild(Component* parent, Component* child, bool alreadyParentsChild);
         
@@ -139,6 +147,8 @@ namespace sys_sage {
          *        \n 1 on incompatible parent-children components (one or more children are not the parent's children);
          *        \n 2 on corrupt Component Tree (parent is a parent of the specified children but at least on of them is not in the parernt's children vector);
          *        \n 3 on corrupt Component Tree (parent is not a parent of at least one of the specified children but the children are in the parent's children vector).
+         *
+         * @pythonBinding
         */
         int InsertBetweenParentAndChildren(Component* parent, std::vector<Component*> children, bool alreadyParentsChild);
 
@@ -149,6 +159,8 @@ namespace sys_sage {
          * @param child Child to remove.
          *
          * @return Number of elements removed (normally 0 or 1).
+         *
+         * @pythonBinding
          */
         int RemoveChild(Component *child);
 
@@ -167,6 +179,8 @@ namespace sys_sage {
          * @brief Prints the whole subtree of this component.
          *        The tree is printed in DFS order, so that the hierarchy can be easily seen.
          *        For each component in the subtree, the following is printed: "<string component type> (name <name>) id <id> - children: <num children>
+         *
+         * @pythonBinding
          */
         void PrintSubtree() const;
 
@@ -187,6 +201,8 @@ namespace sys_sage {
          * @brief Prints all Relations in the subtree.
          *
          * @param relationType Filter by the given RelationType (default: Any).
+         *
+         * @pythonBinding
          */
         void PrintRelationsInSubtree(RelationType::type relationType = RelationType::Any);
 
@@ -241,6 +257,8 @@ namespace sys_sage {
          * @return A string representation of the component's type.
          *
          * @see componentType
+         *
+         * @pythonBinding
          */
         const std::string &GetComponentTypeStr() const;
 
@@ -250,6 +268,8 @@ namespace sys_sage {
          * @return Reference to an immutable vector of children.
          *
          * @see children
+         *
+         * @pythonBinding
          */
         const std::vector<Component*>& GetChildren() const;
 
@@ -283,6 +303,8 @@ namespace sys_sage {
          * @return The child with the specified ID or `nullptr` if no such child exists.
          *
          * @see GetChildById
+         *
+         * @pythonBinding
          */
         Component* GetChild(int _id) const;
 
@@ -293,6 +315,8 @@ namespace sys_sage {
          * @param The target ID.
          *
          * @return The child with the specified ID or `nullptr` if no such child exists.
+         *
+         * @pythonBinding
          */
         Component* GetChildById(int _id) const;
 
@@ -303,6 +327,8 @@ namespace sys_sage {
          * @param _componentType The ComponentType to match.
          *
          * @return Pointer to the first matching child, or nullptr if not found.
+         *
+         * @pythonBinding
          */
         Component* GetChildByType(ComponentType::type _componentType) const;
 
@@ -312,6 +338,8 @@ namespace sys_sage {
          * @param _componentType Required ComponentType.
          *
          * @return A new vector of all matching children.
+         *
+         * @pythonBinding
          */
         std::vector<Component*> FindChildrenByType(ComponentType::type _componentType) const;
 
@@ -332,6 +360,8 @@ namespace sys_sage {
          * @param _componentType The target type of the component.
          *
          * @return Returns the first occurence that matches these criteria.
+         *
+         * @pythonBinding
          */
         Component *GetDescendantById(int _id, ComponentType::type _componentType);
 
@@ -349,6 +379,8 @@ namespace sys_sage {
          * @param _componentType - Required ComponentType.
          *
          * @return A new vector of all matching descendants.
+         *
+         * @pythonBinding
          */
         std::vector<Component*> FindDescendantsByType(ComponentType::type _componentType);
 
@@ -358,6 +390,8 @@ namespace sys_sage {
          * @param _componentType The ComponentType to look for.
          *
          * @return Aggregate number of descendants matching the criterion.
+         *
+         * @pythonBinding
          */
         int CountDescendantsByType(ComponentType::type _componentType) const;
 
@@ -367,6 +401,8 @@ namespace sys_sage {
          * @param _componentType The ComponentType to look for.
          *
          * @return Aggregate number of children matching the criterion.
+         *
+         * @pythonBinding
          */
         int CountChildrenByType(ComponentType::type _componentType) const;
 
@@ -376,6 +412,8 @@ namespace sys_sage {
          * @param _componentType Desired ComponentType.
          *
          * @return Pointer to the ancestor, or nullptr if not found.
+         *
+         * @pythonBinding
          */
         Component* GetAncestorByType(ComponentType::type _componentType);
 
@@ -386,6 +424,8 @@ namespace sys_sage {
          *         \n 1 if children are leaves;
          *         \n 2 if at most children's children are leaves;
          *         \n and so on...
+         *
+         * @pythonBinding
          */
         int CalcSubtreeDepth() const;//0=empty, 1=1element,...
 
@@ -399,6 +439,8 @@ namespace sys_sage {
          *          \n The parent if n = 1;
          *          \n The grandparent if n = 2;
          *          \n and so on...
+         *
+         * @pythonBinding
          */
         Component* GetNthAncestor(int n);
 
@@ -428,6 +470,8 @@ namespace sys_sage {
          *        \n If N = 1, then the children will be retrievd;
          *        \n If N = 2, then the grandchildren will be retrieved;
          *        \n and so on...
+         *
+         * @pythonBinding
          */
         std::vector<Component*> FindNthDescendants(int depth);
 
@@ -439,6 +483,8 @@ namespace sys_sage {
          * @return Reference to an immutable vector of relations (may be empty).
          *
          * @see relations
+         *
+         * @pythonBinding
          */
         const std::vector<Relation*>& GetRelationsByType(RelationType::type relationType) const;
 
@@ -462,6 +508,8 @@ namespace sys_sage {
          * @param thisComponentPosition Position of this component relative to the \ref sys_sage::Relation::components vector of the relation (default: -1 = do NOT care about position).
          *
          * @return A new vector of all matching relations.
+         *
+         * @pythonBinding
          */
         std::vector<Relation*> FindRelations(RelationType::type relationType = RelationType::Any, int thisComponentPosition = -1) const;
 
@@ -485,6 +533,8 @@ namespace sys_sage {
          * @param direction Orientation of the target DataPath (default: Any).
          *
          * @return Pointer to the found DataPath, or nullptr if not found.
+         *
+         * @pythonBinding
          */
         DataPath* GetDataPathByCategory(DataPathCategory::type dp_category, DataPathDirection::type direction = DataPathDirection::Any) const;
 
@@ -504,6 +554,8 @@ namespace sys_sage {
          * @param direction Required Direction/Orientation of a DataPath (default: Any).
          *
          * @return A new vector of all matching data paths.
+         *
+         * @pythonBinding
          */
         std::vector<DataPath*> FindDataPaths(DataPathCategory::type dp_category = DataPathCategory::Any, DataPathDirection::type direction = DataPathDirection::Any) const;
 
@@ -514,6 +566,8 @@ namespace sys_sage {
          *        The function then recursively checks the consistency of the entire subtree rooted at each child component.
          *
          * @return The total number of inconsistencies found in the subtree.
+         *
+         * @pythonBinding
          */
         int CheckSubtreeConsistency() const;
 
@@ -554,6 +608,8 @@ namespace sys_sage {
          * @return The depth (level) of the component.
          *
          * @see depth
+         *
+         * @pythonBinding
          */
         int CalcDepth(bool refresh);
 
@@ -594,6 +650,8 @@ namespace sys_sage {
          *        This assumes that all the relations are HEAP-ALLOCATED.
          *
          * @param relationType Relation type to delete (default: Any).
+         *
+         * @pythonBinding
          */
         void DeleteRelations(RelationType::type relationType = RelationType::Any);
 
@@ -604,6 +662,8 @@ namespace sys_sage {
          *
          * @param eventSet Specifies the event set of interest. If the value is
          *        `PAPI_NULL`, then all event sets will be printed.
+         *
+         * @pythonBinding
          */
         void PrintPAPImetricsInSubtree(int eventSet = -1) const;
 
@@ -612,6 +672,8 @@ namespace sys_sage {
          *        within the subtree spanned by this component.
          *
          * @return A vector containing said relations.
+         *
+         * @pythonBinding
          */
         std::vector<Relation *> FindPAPIrelationsInSubtree() const;
 
@@ -647,6 +709,8 @@ namespace sys_sage {
          *
          * @return A pointer to the respective object storing the value of the
          *         new attribute.
+         *
+         * @pythonBinding
          */
         template <typename T>
         std::decay_t<T> *SetAttribute(const std::string &key, T &&value);
@@ -661,6 +725,8 @@ namespace sys_sage {
          *         attribute. May be `nullptr` if no attribute is associated
          *         with the given key or the requested type doesn't match the
          *         stored type.
+         *
+         * @pythonBinding
          */
         template <typename T>
         T *GetAttribute(const std::string &key);
@@ -745,6 +811,8 @@ namespace sys_sage {
          * @brief Returns the number of stored attributes.
          *
          * @return The respective size.
+         *
+         * @pythonBinding
          */
         attribSizeType GetAttributesSize() const;
 
@@ -792,6 +860,8 @@ namespace sys_sage {
          * @brief Removes the attribute that is associated to the given key.
          *
          * @param key The key that is associated to the attribute.
+         *
+         * @pythonBinding
          */
         void EraseAttribute(const std::string &key);
 
@@ -806,6 +876,8 @@ namespace sys_sage {
 
         /**
          * @brief Removes all attributes.
+         *
+         * @pythonBinding
          */
         void ClearAttributes();
 

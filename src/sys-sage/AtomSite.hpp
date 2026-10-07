@@ -26,6 +26,8 @@ namespace sys_sage {
          *
          * @param _id The ID of the atom site (default 0).
          * @param _name The name of the atom site (default "AtomSite").
+         *
+         * @pythonBinding
          */
         AtomSite(int _id = 0, const std::string &_name = "AtomSite");
 
@@ -36,6 +38,8 @@ namespace sys_sage {
          * @param parent The parent of this atom site in the tree.
          * @param _id The ID of the atom site (default 0).
          * @param _name The name of the atom site (default "AtomSite").
+         *
+         * @pythonBinding
          */
         AtomSite(Component *parent, int _id = 0, const std::string &_name = "AtomSite");
 

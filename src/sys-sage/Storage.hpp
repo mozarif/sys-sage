@@ -17,6 +17,8 @@ namespace sys_sage {
         @param _size = size/capacity of the storage device, default -1
 
         Sets componentType to sys_sage::ComponentType::Storage.
+
+        @pythonBinding
         */
         Storage(long long _size = -1);
         /**
@@ -27,6 +29,8 @@ namespace sys_sage {
         @param _size = size/capacity of the storage device, default -1
 
         Sets componentType to sys_sage::ComponentType::Storage.
+
+        @pythonBinding
         */
         Storage(Component * parent, long long _size = -1);
 

@@ -16,6 +16,8 @@ namespace sys_sage {
         @param _name = name, default "Subdivision"
 
         Sets componentType to sys_sage::ComponentType::Subdivision.
+
+        @pythonBinding
         */
         Subdivision(int _id = 0, const std::string &_name = "Subdivision");
         /**
@@ -25,6 +27,8 @@ namespace sys_sage {
         @param _name = name, default "Subdivision"
 
         Sets componentType to sys_sage::ComponentType::Subdivision.
+
+        @pythonBinding
         */
         //SVDOCTODO check all the API documentation. where there is SYS_SAGE_COMPONENT_xxx, replace it by matching sys_sage::ComponentType::xxx
         Subdivision(Component * parent, int _id = 0, const std::string &_name = "Subdivision");

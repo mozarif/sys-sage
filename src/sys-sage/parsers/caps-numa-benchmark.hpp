@@ -14,6 +14,8 @@ namespace sys_sage {
      * @param delim The delimiter used in the CSV file.
      *
      * @return 0 on success, 1 on failure.
+     *
+     * @pythonBinding
      */
     int parseCapsNumaBenchmark(Component* rootComponent, const std::string &benchmarkPath, const std::string &delim = ";");
 

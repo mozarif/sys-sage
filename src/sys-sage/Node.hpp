@@ -16,6 +16,8 @@ namespace sys_sage {
         @param _name = name, default "Node"
 
         Sets componentType to sys_sage::ComponentType::Node.
+
+        @pythonBinding
         */
         Node(int _id = 0, const std::string &_name = "Node");
         /**
@@ -25,6 +27,8 @@ namespace sys_sage {
         @param _name = name, default "Node"
 
         Sets componentType to sys_sage::ComponentType::Node.
+
+        @pythonBinding
         */
         Node(Component * parent, int _id = 0, const std::string &_name = "Node");
 
@@ -55,6 +59,8 @@ namespace sys_sage {
         /**
          * Refreshes the CPU core frequency of the node.
          * @param keep_history - If true, the history of the CPU core frequency will be kept.
+         *
+         * @pythonBinding
          */
         int RefreshCpuCoreFrequency(bool keep_history = false);
     #endif
@@ -65,6 +71,8 @@ namespace sys_sage {
         \n Each time the method is called, new DataPath objects get created, so the last one is always the most up-to-date.
         
         Note: This function is defined only when sys-sage is compiled with INTEL_PQOS functionality (only for Intel CPUs).
+
+        @pythonBinding
         */
         int UpdateL3CATCoreCOS();
     #endif

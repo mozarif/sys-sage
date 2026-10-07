@@ -194,10 +194,10 @@ However, deserialization only happens when the type is registered.
 The _sys-sage_ library provides the following macros for standard type registry:
 
 <center>
-| macros for implicit type registry |
-| --------------------------------- |
-| @ref SYS_SAGE_REGISTER_TYPE_TRAIT |
-| @ref SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT |
+    | macros for implicit type registry |
+    | --------------------------------- |
+    | @ref SYS_SAGE_REGISTER_TYPE_TRAIT |
+    | @ref SYS_SAGE_REGISTER_TEMPLATED_TYPE_TRAIT |
 </center>
 
 Both generate some meta information that is used to register a type **implicitly** at **program start** through static initialization.

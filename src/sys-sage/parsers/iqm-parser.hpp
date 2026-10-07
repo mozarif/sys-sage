@@ -25,6 +25,8 @@ namespace sys_sage {
      * @param dataSourcePath
      * @param qcId
      * @param tsForHistory
+     *
+     * @pythonBinding
      */
     int parseIQM(Component* parent, const std::string &dataSourcePath, int qcId, int tsForHistory = -1);
 
@@ -36,6 +38,8 @@ namespace sys_sage {
      * @param qcId
      * @param tsForHistory
      * @param createTopo
+     *
+     * @pythonBinding
      */
     int parseIQM(QuantumBackend* parent, const std::string &dataSourcePath, int qcId, int tsForHistory = -1, bool createTopo = true);
 

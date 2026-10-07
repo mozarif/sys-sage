@@ -17,6 +17,8 @@ namespace sys_sage {
         @param _size = size or capacity of the NUMA region, default -1, i.e. no value.
 
         Sets componentType to sys_sage::ComponentType::Numa.
+
+        @pythonBinding
         */
         Numa(int _id = 0, long long _size = -1);
         /**
@@ -27,6 +29,8 @@ namespace sys_sage {
         @param _size = size or capacity of the NUMA region, default -1, i.e. no value.
 
         Sets componentType to sys_sage::ComponentType::Numa.
+
+        @pythonBinding
         */
         Numa(Component * parent, int _id = 0, long long _size = -1);
 

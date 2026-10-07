@@ -17,6 +17,8 @@ namespace sys_sage {
         @param name=>"sys-sage Topology"
 
         Sets componentType to sys_sage::ComponentType::Topology.
+
+        @pythonBinding
         */
         Topology();
 

@@ -26,6 +26,8 @@ namespace sys_sage {
     \n The parser looks for the XML object names defined in xmlRelevantNames, and considers (i.e. parses) the XML object types as defined in xmlRelevantObjectTypes.
     @param n - Pointer to an already existing Node where the hwloc topology will get parsed.
     @param xmlPath - Path to the XML output of hwloc that should be parsed and uploaded to sys-sage.
+
+    @pythonBinding
     */
     int parseHwlocOutput(Node* n, const std::string &xmlPath);
     /// @private

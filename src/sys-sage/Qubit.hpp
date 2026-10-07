@@ -21,6 +21,8 @@ namespace sys_sage {
          * @param _name Name of the qubit (default "Qubit")
          *
          * Sets componentType to sys_sage::ComponentType::Qubit.
+         *
+         * @pythonBinding
          */
         Qubit(int _id = 0, const std::string &_name = "Qubit");
 
@@ -31,6 +33,8 @@ namespace sys_sage {
          * @param _name Name of the qubit (default "Qubit")
          *
          * Sets componentType to sys_sage::ComponentType::Qubit.
+         *
+         * @pythonBinding
          */
         Qubit(Component * parent, int _id = 0, const std::string &_name = "Qubit");
 
@@ -43,6 +47,8 @@ namespace sys_sage {
          * @param readout_length The readout length (optional, default 0).
          *
          * These properties are important for quantum error modeling and backend calibration.
+         *
+         * @pythonBinding
          */
         void SetProperties(double t1, double t2, double readout_fidelty, double q1_fidelity = 0, double readout_length = 0);
 
@@ -90,6 +96,8 @@ namespace sys_sage {
         #ifdef QDMI
         /**
          * @brief Refreshes the properties of the qubit.
+         *
+         * @pythonBinding
          */
         void RefreshProperties();
         #endif

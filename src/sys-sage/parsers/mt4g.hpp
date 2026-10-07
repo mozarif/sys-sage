@@ -15,6 +15,8 @@ namespace sys_sage {
    * @param gpuId - The ID used for the Chip component.
    *
    * @return 0 on success, 1 on failure.
+   *
+   * @pythonBinding
    */
   int ParseMt4g(Component *parent, const std::string &path, int gpuId);
 
@@ -26,6 +28,8 @@ namespace sys_sage {
    * @param path The path to the mt4g output file.
    *
    * @return 0 on success, 1 on failure.
+   *
+   * @pythonBinding
    */
   int ParseMt4g(Chip *gpu, const std::string &path);
 
@@ -39,6 +43,8 @@ namespace sys_sage {
    * @param gpuId - The ID used for the Chip component.
    *
    * @return 0 on success, 1 on failure.
+   *
+   * @pythonBinding
    */
   int ParseMt4g_v1_x(Component *parent, const std::string &path, int gpuId);
 
@@ -51,6 +57,8 @@ namespace sys_sage {
    * @param path The path to the mt4g output file.
    *
    * @return 0 on success, 1 on failure.
+   *
+   * @pythonBinding
    */
   int ParseMt4g_v1_x(Chip *gpu, const std::string &path);
 
@@ -66,6 +74,8 @@ namespace sys_sage {
    * @param delim (default ";") The delimiter used in the CSV file.
    *
    * @return 0 on success, 1 on failure.
+   *
+   * @pythonBinding
    */
   int ParseMt4g_v0_1(Component* parent, const std::string &path, int gpuId, const std::string delim = ";");
 
@@ -80,6 +90,8 @@ namespace sys_sage {
    * @param delim (default ";") The delimiter used in the CSV file.
    *
    * @return 0 on success, 1 on failure.
+   *
+   * @pythonBinding
    */
   int ParseMt4g_v0_1(Chip* gpu, const std::string &path, const std::string delim = ";");
 
