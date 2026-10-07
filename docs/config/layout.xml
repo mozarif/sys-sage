@@ -8,7 +8,20 @@
       <tab type="user" visible="yes" title="Architectural Concept and Design" url="@ref Concept.md"/>
       <tab type="usergroup" visible="yes" title="Library Features" url="[none]">
         <tab type="user" visible="yes" title="JSON Serialization &amp; Deserialization" url="@ref JSON_Serialization_and_Deserialization.md"/>
-        <tab type="user" visible="yes" title="PAPI Extension" url="@ref sys-sage_PAPI.md"/>
+        <tab type="usergroup" visible="yes" title="Data Sources" url="[none]">
+          <tab type="user" visible="yes" title="hwloc" url="@ref data_sources/hwloc.md"/>
+          <tab type="user" visible="yes" title="MT4G" url="@ref data_sources/mt4g.md"/>
+          <tab type="user" visible="yes" title="IQM" url="@ref data_sources/iqm.md"/>
+          <tab type="user" visible="yes" title="cccbench" url="@ref data_sources/cccbench.md"/>
+          <tab type="user" visible="yes" title="caps-numa-benchmark" url="@ref data_sources/caps-numa-benchmark.md"/>
+        </tab>
+        <tab type="usergroup" visible="yes" title="3rd Party Extensions" url="[none]">
+          <tab type="user" visible="yes" title="Intel PQoS" url="@ref external_interfaces/intel_pqos.md"/>
+          <tab type="user" visible="yes" title="NVIDIA MIG" url="@ref external_interfaces/nvidia_mig.md"/>
+          <tab type="user" visible="yes" title="proc_cpuinfo" url="@ref external_interfaces/proc_cpuinfo.md"/>
+          <tab type="user" visible="yes" title="PAPI" url="@ref external_interfaces/PAPI.md"/>
+          <tab type="user" visible="yes" title="QDMI" url="@ref external_interfaces/QDMI.md"/>
+        </tab>
         <tab type="user" visible="yes" title="Python Bindings" url="@ref python-sys-sage.md"/>
       </tab>
       <tab type="usergroup" visible="yes" title="Public API" url="namespacesys__sage.html">

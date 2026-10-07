@@ -1,4 +1,4 @@
-# sys-sage PAPI
+# 3rd Party Extension: PAPI
 
 ## General Information
 
@@ -228,17 +228,17 @@ Now, the rules are as follows:
    whose latest entry is temporary and contains a value that stems from the
    latest reading.
 
-If $x$ is the value gained from a _READ_ operation on CPU $a$ and $y$ is the
+If \f$x\f$ is the value gained from a _READ_ operation on CPU \f$a\f$ and \f$y\f$ is the
 sum of values of all CPUs in the relation that satisfy the above conditions,
-then the result $z := x - y$ is stored in an entry corresponding to CPU $a$.
+then the result \f$z := x - y\f$ is stored in an entry corresponding to CPU \f$a\f$.
 
 4. The value extracted from an _ACCUM_ operation will be "merged" with all CPUs
    whose latest entry is permanent and contains a value that stems from the
    latest reading.
 
-If $x$ is the value gained from an _ACCUM_ operation on CPU $a$ and $y$ is the
+If \f$x\f$ is the value gained from an _ACCUM_ operation on CPU \f$a\f$ and \f$y\f$ is the
 sum of values of all CPUs in the relation that satisfy the above conditions,
-then the result $z := x + y$ is stored in an entry corresponding to CPU $a$.
+then the result \f$z := x + y\f$ is stored in an entry corresponding to CPU \f$a\f$.
 
 ## References
 

@@ -36,7 +36,7 @@ We are interested in profiling the performance of the code at the loop in which 
 Apart from simply capturing the performance counters, we actually want to trace where the counters have been monitored on, i.e. which hardware threads were involved.
 For this reason, we will make use of the combined _sys-sage_-PAPI integration.
 
-As mentioned in the [documentation](../../docs/sys-sage_PAPI.md), the PAPI extension of _sys-sage_ is covered by two APIs: standalone ("plain") PAPI and the _sys-sage_-PAPI API.
+As mentioned in the [documentation](../external_interfaces/PAPI.md), the PAPI extension of _sys-sage_ is covered by two APIs: standalone ("plain") PAPI and the _sys-sage_-PAPI API.
 Let us cover both APIs one-by-one.
 
 ## Plain PAPI

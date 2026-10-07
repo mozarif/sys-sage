@@ -49,7 +49,7 @@ for (int i = 0; i < xmlPaths.size(); i++) {
 }
 ```
 
-### mt4g -- GPU topology
+### MT4G -- GPU topology
 
 In a similar fashion, the `mt4g` CLI tool can be used to discover GPU topologies.
 Running
