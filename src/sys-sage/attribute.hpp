@@ -673,16 +673,20 @@ namespace sys_sage {
         /**
          * @brief Returns the deserialization callback associated to this type.
          *
-         * @param id A unique identifier for the `TypeDescriptor`.
+         * @param id A unique identifier of the requested type.
          */
         std::optional<std::unique_ptr<IAttribute>(*)(const nlohmann::json&)> GetCallBack(std::string_view id) const;
     
     private:
         /**
+         * @private
+         *
          * @brief Initializes the registry with some pre-defined types.
          */
         TypeRegistry();
         /**
+         * @private
+         *
          * @brief Maps the unique identifier of a `TypeDescriptor` to its deserialization callback routine.
          */
         std::unordered_map<std::string_view, std::unique_ptr<IAttribute>(*)(const nlohmann::json&)> callbacks;
@@ -695,9 +699,20 @@ namespace sys_sage {
      */
     template <typename T>
     struct TypeTrait {
+        /**
+         * @brief A bool that indicates whether T is eligible for serialization.
+         */
         static constexpr bool serializable = IsSerializable<T>;
+
+        /**
+         * @brief A bool that indicates whether T is eligible for deserialization.
+         */
         static constexpr bool deserializable = IsDeserializable<T>;
 
+        /**
+         * @brief A unique string literal representing T.
+         *        It is used for distinguishing types during deserialization.
+         */
         static constexpr decltype(auto) id = CompStrExtract<T>();
     };
 

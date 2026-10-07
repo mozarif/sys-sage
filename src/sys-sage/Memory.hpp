@@ -15,9 +15,10 @@ namespace sys_sage {
         Memory constructor (no automatic insertion in the Component Tree). Sets:
         @param _id = 0
         @param _name = "Memory"
-        @param componentType=>SYS_SAGE_COMPONENT_MEMORY
         @param _size = size/capacity of the memory element, default -1
         @param is_volatile = true if the memory is volatile, default false
+
+        Sets componentType to sys_sage::ComponentType::Memory.
         */
         Memory(long long _size = -1, bool is_volatile = false);
         /**
@@ -28,6 +29,8 @@ namespace sys_sage {
         @param componentType=>SYS_SAGE_COMPONENT_MEMORY
         @param _size = size/capacity of the memory element, default -1
         @param is_volatile = true if the memory is volatile, default false
+
+        Sets componentType to sys_sage::ComponentType::Memory.
         */
         Memory(Component * parent, int id = 0, const std::string &_name = "Memory", long long _size = -1, bool is_volatile = false);
 

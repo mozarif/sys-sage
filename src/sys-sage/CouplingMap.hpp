@@ -24,6 +24,7 @@ namespace sys_sage {
          * @param q2 Pointer to the second qubit.
          *
          * This constructor is typically used for pairwise couplings in quantum hardware.
+         * Sets type to sys_sage::RelationType::CouplingMap.
          */
         CouplingMap(Qubit* q1, Qubit*q2);
 
@@ -35,6 +36,7 @@ namespace sys_sage {
          * @param _ordered Whether the coupling is ordered/directed (default true).
          *
          * This constructor allows for more general coupling relations, including multi-qubit couplings.
+         * Sets type to sys_sage::RelationType::CouplingMap.
          */
         CouplingMap(int _id = 0, bool _ordered = true);
 
@@ -45,6 +47,7 @@ namespace sys_sage {
          * @param _ordered Whether the coupling is ordered/directed (default true).
          *
          * This constructor allows for more general coupling relations, including multi-qubit couplings.
+         * Sets type to sys_sage::RelationType::CouplingMap.
          */
         CouplingMap(const std::vector<Component*>& components, int _id = 0, bool _ordered = true);
         /**

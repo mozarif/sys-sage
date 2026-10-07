@@ -14,7 +14,8 @@ namespace sys_sage {
         Node constructor (no automatic insertion in the Component Tree). Sets:
         @param _id = id, default 0
         @param _name = name, default "Node"
-        @param componentType=>sys_sage::ComponentType::Node
+
+        Sets componentType to sys_sage::ComponentType::Node.
         */
         Node(int _id = 0, const std::string &_name = "Node");
         /**
@@ -22,7 +23,8 @@ namespace sys_sage {
         @param parent = the parent 
         @param _id = id, default 0
         @param _name = name, default "Node"
-        @param componentType=>sys_sage::ComponentType::Node
+
+        Sets componentType to sys_sage::ComponentType::Node.
         */
         Node(Component * parent, int _id = 0, const std::string &_name = "Node");
 

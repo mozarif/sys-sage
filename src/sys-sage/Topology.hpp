@@ -13,9 +13,10 @@ namespace sys_sage {
     public:
         /**
         Topology constructor (no automatic insertion in the Component Tree). Sets:
-        \n id=>0
-        \n name=>"sys-sage Topology"
-        \n componentType=>SYS_SAGE_COMPONENT_TOPOLOGY
+        @param id=>0
+        @param name=>"sys-sage Topology"
+
+        Sets componentType to sys_sage::ComponentType::Topology.
         */
         Topology();
 

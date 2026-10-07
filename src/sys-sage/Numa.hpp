@@ -15,7 +15,8 @@ namespace sys_sage {
         @param _id = id, default 0
         @param _name = name, default "Numa"
         @param _size = size or capacity of the NUMA region, default -1, i.e. no value.
-        @param componentType=>SYS_SAGE_COMPONENT_NUMA
+
+        Sets componentType to sys_sage::ComponentType::Numa.
         */
         Numa(int _id = 0, long long _size = -1);
         /**
@@ -24,7 +25,8 @@ namespace sys_sage {
         @param _id = id, default 0
         @param _name = name, default "Numa"
         @param _size = size or capacity of the NUMA region, default -1, i.e. no value.
-        @param componentType=>SYS_SAGE_COMPONENT_NUMA
+
+        Sets componentType to sys_sage::ComponentType::Numa.
         */
         Numa(Component * parent, int _id = 0, long long _size = -1);
 

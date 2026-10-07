@@ -21,20 +21,22 @@ namespace sys_sage {
     public:
 
         /**
-        AtomSite constructor (no automatic insertion in the Component Tree). Sets:
-        @param _id = id, default 0
-        @param _name = name, default "QuantumBackend"
-        @param componentType=>SYS_SAGE_COMPONENT_QUANTUM_BACKEND
-        */
+         * @brief AtomSite constructor (no automatic insertion in the Component Tree).
+         *        Sets componentType to sys_sage::ComponentType::AtomSite.
+         *
+         * @param _id The ID of the atom site (default 0).
+         * @param _name The name of the atom site (default "AtomSite").
+         */
         AtomSite(int _id = 0, const std::string &_name = "AtomSite");
 
         /**
-        AtomSite constructor with insertion into the Component Tree as the parent 's child (as long as parent is an existing Component). Sets:
-        @param parent = the parent 
-        @param _id = id, default 0
-        @param _name = name, default "QuantumBackend"
-        @param componentType=>SYS_SAGE_COMPONENT_ATOM_SITE
-        */
+         * @brief AtomSite constructor with insertion into the Component Tree as the parent 's child.
+         *        Sets componentType to sys_sage::ComponentType::AtomSite.
+         *
+         * @param parent The parent of this atom site in the tree.
+         * @param _id The ID of the atom site (default 0).
+         * @param _name The name of the atom site (default "AtomSite").
+         */
         AtomSite(Component *parent, int _id = 0, const std::string &_name = "AtomSite");
 
         /**

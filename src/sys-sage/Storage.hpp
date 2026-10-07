@@ -14,8 +14,9 @@ namespace sys_sage {
         Storage constructor (no automatic insertion in the Component Tree). Sets:
         @param _id = 0
         @param _name = "Storage"
-        @param componentType=>SYS_SAGE_COMPONENT_STORAGE
         @param _size = size/capacity of the storage device, default -1
+
+        Sets componentType to sys_sage::ComponentType::Storage.
         */
         Storage(long long _size = -1);
         /**
@@ -23,8 +24,9 @@ namespace sys_sage {
         @param parent = the parent 
         @param _id = 0
         @param _name = "Storage"
-        @param componentType=>SYS_SAGE_COMPONENT_STORAGE
         @param _size = size/capacity of the storage device, default -1
+
+        Sets componentType to sys_sage::ComponentType::Storage.
         */
         Storage(Component * parent, long long _size = -1);
 

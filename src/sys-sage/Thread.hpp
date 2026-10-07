@@ -16,6 +16,8 @@ namespace sys_sage {
         @param _id = id, default 0
         @param _name = name, default "Thread"
         @param componentType=>SYS_SAGE_COMPONENT_THREAD
+
+        Sets componentType to sys_sage::ComponentType::Thread.
         */
         Thread(int _id = 0, const std::string &_name = "Thread");
         /**
@@ -23,7 +25,8 @@ namespace sys_sage {
         @param parent = the parent 
         @param _id = id, default 0
         @param _name = name, default "Thread"
-        @param componentType=>SYS_SAGE_COMPONENT_THREAD
+
+        Sets componentType to sys_sage::ComponentType::Thread.
         */    
         Thread(Component * parent, int _id = 0, const std::string &_name = "Thread");
 

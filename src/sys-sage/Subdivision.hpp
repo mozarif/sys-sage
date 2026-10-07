@@ -14,7 +14,8 @@ namespace sys_sage {
         Subdivision constructor (no automatic insertion in the Component Tree). Sets:
         @param _id = id, default 0
         @param _name = name, default "Subdivision"
-        @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
+
+        Sets componentType to sys_sage::ComponentType::Subdivision.
         */
         Subdivision(int _id = 0, const std::string &_name = "Subdivision");
         /**
@@ -22,7 +23,8 @@ namespace sys_sage {
         @param parent = the parent 
         @param _id = id, default 0
         @param _name = name, default "Subdivision"
-        @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
+
+        Sets componentType to sys_sage::ComponentType::Subdivision.
         */
         //SVDOCTODO check all the API documentation. where there is SYS_SAGE_COMPONENT_xxx, replace it by matching sys_sage::ComponentType::xxx
         Subdivision(Component * parent, int _id = 0, const std::string &_name = "Subdivision");
@@ -71,7 +73,7 @@ namespace sys_sage {
         Subdivision constructor (no automatic insertion in the Component Tree). Sets:
         @param _id = id, default 0
         @param _name = name, default "Subdivision"
-        @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
+        @param _componentType The type of the subdivision (often set to sys_sage::ComponentType::Numa).
         */
         //SVDOCTODO
         Subdivision(int _id, const std::string &_name, ComponentType::type _componentType);
@@ -80,7 +82,7 @@ namespace sys_sage {
         @param parent = the parent 
         @param _id = id, default 0
         @param _name = name, default "Subdivision"
-        @param _componentType, componentType, default SYS_SAGE_COMPONENT_SUBDIVISION. If componentType is not SYS_SAGE_COMPONENT_SUBDIVISION or SYS_SAGE_COMPONENT_NUMA, it is set to SYS_SAGE_COMPONENT_SUBDIVISION as default option.
+        @param _componentType The type of the subdivision (often set to sys_sage::ComponentType::Numa).
         */
         //SVDOCTODO
         Subdivision(Component * parent, int _id, const std::string &_name, ComponentType::type _componentType);

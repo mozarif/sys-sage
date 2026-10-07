@@ -225,6 +225,14 @@ namespace sys_sage {
      * @brief Returns the string representation of the given type `T` at compile time.
      *        WARNING: The output is compiler-specific.
      *        There are NO GUARANTEES that the output is the same across different compilers or across versions of the same compiler.
+     *
+     *        For instance on gcc, `PrettyFunction<int>()` would return "consteval auto& PrettyFunction() [with T = int]".
+     *        We want to extract the string representation of the given type from this string literal, which in this case would be "int".
+     *        For this we try to identify a short enough substring that contains "int", where the prefix of this substring and the suffix is unique in the entire string literal.
+     *        In this case, we get "= int]" as the subtring, because searching for the prefix "= " will get us the position at the beginning of "int" and searching for "]" will give us the position at the end of "int".
+     *        The prefix and suffix work for every type `T` using gcc and clang.
+     *        However, if a new compiler should be used we might get unexpected results or errors.
+     *        In that case use the prefix and suffix that works for the target compiler and make the necessary adjustments in the macros, e.g. `CompStrExtract<__VA_ARGS__, yourPrefix, yourSuffix>()` inside of SYS_SAGE_REGISTER_TYPE_TRAIR_NON_PORTABLE.
      */
     template <typename T, CompStr prefix = "= ", CompStr suffix = "]">
     consteval decltype(auto) CompStrExtract() noexcept

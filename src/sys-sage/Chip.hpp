@@ -21,7 +21,6 @@ namespace sys_sage {
          * @param _id ID of the chip (default 0)
          * @param _name Name of the chip (default "Chip")
          * @param _category Chip category (default sys_sage::ChipCategory::None). Defines which chip we are describing.
-         *        Options: sys_sage::ChipCategory::None (default/generic), sys_sage::ChipCategory::Cpu, sys_sage::ChipCategory::CpuSocket, sys_sage::ChipCategory::Gpu.
          * @param _vendor Name of the vendor (default "")
          * @param _model Model name (default "")
          *
@@ -34,7 +33,6 @@ namespace sys_sage {
          * @param _id ID of the chip (default 0)
          * @param _name Name of the chip (default "Chip")
          * @param _category Chip category (default sys_sage::ChipCategory::None). Defines which chip we are describing.
-         *        Options: sys_sage::ChipCategory::None (default/generic), sys_sage::ChipCategory::Cpu, sys_sage::ChipCategory::CpuSocket, sys_sage::ChipCategory::Gpu.
          * @param _vendor Name of the vendor (default "")
          * @param _model Model name (default "")
          *
