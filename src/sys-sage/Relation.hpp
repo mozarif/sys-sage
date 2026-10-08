@@ -133,7 +133,7 @@ namespace sys_sage {
         RelationCategory::type GetCategory() const;
 
         /**
-         * @brief Returns a human-readable string representation of the RelationType as defined in \ref sys_sage::RelationType::names.
+         * @brief Returns a human-readable string representation of the RelationType.
          *
          * @return A string representation of the relation's type.
          *
@@ -142,7 +142,7 @@ namespace sys_sage {
         const std::string &GetTypeStr() const;
 
         /**
-         * @brief Checks if this relation treats the order of the components withing the \ref sys_sage::Relation::components vector as semantically meaningful.
+         * @brief Checks if this relation treats the order of the components withing the sys_sage::Relation::components vector as semantically meaningful.
          *
          * @return True if the order of components matters;
          *         \n false otherwise.
@@ -254,7 +254,7 @@ namespace sys_sage {
         /**
          * @brief Removes the given component from the relation. This does not delete the component.
          *
-         * @param The component of interest.
+         * @param component The component of interest.
          *
          * @return 0 on success;
          *         \n -1 otherwise.
@@ -594,7 +594,7 @@ namespace sys_sage {
         /**
          * @brief Removes the attribute of the given iterator.
          *
-         * @param key The iterator of the attribute.
+         * @param it The iterator of the attribute.
          *
          * @return The iterator to the next attribute.
          */

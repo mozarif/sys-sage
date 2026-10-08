@@ -591,7 +591,7 @@ namespace sys_sage {
         /**
          * @brief Generic constructor using perfect forwarding.
          *
-         * @param value Initializes this attribute using the given value.
+         * @param _value Initializes this attribute using the given value.
          */
         template <typename U>
         Attribute(U &&_value);

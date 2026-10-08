@@ -118,7 +118,7 @@ namespace sys_sage {
 
         /**
          * @brief Sets the fidelity of the quantum gate.
-         * @param The fidelity of the quantum gate.
+         * @param gateFidelity The fidelity of the quantum gate.
          */
         void SetFidelity(double gateFidelity);
 

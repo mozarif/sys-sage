@@ -5,7 +5,7 @@ We will only focus on a selected few operations to get a feel for the Component 
 
 ## Brief Overview of _sys-sage_'s Component API
 
-The API for creating, manipulating, and querying Components is realized in the form of public methods of the \ref sys_sage::Component class, hence queries are typically executed from the Component's perspective.
+The API for creating, manipulating, and querying Components is realized in the form of public methods of the sys_sage::Component class, hence queries are typically executed from the Component's perspective.
 General functionality is available to all ComponentTypes via the common `sys_sage::Component` base class.
 The API of a Component can be classified into
 
@@ -22,13 +22,13 @@ This has already been discussed in detail in the [1st tutorial](Tutorial_01.md).
 
 ## ComponentType Retrieval
 
-By using the \ref sys_sage::Component::GetComponentType, one can determine the type of the Component, e.g. Storage, Cache, Core, Thread, etc.
-Additionally, you can call the \ref sys_sage::Component::GetComponentTypeStr to print the type.
+By using the sys_sage::Component::GetComponentType, one can determine the type of the Component, e.g. Storage, Cache, Core, Thread, etc.
+Additionally, you can call the sys_sage::Component::GetComponentTypeStr to print the type.
 
 ## Navigation & Modification of the Component Tree
 
 Traversal methods locate Components in the tree.
-Methods like \ref sys_sage::Component::GetParent let you traverse the tree up the levels.
+Methods like sys_sage::Component::GetParent let you traverse the tree up the levels.
 Starting from a CPU core for instance, you can iterate through the cache hierarchy:
 
 ```cpp
@@ -47,11 +47,11 @@ while (parent != nullptr) {
 }
 ```
 
-Navigating down the tree can be done via the \ref sys_sage::Component::GetChildren method.
+Navigating down the tree can be done via the sys_sage::Component::GetChildren method.
 Therefore, every target Component in the tree can be accessed from any source Component through an arbitrary chain of `sys_sage::Component::GetParent` and `sys_sage::Component::GetChildren`
 
 Apart from this, filter operations can be used to query a set of Components that fullfil a certain condition.
-For example, you can retrieve the component n levels above with the \ref sys_sage::Component::GetNthAncestor method, or you can collect all Components of a specific type further down the levels:
+For example, you can retrieve the component n levels above with the sys_sage::Component::GetNthAncestor method, or you can collect all Components of a specific type further down the levels:
 
 ```cpp
 std::vector<sys_sage::Component *> qubits = node->FindDescendantsByType(sys_sage::ComponentType::Qubit);
@@ -61,7 +61,7 @@ for (sys_sage::Component *qubit : qubits) {
 }
 ```
 
-To make dynamic adjustments to the Component Tree, such as insert new Components or remove existing ones, you can make use of methods such as \ref sys_sage::Component::InsertChild or \ref sys_sage::Component::RemoveChild respectively.
+To make dynamic adjustments to the Component Tree, such as insert new Components or remove existing ones, you can make use of methods such as sys_sage::Component::InsertChild or sys_sage::Component::RemoveChild respectively.
 
 ## Aggregation
 
@@ -89,10 +89,10 @@ for (int i = 0; i < caches.size(); i++) {
 }
 ```
 
-The key part here is that we identified all (CPU) L2 caches of the node and counted the number of threads "below" each L2 cache with the \ref sys_sage::Component::CountDescendantsByType method.
+The key part here is that we identified all (CPU) L2 caches of the node and counted the number of threads "below" each L2 cache with the sys_sage::Component::CountDescendantsByType method.
 
 ## Accessing Relation
 
 As mentioned in the documentation, Relations are usually managed through the relevant Components.
-For this purpose, methods such as \ref sys_sage::Component::GetRelationsByType or \ref sys_sage::Component::DeleteRelations.
-More advanced features, like querying all PAPI metrics through \ref sys_sage::Component::FindPAPIrelationsInSubtree, are discussed in upcoming tutorials.
+For this purpose, methods such as sys_sage::Component::GetRelationsByType or sys_sage::Component::DeleteRelations.
+More advanced features, like querying all PAPI metrics through sys_sage::Component::FindPAPIrelationsInSubtree, are discussed in upcoming tutorials.

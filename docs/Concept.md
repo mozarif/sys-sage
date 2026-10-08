@@ -28,22 +28,22 @@ An overview of _sys-sage_'s design is given in the figure below.
 The hardware topology is modeled by an internal representation that aims at representing both the static, hierarchical and physical decomposition of hardware components as well as their dynamic, often non-hierarchical and logical interconnections.
 It builds the foundation for the library by combining all data together into one central interface.
 
-The physical hardware components are represented by the [Component](class_component.html) data structure, whose hierarchical layout form a **Component Tree** that naturaly describes the topologies basis.
+The physical hardware components are represented by the Component data structure, whose hierarchical layout form a **Component Tree** that naturaly describes the topologies basis.
 Every piece of static or dynamic information attaches to or references Components within this tree, therefore being the primary access point to query topological information.
 Although the design is inspired by [hwloc](https://www.open-mpi.org/projects/hwloc/)’s CPU-centric approach, _sys-sage_ significantly generalizes the concept to support a much broader and heterogeneous spectrum of hardware and system resources, thus extending far beyond CPU-centric modelling.
 Users can interconnect Components arbitrarily, thus providing a high degree of freedom in expressing custom system configurations and layouts.
 Furthermore, _sys-sage_ defines several ComponentTypes derived from distinct parts of computing hardware, with each being tailored towards holding the relevant characteristics and behaviors of its domain.
 These types form a class inheritance hierarchy.
-More information on the specific classes and their members can be found [here](class_component.html).
+More information on the specific classes and their members can be found [here](@ref sys_sage::Component).
 
-In contrast, a [Relation](class_relation.html) is a complementary data structure that reflect different relationships and interactions between Components.
+In contrast, a Relation is a complementary data structure that reflect different relationships and interactions between Components.
 The full collection of Relations forms a **Relations Graph**, which captures information orthogonal to the Component Tree.
 Relations are typically referenced through the participating Components, and accommodate a broad spectrum of information types including data-transfer characteristics, performance indicators, power consumption, application-specific metrics, or quantum-specific properties.
 Moreover, a Component can participate in an arbitrary number of Relations, and multiple Relations can connect the same subset of Components to represent different dependencies or properties.
 This open design provides high flexibility for diverse user-defined use-case scenarios.
 Similar to Components, each Relation belongs to a specific RelationType, which allows for more specialized functionality targeted at a specific usage scenario.
 Additionally, the RelationCategory provides semantic tagging of the specific Relation.
-More information can be found [here](class_relation.html).
+More information can be found [here](@ref sys_sage::Relation).
 
 To illustrate the distinction, Components may represent individual caches along with their size, associativity, or observed hit rates from hardware counters.
 Components will also be used to store a CPU core’s register file size and current frequency.
@@ -134,7 +134,9 @@ Hence, the application manager needs to know for every application how the chang
 For that reason, every application should monitor the respective performance counters (e.g. IPC, cache misses, stalled cycles, etc.) and the frequency of the cores.
 Together these dynamic system properties can be used to express the change in performance, e.g.
 
-$$\frac{\Delta \text{Performance}}{\Delta \text{Frequency}}$$
+\f[
+\frac{\Delta \text{Performance}}{\Delta \text{Frequency}}
+\f]
 
 and reported to the application manager for the decision making.
 Now this is how the _sys-sage_ integration helps:

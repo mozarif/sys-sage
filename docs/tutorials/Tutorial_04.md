@@ -7,17 +7,17 @@ An overview of the API is given below.
 <center>
 | API |
 | --- |
-| \ref sys_sage::Component::SetAttribute |
-| \ref sys_sage::Component::GetAttribute |
-| \ref sys_sage::Component::UpdateAttribute |
-| \ref sys_sage::Component::GetAttributesSize |
-| \ref sys_sage::Component::AttributesBegin |
-| \ref sys_sage::Component::AttributesEnd |
-| \ref sys_sage::Component::EraseAttribute |
-| \ref sys_sage::Component::ClearAttributes |
+| sys_sage::Component::SetAttribute |
+| sys_sage::Component::GetAttribute |
+| sys_sage::Component::UpdateAttribute |
+| sys_sage::Component::GetAttributesSize |
+| sys_sage::Component::AttributesBegin |
+| sys_sage::Component::AttributesEnd |
+| sys_sage::Component::EraseAttribute |
+| sys_sage::Component::ClearAttributes |
 </center>
 
-The \ref sys_sage::Relation class has an analogous API.
+The sys_sage::Relation class has an analogous API.
 
 ## Inserting & Retrieving Attributes
 

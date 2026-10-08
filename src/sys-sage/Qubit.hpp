@@ -50,7 +50,7 @@ namespace sys_sage {
          *
          * @pythonBinding
          */
-        void SetProperties(double t1, double t2, double readout_fidelty, double q1_fidelity = 0, double readout_length = 0);
+        void SetProperties(double t1, double t2, double readout_fidelity, double q1_fidelity = 0, double readout_length = 0);
 
         /**
         * @brief Gets the T1 relaxation time of the qubit.

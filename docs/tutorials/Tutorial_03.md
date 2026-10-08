@@ -33,7 +33,7 @@ if (sys_sage::parseHwlocOutput(node, xmlPath) == 0)
 ```
 
 That's it.
-The \ref sys_sage::parseHwlocOutput function handles all the complications under the hood by parsing the file to extract the information and using it to construct the Component Tree representing the entire physical node layout.
+The sys_sage::parseHwlocOutput function handles all the complications under the hood by parsing the file to extract the information and using it to construct the Component Tree representing the entire physical node layout.
 
 To get a model of a distributed architecture with multiple nodes, you can run `lstopo` on each node and gather all XML files into one place, which can then be parsed one by one.
 An example is shown below:
@@ -72,7 +72,7 @@ Now, our Component Tree includes both topological information about the platform
 
 Let's say we have run a cache line ping-pong microbenchmark to measure the cache line transfer rate between cores.
 This information can be useful to evaluate cache coherence protocols, in which a core A exclusively modified a cache line and core B now requests access to the new data of the shared cache line from core A.
-Moreover, since this information captures data movement, the \ref sys_sage::DataPath relation would be a perfect fit to model this property.
+Moreover, since this information captures data movement, the sys_sage::DataPath relation would be a perfect fit to model this property.
 Let us further assume the benchmark results are stored in a CSV file, where the format is as follows:
 
 ```
@@ -134,7 +134,7 @@ int parseCacheLinePingPongBenchmark(sys_sage::Component *root, const std::string
 
 The function `parseCacheLinePingPongBenchmark` takes a pointer to a Component that represents the root of the (sub-)tree and a string containing the path to the output Data Source file.
 While reading every line of the file one by one, it extracts the comma seperated values by calling the helper function `extractInfo`.
-Moreover, we use the method \ref sys_sage::GetDescendantById to search for a core with the given ID in the subtree spanned by `root`.
+Moreover, we use the method sys_sage::Component::GetDescendantById to search for a core with the given ID in the subtree spanned by `root`.
 If no such cores could be found, we return with an error, assuming that the file is corrupted.
 Afterwards, we create a new DataPath to model this relational property by setting its latency to the latency retrieved from the benchmark.
 

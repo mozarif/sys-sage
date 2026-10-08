@@ -81,7 +81,7 @@ namespace sys_sage {
          * @brief Destructor for components.
          *        Unlinks this component from its parent and children and additionally frees resources.
          *        The destructor does not delete the entire subtree.
-         *        Refer to \ref sys_sage::Component::DeleteSubtree() for the latter.
+         *        Refer to sys_sage::Component::DeleteSubtree() for the latter.
          */
         virtual ~Component();
 
@@ -103,7 +103,7 @@ namespace sys_sage {
         static void DeleteSubtree(Component *root, bool keepRoot = false);
 
         /**
-         * @brief Inserts a new child at the end of the \ref sys_sage::Component::children vector and sets this component as the child's parent.
+         * @brief Inserts a new child at the end of the sys_sage::Component::children vector and sets this component as the child's parent.
          *
          * @param child Pointer to a component.
          *
@@ -153,7 +153,7 @@ namespace sys_sage {
         int InsertBetweenParentAndChildren(Component* parent, std::vector<Component*> children, bool alreadyParentsChild);
 
         /**
-         * @brief Removes the passed component from the \ref sys_sage::Component::children, without completely deleting (and deallocating) the child itself.
+         * @brief Removes the passed component from the sys_sage::Component::children, without completely deleting (and deallocating) the child itself.
          *        The child's parent pointer will be set to `nullptr`.
          *
          * @param child Child to remove.
@@ -167,9 +167,9 @@ namespace sys_sage {
         /**
          * @brief Set the parent of this component.
          *        This does not add this component to the children vector of the given parent.
-         *        Call \ref sys_sage::Component::InsertChild on the parent instead if this is desired.
+         *        Call sys_sage::Component::InsertChild on the parent instead if this is desired.
          *
-         * @param parent The new parent.
+         * @param _parent The new parent.
          *
          * @see InsertChild()
          */
@@ -178,7 +178,7 @@ namespace sys_sage {
         /**
          * @brief Prints the whole subtree of this component.
          *        The tree is printed in DFS order, so that the hierarchy can be easily seen.
-         *        For each component in the subtree, the following is printed: "<string component type> (name <name>) id <id> - children: <num children>
+         *        For each component in the subtree, the following is printed: "<string component type> (name <name>) id <id> - children: <num children>"
          *
          * @pythonBinding
          */
@@ -252,7 +252,7 @@ namespace sys_sage {
         sys_sage::ComponentType::type GetComponentType() const;
 
         /**
-         * @brief Returns the ComponentType as a human-readable string as defined in \ref sys_sage::ComponentType::names.
+         * @brief Returns the ComponentType as a human-readable string as defined in sys_sage::ComponentType::names.
          *
          * @return A string representation of the component's type.
          *
@@ -298,7 +298,7 @@ namespace sys_sage {
          *        Identical to GetChildById.
          *        \n Should there be more children with the same ID, the first match will be retrieved (i.e. the one with lower index in the children vector).
          *
-         * @param The target ID.
+         * @param _id The target ID.
          *
          * @return The child with the specified ID or `nullptr` if no such child exists.
          *
@@ -312,7 +312,7 @@ namespace sys_sage {
          * @brief Retrieve a child with a specific ID.
          *        \n Should there be more children with the same ID, the first match will be retrieved (i.e. the one with lower index in the children vector).
          *
-         * @param The target ID.
+         * @param _id The target ID.
          *
          * @return The child with the specified ID or `nullptr` if no such child exists.
          *
@@ -346,9 +346,8 @@ namespace sys_sage {
         /**
          * @brief Searches for all children matching the given ComponentType.
          *
+         * @param _outArray An output vector to append the matching children to.
          * @param _componentType Required ComponentType.
-         *
-         * @return A new vector of all matching children.
          */
         void FindChildrenByType(std::vector<Component *> &_outArray, ComponentType::type _componentType) const;
 
@@ -505,7 +504,7 @@ namespace sys_sage {
          * @brief Returns a newly-constructed vector of all relations of a given type and where this component is at a specified position.
          *
          * @param relationType Type of relation (default: Any).
-         * @param thisComponentPosition Position of this component relative to the \ref sys_sage::Relation::components vector of the relation (default: -1 = do NOT care about position).
+         * @param thisComponentPosition Position of this component relative to the sys_sage::Relation::components vector of the relation (default: -1 = do NOT care about position).
          *
          * @return A new vector of all matching relations.
          *
@@ -868,7 +867,7 @@ namespace sys_sage {
         /**
          * @brief Removes the attribute of the given iterator.
          *
-         * @param key The iterator of the attribute.
+         * @param it The iterator of the attribute.
          *
          * @return The iterator to the next attribute.
          */
@@ -905,7 +904,7 @@ namespace sys_sage {
         int depth; /**< Depth (level) of the Component in the ComponentTree. */
         std::string name; /**< Name of the component. */
         int count{-1}; /**< Can be used to represent multiple components with the same properties. By default, it represents only 1 component, and is set to -1. */ // TODO: maybe set the default to 1?
-        const ComponentType::type componentType; /**< Indicates the type of a component (see \ref sys_sage::ComponentType). Can be used to cast a given base `Component *` pointer into one of the derived classes. */
+        const ComponentType::type componentType; /**< Indicates the type of a component (see sys_sage::ComponentType). Can be used to cast a given base `Component *` pointer into one of the derived classes. */
         std::vector<Component*> children; /**< Contains the vector of pointers to children of the component in the ComponentTree. */
         Component* parent { nullptr }; /**< Contains a pointer to the parent component in the ComponentTree. If this component is the root, the parent will be nullptr. */
         std::array<std::vector<Relation*>*, RelationType::_num_relation_types>* relations = nullptr; /**< Collection of all relations of this component. It is initialized once the first relation is added. Each entry of the array corresponds to one of the RelationTypes (see sys_sage::RelationType) and consists of a (lazy-allocated) vector of relations of that type. */

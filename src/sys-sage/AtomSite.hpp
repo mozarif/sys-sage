@@ -91,7 +91,7 @@ namespace sys_sage {
             double interQubitDistance;   ///< Distance between qubits
             double interactionRadius;    ///< Radius of interaction
             double blockingFactor;       ///< Blocking factor for site operations
-        } properties;
+        } properties; ///< Atom site properties.
 
         /**
          * @brief Shuttling times for various operations, indexed by operation name.

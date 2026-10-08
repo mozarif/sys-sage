@@ -33,7 +33,7 @@ namespace sys_sage {
         std::vector<T> *array;
         unsigned int size, xdim, ydim;
     public:
-        Vec2DArray(unsigned xdim, unsigned ydim);
+        Vec2DArray(unsigned int _xdim, unsigned int _ydim);
         std::vector<T> *operator [](unsigned int xindex);
     };
 

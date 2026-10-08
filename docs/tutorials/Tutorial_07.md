@@ -228,7 +228,7 @@ A pointer to the `node` object, which represents the root of our topology, is al
 Lastly, the boolean parameter is set to `true`, since we want to take multiple snapshots of the performance counters without overwriting the previous ones.
 
 We also point out that we wanted to stop the profiling without storing any new metrics, since the counters after the loop are irrelevant to us.
-Therefore, we use plain `PAPI_stop`, with `nullptr` as one of the arguments, instead of \ref sys_sage::SS_PAPI_stop.
+Therefore, we use plain `PAPI_stop`, with `nullptr` as one of the arguments, instead of sys_sage::SS_PAPI_stop.
 
 Information about the performance counter values and the associated hardware threads can be obtained through the Relation object or through the Component Tree.
 Through the integration of PAPI into _sys-sage_, the obtained metrics can be analyzed within a coherent model of the hardware architecture.

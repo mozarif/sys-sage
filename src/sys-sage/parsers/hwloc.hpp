@@ -18,8 +18,6 @@
 #include <sys-sage/Storage.hpp>
 #include <sys-sage/Node.hpp>
 
-/*! \file */
-
 namespace sys_sage {
     /**
     Parser function for importing hwloc XML output to sys-sage.

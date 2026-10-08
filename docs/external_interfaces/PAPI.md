@@ -3,7 +3,7 @@
 ## General Information
 
 The _sys-sage_ library incorporates the <b>P</b>erformance <b>A</b>pplication
-<b>P</b>rogramming <b>I</b>nterface [[1]](#1) (**PAPI**) to enable the integration of
+<b>P</b>rogramming <b>I</b>nterface (@ref PAPI) to enable the integration of
 hardware performance counters on CPUs into the _sys-sage_ topology. That way,
 the performance metrics gained through PAPI can be attributed directly to the
 relevant hardware components, thus allowing for the examination and
@@ -43,11 +43,11 @@ relation management. The wrapper functions are
 <center>
     | sys-sage wrapper | corresponding PAPI routine |
     | ---------------- | -------------------------- |
-    | \ref sys_sage::SS_PAPI_start | [PAPI_start](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gae6e5bcd23205175a109d4253452d4c23) |
-    | \ref sys_sage::SS_PAPI_reset | [PAPI_reset](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gad9898d7dff52a01eaa3568ded30db02c) |
-    | \ref sys_sage::SS_PAPI_read | [PAPI_read](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gaae91839ad186b820960687728e0ecf09) |
-    | \ref sys_sage::SS_PAPI_accum | [PAPI_accum](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#ga11ebee62055cc1a0109131b6355d3be1) |
-    | \ref sys_sage::SS_PAPI_stop | [PAPI_stop](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gaf0697913043edf09dd6d34f5cd871b6b) |
+    | sys_sage::SS_PAPI_start | [PAPI_start](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gae6e5bcd23205175a109d4253452d4c23) |
+    | sys_sage::SS_PAPI_reset | [PAPI_reset](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gad9898d7dff52a01eaa3568ded30db02c) |
+    | sys_sage::SS_PAPI_read | [PAPI_read](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gaae91839ad186b820960687728e0ecf09) |
+    | sys_sage::SS_PAPI_accum | [PAPI_accum](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#ga11ebee62055cc1a0109131b6355d3be1) |
+    | sys_sage::SS_PAPI_stop | [PAPI_stop](https://icl.utk.edu/projectsdev/papi/docs/dd/dbc/group__low__api.html#gaf0697913043edf09dd6d34f5cd871b6b) |
 </center>
 
 In general, the _sys-sage_ wrappers can coexist with plain PAPI and can
@@ -62,19 +62,19 @@ _sys-sage_ topology, the following functions are provided
 <center>
     | Routines to access & display PAPI metrics |
     | ------------------------------------------- |
-    | \ref sys_sage::Relation::GetPAPImetric |
-    | \ref sys_sage::Relation::GetAllPAPImetrics |
-    | \ref sys_sage::Relation::PrintPAPImetrics |
-    | \ref sys_sage::Relation::FindPAPIevents |
-    | \ref sys_sage::Relation::GetCurrentEventSet |
-    | \ref sys_sage::Relation::GetElapsedTime |
-    | \ref sys_sage::Thread::GetPAPImetric |
-    | \ref sys_sage::Thread::PrintPAPImetrics |
-    | \ref sys_sage::Thread::GetPAPIrelation |
-    | \ref sys_sage::Thread::FindPAPIrelations |
-    | \ref sys_sage::Thread::FindPAPIeventSets |
-    | \ref sys_sage::Component::PrintPAPImetricsInSubtree |
-    | \ref sys_sage::Component::FindPAPIrelationsInSubtree |
+    | sys_sage::Relation::GetPAPImetric |
+    | sys_sage::Relation::GetAllPAPImetrics |
+    | sys_sage::Relation::PrintPAPImetrics |
+    | sys_sage::Relation::FindPAPIevents |
+    | sys_sage::Relation::GetCurrentEventSet |
+    | sys_sage::Relation::GetElapsedTime |
+    | sys_sage::Thread::GetPAPImetric |
+    | sys_sage::Thread::PrintPAPImetrics |
+    | sys_sage::Thread::GetPAPIrelation |
+    | sys_sage::Thread::FindPAPIrelations |
+    | sys_sage::Thread::FindPAPIeventSets |
+    | sys_sage::Component::PrintPAPImetricsInSubtree |
+    | sys_sage::Component::FindPAPIrelationsInSubtree |
 </center>
 
 ## A brief example
@@ -242,7 +242,7 @@ then the result \f$z := x + y\f$ is stored in an entry corresponding to CPU \f$a
 
 ## References
 
-<a id="1">[1]</a>
+@anchor PAPI [1]
 Jagode H, Danalis A, Congiu G, Barry D, Castaldo A, Dongarra J.
 **Advancements of PAPI for the exascale generation.**
 _The International Journal of High Performance Computing Applications._

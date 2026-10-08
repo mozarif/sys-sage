@@ -15,7 +15,6 @@ namespace sys_sage {
         Thread constructor (no automatic insertion in the Component Tree). Sets:
         @param _id = id, default 0
         @param _name = name, default "Thread"
-        @param componentType=>SYS_SAGE_COMPONENT_THREAD
 
         Sets componentType to sys_sage::ComponentType::Thread.
 
@@ -88,7 +87,7 @@ namespace sys_sage {
         /**
          * @brief Get the perf counter value of a specific event in an event set.
          *
-         * @param event The event of interest.
+         * @param eventCode The event of interest.
          * @param eventSet The event set to which the event belongs to.
          * @param timestamp An optional parameter used to select a perf counter
          *                  value from a specific perf counter reading. A value
@@ -142,7 +141,7 @@ namespace sys_sage {
          * @brief Retrieve all relations that are associated to this component
          *        and contain PAPI metrics.
          *
-         * @param A vector used for storing the relations.
+         * @param papiRelations A vector used for storing the relations.
          */
         void FindPAPIrelations(std::vector<Relation *> &papiRelations) const;
 
@@ -159,7 +158,7 @@ namespace sys_sage {
         /**
          * @brief Retrieve all eventSets that are associated to this component.
          *
-         * @param A vector used for storing the relations.
+         * @param eventSets A vector used for storing the relations.
          */
         void FindPAPIeventSets(std::vector<int> &eventSets) const;
 

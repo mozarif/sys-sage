@@ -26,7 +26,7 @@ sys_sage::Component *node = new sys_sage::Node(0, "Node0");
 The arguments passed to the constructor denote the ID and the name of the node.
 These are completely optional, but we advise to assign a unique ID if possible, in order to distinguish Components of the same type within the same domain (e.g. caches within a CPU and GPU typically have unique IDs, but an ID may be shared across CPUs and GPUs).
 Unique IDs may be important when querying information from the topology.
-Furthermore, we store the pointer of the node in a pointer of type \ref sys_sage::Component.
+Furthermore, we store the pointer of the node in a pointer of type sys_sage::Component.
 This class forms a base class of all Components and is idiomatically used to represent all Components within the Component Tree.
 
 At the top-most level, the node contains one CPU socket, one GPU and one QPU:
@@ -93,10 +93,10 @@ sys_sage::Component *qubit2 = new sys_sage::Qubit(atomSite3, 2);
 ```
 
 In this example we have made use of the constructors to interlink the Components.
-You may also use the more flexible methods \ref sys_sage::Component::InsertChild, \ref sys_sage::Component::InsertBetweenParentAndChild or \ref sys_sage::Component::InsertBetweenParentAndChildren.
+You may also use the more flexible methods sys_sage::Component::InsertChild, sys_sage::Component::InsertBetweenParentAndChild or sys_sage::Component::InsertBetweenParentAndChildren.
 
-More information about existing classes and supported hardware components can be found [here](class_component.html).
-You are also free to go beyond the supported ComponentTypes by using the \ref sys_sage::Component base class and attaching user-specific attributes to it.
+More information about existing classes and supported hardware components can be found in the sys_sage::Component documentation.
+You are also free to go beyond the supported ComponentTypes by using the sys_sage::Component base class and attaching user-specific attributes to it.
 
 ## Relations Graph
 
@@ -124,14 +124,14 @@ qgate->AddComponent(qubit1);
 qgate->AddComponent(qubit2);
 ```
 
-Since the relation between the core and the NUMA nodes contains information about data transfer, we have modeled this connection using the \ref sys_sage::DataPath class.
+Since the relation between the core and the NUMA nodes contains information about data transfer, we have modeled this connection using the sys_sage::DataPath class.
 Due to the data flowing in both directions (e.g. load and store), we have decided to make the relations bidirectional.
 Note that we didn't make a distinction between bandwidth/latency in the read and write direction for simplicity.
 The distinction can be made by attaching attributes to the relation.
 More on that in a later tutorial.
-To model the quantum gate, _sys-sage_ already provides a dedicated \ref sys_sage::QuantumGate class.
-Have a look [here](class_relation.html) to get an overview of already supported relation types.
-As mentioned before, you can make use of the \ref sys_sage::Relation base class to extent the functionality for user-specific scenarios.
+To model the quantum gate, _sys-sage_ already provides a dedicated sys_sage::QuantumGate class.
+Have a look at the sys_sage::Relation class documentation to get an overview of already supported relation types.
+As mentioned before, you can make use of the sys_sage::Relation base class to extent the functionality for user-specific scenarios.
 
 ## Managing the Topology
 
@@ -151,18 +151,18 @@ For now, we need to focus on the lifetimes of the created Component and Relation
 ### Ownership & Correct Clean-Up
 
 Components do not take ownership of other Components and Relations.
-Therefore, the destructor of the \ref sys_sage::Component class will only **unlink the Component from its parent, its children and all of its associated relations**, while additionally cleaning up any claimed resources.
+Therefore, the destructor of the sys_sage::Component class will only **unlink the Component from its parent, its children and all of its associated relations**, while additionally cleaning up any claimed resources.
 This also means that the construction order of Components does not matter at all (e.g. a Component child can be instantiated before its parent).
-If the Component should be cleaned up along with all of its associated Relations, the \ref Component::Delete function should be used.
+If the Component should be cleaned up along with all of its associated Relations, the sys_sage::Component::Delete function should be used.
 This function assumes that the Component itself and all the Relations are **heap-allocated**!
-Moreover, if it is desired to delete the entire subtree spanned by a Component, then the \ref Component::DeleteSubtree function should be used.
+Moreover, if it is desired to delete the entire subtree spanned by a Component, then the sys_sage::Component::DeleteSubtree function should be used.
 This will also delete all the Relations of the subcomponents.
 Similarly, this function assumes that all objects are **allocated on the heap**!
 
 Apart from this, Relations do not take ownership of Components.
-Hence, the destructor of the \ref sys_sage::Relation class simply **unlinks itself from the Components** in addition to cleaning up claimed resources.
+Hence, the destructor of the sys_sage::Relation class simply **unlinks itself from the Components** in addition to cleaning up claimed resources.
 It has no influence on other Relations.
-For consistency purposes, we also provide a \ref Relation::Delete function, which is a simple wrapper around a call to `operator delete` on the given relation.
+For consistency purposes, we also provide a sys_sage::Relation::Delete function, which is a simple wrapper around a call to `operator delete` on the given relation.
 Naturally, this assumes **heap allocation**.
 
 ### Stack-allocated vs. heap-allocated
@@ -171,10 +171,10 @@ You can to freely create Components and Relations on the stack or on the heap.
 However, mixing stack-allocated and heap-allocated objects need to be done with care.
 An overview of functions that assume heap-allocation is given below:
 
-- \ref Component::Delete
-- \ref Component::DeleteSubtree
-- \ref Component::DeleteRelations
-- \ref Relation::Delete
+- sys_sage::Component::Delete
+- sys_sage::Component::DeleteSubtree
+- sys_sage::Component::DeleteRelations
+- sys_sage::Relation::Delete
 
 If for instance a child Component is a local stack variable while the parent is heap-allocated, then `Component::DeleteSubtree` should only be called when the child exits the scope in which it was instantiated.
 The following examples highlight different scenarios of constructing and destroying Components.

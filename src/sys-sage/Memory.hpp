@@ -33,7 +33,7 @@ namespace sys_sage {
 
         @pythonBinding
         */
-        Memory(Component * parent, int id = 0, const std::string &_name = "Memory", long long _size = -1, bool is_volatile = false);
+        Memory(Component * parent, int _id = 0, const std::string &_name = "Memory", long long _size = -1, bool is_volatile = false);
 
         /**
          * Retrieves size/capacity of the memory element
