@@ -598,6 +598,15 @@ sys_sage::Component::~Component()
         parent->RemoveChild(this);
     for (auto child : children)
         child->SetParent(nullptr);
+
+    // we don't delete the relations, but we need to delete the data structures nevertheless
+    if (relations) {
+        for (auto relVector : *relations) {
+            if (relVector != nullptr)
+                delete relVector; // delete vector of the specific relation type
+        }
+        delete relations; // delete relations array
+    }
 }
 
 void sys_sage::Component::Delete(Component *comp)
