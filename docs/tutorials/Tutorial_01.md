@@ -74,9 +74,9 @@ sys_sage::Component *cpuCore3 = new sys_sage::Cache(cpuCache3, 3);
 sys_sage::Component *gpuSM0 = new sys_sage::Subdivision(vram, 0);
 sys_sage::Component *gpuSM1 = new sys_sage::Subdivision(vram, 1);
 sys_sage::Component *gpuSM2 = new sys_sage::Subdivision(vram, 2);
-gpuSM0->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
-gpuSM1->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
-gpuSM2->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
+static_cast<sys_sage::Subdivision *>(gpuSM0)->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
+static_cast<sys_sage::Subdivision *>(gpuSM1)->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
+static_cast<sys_sage::Subdivision *>(gpuSM2)->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
 
 sys_sage::Component *gpuCache0 = new sys_sage::Cache(gpuSM0, 0);
 sys_sage::Component *gpuCache1 = new sys_sage::Cache(gpuSM1, 1);
@@ -259,6 +259,11 @@ int main()
 }
 ```
 
+### Copy and Move Semantics
+
+Both components and relations are explicitly prohibited from copying.
+However, they both support move semantics.
+
 ### Smart pointers
 
 Since _sys-sage_ does not enforce ownership, using smart pointers may not yield the expected outcome.
@@ -348,9 +353,9 @@ int main()
     sys_sage::Component *gpuSM0 = new sys_sage::Subdivision(vram, 0);
     sys_sage::Component *gpuSM1 = new sys_sage::Subdivision(vram, 1);
     sys_sage::Component *gpuSM2 = new sys_sage::Subdivision(vram, 2);
-    gpuSM0->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
-    gpuSM1->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
-    gpuSM2->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
+    static_cast<sys_sage::Subdivision *>(gpuSM0)->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
+    static_cast<sys_sage::Subdivision *>(gpuSM1)->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
+    static_cast<sys_sage::Subdivision *>(gpuSM2)->SetSubdivisionCategory(sys_sage::SubdivisionCategory::GpuSM);
 
     sys_sage::Component *gpuCache0 = new sys_sage::Cache(gpuSM0, 0);
     sys_sage::Component *gpuCache1 = new sys_sage::Cache(gpuSM1, 1);

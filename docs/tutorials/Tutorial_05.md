@@ -54,18 +54,18 @@ int sys_sage_GetPowerZonePartitioning(sys_sage::Component *cpu, std::vector<sys_
 {
     powerZones.clear(); // make sure the vector is empty
 
-    int **2dArray = nullptr;
-    int rval = GetPowerZonePartitioning(&2dArray);
+    int **twoDArray = nullptr;
+    int rval = GetPowerZonePartitioning(&twoDArray);
     if (rval != 0)
         return rval; // simply propagate the error code
 
-    for (int i = 0; 2dArray[i] != nullptr; i++) { // iterate over power zones
+    for (int i = 0; twoDArray[i] != nullptr; i++) { // iterate over power zones
         int powerZoneId = i;
         std::vector<sys_sage::Component *> cores;
 
-        for (int j = 0; 2dArray[i][j] != -1; j++) { // iterate over cores
-            int coreId = 2dArray[i][j];
-            sys_sage::Component *core = node->GetDescendantById(coreId, sys_sage::ComponentType::Core); // find the core with the given ID in the topology
+        for (int j = 0; twoDArray[i][j] != -1; j++) { // iterate over cores
+            int coreId = twoDArray[i][j];
+            sys_sage::Component *core = cpu->GetDescendantById(coreId, sys_sage::ComponentType::Core); // find the core with the given ID in the topology
             if (core == nullptr) {
                 std::cerr << "error: could not find CPU core with ID " << coreId << '\n';
                 return -1; // return error code that is different from the error codes used by the 3rd party library to express sys-sage integration error
@@ -83,7 +83,7 @@ int sys_sage_GetPowerZonePartitioning(sys_sage::Component *cpu, std::vector<sys_
         powerZone.SetAttribute("powerZoneId", powerZoneId); // store the power zone ID as an attribute
     }
 
-    free2dArray(2dArray);
+    freeTwoDArray(twoDArray);
     return 0; // return the same success value that is used by the 3rd party library
 }
 ```

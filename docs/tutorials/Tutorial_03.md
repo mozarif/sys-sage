@@ -87,21 +87,21 @@ std::tuple<int, int, double> extractInfo(const std::string &line)
     std::string::size_type start = 0;
     std::string::size_type pos = line.find(',', start);
     if (pos == std::string::npos)
-        return 1;
+        return {-1, -1, -1};
 
     int coreA_id = std::stoi(line.substr(start, pos - start));
 
     start = pos + 1;
     pos = line.find(',', start);
     if (pos == std::string::npos)
-        return 1;
+        return {-1, -1, -1};
 
     int coreB_id = std::stoi(line.substr(start, pos - start));
 
     start = pos + 1;
     pos = line.find(',', start);
     if (pos != std::string::npos)
-        return 1;
+        return {-1, -1, -1};
 
     double latency = std::stod(line.substr(start));
 
@@ -117,6 +117,8 @@ int parseCacheLinePingPongBenchmark(sys_sage::Component *root, const std::string
     std::string line;
     while (std::getline(file, line)) {
         auto [coreA_id, coreB_id, latency] = extractInfo(line);
+        if (coreA_id == -1 || coreB_id == -1 || latency == -1)
+            return 1;
 
         sys_sage::Component *coreA = root->GetDescendantById(coreA_id, sys_sage::ComponentType::Core);
         sys_sage::Component *coreB = root->GetDescendantById(coreB_id, sys_sage::ComponentType::Core);
@@ -153,21 +155,21 @@ std::tuple<int, int, double> extractInfo(const std::string &line)
     std::string::size_type start = 0;
     std::string::size_type pos = line.find(',', start);
     if (pos == std::string::npos)
-        return 1;
+        return {-1, -1, -1};
 
     int coreA_id = std::stoi(line.substr(start, pos - start));
 
     start = pos + 1;
     pos = line.find(',', start);
     if (pos == std::string::npos)
-        return 1;
+        return {-1, -1, -1};
 
     int coreB_id = std::stoi(line.substr(start, pos - start));
 
     start = pos + 1;
     pos = line.find(',', start);
     if (pos != std::string::npos)
-        return 1;
+        return {-1, -1, -1};
 
     double latency = std::stod(line.substr(start));
 
@@ -183,6 +185,8 @@ int parseCacheLinePingPongBenchmark(sys_sage::Component *root, const std::string
     std::string line;
     while (std::getline(file, line)) {
         auto [coreA_id, coreB_id, latency] = extractInfo(line);
+        if (coreA_id == -1 || coreB_id == -1 || latency == -1)
+            return 1;
 
         sys_sage::Component *coreA = root->GetDescendantById(coreA_id, sys_sage::ComponentType::Core);
         sys_sage::Component *coreB = root->GetDescendantById(coreB_id, sys_sage::ComponentType::Core);

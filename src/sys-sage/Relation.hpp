@@ -85,6 +85,16 @@ namespace sys_sage {
         Relation &operator=(const Relation &) = delete;
 
         /**
+         * @brief Allow default move constructor.
+         */
+        Relation(Relation &&) = default;
+
+        /**
+         * @brief Allow default move assignment operator.
+         */
+        Relation &operator=(Relation &&) = default;
+
+        /**
          * @brief Destructor for relations.
          *        Unlinks this relation from its components and frees resources.
          */

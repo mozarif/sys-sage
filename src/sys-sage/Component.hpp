@@ -78,6 +78,16 @@ namespace sys_sage {
         Component &operator=(const Component &) = delete;
 
         /**
+         * @brief Allow default move constructor.
+         */
+        Component(Component &&) = default;
+
+        /**
+         * @brief Allow default move assignment operator.
+         */
+        Component &operator=(Component &&) = default;
+
+        /**
          * @brief Destructor for components.
          *        Unlinks this component from its parent and children and additionally frees resources.
          *        The destructor does not delete the entire subtree.

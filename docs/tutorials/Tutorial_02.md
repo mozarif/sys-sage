@@ -84,7 +84,7 @@ std::vector<long long> partitionSizes (caches.size());
 for (int i = 0; i < caches.size(); i++) {
     sys_sage::Cache *l2Cache = static_cast<sys_sage::Cache *>(caches[i]);
     
-    int numHWThreads = l2cache->CountDescendantsByType(sys_sage::ComponentType::Thread);
+    int numHWThreads = l2Cache->CountDescendantsByType(sys_sage::ComponentType::Thread);
     partitionSizes[i] = l2Cache->GetCacheSize() / numHWThreads;
 }
 ```

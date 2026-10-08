@@ -36,8 +36,8 @@ comp.SetAttribute("bar", "hello world");
 if (int *i = comp.GetAttribute<int>("foo"))
     std::cout << *i << '\n';
 
-// retrieve the string
-const char *str = comp.GetAttribute<const char *>("bar");
+// retrieve a pointer to the string
+const char **str = comp.GetAttribute<const char *>("bar");
 ```
 
 Attributes of arbitrary type can be inserted by using the `SetAttribute` method
@@ -81,7 +81,7 @@ over the attributes:
 
 ```cpp
 for (auto it = comp.AttributesBegin(); it != comp.AttributesEnd(); it++) {
-    std::string &key = it->first;
+    const std::string &key = it->first;
     if (int *value = comp.GetAttribute<int>(it))
         std::cout << key << " -> " << *value << '\n'; // print all integers
 }
