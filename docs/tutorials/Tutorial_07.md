@@ -143,8 +143,8 @@ int main(int argc, const char **argv)
     }
 
     ////////////////////////////////////////////////////
-    sys_sage::Node node;
-    if (sys_sage::parseHwlocOutput(&node, argv[1]) != 0)
+    sys_sage::Node *node = new sys_sage::Node;
+    if (sys_sage::parseHwlocOutput(node, argv[1]) != 0)
         return EXIT_FAILURE;
     ////////////////////////////////////////////////////
 
@@ -183,7 +183,7 @@ int main(int argc, const char **argv)
         saxpy(a.get(), b.get(), c.get(), n, alpha);
 
         ////////////////////////////////////////////////////
-        rval = sys_sage::SS_PAPI_read(metrics, &node, true);
+        rval = sys_sage::SS_PAPI_read(metrics, node, true);
         if (rval != PAPI_OK)
             FATAL(PAPI_strerror(rval));
         ////////////////////////////////////////////////////
@@ -207,6 +207,8 @@ int main(int argc, const char **argv)
     ////////////////////////////
 
     PAPI_shutdown();
+
+    sys_sage::Component::DeleteSubtree(node);
 
     return EXIT_SUCCESS;
 }
