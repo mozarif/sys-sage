@@ -4,20 +4,30 @@
 #define SRC_EXTERNAL_INTERFACES_SS_PAPI_HPP
 
 #include <papi.h>
+#include <nlohmann/json.hpp>
 #include <unordered_map>
 #include <vector>
 #include <ostream>
 
-/*! \file */
-
 namespace sys_sage {
 
     /**
-     * @brief An object representing a single perf counter value.
+     * @brief An object representing a single performance counter value.
      */
     struct Metric {
+        /**
+         * @brief The timestamp at which the metric was measured.
+         */
         unsigned long long timestamp;
+
+        /**
+         * @brief The value of the performance counter.
+         */
         long long value;
+
+        /**
+         * @brief Indicates whether this object can be overwritten with new measurements.
+         */
         bool permanent;
     };
 
@@ -25,7 +35,14 @@ namespace sys_sage {
      * @brief An object collecting multiple performance metrics on a single CPU.
      */
     struct CpuMetrics {
+        /**
+         * @brief A vector of all measurements.
+         */
         std::vector<Metric> entries;
+
+        /**
+         * @brief The ID of the associated hardware thread.
+         */
         int cpuNum;
     };
 
@@ -56,6 +73,8 @@ namespace sys_sage {
      * @return If `metrics == nullptr` or `metrics` is not of category
      *         `RelationCategory::PAPI_Metrics`, then `PAPI_EINVAL` is returned,
      *          otherwise the same as in `PAPI_reset`.
+     *
+     * @pythonBinding
      */
     int SS_PAPI_reset(Relation *metrics);
 
@@ -110,7 +129,50 @@ namespace sys_sage {
     int SS_PAPI_stop(Relation *metrics, Component *root, bool permanent = false,
                      unsigned long long *timestamp = nullptr);
 
+    /**
+     * @private
+     *
+     * @brief JSON serialization callback for objects of type Metric.
+     *
+     * @param obj The JSON object representing the Metric object.
+     * @param metric The Metric object to be serialized.
+     */
+    void to_json(nlohmann::json &obj, const Metric &metric);
+
+    /**
+     * @private
+     *
+     * @brief JSON serialization callback for objects of type CpuMetrics.
+     *
+     * @param obj The JSON object representing the CpuMetrics object.
+     * @param metric The CpuMetrics object to be serialized.
+     */
+    void to_json(nlohmann::json &obj, const CpuMetrics &cpuMetrics);
+
+    /**
+     * @private
+     *
+     * @brief JSON deserialization callback for objects of type Metric.
+     *
+     * @param obj The JSON object holding the data of the Metric object.
+     * @param metric The Metric object to be initialized.
+     */
+    void from_json(const nlohmann::json &obj, Metric &metric);
+
+    /**
+     * @private
+     *
+     * @brief JSON deserialization callback for objects of type CpuMetrics.
+     *
+     * @param obj The JSON object holding the data of the CpuMetrics object.
+     * @param metric The CpuMetrics object to be initialized.
+     */
+    void from_json(const nlohmann::json &obj, CpuMetrics &cpuMetrics);
 }
+
+// register sys-sage internal types
+SYS_SAGE_REGISTER_TYPE_TRAIT(sys_sage::Metric)
+SYS_SAGE_REGISTER_TYPE_TRAIT(sys_sage::CpuMetrics)
 
 /**
  * @brief Enables easy printing for objects of type `Metric`.
