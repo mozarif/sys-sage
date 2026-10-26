@@ -40,6 +40,7 @@ Cache-aware algorithms need to query this dynamic property from the topology to 
 ## Documentation Versioning
 
 - [latest](https://stepanvanecek.github.io/sys-sage/latest/html/index.html)
+- [1.1.0](https://stepanvanecek.github.io/sys-sage/1.1.0/html/index.html)
 - [1.0.0](https://stepanvanecek.github.io/sys-sage/1.0.0/html/index.html)
 - [0.5.2](https://stepanvanecek.github.io/sys-sage/0.5.2/html/index.html)
 

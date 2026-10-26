@@ -5,7 +5,7 @@
 The typical workflow is described in the figure below.
 
 <center>
-    ![workflow under sys-sage](images/workflow.drawio.png){html: width=60%, markdown: width=80%}
+    ![workflow under sys-sage](images/workflow.drawio.png){html: width=80%, markdown: width=80%}
 </center>
 
 We use the term "user" to refer to any resource manager, daemon, user-side application, or any other entities that store or retrieve data from the library.
