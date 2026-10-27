@@ -10,6 +10,7 @@
 //SVTODO check the import and export functionalities and adapt them to Relations
 namespace sys_sage {
     /**
+     * @private
      * @brief Imports the sys-sage internal representation from an XML file.
      *
      * Parses the XML file at the given path and reconstructs both the Component tree and the Relations graph,
@@ -20,6 +21,7 @@ namespace sys_sage {
      * @param search_custom_complex_attrib_key_fcn Optional user-provided function for custom attribute deserialization (complex attributes, e.g., XML nodes).
      * @return Pointer to the root Component of the imported tree.
      */
+    [[ deprecated("Deserialization from XML is deprecated. Please use JSON as the new medium (see sys_sage::LoadJson). This function will be removed in the future (used up until version 1.1.0).") ]]
     Component* importFromXml(const std::string &path, std::function<void*(xmlNodePtr)> search_custom_attrib_key_fcn = nullptr, std::function<int(xmlNodePtr, Component*)> search_custom_complex_attrib_key_fcn = nullptr);
 
     /**

@@ -348,7 +348,7 @@ sys_sage::DataPath* sys_sage::Component::GetDataPathByCategory(DataPathCategory:
     return NULL;
 }
 
-std::vector<sys_sage::Relation*>& sys_sage::Component::_GetRelationsByType(RelationType::type relationType) const
+std::vector<sys_sage::Relation*>& sys_sage::Component::_GetRelationsByType(RelationType::type relationType)
 {
     if (relations &&
         relationType >= 0 && 
@@ -585,8 +585,7 @@ void sys_sage::Component::DeleteRelations(RelationType::type relationType)
                     Relation::Delete(rel->back()); // it might be faster to remove from behind
                 }
 
-                delete rel;
-                (*relations)[rt] = nullptr; // mark as deleted
+                // Don't delete the vector here. This should be handled inside of the destructor
             }
         }
     }
@@ -598,14 +597,27 @@ sys_sage::Component::~Component()
         parent->RemoveChild(this);
     for (auto child : children)
         child->SetParent(nullptr);
+
+    // we don't delete the relations, but we need to unlink the component from all relations and delete the data structures (i.e. array and vectors)
+    if (relations) {
+        for (std::vector<Relation *> *relVector : *relations) {
+            if (relVector == nullptr)
+                continue;
+
+            for (Relation *rel : *relVector)
+                rel->_RemoveComponent(this);
+
+            delete relVector;
+        }
+
+        delete relations;
+    }
 }
 
 void sys_sage::Component::Delete(Component *comp)
 {
-    if (comp->relations) {
+    if (comp->relations)
         comp->DeleteRelations();
-        delete comp->relations;
-    }
 
     delete comp;
 }
@@ -642,16 +654,16 @@ sys_sage::Component::Component(int _id, const std::string &_name, ComponentType:
     count = -1;
     SetParent(NULL);
 }
-sys_sage::Component::Component(Component * parent, int _id, const std::string &_name, ComponentType::type _componentType) : id(_id), name(_name), componentType(_componentType)
+sys_sage::Component::Component(Component *_parent, int _id, const std::string &_name, ComponentType::type _componentType) : id(_id), name(_name), componentType(_componentType)
 {
     count = -1;
-    SetParent(parent);
-    if (parent) {
-        parent->InsertChild(this);
+    SetParent(_parent);
+    if (_parent) {
+        _parent->InsertChild(this);
     }
 }
 sys_sage::Component::Component(int _id, const std::string &_name): Component(_id, _name, sys_sage::ComponentType::Generic) {}
-sys_sage::Component::Component(Component * parent, int _id, const std::string &_name): Component(parent, _id, _name, sys_sage::ComponentType::Generic) {}
+sys_sage::Component::Component(Component *_parent, int _id, const std::string &_name): Component(_parent, _id, _name, sys_sage::ComponentType::Generic) {}
 
 void sys_sage::Component::_EmplaceAttribute(const std::string &key, std::unique_ptr<IAttribute> &attribute)
 {
