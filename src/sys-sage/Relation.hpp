@@ -194,17 +194,12 @@ namespace sys_sage {
         /**
          * @brief Prints debug information about this relation.
          *
+         * This function excludes attributes.
+         * To print the relation with it's attributes, dump it to JSON and print the JSON object.
+         *
          * @pythonBinding
          */
         virtual void Print() const;
-
-        /**
-         * @private
-         *
-         * @brief Print all key-value pairs in the attribute map (for internal use).
-         *        Meant for debugging or verbose output.
-         */
-        void _PrintRelationAttrib() const;
 
         /**
          * @private

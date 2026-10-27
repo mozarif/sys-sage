@@ -190,6 +190,9 @@ namespace sys_sage {
          *        The tree is printed in DFS order, so that the hierarchy can be easily seen.
          *        For each component in the subtree, the following is printed: "<string component type> (name <name>) id <id> - children: <num children>"
          *
+         *        This function is intended for pretty printing to give a rough overview of the topology.
+         *        To get more detailed information about each component and relation (such as attributes), dump the component tree to JSON and print it.
+         *
          * @pythonBinding
          */
         void PrintSubtree() const;
